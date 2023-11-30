@@ -1,0 +1,29 @@
+name: Test
+on: [ push, pull_request ]
+env:
+  JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+  MAVEN_OPTS: >-
+    -Dhttps.protocols=TLSv1.2 
+    -Dorg.slf4j.simpleLogger.showDateTime=true 
+    -Djava.awt.headless=true
+    -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN
+jobs:
+  test:
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ '8', '11', '17', '21' ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build
+        run: mvn -B -ntp --errors --fail-at-end --show-version -DskipTests install
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version:  ${{ matrix.java }}
+      - name: Test
+        run: mvn -B -ntp --errors -pl :phosphor-integration-tests verify
+        shell: bash
