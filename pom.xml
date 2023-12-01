@@ -40,12 +40,11 @@
     </scm>
     <modules>
         <module>phosphor-agent</module>
+        <module>phosphor-instrument</module>
         <module>phosphor-integration-tests</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -136,6 +135,16 @@
                     <version>3.2.1</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.4.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>3.3.0</version>
+                </plugin>
+                <plugin>
                     <groupId>com.diffplug.spotless</groupId>
                     <artifactId>spotless-maven-plugin</artifactId>
                     <version>2.30.0</version>
@@ -146,18 +155,21 @@
                     <version>3.1.0</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.4.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.3.0</version>
+                    <groupId>org.moditect</groupId>
+                    <artifactId>moditect-maven-plugin</artifactId>
+                    <version>1.0.0.RC2</version>
                 </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -260,9 +272,30 @@
             <activation>
                 <jdk>[9,)</jdk>
             </activation>
-            <properties>
-                <maven.compiler.release>${maven.compiler.target}</maven.compiler.release>
-            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <!-- Set only for default execution -->
+                                <id>default-compile</id>
+                                <configuration>
+                                    <release>8</release>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <!-- Set only for default execution -->
+                                <id>default</id>
+                                <configuration>
+                                    <release>8</release>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <!-- Palantir requires Java 11+ -->

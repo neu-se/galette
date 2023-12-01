@@ -12,6 +12,7 @@
     <description>Integration Tests for PhosphorLite</description>
     <packaging>pom</packaging>
     <properties>
+        <!--suppress UnresolvedMavenProperty -->
         <phosphor.agent.jar>${edu.neu.ccs.prl.phosphor:phosphor-agent:jar}</phosphor.agent.jar>
     </properties>
     <dependencies>
