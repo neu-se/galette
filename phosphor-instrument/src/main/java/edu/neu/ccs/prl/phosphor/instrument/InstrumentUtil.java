@@ -2,9 +2,11 @@ package edu.neu.ccs.prl.phosphor.instrument;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import org.jacoco.core.internal.InputStreams;
 
 public final class InstrumentUtil {
     /**
@@ -60,5 +62,11 @@ public final class InstrumentUtil {
         file.deleteOnExit();
         Files.createDirectories(file.getParentFile().toPath());
         return file;
+    }
+
+    public static byte[] readAllBytes(File file) throws IOException {
+        try (InputStream in = Files.newInputStream(file.toPath())) {
+            return InputStreams.readFully(in);
+        }
     }
 }
