@@ -11,7 +11,16 @@
     <artifactId>phosphor-integration-tests</artifactId>
     <description>Integration Tests for PhosphorLite</description>
     <packaging>pom</packaging>
+    <properties>
+        <phosphor.agent.jar>${edu.neu.ccs.prl.phosphor:phosphor-agent:jar}</phosphor.agent.jar>
+    </properties>
     <dependencies>
+        <dependency>
+            <groupId>edu.neu.ccs.prl.phosphor</groupId>
+            <artifactId>phosphor-agent</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -47,7 +56,7 @@
     </build>
     <profiles>
         <profile>
-            <id>data-flow</id>
+            <id>data</id>
             <activation>
                 <property>
                     <name>!skipTests</name>
@@ -60,11 +69,22 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>data-flow</id>
+                                <id>data</id>
                                 <goals>
                                     <goal>integration-test</goal>
                                     <goal>verify</goal>
                                 </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>**/all/**/*.java</include>
+                                        <include>**/data/**/*.java</include>
+                                    </includes>
+                                    <reuseForks>false</reuseForks>
+                                    <argLine>
+                                        -Xbootclasspath/a:${phosphor.agent.jar}
+                                        -javaagent:${phosphor.agent.jar}
+                                    </argLine>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

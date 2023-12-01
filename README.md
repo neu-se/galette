@@ -6,19 +6,19 @@ PhosphorLite is a system for performing dynamic taint tracking in the Java Virtu
 PhosphorLite uses Java bytecode instrumentation to associate labels, which we referred to as taint tags,
 with program data and propagate these labels along information "flows" at runtime.
 
-PhosphorLite currently requires Java 9+ to build, but it can also be used on Java 8.
+PhosphorLite requires Java 11+ to build, but it can also be used on Java 8.
 
 ## Building PhosphorLite
 
 ### Requirements
 
-* Java Development Kit (JDK) 9+
+* Java Development Kit (JDK) 11+
 * [Apache Maven](https://maven.apache.org/) 3.6.0+
 
 ### Steps
 
 1. Clone or download this repository.
-2. Ensure that some version of the JDK 9+ is installed.
+2. Ensure that some version of the JDK 11+ is installed.
    A JDK can be downloaded from [Oracle](https://www.oracle.com/java/technologies/downloads/) or
    the [Adoptium Working Group](https://adoptium.net/temurin/releases/).
 3. Set the JAVA_HOME environmental variable to the path of this JDK installation.
@@ -31,10 +31,9 @@ PhosphorLite currently requires Java 9+ to build, but it can also be used on Jav
 
 ## Running PhosphorLite's Tests
 
-Once you have built PhosphorLite according to the directions described above in the
-section ["Building PhosphorLite"](#Building-PhosphorLite), you can run the tests and examples.
-Although PhosphorLite currently requires Java 9+ to build, it can also be used on Java 8.
-If you would like to run PhosphorLite's tests on Java 8, build PhosphorLite using Java 9+, then change the
+Once you have built PhosphorLite according to the directions described above, you can run the tests and examples.
+Although PhosphorLite currently requires Java 11+ to build, it can also be used on Java 8.
+If you would like to run PhosphorLite's tests on Java 8, build PhosphorLite using Java 11+, then change the
 `JAVA_HOME` environmental variable to the path of a JDK 8 installation before running the tests.
 To run the root directory of this project, run `mvn -pl :phosphor-integration-tests verify`.
 The first time you run this command, Maven will invoke the PhosphorLite Maven plugin to create
