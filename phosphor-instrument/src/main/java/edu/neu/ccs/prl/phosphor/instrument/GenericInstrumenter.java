@@ -62,7 +62,7 @@ public class GenericInstrumenter extends Instrumenter {
             Path output = destination.resolve(source.relativize(input));
             if (Files.isDirectory(input)) {
                 Files.createDirectories(output);
-            } else if (Files.isRegularFile(source)) {
+            } else if (Files.isRegularFile(input)) {
                 processRegularFile(input.toFile(), output.toFile());
             }
             return null;
