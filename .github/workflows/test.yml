@@ -25,5 +25,5 @@ jobs:
           distribution: 'temurin'
           java-version:  ${{ matrix.java }}
       - name: Test
-        run: mvn -B -ntp --errors -pl :phosphor-integration-tests verify
+        run: mvn -B -ntp -errors -pl '!:phosphor-instrument' install
         shell: bash
