@@ -17,8 +17,8 @@ public class ShadowAccessorBuilder {
 
     public MethodNode build(ClassNode cn, Type shadowClass) {
         String descriptor = "()" + shadowClass.getDescriptor();
-        if ((cn.access & Opcodes.ACC_INTERFACE) != 0) {
-            return new MethodNode(ACCESS | Opcodes.ACC_ABSTRACT, NAME, descriptor, null, null);
+        if (AccessUtil.isSet(cn.access, Opcodes.ACC_INTERFACE)) {
+            return new MethodNode(AccessUtil.set(ACCESS, Opcodes.ACC_ABSTRACT), NAME, descriptor, null, null);
         }
         MethodNode accessor = new MethodNode(ACCESS, NAME, descriptor, null, null);
         // Object s = ShadowMap.get(this);

@@ -43,6 +43,7 @@
         <module>phosphor-instrument</module>
         <module>phosphor-maven-plugin</module>
         <module>phosphor-integration-tests</module>
+        <module>phosphor-runtime</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -302,8 +303,7 @@
                                 </configuration>
                             </execution>
                             <execution>
-                                <!-- Set only for default execution -->
-                                <id>default</id>
+                                <id>default-testCompile</id>
                                 <configuration>
                                     <release>8</release>
                                 </configuration>

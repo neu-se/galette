@@ -2,6 +2,7 @@ package edu.neu.ccs.prl.phosphor.instrument;
 
 import edu.neu.ccs.prl.phosphor.internal.agent.PhosphorAgent;
 import edu.neu.ccs.prl.phosphor.internal.agent.PhosphorTransformer;
+import edu.neu.ccs.prl.phosphor.internal.runtime.PhosphorFrame;
 import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -24,7 +25,7 @@ public class PhosphorInstrumentation implements Instrumentation {
     public void configure(Properties options) {
         transformer = new PhosphorTransformer();
         classPathElements = new HashSet<>();
-        classPathElements.add(InstrumentUtil.getClassPathElement(PhosphorAgent.class));
+        classPathElements.add(InstrumentUtil.getClassPathElement(PhosphorFrame.class));
     }
 
     @Override

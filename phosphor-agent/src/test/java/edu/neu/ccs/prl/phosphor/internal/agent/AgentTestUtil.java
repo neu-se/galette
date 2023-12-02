@@ -1,0 +1,89 @@
+package edu.neu.ccs.prl.phosphor.internal.agent;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+import java.util.function.Function;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
+
+public final class AgentTestUtil {
+    private AgentTestUtil() {
+        throw new AssertionError();
+    }
+
+    public static MethodNode getMethodNode(Class<?> clazz, String name, String desc) throws IOException {
+        ClassNode cn = new ClassNode();
+        new ClassReader(clazz.getName()).accept(cn, ClassReader.EXPAND_FRAMES);
+        return cn.methods.stream()
+                .filter(mn -> mn.name.equals(name) && mn.desc.equals(desc))
+                .findFirst()
+                .orElseThrow(AssertionError::new);
+    }
+
+    public static ClassNode getClassNode(Class<?> clazz) {
+        try {
+            ClassNode cn = new ClassNode();
+            new ClassReader(clazz.getName()).accept(cn, ClassReader.EXPAND_FRAMES);
+            return cn;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static ClassNode expandFramesAndComputeMaxStack(ClassNode cn) {
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        cn.accept(cw);
+        ClassReader cr = new ClassReader(cw.toByteArray());
+        ClassNode result = new ClassNode();
+        cr.accept(result, ClassReader.EXPAND_FRAMES);
+        return result;
+    }
+
+    public static ClassNode instrument(ClassNode cn, Function<ClassVisitor, ClassVisitor> f) {
+        ClassNode result = new ClassNode();
+        cn = expandFramesAndComputeMaxStack(cn);
+        cn.accept(f.apply(result));
+        return expandFramesAndComputeMaxStack(result);
+    }
+
+    public static Method findMethod(MethodNode target, Class<?> clazz) {
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (method.getName().equals(target.name)) {
+                method.setAccessible(true);
+                return method;
+            }
+        }
+        throw new NoSuchElementException();
+    }
+
+    public static ClassNode createClassNode(String owner, MethodNode first, MethodNode... rest) {
+        ClassNode cn = new ClassNode(PhosphorAgent.ASM_VERSION);
+        cn.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, owner, null, "java/lang/Object", null);
+        cn.methods.add(first);
+        cn.methods.addAll(Arrays.asList(rest));
+        return cn;
+    }
+
+    public static Class<?> load(ClassNode cn) {
+        return new NodeClassLoader().createClass(cn);
+    }
+
+    public static byte[] toBytes(ClassNode cn) {
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        cn.accept(cw);
+        return cw.toByteArray();
+    }
+
+    private static class NodeClassLoader extends ClassLoader {
+        public Class<?> createClass(ClassNode cn) {
+            byte[] bytes = toBytes(cn);
+            return defineClass(null, bytes, 0, bytes.length);
+        }
+    }
+}

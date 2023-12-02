@@ -15,6 +15,12 @@
             <groupId>edu.neu.ccs.prl.phosphor</groupId>
             <artifactId>phosphor-agent</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jacoco</groupId>

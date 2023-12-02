@@ -73,8 +73,10 @@ public abstract class Packer {
             Enumeration<? extends ZipEntry> entries = zip.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                try (InputStream in = zip.getInputStream(entry)) {
-                    pack(entry.getName(), in, packages);
+                if (!entry.isDirectory()) {
+                    try (InputStream in = zip.getInputStream(entry)) {
+                        pack(entry.getName(), in, packages);
+                    }
                 }
             }
         }

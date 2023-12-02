@@ -11,6 +11,11 @@
     <artifactId>phosphor-agent</artifactId>
     <dependencies>
         <dependency>
+            <groupId>edu.neu.ccs.prl.phosphor</groupId>
+            <artifactId>phosphor-runtime</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
         </dependency>
