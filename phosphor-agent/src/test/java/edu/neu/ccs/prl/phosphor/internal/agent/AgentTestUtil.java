@@ -2,13 +2,11 @@ package edu.neu.ccs.prl.phosphor.internal.agent;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
@@ -62,27 +60,13 @@ public final class AgentTestUtil {
         throw new NoSuchElementException();
     }
 
-    public static ClassNode createClassNode(String owner, MethodNode first, MethodNode... rest) {
-        ClassNode cn = new ClassNode(PhosphorAgent.ASM_VERSION);
-        cn.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, owner, null, "java/lang/Object", null);
-        cn.methods.add(first);
-        cn.methods.addAll(Arrays.asList(rest));
-        return cn;
-    }
-
     public static Class<?> load(ClassNode cn) {
         return new NodeClassLoader().createClass(cn);
     }
 
-    public static byte[] toBytes(ClassNode cn) {
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cn.accept(cw);
-        return cw.toByteArray();
-    }
-
     private static class NodeClassLoader extends ClassLoader {
         public Class<?> createClass(ClassNode cn) {
-            byte[] bytes = toBytes(cn);
+            byte[] bytes = PhosphorTransformer.toBytes(cn);
             return defineClass(null, bytes, 0, bytes.length);
         }
     }

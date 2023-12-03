@@ -4,8 +4,6 @@ import edu.neu.ccs.prl.phosphor.internal.agent.PhosphorAgent;
 import edu.neu.ccs.prl.phosphor.internal.agent.PhosphorTransformer;
 import edu.neu.ccs.prl.phosphor.internal.runtime.PhosphorFrame;
 import java.io.File;
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
@@ -18,7 +16,7 @@ import java.util.function.Function;
  */
 @SuppressWarnings("unused")
 public class PhosphorInstrumentation implements Instrumentation {
-    private ClassFileTransformer transformer;
+    private PhosphorTransformer transformer;
     private Set<File> classPathElements;
 
     @Override
@@ -40,11 +38,7 @@ public class PhosphorInstrumentation implements Instrumentation {
 
     @Override
     public byte[] apply(byte[] classFileBuffer) {
-        try {
-            return transformer.transform(null, null, null, null, classFileBuffer);
-        } catch (IllegalClassFormatException e) {
-            return classFileBuffer;
-        }
+        return transformer.transform(classFileBuffer, true);
     }
 
     @Override

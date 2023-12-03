@@ -1,0 +1,25 @@
+package edu.neu.ccs.prl.phosphor.internal.agent;
+
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+
+class UnsafeFixingClassVisitor extends ClassVisitor {
+    UnsafeFixingClassVisitor(ClassVisitor classVisitor) {
+        super(PhosphorAgent.ASM_VERSION, classVisitor);
+    }
+
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        super.visit(version, AccessUtil.makePublic(access), name, signature, superName, interfaces);
+    }
+
+    @Override
+    public MethodVisitor visitMethod(
+            int access, String name, String descriptor, String signature, String[] exceptions) {
+        return super.visitMethod(AccessUtil.makePublic(access), name, descriptor, signature, exceptions);
+    }
+
+    public static boolean isApplicable(String className) {
+        return "sun/misc/Unsafe".equals(className) || "jdk/internal/misc/Unsafe".equals(className);
+    }
+}

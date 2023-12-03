@@ -1,11 +1,12 @@
 package edu.neu.ccs.prl.phosphor.internal.agent;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.security.ProtectionDomain;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
+
+import java.lang.instrument.ClassFileTransformer;
+import java.security.ProtectionDomain;
 
 public class PhosphorTransformer implements ClassFileTransformer {
     private static final String ANNOTATION_DESC = Type.getDescriptor(PhosphorInstrumented.class);
@@ -35,9 +36,10 @@ public class PhosphorTransformer implements ClassFileTransformer {
             Class<?> classBeingRedefined,
             ProtectionDomain protectionDomain,
             byte[] classFileBuffer) {
-        if (shouldDynamicallyInstrument(className, classBeingRedefined)) {
+        // Class is being loaded and not redefined or retransformed
+        if (classBeingRedefined == null) {
             try {
-                return transform(classFileBuffer);
+                return transform(classFileBuffer, false);
             } catch (Throwable t) {
                 // Log the error to prevent it from being silently swallowed by the JVM
                 PhosphorLog.error("Failed to instrument class: " + className, t);
@@ -47,11 +49,11 @@ public class PhosphorTransformer implements ClassFileTransformer {
         return null;
     }
 
-    public byte[] transform(byte[] classFileBuffer) {
+    public byte[] transform(byte[] classFileBuffer, boolean isStatic) {
         ClassReader cr = new ClassReader(classFileBuffer);
-        if (shouldStaticallyInstrument(cr.getClassName())) {
+        if (shouldStaticallyInstrument(cr.getClassName()) && !AccessUtil.isSet(cr.getAccess(), Opcodes.ACC_MODULE)) {
             try {
-                return transform(cr);
+                return transform(cr, isStatic);
             } catch (ClassTooLargeException | MethodTooLargeException e) {
                 // TODO just add field/method shadow
                 return null;
@@ -60,21 +62,31 @@ public class PhosphorTransformer implements ClassFileTransformer {
         return null;
     }
 
-    private byte[] transform(ClassReader cr) {
+    private byte[] transform(ClassReader cr, boolean isStatic) {
         try {
             ClassNode cn = new ClassNode();
             cr.accept(cn, ClassReader.EXPAND_FRAMES);
-            if (isAnnotated(cn) || containsShadowAccessor(cn)) {
+            if (isAnnotated(cn)
+                    || containsShadowAccessor(cn)
+                    || cn.name.endsWith(ShadowClassBuilder.SHADOW_CLASS_SUFFIX)) {
                 // This class has already been instrumented; return null to indicate that the class was unchanged
                 return null;
             }
             // Add an annotation indicating that the class has been instrumented
             cn.visitAnnotation(ANNOTATION_DESC, false);
-            // Add the shadow accessor method
-            cn.methods.add(new ShadowAccessorBuilder().build(cn, Type.getObjectType("java/lang/Object")));
             ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
-            // TODO add class visitors
             ClassVisitor cv = cw;
+            if (!isStatic) {
+                // TODO handle statically-instrumented classes
+                // Add the shadow accessor method
+                cn.methods.add(new ShadowAccessorBuilder().build(cn));
+                // Create the shadow class
+                byte[] shadowClassBuffer = createShadowClass(cr);
+                cv = new InitializingClassVisitor(cv, shadowClassBuffer);
+            }
+            if (UnsafeFixingClassVisitor.isApplicable(cn.name)) {
+                cv = new UnsafeFixingClassVisitor(cv);
+            }
             cn.accept(cv);
             return cw.toByteArray();
         } catch (ClassTooLargeException | MethodTooLargeException e) {
@@ -82,16 +94,15 @@ public class PhosphorTransformer implements ClassFileTransformer {
         }
     }
 
-    private boolean shouldStaticallyInstrument(String className) {
-        return !exclusions.isExcluded(className);
+    private byte[] createShadowClass(ClassReader cr) {
+        ShadowClassBuilder builder = new ShadowClassBuilder();
+        cr.accept(builder, ClassReader.SKIP_CODE);
+        ClassNode shadow = builder.getShadow();
+        return toBytes(shadow);
     }
 
-    private static boolean shouldDynamicallyInstrument(String className, Class<?> classBeingRedefined) {
-        return classBeingRedefined == null // Class is being loaded and not redefined or retransformed
-                // Class is not a dynamically generated accessor for reflection
-                && (className == null
-                        || !ExclusionList.startsWith(className, "sun")
-                        || ExclusionList.startsWith(className, "sun/nio"));
+    private boolean shouldStaticallyInstrument(String className) {
+        return !exclusions.isExcluded(className);
     }
 
     private static boolean containsShadowAccessor(ClassNode cn) {
@@ -112,5 +123,11 @@ public class PhosphorTransformer implements ClassFileTransformer {
             }
         }
         return false;
+    }
+
+    public static byte[] toBytes(ClassNode cn) {
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        cn.accept(cw);
+        return cw.toByteArray();
     }
 }
