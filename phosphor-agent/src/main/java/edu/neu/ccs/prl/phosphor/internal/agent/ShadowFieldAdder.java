@@ -43,8 +43,8 @@ class ShadowFieldAdder extends ClassVisitor {
     @Override
     public void visitEnd() {
         // Add the shadow fields at the end after all other fields have been visited.
-        // This will preserve the offset of instance fields and preserve the offset of static fields
-        // assuming that there are no instance fields
+        // This will hopefully preserve the offset of instance fields and preserve the offset of static fields
+        // assuming that there are no instance fields.
         for (int i = 0; i < shadowFields.size(); i++) {
             shadowFields.get(i).accept(getDelegate());
         }

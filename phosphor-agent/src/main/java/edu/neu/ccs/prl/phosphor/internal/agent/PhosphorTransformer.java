@@ -1,13 +1,14 @@
 package edu.neu.ccs.prl.phosphor.internal.agent;
 
-import java.io.IOException;
-import java.lang.instrument.ClassFileTransformer;
-import java.security.ProtectionDomain;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
+
+import java.io.IOException;
+import java.lang.instrument.ClassFileTransformer;
+import java.security.ProtectionDomain;
 
 public class PhosphorTransformer implements ClassFileTransformer {
     private static final String ANNOTATION_DESC = Type.getDescriptor(PhosphorInstrumented.class);
@@ -71,9 +72,7 @@ public class PhosphorTransformer implements ClassFileTransformer {
         try {
             ClassNode cn = new ClassNode();
             cr.accept(cn, ClassReader.EXPAND_FRAMES);
-            if (isAnnotated(cn)
-                    || containsShadowMember(cn)
-                    || cn.name.endsWith(ShadowClassBuilder.SHADOW_CLASS_SUFFIX)) {
+            if (isAnnotated(cn) || containsShadowMember(cn)) {
                 // This class has already been instrumented; return null to indicate that the class was unchanged
                 return null;
             }
@@ -81,8 +80,8 @@ public class PhosphorTransformer implements ClassFileTransformer {
             cn.visitAnnotation(ANNOTATION_DESC, false);
             ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
             ClassVisitor cv = cw;
-            if (UnsafeFixingClassVisitor.isApplicable(cn.name)) {
-                cv = new UnsafeFixingClassVisitor(cv);
+            if (UnsafeAccessModifier.isApplicable(cn.name)) {
+                cv = new UnsafeAccessModifier(cv);
             }
             if (!HardCoded.hasHardCodedOffsets(cr.getClassName())) {
                 cv = new ShadowFieldAdder(cv);

@@ -3,8 +3,8 @@ package edu.neu.ccs.prl.phosphor.internal.agent;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 
-class UnsafeFixingClassVisitor extends ClassVisitor {
-    UnsafeFixingClassVisitor(ClassVisitor classVisitor) {
+class UnsafeAccessModifier extends ClassVisitor {
+    UnsafeAccessModifier(ClassVisitor classVisitor) {
         super(PhosphorAgent.ASM_VERSION, classVisitor);
     }
 
