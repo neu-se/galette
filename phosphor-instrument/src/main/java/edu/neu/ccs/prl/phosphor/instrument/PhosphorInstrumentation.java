@@ -38,7 +38,7 @@ public class PhosphorInstrumentation implements Instrumentation {
 
     @Override
     public byte[] apply(byte[] classFileBuffer) {
-        return transformer.transform(classFileBuffer, true);
+        return transformer.transform(classFileBuffer);
     }
 
     @Override

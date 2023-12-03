@@ -1,5 +1,6 @@
 package edu.neu.ccs.prl.phosphor.instrument;
 
+import edu.neu.ccs.prl.phosphor.internal.agent.FileUtil;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,7 +38,7 @@ public final class JLinkInvoker {
 
     private static File storeOptions(Properties options) throws IOException {
         // Write the options to a temporary file
-        File file = InstrumentUtil.createTemporaryFile("instrument-", ".properties");
+        File file = FileUtil.createTemporaryFile("instrument-", ".properties");
         try (FileWriter writer = new FileWriter(file)) {
             options.store(writer, null);
         }

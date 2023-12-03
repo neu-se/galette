@@ -1,5 +1,6 @@
 package edu.neu.ccs.prl.phosphor.internal.patch;
 
+import edu.neu.ccs.prl.phosphor.internal.agent.FileUtil;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.function.Function;
@@ -18,11 +19,11 @@ public final class Patcher {
 
     public static void main(String[] args) throws IOException {
         File archive = new File(args[0]);
-        File temp = createTemporaryFile("patch-", ".jar");
+        File temp = FileUtil.createTemporaryFile("patch-", ".jar");
         try (ZipInputStream zin = new ZipInputStream(Files.newInputStream(archive.toPath()));
                 ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(temp.toPath()))) {
             for (ZipEntry entry; (entry = zin.getNextEntry()) != null; ) {
-                byte[] content = readAllBytes(zin);
+                byte[] content = FileUtil.readAllBytes(zin);
                 if (entry.getName().endsWith(".class")) {
                     content = patch(entry.getName(), content);
                 }
@@ -67,21 +68,5 @@ public final class Patcher {
         ClassVisitor cv = visitorFactory.apply(cw);
         cr.accept(cv, ClassReader.EXPAND_FRAMES);
         return cw.toByteArray();
-    }
-
-    public static File createTemporaryFile(String prefix, String suffix) throws IOException {
-        File file = Files.createTempFile(prefix, suffix).toFile();
-        file.deleteOnExit();
-        Files.createDirectories(file.getParentFile().toPath());
-        return file;
-    }
-
-    public static byte[] readAllBytes(InputStream in) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        for (int len; (len = in.read(buffer)) != -1; ) {
-            ((OutputStream) out).write(buffer, 0, len);
-        }
-        return out.toByteArray();
     }
 }

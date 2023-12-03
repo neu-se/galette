@@ -1,5 +1,7 @@
 package edu.neu.ccs.prl.phosphor.internal.agent;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import org.objectweb.asm.Opcodes;
 
@@ -25,8 +27,11 @@ public final class PhosphorAgent {
         throw new AssertionError();
     }
 
-    public static void premain(String agentArgs, Instrumentation inst) {
+    public static void premain(String agentArgs, Instrumentation inst) throws IOException {
         PhosphorLog.initialize(System.err);
-        inst.addTransformer(new PhosphorTransformer());
+        String cachePath = System.getProperty("phosphor.cache");
+        TransformationCache cache =
+                cachePath == null ? new TransformationCache() : new TransformationCache(new File(cachePath));
+        inst.addTransformer(new PhosphorTransformer(cache));
     }
 }

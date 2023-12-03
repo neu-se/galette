@@ -1,6 +1,7 @@
 package edu.neu.ccs.prl.phosphor.plugin;
 
 import edu.neu.ccs.prl.phosphor.instrument.*;
+import edu.neu.ccs.prl.phosphor.internal.agent.FileUtil;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.Arrays;
@@ -144,10 +145,11 @@ public class InstrumentMojo extends AbstractMojo {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             for (File f : instrumentation.getClassPathElements()) {
                 if (f.isFile()) {
-                    buffer.write(InstrumentUtil.readAllBytes(f));
+                    buffer.write(Files.readAllBytes(f.toPath()));
                 }
             }
-            return InstrumentUtil.checksum(buffer.toByteArray());
+            byte[] input = buffer.toByteArray();
+            return FileUtil.checksum(input);
         } catch (IOException e) {
             throw new MojoExecutionException("Failed to compute instrumentation checksum", e);
         }
@@ -187,9 +189,9 @@ public class InstrumentMojo extends AbstractMojo {
             try (FileReader reader = new FileReader(optionsFile)) {
                 Properties foundOptions = new Properties();
                 foundOptions.load(reader);
-                return foundOptions.equals(options)
-                        && Arrays.equals(checksum, InstrumentUtil.readAllBytes(checksumFile))
-                        && new String(InstrumentUtil.readAllBytes(infoFile)).equals(info);
+                if (!foundOptions.equals(options)
+                        || !Arrays.equals(checksum, Files.readAllBytes(checksumFile.toPath()))) return false;
+                return new String(Files.readAllBytes(infoFile.toPath())).equals(info);
             } catch (IOException e) {
                 throw new MojoExecutionException("Failed to read match info", e);
             }
