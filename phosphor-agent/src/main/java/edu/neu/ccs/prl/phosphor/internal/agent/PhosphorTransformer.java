@@ -11,31 +11,6 @@ import org.objectweb.asm.tree.MethodNode;
 
 public class PhosphorTransformer implements ClassFileTransformer {
     private static final String ANNOTATION_DESC = Type.getDescriptor(PhosphorInstrumented.class);
-    /**
-     * List classes for which the JVM uses hard-coded offsets into the constant pool.
-     */
-    private static final ExclusionList hardCodedOffsets = new ExclusionList(
-            "java/lang/Boolean",
-            "java/lang/Character",
-            "java/lang/Byte",
-            "java/lang/Short",
-            "java/lang/Number",
-            "java/lang/ref/Reference",
-            "java/lang/ref/FinalReference",
-            "java/lang/ref/SoftReference",
-            "java/lang/invoke/LambdaForm$",
-            "jdk/internal/misc/UnsafeConstants",
-            "java/lang/Class",
-            "java/lang/ClassLoader",
-            "java/lang/StackTraceElement",
-            "java/lang/String",
-            "java/lang/Throwable",
-            "java/lang/AssertionStatusDirectives",
-            "java/lang/Integer",
-            "java/lang/Long",
-            "java/lang/Float",
-            "java/lang/Double");
-
     private static final ExclusionList exclusions =
             new ExclusionList("java/lang/Object", PhosphorAgent.INTERNAL_PACKAGE_PREFIX);
     private final TransformationCache cache;
@@ -74,7 +49,7 @@ public class PhosphorTransformer implements ClassFileTransformer {
     public byte[] transform(byte[] classFileBuffer) {
         ClassReader cr = new ClassReader(classFileBuffer);
         String className = cr.getClassName();
-        if (!exclusions.isExcluded(className) && !AccessUtil.isSet(cr.getAccess(), Opcodes.ACC_MODULE)) {
+        if (!exclusions.isExcluded(className) && !AsmUtil.isSet(cr.getAccess(), Opcodes.ACC_MODULE)) {
             try {
                 if (cache.hasEntry(className, classFileBuffer)) {
                     return cache.loadEntry(cr.getClassName());
@@ -109,7 +84,7 @@ public class PhosphorTransformer implements ClassFileTransformer {
             if (UnsafeFixingClassVisitor.isApplicable(cn.name)) {
                 cv = new UnsafeFixingClassVisitor(cv);
             }
-            if (!hardCodedOffsets.isExcluded(cr.getClassName())) {
+            if (!HardCoded.hasHardCodedOffsets(cr.getClassName())) {
                 cv = new ShadowFieldAdder(cv);
             }
             cn.accept(cv);
@@ -117,13 +92,6 @@ public class PhosphorTransformer implements ClassFileTransformer {
         } catch (ClassTooLargeException | MethodTooLargeException e) {
             return null;
         }
-    }
-
-    private byte[] createShadowClass(ClassReader cr) {
-        ShadowClassBuilder builder = new ShadowClassBuilder();
-        cr.accept(builder, ClassReader.SKIP_CODE);
-        ClassNode shadow = builder.getShadow();
-        return toBytes(shadow);
     }
 
     private static boolean containsShadowMember(ClassNode cn) {
@@ -149,11 +117,5 @@ public class PhosphorTransformer implements ClassFileTransformer {
             }
         }
         return false;
-    }
-
-    public static byte[] toBytes(ClassNode cn) {
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cn.accept(cw);
-        return cw.toByteArray();
     }
 }

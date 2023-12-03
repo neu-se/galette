@@ -66,7 +66,7 @@ public final class AgentTestUtil {
 
     private static class NodeClassLoader extends ClassLoader {
         public Class<?> createClass(ClassNode cn) {
-            byte[] bytes = PhosphorTransformer.toBytes(cn);
+            byte[] bytes = AsmUtil.toBytes(cn);
             return defineClass(null, bytes, 0, bytes.length);
         }
     }

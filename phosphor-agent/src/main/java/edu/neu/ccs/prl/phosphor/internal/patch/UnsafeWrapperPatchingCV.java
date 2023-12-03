@@ -1,6 +1,6 @@
 package edu.neu.ccs.prl.phosphor.internal.patch;
 
-import edu.neu.ccs.prl.phosphor.internal.agent.AccessUtil;
+import edu.neu.ccs.prl.phosphor.internal.agent.AsmUtil;
 import edu.neu.ccs.prl.phosphor.internal.agent.PhosphorAgent;
 import edu.neu.ccs.prl.phosphor.internal.runtime.unsafe.JdkUnsafeWrapper;
 import edu.neu.ccs.prl.phosphor.internal.runtime.unsafe.SunUnsafeWrapper;
@@ -32,7 +32,7 @@ class UnsafeWrapperPatchingCV extends ClassVisitor {
     public MethodVisitor visitMethod(
             int access, String name, String descriptor, String signature, String[] exceptions) {
         MethodVisitor target = super.visitMethod(access, name, descriptor, signature, exceptions);
-        if (AccessUtil.isSet(access, Opcodes.ACC_PUBLIC) && !name.equals("<init>")) {
+        if (AsmUtil.isSet(access, Opcodes.ACC_PUBLIC) && !name.equals("<init>")) {
             // Set the delegate method visitor to null to replace the body of the method
             return new MethodVisitor(PhosphorAgent.ASM_VERSION, null) {
                 @Override
@@ -61,7 +61,7 @@ class UnsafeWrapperPatchingCV extends ClassVisitor {
 
     private static void loadArguments(MethodVisitor target, int access, String descriptor) {
         // Skip "this" for virtual methods
-        int varIndex = AccessUtil.isSet(access, Opcodes.ACC_STATIC) ? 0 : 1;
+        int varIndex = AsmUtil.isSet(access, Opcodes.ACC_STATIC) ? 0 : 1;
         for (Type argument : Type.getArgumentTypes(descriptor)) {
             target.visitVarInsn(argument.getOpcode(Opcodes.ILOAD), varIndex);
             varIndex += argument.getSize();

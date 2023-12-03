@@ -20,7 +20,7 @@ public class ShadowAccessorBuilder {
         // Cannot use the shadow type descriptor because it is not defined until the original class is
         // initialized
         String descriptor = "()Ljava/lang/Object;";
-        if (AccessUtil.isSet(cn.access, Opcodes.ACC_INTERFACE) | AccessUtil.isSet(cn.access, Opcodes.ACC_ABSTRACT)) {
+        if (AsmUtil.isSet(cn.access, Opcodes.ACC_INTERFACE) | AsmUtil.isSet(cn.access, Opcodes.ACC_ABSTRACT)) {
             return new MethodNode(ACCESS | Opcodes.ACC_ABSTRACT, NAME, descriptor, null, null);
         }
         return createConcreateAccessor(descriptor, shadowType);

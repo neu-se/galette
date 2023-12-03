@@ -27,16 +27,16 @@ class ShadowlessMethodsTest {
             values.put(sm.getRecord(), sm.isFinal());
         }
         for (MethodNode mn : cn.methods) {
-            if (!AccessUtil.isSet(mn.access, Opcodes.ACC_PRIVATE) && !"<clinit>".equals(mn.name)) {
+            if (!AsmUtil.isSet(mn.access, Opcodes.ACC_PRIVATE) && !"<clinit>".equals(mn.name)) {
                 int opcode = Opcodes.INVOKEVIRTUAL;
-                if (AccessUtil.isSet(mn.access, Opcodes.ACC_STATIC)) {
+                if (AsmUtil.isSet(mn.access, Opcodes.ACC_STATIC)) {
                     opcode = Opcodes.INVOKESTATIC;
                 } else if (mn.name.equals("<init>")) {
                     opcode = Opcodes.INVOKESPECIAL;
                 }
                 MethodRecord record = new MethodRecord(opcode, cn.name, mn.name, mn.desc, false);
                 Assertions.assertTrue(values.containsKey(record), "Missing value for: " + record);
-                boolean isFinal = AccessUtil.isSet(mn.access, Opcodes.ACC_FINAL);
+                boolean isFinal = AsmUtil.isSet(mn.access, Opcodes.ACC_FINAL);
                 Assertions.assertEquals(
                         isFinal,
                         values.get(record),

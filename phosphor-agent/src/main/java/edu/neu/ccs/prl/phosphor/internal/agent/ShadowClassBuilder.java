@@ -1,8 +1,9 @@
 package edu.neu.ccs.prl.phosphor.internal.agent;
 
-import edu.neu.ccs.prl.phosphor.internal.runtime.Tag;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.ClassNode;
+
+import static edu.neu.ccs.prl.phosphor.internal.agent.AsmUtil.toBytes;
 
 /**
  * Builds a shadow class for an original class.
@@ -17,10 +18,6 @@ class ShadowClassBuilder extends ClassVisitor {
      */
     public static final String OBJECT_INTERNAL_NAME = "java/lang/Object";
     /**
-     * Descriptor for {@link Tag}.
-     */
-    private static final String TAG_DESCRIPTOR = Type.getDescriptor(Tag.class);
-    /**
      * The shadow class being built by this instance.
      */
     private final ClassNode shadow = new ClassNode(PhosphorAgent.ASM_VERSION);
@@ -31,11 +28,11 @@ class ShadowClassBuilder extends ClassVisitor {
 
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-        if (AccessUtil.isSet(access, Opcodes.ACC_MODULE)) {
+        if (AsmUtil.isSet(access, Opcodes.ACC_MODULE)) {
             throw new IllegalArgumentException();
         }
         int shadowAccess = Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC;
-        if (AccessUtil.isSet(access, Opcodes.ACC_INTERFACE)) {
+        if (AsmUtil.isSet(access, Opcodes.ACC_INTERFACE)) {
             shadowAccess |= Opcodes.ACC_INTERFACE | Opcodes.ACC_ABSTRACT;
         }
         if (interfaces != null) {
@@ -50,25 +47,13 @@ class ShadowClassBuilder extends ClassVisitor {
 
     @Override
     public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
-        int shadowAccess = Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC;
-        if (AccessUtil.isSet(shadow.access, Opcodes.ACC_INTERFACE)) {
-            shadowAccess |= Opcodes.ACC_FINAL;
-        }
-        if (AccessUtil.isSet(access, Opcodes.ACC_STATIC)) {
-            shadowAccess |= Opcodes.ACC_STATIC;
-        }
-        if (AccessUtil.isSet(access, Opcodes.ACC_VOLATILE)) {
-            shadowAccess |= Opcodes.ACC_VOLATILE;
-        }
-        if (AccessUtil.isSet(access, Opcodes.ACC_TRANSIENT)) {
-            shadowAccess |= Opcodes.ACC_TRANSIENT;
-        }
-        return shadow.visitField(shadowAccess, name, TAG_DESCRIPTOR, null, null);
+        ShadowFieldAdder.createShadowField(shadow.access, access, name).accept(shadow);
+        return null;
     }
 
     @Override
     public void visitEnd() {
-        if (!AccessUtil.isSet(shadow.access, Opcodes.ACC_INTERFACE)) {
+        if (!AsmUtil.isSet(shadow.access, Opcodes.ACC_INTERFACE)) {
             MethodVisitor mv =
                     shadow.visitMethod(Opcodes.ACC_SYNTHETIC | Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
             mv.visitCode();
@@ -90,5 +75,12 @@ class ShadowClassBuilder extends ClassVisitor {
             throw new IllegalArgumentException();
         }
         return className + SHADOW_CLASS_SUFFIX;
+    }
+
+    private byte[] createShadowClass(ClassReader cr) {
+        ShadowClassBuilder builder = new ShadowClassBuilder();
+        cr.accept(builder, ClassReader.SKIP_CODE);
+        ClassNode shadow = builder.getShadow();
+        return toBytes(shadow);
     }
 }
