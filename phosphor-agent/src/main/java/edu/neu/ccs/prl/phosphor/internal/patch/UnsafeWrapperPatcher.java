@@ -9,14 +9,14 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-class UnsafeWrapperPatchingCV extends ClassVisitor {
+class UnsafeWrapperPatcher extends ClassVisitor {
     private static final String JDK_UNSAFE_INTERNAL_NAME = "jdk/internal/misc/Unsafe";
     private static final String SUN_UNSAFE_INTERNAL_NAME = "sun/misc/Unsafe";
     private static final String SUN_UNSAFE_WRAPPER_INTERNAL_NAME = Type.getInternalName(SunUnsafeWrapper.class);
     private static final String JDK_UNSAFE_WRAPPER_INTERNAL_NAME = Type.getInternalName(JdkUnsafeWrapper.class);
     private Type unsafeType;
 
-    public UnsafeWrapperPatchingCV(ClassVisitor cv) {
+    public UnsafeWrapperPatcher(ClassVisitor cv) {
         super(PhosphorAgent.ASM_VERSION, cv);
     }
 

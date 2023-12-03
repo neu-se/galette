@@ -12,6 +12,7 @@ public final class HardCoded {
      */
     public static boolean hasHardCodedOffsets(String className) {
         switch (className) {
+            case "java/lang/ref/SoftReference":
             case "java/lang/Boolean":
             case "java/lang/Character":
             case "java/lang/Float":

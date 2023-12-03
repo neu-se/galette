@@ -1,14 +1,13 @@
 package edu.neu.ccs.prl.phosphor.internal.agent;
 
+import java.io.IOException;
+import java.lang.instrument.ClassFileTransformer;
+import java.security.ProtectionDomain;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
-
-import java.io.IOException;
-import java.lang.instrument.ClassFileTransformer;
-import java.security.ProtectionDomain;
 
 public class PhosphorTransformer implements ClassFileTransformer {
     private static final String ANNOTATION_DESC = Type.getDescriptor(PhosphorInstrumented.class);
