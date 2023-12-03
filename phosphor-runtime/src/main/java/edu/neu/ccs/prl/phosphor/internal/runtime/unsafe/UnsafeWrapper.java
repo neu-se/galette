@@ -8,11 +8,6 @@ public interface UnsafeWrapper {
     Class<?> defineClass(
             String name, byte[] b, int off, int len, ClassLoader loader, ProtectionDomain protectionDomain);
 
-    @SuppressWarnings("unused")
-    static void defineAndLoadShadow(Class<?> originalClass, String name, byte[] buffer) {
-        INSTANCE.defineClass(name, buffer, 0, buffer.length, originalClass.getClassLoader(), null);
-    }
-
     static UnsafeWrapper getInstance() {
         try {
             Class.forName("jdk.internal.misc.Unsafe");
