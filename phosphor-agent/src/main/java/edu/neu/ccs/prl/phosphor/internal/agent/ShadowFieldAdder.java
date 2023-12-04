@@ -48,16 +48,9 @@ class ShadowFieldAdder extends ClassVisitor {
     @Override
     public void visitEnd() {
         // Add the shadow fields at the end after all other fields have been visited.
-        // This will hopefully preserve the offset of instance fields and preserve the offset of static fields
-        // assuming that there are no instance fields.
-        boolean skipInstance = HardCoded.hasHardCodedStaticOffset(className);
+        // This will minimize changes to offsets for certain critical classes.
         for (int i = 0; i < shadowFields.size(); i++) {
-            FieldNode field = shadowFields.get(i);
-            // Skip instance shadow fields if the JVM uses a hard-coded offset to access a static field from the
-            // class being visited.
-            if (!skipInstance || AsmUtil.isSet(field.access, Opcodes.ACC_STATIC)) {
-                field.accept(getDelegate());
-            }
+            shadowFields.get(i).accept(getDelegate());
         }
         super.visitEnd();
     }

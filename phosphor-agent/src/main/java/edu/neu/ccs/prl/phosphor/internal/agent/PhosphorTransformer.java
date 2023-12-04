@@ -82,7 +82,9 @@ public class PhosphorTransformer implements ClassFileTransformer {
             if (UnsafeAccessModifier.isApplicable(cn.name)) {
                 cv = new UnsafeAccessModifier(cv);
             }
-            cv = new ShadowFieldAdder(cv);
+            if (!HardCoded.hasHardCodedStaticOffset(cr.getClassName())) {
+                cv = new ShadowFieldAdder(cv);
+            }
             cn.accept(cv);
             return cw.toByteArray();
         } catch (ClassTooLargeException | MethodTooLargeException e) {
