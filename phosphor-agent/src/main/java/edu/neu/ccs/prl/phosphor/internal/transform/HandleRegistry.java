@@ -1,4 +1,4 @@
-package edu.neu.ccs.prl.phosphor.internal.agent;
+package edu.neu.ccs.prl.phosphor.internal.transform;
 
 import edu.neu.ccs.prl.phosphor.internal.patch.HandleRegistryPatcher;
 import edu.neu.ccs.prl.phosphor.internal.runtime.Handle;
@@ -7,6 +7,7 @@ import edu.neu.ccs.prl.phosphor.internal.runtime.Patched;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
@@ -21,6 +22,10 @@ public final class HandleRegistry {
         return records[handle.ordinal()];
     }
 
+    public static void accept(MethodVisitor mv, Handle handle) {
+        getRecord(handle).accept(mv);
+    }
+
     /**
      * The body of this method is replaced by {@link HandleRegistryPatcher} to avoid uses of reflection.
      */
@@ -31,10 +36,7 @@ public final class HandleRegistry {
         }
     }
 
-    /**
-     * Calls to the method are added by {@link HandleRegistryPatcher}.
-     */
-    @SuppressWarnings("unused")
+    @InvokedViaHandle(handle = Handle.HANDLE_REGISTRY_ADD_RECORD)
     private static void addRecord(
             int index, int opcode, String owner, String name, String descriptor, boolean isInterface) {
         records[index] = new MethodRecord(opcode, owner, name, descriptor, isInterface);

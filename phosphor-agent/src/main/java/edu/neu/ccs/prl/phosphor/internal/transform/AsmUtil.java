@@ -1,8 +1,9 @@
-package edu.neu.ccs.prl.phosphor.internal.agent;
+package edu.neu.ccs.prl.phosphor.internal.transform;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 
 public final class AsmUtil {
@@ -44,6 +45,28 @@ public final class AsmUtil {
             delegate.visitIntInsn(Opcodes.SIPUSH, value);
         } else {
             delegate.visitLdcInsn(value);
+        }
+    }
+
+    public static void loadThisAndArguments(MethodVisitor mv, int access, String descriptor) {
+        if (mv == null) {
+            return;
+        }
+        if (!AsmUtil.isSet(access, Opcodes.ACC_STATIC)) {
+            mv.visitVarInsn(Opcodes.ALOAD, 0);
+        }
+        loadArguments(mv, access, descriptor);
+    }
+
+    public static void loadArguments(MethodVisitor mv, int access, String descriptor) {
+        if (mv == null) {
+            return;
+        }
+        // Skip "this" for virtual methods
+        int varIndex = AsmUtil.isSet(access, Opcodes.ACC_STATIC) ? 0 : 1;
+        for (Type argument : Type.getArgumentTypes(descriptor)) {
+            mv.visitVarInsn(argument.getOpcode(Opcodes.ILOAD), varIndex);
+            varIndex += argument.getSize();
         }
     }
 }

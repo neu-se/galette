@@ -1,6 +1,6 @@
 package edu.neu.ccs.prl.phosphor.internal.patch;
 
-import edu.neu.ccs.prl.phosphor.internal.agent.FileUtil;
+import edu.neu.ccs.prl.phosphor.internal.transform.FileUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -58,14 +58,15 @@ public final class Patcher {
     private static byte[] patch(String name, byte[] classFileBuffer) {
         name = name.replace(".class", "");
         if (UnsafeWrapperPatcher.isApplicable(name)) {
-            return apply(classFileBuffer, UnsafeWrapperPatcher::new);
+            return apply(classFileBuffer, UnsafeWrapperPatcher::createForStandard);
         } else if (HandleRegistryPatcher.isApplicable(name)) {
             return apply(classFileBuffer, HandleRegistryPatcher::new);
         }
         return classFileBuffer;
     }
 
-    private static byte[] apply(byte[] classFileBuffer, Function<ClassVisitor, ClassVisitor> visitorFactory) {
+    public static byte[] apply(
+            byte[] classFileBuffer, Function<? super ClassVisitor, ? extends ClassVisitor> visitorFactory) {
         ClassReader cr = new ClassReader(classFileBuffer);
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
         ClassVisitor cv = visitorFactory.apply(cw);

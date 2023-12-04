@@ -46,9 +46,9 @@
                     <execution>
                         <id>special-compile</id>
                         <phase>compile</phase>
-                       <goals>
-                           <goal>compile</goal>
-                       </goals>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
                         <configuration>
                             <excludes>module-info.java</excludes>
                             <fork>true</fork>

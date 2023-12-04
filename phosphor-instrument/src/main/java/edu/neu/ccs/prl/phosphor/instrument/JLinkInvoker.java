@@ -1,6 +1,6 @@
 package edu.neu.ccs.prl.phosphor.instrument;
 
-import edu.neu.ccs.prl.phosphor.internal.agent.FileUtil;
+import edu.neu.ccs.prl.phosphor.internal.transform.FileUtil;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

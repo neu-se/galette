@@ -1,10 +1,10 @@
 package edu.neu.ccs.prl.phosphor.internal.patch;
 
-import edu.neu.ccs.prl.phosphor.internal.agent.AsmUtil;
-import edu.neu.ccs.prl.phosphor.internal.agent.HandleRegistry;
-import edu.neu.ccs.prl.phosphor.internal.agent.MethodRecord;
-import edu.neu.ccs.prl.phosphor.internal.agent.PhosphorAgent;
 import edu.neu.ccs.prl.phosphor.internal.runtime.Handle;
+import edu.neu.ccs.prl.phosphor.internal.transform.AsmUtil;
+import edu.neu.ccs.prl.phosphor.internal.transform.HandleRegistry;
+import edu.neu.ccs.prl.phosphor.internal.transform.MethodRecord;
+import edu.neu.ccs.prl.phosphor.internal.transform.PhosphorTransformer;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -15,7 +15,7 @@ public class HandleRegistryPatcher extends ClassVisitor {
     private static final String TARGET_METHOD_NAME = "initialize";
 
     HandleRegistryPatcher(ClassVisitor cv) {
-        super(PhosphorAgent.ASM_VERSION, cv);
+        super(PhosphorTransformer.ASM_VERSION, cv);
     }
 
     @Override
@@ -44,12 +44,7 @@ public class HandleRegistryPatcher extends ClassVisitor {
             mv.visitLdcInsn(record.getName());
             mv.visitLdcInsn(record.getDescriptor());
             mv.visitInsn(record.isInterface() ? Opcodes.ICONST_1 : Opcodes.ICONST_0);
-            mv.visitMethodInsn(
-                    Opcodes.INVOKESTATIC,
-                    HANDLE_REGISTRY_INTERNAL_NAME,
-                    "addRegistry",
-                    "(IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)V",
-                    false);
+            HandleRegistry.accept(mv, Handle.HANDLE_REGISTRY_ADD_RECORD);
         }
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(-1, -1);

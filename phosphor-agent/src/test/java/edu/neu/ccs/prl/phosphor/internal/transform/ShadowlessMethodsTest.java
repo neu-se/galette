@@ -1,4 +1,4 @@
-package edu.neu.ccs.prl.phosphor.internal.agent;
+package edu.neu.ccs.prl.phosphor.internal.transform;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,7 +21,7 @@ class ShadowlessMethodsTest {
 
     @Test
     void allAccessibleObjectMethodsIncluded() {
-        ClassNode cn = AgentTestUtil.getClassNode(Object.class);
+        ClassNode cn = AsmTestUtil.getClassNode(Object.class);
         Map<MethodRecord, Boolean> values = new HashMap<>();
         for (ShadowlessMethod sm : ShadowlessMethod.values()) {
             values.put(sm.getRecord(), sm.isFinal());

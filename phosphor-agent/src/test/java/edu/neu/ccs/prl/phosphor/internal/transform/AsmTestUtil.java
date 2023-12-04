@@ -1,4 +1,4 @@
-package edu.neu.ccs.prl.phosphor.internal.agent;
+package edu.neu.ccs.prl.phosphor.internal.transform;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -10,8 +10,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-public final class AgentTestUtil {
-    private AgentTestUtil() {
+public final class AsmTestUtil {
+    private AsmTestUtil() {
         throw new AssertionError();
     }
 

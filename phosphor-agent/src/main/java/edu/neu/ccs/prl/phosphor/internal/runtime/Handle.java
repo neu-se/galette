@@ -1,7 +1,11 @@
 package edu.neu.ccs.prl.phosphor.internal.runtime;
 
+import edu.neu.ccs.prl.phosphor.internal.transform.HandleRegistry;
+
 public enum Handle {
-    TAG_GET_EMPTY(Tag.class);
+    TAG_GET_EMPTY(Tag.class),
+    HANDLE_REGISTRY_ADD_RECORD(HandleRegistry.class),
+    FRAME_GET_INSTANCE(PhosphorFrame.class);
 
     private final Class<?> owner;
 

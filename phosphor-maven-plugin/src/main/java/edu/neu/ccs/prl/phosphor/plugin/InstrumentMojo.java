@@ -1,7 +1,7 @@
 package edu.neu.ccs.prl.phosphor.plugin;
 
 import edu.neu.ccs.prl.phosphor.instrument.*;
-import edu.neu.ccs.prl.phosphor.internal.agent.FileUtil;
+import edu.neu.ccs.prl.phosphor.internal.transform.FileUtil;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.Arrays;

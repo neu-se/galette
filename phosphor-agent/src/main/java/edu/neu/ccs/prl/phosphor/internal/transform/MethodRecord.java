@@ -1,4 +1,4 @@
-package edu.neu.ccs.prl.phosphor.internal.agent;
+package edu.neu.ccs.prl.phosphor.internal.transform;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -81,15 +81,15 @@ public final class MethodRecord {
 
     /**
      * Tells the specified method visitor to visit a method instruction for the method.
-     * If the specified method visitor is {@code null} does nothing.
+     * If the specified method visitor is {@code null}, does nothing.
      *
-     * @param methodVisitor the method visitor that should visit the method
+     * @param mv the method visitor that should visit the method
      */
-    public void accept(MethodVisitor methodVisitor) {
-        if (methodVisitor == null) {
+    public void accept(MethodVisitor mv) {
+        if (mv == null) {
             return;
         }
-        methodVisitor.visitMethodInsn(getOpcode(), getOwner(), getName(), getDescriptor(), isInterface());
+        mv.visitMethodInsn(getOpcode(), getOwner(), getName(), getDescriptor(), isInterface());
     }
 
     /**

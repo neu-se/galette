@@ -1,8 +1,8 @@
 package edu.neu.ccs.prl.phosphor.instrument;
 
-import edu.neu.ccs.prl.phosphor.internal.agent.PhosphorAgent;
-import edu.neu.ccs.prl.phosphor.internal.agent.PhosphorTransformer;
-import edu.neu.ccs.prl.phosphor.internal.runtime.PhosphorFrame;
+import edu.neu.ccs.prl.phosphor.internal.patch.EmbeddedPatcher;
+import edu.neu.ccs.prl.phosphor.internal.runtime.Tag;
+import edu.neu.ccs.prl.phosphor.internal.transform.PhosphorTransformer;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -23,7 +23,7 @@ public class PhosphorInstrumentation implements Instrumentation {
     public void configure(Properties options) {
         transformer = new PhosphorTransformer();
         classPathElements = new HashSet<>();
-        classPathElements.add(InstrumentUtil.getClassPathElement(PhosphorFrame.class));
+        classPathElements.add(InstrumentUtil.getClassPathElement(Tag.class));
     }
 
     @Override
@@ -43,7 +43,8 @@ public class PhosphorInstrumentation implements Instrumentation {
 
     @Override
     public BiFunction<String, byte[], byte[]> createPatcher(Function<String, byte[]> entryLocator) {
-        return (resourceName, buffer) -> buffer;
+        EmbeddedPatcher patcher = new EmbeddedPatcher(entryLocator);
+        return patcher::patch;
     }
 
     @Override
@@ -53,7 +54,8 @@ public class PhosphorInstrumentation implements Instrumentation {
 
     @Override
     public boolean shouldPack(String resourceName) {
-        return resourceName.startsWith(PhosphorAgent.RUNTIME_PACKAGE_PREFIX);
+        return resourceName.startsWith(PhosphorTransformer.RUNTIME_PACKAGE_PREFIX)
+                || resourceName.startsWith(PhosphorTransformer.TRANSFORM_PACKAGE_PREFIX);
     }
 
     @Override

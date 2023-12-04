@@ -1,4 +1,4 @@
-package edu.neu.ccs.prl.phosphor.internal.agent;
+package edu.neu.ccs.prl.phosphor.internal.transform;
 
 /**
  * Static utility class which contains information about classes with fields that may be accessed by the JVM using a

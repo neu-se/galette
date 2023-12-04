@@ -11,11 +11,6 @@
     <artifactId>phosphor-agent</artifactId>
     <dependencies>
         <dependency>
-            <groupId>edu.neu.ccs.prl.phosphor</groupId>
-            <artifactId>phosphor-runtime</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
         </dependency>
@@ -42,7 +37,6 @@
                     <archive>
                         <manifestEntries>
                             <Premain-Class>edu.neu.ccs.prl.phosphor.internal.agent.PhosphorAgent</Premain-Class>
-                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
                         </manifestEntries>
                     </archive>
                     <forceCreation>true</forceCreation>
@@ -61,7 +55,7 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.objectweb.asm</pattern>
-                                    <shadedPattern>edu.neu.ccs.prl.phosphor.internal.org.objectweb.asm</shadedPattern>
+                                    <shadedPattern>edu.neu.ccs.prl.phosphor.internal.transform.org.objectweb.asm</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
