@@ -1,7 +1,8 @@
 package edu.neu.ccs.prl.phosphor.internal.patch;
 
 import edu.neu.ccs.prl.phosphor.internal.agent.FileUtil;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.function.Function;
 import java.util.zip.CRC32;
@@ -58,6 +59,8 @@ public final class Patcher {
         name = name.replace(".class", "");
         if (UnsafeWrapperPatcher.isApplicable(name)) {
             return apply(classFileBuffer, UnsafeWrapperPatcher::new);
+        } else if (HandleRegistryPatcher.isApplicable(name)) {
+            return apply(classFileBuffer, HandleRegistryPatcher::new);
         }
         return classFileBuffer;
     }

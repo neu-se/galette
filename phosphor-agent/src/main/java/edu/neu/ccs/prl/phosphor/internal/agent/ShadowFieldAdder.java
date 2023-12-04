@@ -14,15 +14,19 @@ class ShadowFieldAdder extends ClassVisitor {
      */
     private static final String TAG_DESCRIPTOR = Type.getDescriptor(Tag.class);
     /**
-     * The access flags of the class being visited.
-     */
-    private int classAccess;
-    /**
      * List of shadow field that should be added to the class being visited.
      * <p>
      * Non-null.
      */
     private final SimpleList<FieldNode> shadowFields = new SimpleList<>();
+    /**
+     * The access flags of the class being visited.
+     */
+    private int classAccess;
+    /**
+     * The name of the class being visited.
+     */
+    private String className;
 
     ShadowFieldAdder(ClassVisitor classVisitor) {
         super(PhosphorAgent.ASM_VERSION, classVisitor);
@@ -32,6 +36,7 @@ class ShadowFieldAdder extends ClassVisitor {
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         super.visit(version, access, name, signature, superName, interfaces);
         classAccess = access;
+        className = name;
     }
 
     @Override
@@ -45,8 +50,14 @@ class ShadowFieldAdder extends ClassVisitor {
         // Add the shadow fields at the end after all other fields have been visited.
         // This will hopefully preserve the offset of instance fields and preserve the offset of static fields
         // assuming that there are no instance fields.
+        boolean skipInstance = HardCoded.hasHardCodedStaticOffset(className);
         for (int i = 0; i < shadowFields.size(); i++) {
-            shadowFields.get(i).accept(getDelegate());
+            FieldNode field = shadowFields.get(i);
+            // Skip instance shadow fields if the JVM uses a hard-coded offset to access a static field from the
+            // class being visited.
+            if (!skipInstance || AsmUtil.isSet(field.access, Opcodes.ACC_STATIC)) {
+                field.accept(getDelegate());
+            }
         }
         super.visitEnd();
     }

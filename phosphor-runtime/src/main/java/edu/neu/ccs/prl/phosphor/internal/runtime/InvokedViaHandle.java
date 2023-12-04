@@ -6,8 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that the body of a method is replaced of modified when the Phosphor agent is packaged.
+ * Indicates that calls to a method can be added during the instrumentation of classes.
  */
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
-@Retention(RetentionPolicy.SOURCE)
-public @interface Patched {}
+@Retention(RetentionPolicy.RUNTIME)
+public @interface InvokedViaHandle {
+    Handle handle();
+}
