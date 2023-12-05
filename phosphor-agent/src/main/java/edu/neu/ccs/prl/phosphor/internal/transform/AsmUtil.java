@@ -75,7 +75,7 @@ public final class AsmUtil {
         return mn.exceptions == null ? null : mn.exceptions.toArray(new String[0]);
     }
 
-    public static boolean hasCode(int access) {
+    public static boolean hasMethodBody(int access) {
         return !AsmUtil.isSet(access, Opcodes.ACC_NATIVE) && !AsmUtil.isSet(access, Opcodes.ACC_ABSTRACT);
     }
 }

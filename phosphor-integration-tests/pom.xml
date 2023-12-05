@@ -103,7 +103,6 @@
                                         <include>**/all/**/*.java</include>
                                         <include>**/data/**/*.java</include>
                                     </includes>
-                                    <reuseForks>false</reuseForks>
                                     <argLine>
                                         -Dphosphor.cache=${data.cache}
                                         -Xbootclasspath/a:${phosphor.agent.jar}

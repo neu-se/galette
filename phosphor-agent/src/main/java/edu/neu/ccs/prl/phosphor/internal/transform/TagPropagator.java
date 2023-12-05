@@ -10,6 +10,14 @@ class TagPropagator extends MethodVisitor {
     }
 
     @Override
+    public void visitCode() {
+        // Store the frame immediately
+        // Load argument tags from the frame
+        // TODO initialize shadow local variables and stack
+        super.visitCode();
+    }
+
+    @Override
     public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
         // TODO
         if (opcode == -1 && !isIgnoredMethod(owner, name)) {

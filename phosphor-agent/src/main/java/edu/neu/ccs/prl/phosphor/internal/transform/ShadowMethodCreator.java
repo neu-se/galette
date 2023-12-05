@@ -43,7 +43,10 @@ class ShadowMethodCreator {
                 shadows.add(createShadow(mn));
             }
         }
-        // TODO add wrappers for Object methods to concrete classes
+        if (!AsmUtil.isSet(classNode.access, Opcodes.ACC_ABSTRACT)
+                && (classNode.superName == null || classNode.superName.equals("java/lang/Object"))) {
+            // TODO add shadow wrappers for Object methods not overriden by this class
+        }
         return shadows;
     }
 
@@ -126,9 +129,9 @@ class ShadowMethodCreator {
         if (methodName.equals("<clinit>")) {
             return false;
         } else if (methodName.equals("<init>")) {
-            // InnerClassLambdaMetafactory will check the number of constructors
-            // still instance initialization methods are never dynamically dispatched (INVOKESPECIAL is used)
-            // it is safe to be missing these wrappers
+            // InnerClassLambdaMetafactory will check the number of constructors for some lambdas.
+            // Since instance initialization methods are never dynamically dispatched (INVOKESPECIAL is used),
+            // it is safe for these shadows to be missing.
             // TODO check if this is necessary
             return !className.contains("$$Lambda$");
         } else {
