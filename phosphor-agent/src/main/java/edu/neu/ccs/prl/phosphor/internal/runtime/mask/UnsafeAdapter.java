@@ -1,9 +1,10 @@
-package edu.neu.ccs.prl.phosphor.internal.runtime.unsafe;
+package edu.neu.ccs.prl.phosphor.internal.runtime.mask;
 
 import edu.neu.ccs.prl.phosphor.internal.runtime.Patched;
 import java.security.ProtectionDomain;
 
-public final class UnsafeWrapper {
+@SuppressWarnings("unused")
+public final class UnsafeAdapter {
     @Patched
     public static long getInvalidFieldOffset() {
         return -1;

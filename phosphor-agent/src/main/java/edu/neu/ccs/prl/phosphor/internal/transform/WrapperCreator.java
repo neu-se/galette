@@ -17,43 +17,46 @@ class WrapperCreator extends MethodVisitor {
 
     private final String owner;
     private final boolean isInterface;
-    private final MethodNode caller;
-    private final MethodNode callee;
+    private final MethodNode mn;
+    private final String calleeName;
 
-    WrapperCreator(String owner, boolean isInterface, MethodNode caller, MethodNode callee) {
-        super(PhosphorTransformer.ASM_VERSION, caller);
+    WrapperCreator(String owner, boolean isInterface, MethodNode mn, String calleeName) {
+        super(PhosphorTransformer.ASM_VERSION, mn);
         this.isInterface = isInterface;
         this.owner = owner;
-        this.caller = caller;
-        this.callee = callee;
+        this.mn = mn;
+        this.calleeName = calleeName;
+    }
+
+    @Override
+    public void visitCode() {
+        // Suppress the original method body by clearing the delegate
+        mv = null;
     }
 
     @Override
     public void visitEnd() {
+        // Restore the delegate
+        mv = mn;
         super.visitCode();
-        if (callee.desc.contains(FRAME_TYPE.getDescriptor())) {
-            // Wrapping a shadow; load all arguments and add a frame
-            AsmUtil.loadThisAndArguments(mv, caller.access, caller.desc);
-            HandleRegistry.accept(mv, Handle.FRAME_GET_INSTANCE);
+        String calleeDesc;
+        if (mn.desc.contains(FRAME_TYPE.getDescriptor())) {
+            // Wrapping a native method; pop the frame
+            AsmUtil.loadThisAndArguments(mv, mn.access, mn.desc);
+            super.visitInsn(Opcodes.POP);
+            calleeDesc = ShadowMethodCreator.getOriginalMethodDescriptor(mn.desc);
         } else {
-            // Wrapping a native method; skip the frame
-            AsmUtil.loadThisAndArguments(mv, caller.access, callee.desc);
+            // Wrapping a shadow; load all arguments and add a frame
+            AsmUtil.loadThisAndArguments(mv, mn.access, mn.desc);
+            HandleRegistry.accept(mv, Handle.FRAME_GET_INSTANCE);
+            calleeDesc = ShadowMethodCreator.getShadowMethodDescriptor(mn.desc);
         }
-        int opcode = getOpcode(callee, isInterface);
+        // We do not want the call dynamically dispatched so use INVOKESPECIAL
+        int opcode = AsmUtil.isSet(mn.access, Opcodes.ACC_STATIC) ? Opcodes.INVOKESTATIC : Opcodes.INVOKESPECIAL;
         // Add the method call
-        super.visitMethodInsn(opcode, owner, callee.name, callee.desc, isInterface);
-        super.visitInsn(Type.getReturnType(caller.desc).getOpcode(Opcodes.IRETURN));
+        super.visitMethodInsn(opcode, owner, calleeName, calleeDesc, isInterface);
+        super.visitInsn(Type.getReturnType(mn.desc).getOpcode(Opcodes.IRETURN));
         super.visitMaxs(-1, -1);
         super.visitEnd();
-    }
-
-    static int getOpcode(MethodNode mn, boolean isInterface) {
-        if (mn.name.equals("<init>")) {
-            return Opcodes.INVOKESPECIAL;
-        } else if (AsmUtil.isSet(mn.access, Opcodes.ACC_STATIC)) {
-            return Opcodes.INVOKESTATIC;
-        } else {
-            return isInterface ? Opcodes.INVOKEINTERFACE : Opcodes.INVOKEVIRTUAL;
-        }
     }
 }

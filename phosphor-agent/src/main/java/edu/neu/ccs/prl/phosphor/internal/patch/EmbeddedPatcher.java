@@ -15,8 +15,8 @@ public class EmbeddedPatcher {
     public byte[] patch(String name, byte[] buffer) {
         name = name.replace(".class", "");
         // TODO fix getObject vs getReference for Java 11 vs 17
-        if (UnsafeWrapperPatcher.isApplicable(name)) {
-            return Patcher.apply(buffer, UnsafeWrapperPatcher::createForEmbedded);
+        if (UnsafeAdapterPatcher.isApplicable(name)) {
+            return Patcher.apply(buffer, UnsafeAdapterPatcher::createForEmbedded);
         }
         return buffer;
     }

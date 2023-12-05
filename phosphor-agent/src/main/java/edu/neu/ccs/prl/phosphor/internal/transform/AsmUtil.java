@@ -5,6 +5,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
 
 public final class AsmUtil {
     private AsmUtil() {
@@ -68,5 +69,9 @@ public final class AsmUtil {
             mv.visitVarInsn(argument.getOpcode(Opcodes.ILOAD), varIndex);
             varIndex += argument.getSize();
         }
+    }
+
+    public static String[] copyExceptions(MethodNode mn) {
+        return mn.exceptions == null ? null : mn.exceptions.toArray(new String[0]);
     }
 }

@@ -1,6 +1,6 @@
 package edu.neu.ccs.prl.phosphor.internal.transform;
 
-import edu.neu.ccs.prl.phosphor.internal.runtime.PhosphorFrame;
+import edu.neu.ccs.prl.phosphor.internal.runtime.collection.SimpleList;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -43,12 +43,6 @@ public class PhosphorTransformer {
      */
     private static final String ANNOTATION_DESC = Type.getDescriptor(PhosphorInstrumented.class);
     /**
-     * Descriptor for {@link PhosphorFrame}.
-     * <p>
-     * Non-null.
-     */
-    static final String PHOSPHOR_FRAME_DESCRIPTOR = Type.getDescriptor(PhosphorFrame.class);
-    /**
      * Classes that should not be instrumented.
      * <p>
      * Non-null.
@@ -70,39 +64,37 @@ public class PhosphorTransformer {
         }
     }
 
-    private byte[] transform(ClassReader cr, boolean minimal) {
+    private byte[] transform(ClassReader cr, boolean propagate) {
         ClassNode cn = new ClassNode();
         cr.accept(cn, ClassReader.EXPAND_FRAMES);
-        if (isAnnotated(cn) || containsShadowMember(cn)) {
+        if (hasShadowInstrumentation(cn)) {
             // This class has already been instrumented; return null to indicate that the class was unchanged
             return null;
         }
         // Add an annotation indicating that the class has been instrumented
         cn.visitAnnotation(ANNOTATION_DESC, false);
-        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
         // Add shadow fields
         new ShadowFieldAdder().process(cn);
-        // Add shadow methods and propagation logic
-        new ShadowMethodAdder(minimal).process(cn);
+        // Create shadow methods for the raw original methods
+        SimpleList<MethodNode> shadows = new ShadowMethodCreator(cn, propagate).createShadows();
+        // Process the raw original methods
+        SimpleList<MethodNode> processed = new OriginalMethodProcessor(cn).process();
+        // Replace the raw methods with the processed methods
+        cn.methods.clear();
+        for (int i = 0; i < processed.size(); i++) {
+            cn.methods.add(processed.get(i));
+        }
+        // Add the shadow methods
+        for (int i = 0; i < shadows.size(); i++) {
+            cn.methods.add(shadows.get(i));
+        }
+        // Write the transformed class
+        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
         cn.accept(cw);
         return cw.toByteArray();
     }
 
-    private static boolean containsShadowMember(ClassNode cn) {
-        for (MethodNode mn : cn.methods) {
-            if (mn.desc.contains(PHOSPHOR_FRAME_DESCRIPTOR)) {
-                return true;
-            }
-        }
-        for (FieldNode fn : cn.fields) {
-            if (fn.name.startsWith(ADDED_MEMBER_PREFIX)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean isAnnotated(ClassNode cn) {
+    private static boolean hasShadowInstrumentation(ClassNode cn) {
         if (cn.invisibleAnnotations != null) {
             for (AnnotationNode a : cn.invisibleAnnotations) {
                 if (ANNOTATION_DESC.equals(a.desc)) {
@@ -110,6 +102,20 @@ public class PhosphorTransformer {
                 }
             }
         }
+        for (MethodNode mn : cn.methods) {
+            if (ShadowMethodCreator.isShadowMethod(mn.desc)) {
+                return true;
+            }
+        }
+        for (FieldNode fn : cn.fields) {
+            if (ShadowFieldAdder.isShadowField(fn.name)) {
+                return true;
+            }
+        }
         return false;
+    }
+
+    public static byte[] getInstanceAndTransform(byte[] classFileBuffer) {
+        return new PhosphorTransformer().transform(classFileBuffer);
     }
 }

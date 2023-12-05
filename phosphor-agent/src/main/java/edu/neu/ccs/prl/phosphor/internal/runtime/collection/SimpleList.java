@@ -1,4 +1,4 @@
-package edu.neu.ccs.prl.phosphor.internal.runtime;
+package edu.neu.ccs.prl.phosphor.internal.runtime.collection;
 
 /**
  * An array-backed list implementation that does not use non-native code

@@ -43,4 +43,8 @@ class ShadowFieldAdder {
     public static String getShadowFieldName(String fieldName) {
         return PhosphorTransformer.ADDED_MEMBER_PREFIX + fieldName;
     }
+
+    public static boolean isShadowField(String fieldName) {
+        return fieldName.startsWith(PhosphorTransformer.ADDED_MEMBER_PREFIX);
+    }
 }

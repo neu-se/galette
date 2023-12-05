@@ -13,8 +13,8 @@ class TagPropagator extends MethodVisitor {
     public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
         // TODO
         if (opcode == -1 && !owner.equals("java/lang/Object") && !owner.startsWith("[")) {
-            name = ShadowMethodAdder.getShadowMethodName(name);
-            descriptor = ShadowMethodAdder.getShadowMethodDescriptor(descriptor);
+            name = ShadowMethodCreator.getShadowMethodName(name);
+            descriptor = ShadowMethodCreator.getShadowMethodDescriptor(descriptor);
             HandleRegistry.accept(mv, Handle.FRAME_GET_INSTANCE);
         }
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);

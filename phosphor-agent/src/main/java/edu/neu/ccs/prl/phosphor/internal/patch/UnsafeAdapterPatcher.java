@@ -1,6 +1,6 @@
 package edu.neu.ccs.prl.phosphor.internal.patch;
 
-import edu.neu.ccs.prl.phosphor.internal.runtime.unsafe.UnsafeWrapper;
+import edu.neu.ccs.prl.phosphor.internal.runtime.mask.UnsafeAdapter;
 import edu.neu.ccs.prl.phosphor.internal.transform.AsmUtil;
 import edu.neu.ccs.prl.phosphor.internal.transform.PhosphorTransformer;
 import org.objectweb.asm.ClassVisitor;
@@ -8,14 +8,14 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-class UnsafeWrapperPatcher extends ClassVisitor {
+class UnsafeAdapterPatcher extends ClassVisitor {
     private static final String JDK_UNSAFE_INTERNAL_NAME = "jdk/internal/misc/Unsafe";
     private static final String SUN_UNSAFE_INTERNAL_NAME = "sun/misc/Unsafe";
-    private static final String UNSAFE_WRAPPER_INTERNAL_NAME = Type.getInternalName(UnsafeWrapper.class);
+    private static final String UNSAFE_WRAPPER_INTERNAL_NAME = Type.getInternalName(UnsafeAdapter.class);
     private static final String INVALID_FIELD_OFFSET_METHOD_NAME = "getInvalidFieldOffset";
     private final Type unsafeType;
 
-    private UnsafeWrapperPatcher(ClassVisitor cv, String unsafeInternalName) {
+    private UnsafeAdapterPatcher(ClassVisitor cv, String unsafeInternalName) {
         super(PhosphorTransformer.ASM_VERSION, cv);
         unsafeType = Type.getObjectType(unsafeInternalName);
     }
@@ -62,11 +62,11 @@ class UnsafeWrapperPatcher extends ClassVisitor {
         return UNSAFE_WRAPPER_INTERNAL_NAME.equals(className);
     }
 
-    public static UnsafeWrapperPatcher createForStandard(ClassVisitor cv) {
-        return new UnsafeWrapperPatcher(cv, SUN_UNSAFE_INTERNAL_NAME);
+    public static UnsafeAdapterPatcher createForStandard(ClassVisitor cv) {
+        return new UnsafeAdapterPatcher(cv, SUN_UNSAFE_INTERNAL_NAME);
     }
 
-    public static UnsafeWrapperPatcher createForEmbedded(ClassVisitor cv) {
-        return new UnsafeWrapperPatcher(cv, JDK_UNSAFE_INTERNAL_NAME);
+    public static UnsafeAdapterPatcher createForEmbedded(ClassVisitor cv) {
+        return new UnsafeAdapterPatcher(cv, JDK_UNSAFE_INTERNAL_NAME);
     }
 }

@@ -57,8 +57,8 @@ public final class Patcher {
 
     private static byte[] patch(String name, byte[] classFileBuffer) {
         name = name.replace(".class", "");
-        if (UnsafeWrapperPatcher.isApplicable(name)) {
-            return apply(classFileBuffer, UnsafeWrapperPatcher::createForStandard);
+        if (UnsafeAdapterPatcher.isApplicable(name)) {
+            return apply(classFileBuffer, UnsafeAdapterPatcher::createForStandard);
         } else if (HandleRegistryPatcher.isApplicable(name)) {
             return apply(classFileBuffer, HandleRegistryPatcher::new);
         }
