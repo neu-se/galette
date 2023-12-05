@@ -17,10 +17,15 @@ class OriginalMethodProcessor {
      * {@code true} if the class being processed is an interface.
      */
     private final boolean isInterface;
+    /**
+     * {@code true} if taint tag propagation logic should be added.
+     */
+    private final boolean propagate;
 
-    OriginalMethodProcessor(ClassNode classNode) {
+    OriginalMethodProcessor(ClassNode classNode, boolean propagate) {
         this.classNode = classNode;
         this.isInterface = AsmUtil.isSet(classNode.access, Opcodes.ACC_INTERFACE);
+        this.propagate = propagate;
     }
 
     public SimpleList<MethodNode> process() {
@@ -34,17 +39,17 @@ class OriginalMethodProcessor {
     private MethodNode process(MethodNode mn) {
         MethodNode processed = new MethodNode(
                 PhosphorTransformer.ASM_VERSION, mn.access, mn.name, mn.desc, mn.signature, AsmUtil.copyExceptions(mn));
-        MethodVisitor mv;
-        if (!AsmUtil.isSet(mn.access, Opcodes.ACC_NATIVE) && !AsmUtil.isSet(mn.access, Opcodes.ACC_ABSTRACT)) {
-            // Convert non-native, non-abstract methods to wrappers around the corresponding shadow
-            mv = new WrapperCreator(
-                    classNode.name, isInterface, processed, ShadowMethodCreator.getShadowMethodName(mn.name));
+        MethodVisitor mv = new MaskApplier(processed);
+        if (AsmUtil.hasCode(mn.access)) {
             // TODO remove
-            mv = processed;
-            // Apply masks
-            mv = new MaskApplier(mv);
-        } else {
-            mv = processed;
+            if (classNode == null && ShadowMethodCreator.shouldShadow(classNode.name, mn.name)) {
+                // Convert non-native, non-abstract methods to wrappers around the corresponding shadow
+                mv = new WrapperCreator(
+                        classNode.name, isInterface, mv, processed.access, processed.name, processed.desc);
+            } else if (propagate) {
+                // If there is no shadow, add the propagation logic directly to the original method
+                mv = new TagPropagator(mv);
+            }
         }
         mn.accept(mv);
         return processed;

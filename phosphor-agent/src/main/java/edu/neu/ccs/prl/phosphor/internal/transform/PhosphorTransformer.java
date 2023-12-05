@@ -47,7 +47,7 @@ public class PhosphorTransformer {
      * <p>
      * Non-null.
      */
-    private final ExclusionList exclusions = new ExclusionList("java/lang/Object", INTERNAL_PACKAGE_PREFIX);
+    private static final ExclusionList exclusions = new ExclusionList("java/lang/Object", INTERNAL_PACKAGE_PREFIX);
 
     public byte[] transform(byte[] classFileBuffer) {
         ClassReader cr = new ClassReader(classFileBuffer);
@@ -57,10 +57,10 @@ public class PhosphorTransformer {
             return null;
         }
         try {
-            return transform(cr, false);
+            return transform(cr, true);
         } catch (ClassTooLargeException | MethodTooLargeException e) {
             // Try to just add shadow fields and methods
-            return transform(cr, true);
+            return transform(cr, false);
         }
     }
 
@@ -78,7 +78,7 @@ public class PhosphorTransformer {
         // Create shadow methods for the raw original methods
         SimpleList<MethodNode> shadows = new ShadowMethodCreator(cn, propagate).createShadows();
         // Process the raw original methods
-        SimpleList<MethodNode> processed = new OriginalMethodProcessor(cn).process();
+        SimpleList<MethodNode> processed = new OriginalMethodProcessor(cn, propagate).process();
         // Replace the raw methods with the processed methods
         cn.methods.clear();
         for (int i = 0; i < processed.size(); i++) {
@@ -90,7 +90,12 @@ public class PhosphorTransformer {
         }
         // Write the transformed class
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
-        cn.accept(cw);
+        ClassVisitor cv = cw;
+        // Make the members of Unsafe publicly accessible
+        if (UnsafeAccessModifier.isApplicable(cn.name)) {
+            cv = new UnsafeAccessModifier(cv);
+        }
+        cn.accept(cv);
         return cw.toByteArray();
     }
 
@@ -116,6 +121,11 @@ public class PhosphorTransformer {
     }
 
     public static byte[] getInstanceAndTransform(byte[] classFileBuffer) {
-        return new PhosphorTransformer().transform(classFileBuffer);
+        byte[] result = new PhosphorTransformer().transform(classFileBuffer);
+        return result == null ? classFileBuffer : result;
+    }
+
+    public static boolean isExcluded(String className) {
+        return exclusions.isExcluded(className);
     }
 }

@@ -7,8 +7,10 @@ public enum Handle {
     TAG_GET_EMPTY(Tag.class),
     HANDLE_REGISTRY_ADD_RECORD(HandleRegistry.class),
     FRAME_GET_INSTANCE(PhosphorFrame.class),
-    UNSAFE_MASKER_DEFINE_CLASS(UnsafeMasker.class),
-    UNSAFE_MASKER_DEFINE_ANONYMOUS(UnsafeMasker.class);
+    SUN_UNSAFE_MASKER_DEFINE_CLASS(UnsafeMasker.class),
+    SUN_UNSAFE_MASKER_DEFINE_ANONYMOUS(UnsafeMasker.class),
+    JDK_UNSAFE_MASKER_DEFINE_CLASS(UnsafeMasker.class),
+    JDK_UNSAFE_MASKER_DEFINE_ANONYMOUS(UnsafeMasker.class);
 
     private final Class<?> owner;
 

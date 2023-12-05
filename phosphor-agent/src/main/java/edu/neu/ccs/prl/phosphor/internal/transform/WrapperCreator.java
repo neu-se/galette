@@ -5,7 +5,6 @@ import edu.neu.ccs.prl.phosphor.internal.runtime.PhosphorFrame;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.MethodNode;
 
 class WrapperCreator extends MethodVisitor {
     /**
@@ -16,16 +15,26 @@ class WrapperCreator extends MethodVisitor {
     private static final Type FRAME_TYPE = Type.getType(PhosphorFrame.class);
 
     private final String owner;
+    private final int methodAccess;
+    private final String methodName;
+    private final String methodDescriptor;
     private final boolean isInterface;
-    private final MethodNode mn;
-    private final String calleeName;
+    private final MethodVisitor delegate;
 
-    WrapperCreator(String owner, boolean isInterface, MethodNode mn, String calleeName) {
-        super(PhosphorTransformer.ASM_VERSION, mn);
+    WrapperCreator(
+            String owner,
+            boolean isInterface,
+            MethodVisitor mv,
+            int methodAccess,
+            String methodName,
+            String methodDescriptor) {
+        super(PhosphorTransformer.ASM_VERSION, mv);
         this.isInterface = isInterface;
         this.owner = owner;
-        this.mn = mn;
-        this.calleeName = calleeName;
+        this.methodAccess = methodAccess;
+        this.methodName = methodName;
+        this.methodDescriptor = methodDescriptor;
+        this.delegate = getDelegate();
     }
 
     @Override
@@ -37,25 +46,29 @@ class WrapperCreator extends MethodVisitor {
     @Override
     public void visitEnd() {
         // Restore the delegate
-        mv = mn;
+        mv = delegate;
+        // Create a replacement method body
         super.visitCode();
         String calleeDesc;
-        if (mn.desc.contains(FRAME_TYPE.getDescriptor())) {
+        String calleeName;
+        if (methodDescriptor.contains(FRAME_TYPE.getDescriptor())) {
             // Wrapping a native method; pop the frame
-            AsmUtil.loadThisAndArguments(mv, mn.access, mn.desc);
+            AsmUtil.loadThisAndArguments(mv, methodAccess, methodDescriptor);
             super.visitInsn(Opcodes.POP);
-            calleeDesc = ShadowMethodCreator.getOriginalMethodDescriptor(mn.desc);
+            calleeName = ShadowMethodCreator.getOriginalMethodName(methodName);
+            calleeDesc = ShadowMethodCreator.getOriginalMethodDescriptor(methodDescriptor);
         } else {
             // Wrapping a shadow; load all arguments and add a frame
-            AsmUtil.loadThisAndArguments(mv, mn.access, mn.desc);
+            AsmUtil.loadThisAndArguments(mv, methodAccess, methodDescriptor);
             HandleRegistry.accept(mv, Handle.FRAME_GET_INSTANCE);
-            calleeDesc = ShadowMethodCreator.getShadowMethodDescriptor(mn.desc);
+            calleeName = ShadowMethodCreator.getShadowMethodName(methodName);
+            calleeDesc = ShadowMethodCreator.getShadowMethodDescriptor(methodDescriptor);
         }
         // We do not want the call dynamically dispatched so use INVOKESPECIAL
-        int opcode = AsmUtil.isSet(mn.access, Opcodes.ACC_STATIC) ? Opcodes.INVOKESTATIC : Opcodes.INVOKESPECIAL;
-        // Add the method call
+        int opcode = AsmUtil.isSet(methodAccess, Opcodes.ACC_STATIC) ? Opcodes.INVOKESTATIC : Opcodes.INVOKESPECIAL;
+        // Add the call to the wrapped method
         super.visitMethodInsn(opcode, owner, calleeName, calleeDesc, isInterface);
-        super.visitInsn(Type.getReturnType(mn.desc).getOpcode(Opcodes.IRETURN));
+        super.visitInsn(Type.getReturnType(methodDescriptor).getOpcode(Opcodes.IRETURN));
         super.visitMaxs(-1, -1);
         super.visitEnd();
     }

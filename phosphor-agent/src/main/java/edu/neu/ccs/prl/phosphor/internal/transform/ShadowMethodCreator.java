@@ -39,8 +39,7 @@ class ShadowMethodCreator {
     public SimpleList<MethodNode> createShadows() {
         SimpleList<MethodNode> shadows = new SimpleList<>();
         for (MethodNode mn : classNode.methods) {
-            // Do not add a shadow for the class initialization method
-            if (!mn.name.equals("<clinit>")) {
+            if (shouldShadow(classNode.name, mn.name)) {
                 shadows.add(createShadow(mn));
             }
         }
@@ -57,14 +56,13 @@ class ShadowMethodCreator {
                 getShadowMethodDescriptor(mn.desc),
                 getShadowSignature(mn.signature),
                 AsmUtil.copyExceptions(mn));
-        MethodVisitor mv;
-        if (AsmUtil.isSet(mn.access, Opcodes.ACC_NATIVE)) {
-            mv = new WrapperCreator(classNode.name, isInterface, shadow, mn.name);
-        } else {
-            mv = propagate ? new TagPropagator(shadow) : shadow;
-        }
-        mv = new MaskApplier(mv);
+        MethodVisitor mv = new MaskApplier(shadow);
         mv = new HotSpotAnnotationRemover(mv);
+        if (AsmUtil.isSet(mn.access, Opcodes.ACC_NATIVE)) {
+            mv = new WrapperCreator(classNode.name, isInterface, mv, shadow.access, shadow.name, shadow.desc);
+        } else if (propagate) {
+            mv = new TagPropagator(mv);
+        }
         mn.accept(mv);
         return shadow;
     }
@@ -79,12 +77,25 @@ class ShadowMethodCreator {
         return start + FRAME_TYPE.getDescriptor() + end;
     }
 
+    public static String getOriginalMethodName(String name) {
+        if ("<clinit>".equals(name)) {
+            throw new IllegalArgumentException();
+        } else if (name.startsWith(PhosphorTransformer.ADDED_MEMBER_PREFIX)) {
+            return name.substring(PhosphorTransformer.ADDED_MEMBER_PREFIX.length());
+        } else {
+            return name;
+        }
+    }
+
     public static String getShadowMethodName(String name) {
-        if (name.equals("<init>")) {
+        if ("<clinit>".equals(name)) {
+            throw new IllegalArgumentException();
+        } else if (name.equals("<init>")) {
             // Cannot rename instance initialization methods
             return name;
-        } else if (name.equals("<clinit>")) {
-            return PhosphorTransformer.ADDED_MEMBER_PREFIX + "$$CLINIT_";
+        } else if (name.startsWith(PhosphorTransformer.ADDED_MEMBER_PREFIX)) {
+            // This is already a shadow method name
+            return name;
         } else {
             return PhosphorTransformer.ADDED_MEMBER_PREFIX + name;
         }
@@ -109,5 +120,19 @@ class ShadowMethodCreator {
 
     public static boolean isShadowMethod(String descriptor) {
         return descriptor.contains(FRAME_TYPE.getDescriptor());
+    }
+
+    public static boolean shouldShadow(String className, String methodName) {
+        if (methodName.equals("<clinit>")) {
+            return false;
+        } else if (methodName.equals("<init>")) {
+            // InnerClassLambdaMetafactory will check the number of constructors
+            // still instance initialization methods are never dynamically dispatched (INVOKESPECIAL is used)
+            // it is safe to be missing these wrappers
+            // TODO check if this is necessary
+            return !className.contains("$$Lambda$");
+        } else {
+            return true;
+        }
     }
 }

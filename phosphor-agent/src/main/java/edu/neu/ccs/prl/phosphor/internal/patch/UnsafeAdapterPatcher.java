@@ -51,6 +51,10 @@ class UnsafeAdapterPatcher extends ClassVisitor {
             // Load the method arguments from the parameters
             AsmUtil.loadArguments(target, access, descriptor);
             // Call the corresponding Unsafe method
+            if (unsafeType.getInternalName().equals(JDK_UNSAFE_INTERNAL_NAME) && name.startsWith("define")) {
+                // For Java 9+ the native method has a suffix appended
+                name += "0";
+            }
             target.visitMethodInsn(Opcodes.INVOKEVIRTUAL, unsafeType.getInternalName(), name, descriptor, false);
         }
         target.visitInsn(Type.getReturnType(descriptor).getOpcode(Opcodes.IRETURN));
