@@ -62,7 +62,7 @@ public final class PhosphorAgent {
                 if (className != null && cache != null && cache.hasEntry(className, classFileBuffer)) {
                     return cache.loadEntry(className);
                 }
-                byte[] result = transformer.transform(classFileBuffer);
+                byte[] result = transformer.transform(classFileBuffer, false);
                 if (className != null && cache != null && result != null) {
                     cache.storeEntry(className, classFileBuffer, result);
                 }

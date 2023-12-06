@@ -29,11 +29,16 @@ class ShadowMethodCreator {
      * {@code true} if taint tag propagation logic should be added.
      */
     private final boolean propagate;
+    /**
+     * {@code true} if this class will be defined using {@link jdk.internal.misc.Unsafe#defineAnonymousClass}.
+     */
+    private final boolean isHostedAnonymous;
 
-    ShadowMethodCreator(ClassNode classNode, boolean propagate) {
+    ShadowMethodCreator(ClassNode classNode, boolean propagate, boolean isHostedAnonymous) {
         this.classNode = classNode;
         this.isInterface = AsmUtil.isSet(classNode.access, Opcodes.ACC_INTERFACE);
         this.propagate = propagate;
+        this.isHostedAnonymous = isHostedAnonymous;
     }
 
     public SimpleList<MethodNode> createShadows() {
@@ -45,7 +50,7 @@ class ShadowMethodCreator {
         }
         if (!AsmUtil.isSet(classNode.access, Opcodes.ACC_ABSTRACT)
                 && (classNode.superName == null || classNode.superName.equals("java/lang/Object"))) {
-            // TODO add shadow wrappers for Object methods not overriden by this class
+            // TODO add shadow wrappers for Object methods not overridden by this class
         }
         return shadows;
     }
@@ -62,7 +67,7 @@ class ShadowMethodCreator {
         MethodVisitor mv = new MaskApplier(shadow);
         mv = new HotSpotAnnotationRemover(mv);
         if (AsmUtil.isSet(mn.access, Opcodes.ACC_NATIVE)) {
-            mv = new WrapperCreator(classNode.name, isInterface, mv, shadow.access, shadow.name, shadow.desc);
+            mv = new WrapperCreator(classNode.name, isInterface, mv, shadow, isHostedAnonymous);
         } else if (propagate) {
             mv = new TagPropagator(mv);
         }

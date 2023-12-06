@@ -49,7 +49,7 @@ public class PhosphorTransformer {
      */
     private static final ExclusionList exclusions = new ExclusionList("java/lang/Object", INTERNAL_PACKAGE_PREFIX);
 
-    public byte[] transform(byte[] classFileBuffer) {
+    public byte[] transform(byte[] classFileBuffer, boolean isHostedAnonymous) {
         ClassReader cr = new ClassReader(classFileBuffer);
         String className = cr.getClassName();
         if (exclusions.isExcluded(className) || AsmUtil.isSet(cr.getAccess(), Opcodes.ACC_MODULE)) {
@@ -57,14 +57,14 @@ public class PhosphorTransformer {
             return null;
         }
         try {
-            return transform(cr, true);
+            return transform(cr, true, isHostedAnonymous);
         } catch (ClassTooLargeException | MethodTooLargeException e) {
             // Try to just add shadow fields and methods
-            return transform(cr, false);
+            return transform(cr, false, isHostedAnonymous);
         }
     }
 
-    private byte[] transform(ClassReader cr, boolean propagate) {
+    private byte[] transform(ClassReader cr, boolean propagate, boolean isHostedAnonymous) {
         ClassNode cn = new ClassNode();
         cr.accept(cn, ClassReader.EXPAND_FRAMES);
         if (hasShadowInstrumentation(cn)) {
@@ -76,9 +76,9 @@ public class PhosphorTransformer {
         // Add shadow fields
         new ShadowFieldAdder().process(cn);
         // Create shadow methods for the raw original methods
-        SimpleList<MethodNode> shadows = new ShadowMethodCreator(cn, propagate).createShadows();
+        SimpleList<MethodNode> shadows = new ShadowMethodCreator(cn, propagate, isHostedAnonymous).createShadows();
         // Process the raw original methods
-        SimpleList<MethodNode> processed = new OriginalMethodProcessor(cn, propagate).process();
+        SimpleList<MethodNode> processed = new OriginalMethodProcessor(cn, propagate, isHostedAnonymous).process();
         // Replace the raw methods with the processed methods
         cn.methods.clear();
         for (int i = 0; i < processed.size(); i++) {
@@ -120,8 +120,8 @@ public class PhosphorTransformer {
         return false;
     }
 
-    public static byte[] getInstanceAndTransform(byte[] classFileBuffer) {
-        byte[] result = new PhosphorTransformer().transform(classFileBuffer);
+    public static byte[] getInstanceAndTransform(byte[] classFileBuffer, boolean isHostedAnonymous) {
+        byte[] result = new PhosphorTransformer().transform(classFileBuffer, isHostedAnonymous);
         return result == null ? classFileBuffer : result;
     }
 

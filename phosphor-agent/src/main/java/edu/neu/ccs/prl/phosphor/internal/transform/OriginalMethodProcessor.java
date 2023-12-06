@@ -21,11 +21,16 @@ class OriginalMethodProcessor {
      * {@code true} if taint tag propagation logic should be added.
      */
     private final boolean propagate;
+    /**
+     * {@code true} if this class will be defined using {@link jdk.internal.misc.Unsafe#defineAnonymousClass}.
+     */
+    private final boolean isHostedAnonymous;
 
-    OriginalMethodProcessor(ClassNode classNode, boolean propagate) {
+    OriginalMethodProcessor(ClassNode classNode, boolean propagate, boolean isHostedAnonymous) {
         this.classNode = classNode;
         this.isInterface = AsmUtil.isSet(classNode.access, Opcodes.ACC_INTERFACE);
         this.propagate = propagate;
+        this.isHostedAnonymous = isHostedAnonymous;
     }
 
     public SimpleList<MethodNode> process() {
@@ -41,17 +46,12 @@ class OriginalMethodProcessor {
                 PhosphorTransformer.ASM_VERSION, mn.access, mn.name, mn.desc, mn.signature, AsmUtil.copyExceptions(mn));
         MethodVisitor mv = new MaskApplier(processed);
         if (AsmUtil.hasMethodBody(mn.access)) {
-            // TODO actually check if class was created with defineAnonymousClass
-            if (!classNode.name.contains("$$Lambda$")
-                    && !classNode.name.startsWith("jdk/")
+            if (!classNode.name.startsWith("jdk/")
                     && !classNode.name.startsWith("java/")
                     && ShadowMethodCreator.shouldShadow(classNode.name, mn.name)) {
                 // Convert non-native, non-abstract methods to wrappers around the corresponding shadow
-                mv = new WrapperCreator(
-                        classNode.name, isInterface, mv, processed.access, processed.name, processed.desc);
+                mv = new WrapperCreator(classNode.name, isInterface, mv, processed, isHostedAnonymous);
             } else if (propagate) {
-                // If this class is an anonymous lambda (created via Unsafe#defineAnonymousClass),
-                // calling the shadow can cause issues
                 // If there is no shadow, add the propagation logic directly to the original method
                 mv = new TagPropagator(mv);
             }

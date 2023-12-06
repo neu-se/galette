@@ -19,7 +19,7 @@ public final class UnsafeMasker {
 
     @InvokedViaHandle(handle = Handle.JDK_UNSAFE_MASKER_DEFINE_ANONYMOUS)
     public static Class<?> defineAnonymousClass0(Object unsafe, Class<?> hostClass, byte[] data, Object[] cpPatches) {
-        byte[] instrumented = PhosphorTransformer.getInstanceAndTransform(data);
+        byte[] instrumented = PhosphorTransformer.getInstanceAndTransform(data, true);
         return UnsafeAdapter.defineAnonymousClass(hostClass, instrumented, cpPatches);
     }
 
@@ -29,7 +29,7 @@ public final class UnsafeMasker {
         if (b != null && off >= 0 && len >= 0 && off + len <= b.length) {
             byte[] buffer = new byte[len];
             System.arraycopy(b, off, buffer, 0, len);
-            byte[] instrumented = PhosphorTransformer.getInstanceAndTransform(buffer);
+            byte[] instrumented = PhosphorTransformer.getInstanceAndTransform(buffer, false);
             return UnsafeAdapter.defineClass(name, instrumented, 0, instrumented.length, loader, domain);
         }
         return UnsafeAdapter.defineClass(name, b, off, len, loader, domain);

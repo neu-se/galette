@@ -5,6 +5,7 @@ import edu.neu.ccs.prl.phosphor.internal.runtime.PhosphorFrame;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.MethodNode;
 
 class WrapperCreator extends MethodVisitor {
     /**
@@ -20,6 +21,14 @@ class WrapperCreator extends MethodVisitor {
     private final String methodDescriptor;
     private final boolean isInterface;
     private final MethodVisitor delegate;
+    /**
+     * {@code true} if this class will be defined using {@link jdk.internal.misc.Unsafe#defineAnonymousClass}.
+     */
+    private final boolean isHostedAnonymous;
+
+    WrapperCreator(String owner, boolean isInterface, MethodVisitor mv, MethodNode mn, boolean isHostedAnonymous) {
+        this(owner, isInterface, mv, mn.access, mn.name, mn.desc, isHostedAnonymous);
+    }
 
     WrapperCreator(
             String owner,
@@ -27,13 +36,15 @@ class WrapperCreator extends MethodVisitor {
             MethodVisitor mv,
             int methodAccess,
             String methodName,
-            String methodDescriptor) {
+            String methodDescriptor,
+            boolean isHostedAnonymous) {
         super(PhosphorTransformer.ASM_VERSION, mv);
         this.isInterface = isInterface;
         this.owner = owner;
         this.methodAccess = methodAccess;
         this.methodName = methodName;
         this.methodDescriptor = methodDescriptor;
+        this.isHostedAnonymous = isHostedAnonymous;
         this.delegate = getDelegate();
     }
 
@@ -64,12 +75,28 @@ class WrapperCreator extends MethodVisitor {
             calleeName = ShadowMethodCreator.getShadowMethodName(methodName);
             calleeDesc = ShadowMethodCreator.getShadowMethodDescriptor(methodDescriptor);
         }
-        // We do not want the call dynamically dispatched so use INVOKESPECIAL
-        int opcode = AsmUtil.isSet(methodAccess, Opcodes.ACC_STATIC) ? Opcodes.INVOKESTATIC : Opcodes.INVOKESPECIAL;
+        int opcode = computeOpcode();
         // Add the call to the wrapped method
         super.visitMethodInsn(opcode, owner, calleeName, calleeDesc, isInterface);
         super.visitInsn(Type.getReturnType(methodDescriptor).getOpcode(Opcodes.IRETURN));
         super.visitMaxs(-1, -1);
         super.visitEnd();
+    }
+
+    private int computeOpcode() {
+        int opcode;
+        if (AsmUtil.isSet(methodAccess, Opcodes.ACC_STATIC)) {
+            opcode = Opcodes.INVOKESTATIC;
+        } else if (isHostedAnonymous) {
+            // Hosted anonymous classes should not be subclassed
+            // so INVOKEVIRTUAL should be safe.
+            // We cannot use INVOKESPECIAL because the "context" for checking the INVOKESPECIAL is the host class,
+            // so the receiver of the INVOKESPECIAL must be an instance of the host class.
+            opcode = Opcodes.INVOKEVIRTUAL;
+        } else {
+            // We do not want the call dynamically dispatched; use INVOKESPECIAL.
+            opcode = Opcodes.INVOKESPECIAL;
+        }
+        return opcode;
     }
 }
