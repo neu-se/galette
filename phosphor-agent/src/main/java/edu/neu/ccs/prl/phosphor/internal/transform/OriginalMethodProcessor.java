@@ -46,7 +46,7 @@ class OriginalMethodProcessor {
                 PhosphorTransformer.ASM_VERSION, mn.access, mn.name, mn.desc, mn.signature, AsmUtil.copyExceptions(mn));
         MethodVisitor mv = new MaskApplier(processed);
         if (AsmUtil.hasMethodBody(mn.access)) {
-            if (!classNode.name.startsWith("jdk/")
+            if (!isGeneratedProxy(classNode.name)
                     && !classNode.name.startsWith("java/")
                     && ShadowMethodCreator.shouldShadow(classNode.name, mn.name)) {
                 // Convert non-native, non-abstract methods to wrappers around the corresponding shadow
@@ -58,5 +58,9 @@ class OriginalMethodProcessor {
         }
         mn.accept(mv);
         return processed;
+    }
+
+    private static boolean isGeneratedProxy(String className) {
+        return className.startsWith("jdk/internal/reflect/Generated") || className.startsWith("sun/reflect/Generated");
     }
 }
