@@ -340,6 +340,15 @@ public class ObjectIntMap<K> {
         return x + 1;
     }
 
+    public SimpleList<K> getKeys() {
+        SimpleList<K> keys = new SimpleList<>();
+        Iterator<Entry<K>> itr = entryIterator();
+        while (itr.hasNext()) {
+            keys.add(itr.next().getKey());
+        }
+        return keys;
+    }
+
     public static class Entry<K> {
         private final int hash;
         private final K key;

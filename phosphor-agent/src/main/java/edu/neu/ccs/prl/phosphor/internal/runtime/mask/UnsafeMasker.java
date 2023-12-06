@@ -1,30 +1,20 @@
 package edu.neu.ccs.prl.phosphor.internal.runtime.mask;
 
-import edu.neu.ccs.prl.phosphor.internal.runtime.Handle;
-import edu.neu.ccs.prl.phosphor.internal.runtime.InvokedViaHandle;
 import edu.neu.ccs.prl.phosphor.internal.transform.PhosphorTransformer;
 import java.security.ProtectionDomain;
 
+@SuppressWarnings("unused")
 public final class UnsafeMasker {
-    @InvokedViaHandle(handle = Handle.SUN_UNSAFE_MASKER_DEFINE_ANONYMOUS)
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "defineAnonymousClass0", isStatic = false)
+    @Mask(owner = "sun/misc/Unsafe", name = "defineAnonymousClass", isStatic = false)
     public static Class<?> defineAnonymousClass(Object unsafe, Class<?> hostClass, byte[] data, Object[] cpPatches) {
-        return defineAnonymousClass0(unsafe, hostClass, data, cpPatches);
-    }
-
-    @InvokedViaHandle(handle = Handle.SUN_UNSAFE_MASKER_DEFINE_CLASS)
-    public static Class<?> defineClass(
-            Object unsafe, String name, byte[] b, int off, int len, ClassLoader loader, ProtectionDomain domain) {
-        return defineClass0(unsafe, name, b, off, len, loader, domain);
-    }
-
-    @InvokedViaHandle(handle = Handle.JDK_UNSAFE_MASKER_DEFINE_ANONYMOUS)
-    public static Class<?> defineAnonymousClass0(Object unsafe, Class<?> hostClass, byte[] data, Object[] cpPatches) {
         byte[] instrumented = PhosphorTransformer.getInstanceAndTransform(data, true);
         return UnsafeAdapter.defineAnonymousClass(hostClass, instrumented, cpPatches);
     }
 
-    @InvokedViaHandle(handle = Handle.JDK_UNSAFE_MASKER_DEFINE_CLASS)
-    public static Class<?> defineClass0(
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "defineClass0", isStatic = false)
+    @Mask(owner = "sun/misc/Unsafe", name = "defineClass", isStatic = false)
+    public static Class<?> defineClass(
             Object unsafe, String name, byte[] b, int off, int len, ClassLoader loader, ProtectionDomain domain) {
         if (b != null && off >= 0 && len >= 0 && off + len <= b.length) {
             byte[] buffer = new byte[len];

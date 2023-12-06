@@ -56,11 +56,11 @@ public final class Patcher {
     }
 
     private static byte[] patch(String name, byte[] classFileBuffer) {
-        name = name.replace(".class", "");
-        if (UnsafeAdapterPatcher.isApplicable(name)) {
+        String className = name.replace(".class", "");
+        if (UnsafeAdapterPatcher.isApplicable(className)) {
             return apply(classFileBuffer, UnsafeAdapterPatcher::createForStandard);
-        } else if (HandleRegistryPatcher.isApplicable(name)) {
-            return apply(classFileBuffer, HandleRegistryPatcher::new);
+        } else if (RegistryPatcher.isApplicable(className)) {
+            return apply(classFileBuffer, cv -> new RegistryPatcher(cv, className));
         }
         return classFileBuffer;
     }

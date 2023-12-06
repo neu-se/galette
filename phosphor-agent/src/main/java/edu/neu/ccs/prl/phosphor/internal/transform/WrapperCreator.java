@@ -88,8 +88,8 @@ class WrapperCreator extends MethodVisitor {
         if (AsmUtil.isSet(methodAccess, Opcodes.ACC_STATIC)) {
             opcode = Opcodes.INVOKESTATIC;
         } else if (isHostedAnonymous) {
-            // Hosted anonymous classes should not be subclassed
-            // so INVOKEVIRTUAL should be safe.
+            // Hosted anonymous classes should not be subclassed, so INVOKEVIRTUAL should be safe.
+            // Based on src/hotspot/share/interpreter/linkResolver.cpp from Eclipse Temurin JDK (version 11.0.21+9):
             // We cannot use INVOKESPECIAL because the "context" for checking the INVOKESPECIAL is the host class,
             // so the receiver of the INVOKESPECIAL must be an instance of the host class.
             opcode = Opcodes.INVOKEVIRTUAL;

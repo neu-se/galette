@@ -1,7 +1,11 @@
 package edu.neu.ccs.prl.phosphor.internal.transform;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
  * Immutable record that stores the information needed by a {@link MethodVisitor} to add a call to a method.
@@ -132,5 +136,20 @@ public final class MethodRecord {
         result = 31 * result + descriptor.hashCode();
         result = 31 * result + (isInterface ? 1 : 0);
         return result;
+    }
+
+    public static MethodRecord createRecord(Class<?> owner, Constructor<?> c) {
+        return new MethodRecord(
+                Opcodes.INVOKESPECIAL, Type.getInternalName(owner), "<init>", Type.getConstructorDescriptor(c), false);
+    }
+
+    public static MethodRecord createRecord(Class<?> owner, Method m) {
+        boolean isInterface = Modifier.isInterface(owner.getModifiers());
+        int opcode = isInterface ? Opcodes.INVOKEINTERFACE : Opcodes.INVOKEVIRTUAL;
+        if (Modifier.isStatic(m.getModifiers())) {
+            opcode = Opcodes.INVOKESTATIC;
+        }
+        return new MethodRecord(
+                opcode, Type.getInternalName(owner), m.getName(), Type.getMethodDescriptor(m), isInterface);
     }
 }

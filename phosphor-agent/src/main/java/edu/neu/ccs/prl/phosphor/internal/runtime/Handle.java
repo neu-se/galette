@@ -1,16 +1,13 @@
 package edu.neu.ccs.prl.phosphor.internal.runtime;
 
-import edu.neu.ccs.prl.phosphor.internal.runtime.mask.UnsafeMasker;
 import edu.neu.ccs.prl.phosphor.internal.transform.HandleRegistry;
+import edu.neu.ccs.prl.phosphor.internal.transform.MaskRegistry;
 
 public enum Handle {
     TAG_GET_EMPTY(Tag.class),
-    HANDLE_REGISTRY_ADD_RECORD(HandleRegistry.class),
-    FRAME_GET_INSTANCE(PhosphorFrame.class),
-    SUN_UNSAFE_MASKER_DEFINE_CLASS(UnsafeMasker.class),
-    SUN_UNSAFE_MASKER_DEFINE_ANONYMOUS(UnsafeMasker.class),
-    JDK_UNSAFE_MASKER_DEFINE_CLASS(UnsafeMasker.class),
-    JDK_UNSAFE_MASKER_DEFINE_ANONYMOUS(UnsafeMasker.class);
+    HANDLE_REGISTRY_PUT(HandleRegistry.class),
+    MASK_REGISTRY_PUT(MaskRegistry.class),
+    FRAME_GET_INSTANCE(PhosphorFrame.class);
 
     private final Class<?> owner;
 

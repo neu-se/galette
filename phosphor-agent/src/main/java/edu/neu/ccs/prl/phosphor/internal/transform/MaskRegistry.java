@@ -1,13 +1,19 @@
 package edu.neu.ccs.prl.phosphor.internal.transform;
 
+import edu.neu.ccs.prl.phosphor.internal.patch.RegistryPatcher;
 import edu.neu.ccs.prl.phosphor.internal.runtime.Handle;
-import edu.neu.ccs.prl.phosphor.internal.runtime.collection.ObjectIntMap;
+import edu.neu.ccs.prl.phosphor.internal.runtime.InvokedViaHandle;
+import edu.neu.ccs.prl.phosphor.internal.runtime.Patched;
+import edu.neu.ccs.prl.phosphor.internal.runtime.collection.SimpleList;
+import edu.neu.ccs.prl.phosphor.internal.runtime.collection.SimpleMap;
+import edu.neu.ccs.prl.phosphor.internal.runtime.mask.Mask;
 import edu.neu.ccs.prl.phosphor.internal.runtime.mask.UnsafeMasker;
+import java.lang.reflect.Method;
+import org.objectweb.asm.Type;
 
 public final class MaskRegistry {
-    private static final String JDK_UNSAFE_INTERNAL_NAME = "jdk/internal/misc/Unsafe";
-    private static final String SUN_UNSAFE_INTERNAL_NAME = "sun/misc/Unsafe";
-    private static final ObjectIntMap<String> maskMap = new ObjectIntMap<>();
+    private static final Class<?>[] SOURCES = new Class[] {UnsafeMasker.class};
+    private static final SimpleMap<String, MethodRecord> masks = new SimpleMap<>();
 
     private MaskRegistry() {
         throw new AssertionError();
@@ -18,35 +24,47 @@ public final class MaskRegistry {
     }
 
     public static MethodRecord getMask(String className, String methodName, String descriptor) {
-        String key = getKey(className, methodName, descriptor);
-        int index = maskMap.getOrDefault(key, -1);
-        if (index != -1) {
-            Handle handle = Handle.values()[index];
-            return HandleRegistry.getRecord(handle);
-        }
-        return null;
+        return getMask(getKey(className, methodName, descriptor));
+    }
+
+    public static MethodRecord getMask(String key) {
+        return masks.get(key);
     }
 
     public static String getKey(String className, String methodName, String descriptor) {
         return className + "." + methodName + descriptor;
     }
 
+    public static SimpleList<String> getKeys() {
+        return masks.getKeys();
+    }
+
+    /**
+     * The body of this method is replaced by {@link RegistryPatcher} to avoid uses of reflection.
+     */
+    @Patched
     private static void initialize() {
-        for (Handle handle : Handle.values()) {
-            if (handle.getOwner().equals(UnsafeMasker.class)) {
-                MethodRecord record = HandleRegistry.getRecord(handle);
-                maskMap.put(createKey(JDK_UNSAFE_INTERNAL_NAME, record), handle.ordinal());
-                maskMap.put(createKey(SUN_UNSAFE_INTERNAL_NAME, record), handle.ordinal());
+        for (Class<?> clazz : SOURCES) {
+            for (Method method : clazz.getDeclaredMethods()) {
+                for (Mask mask : method.getAnnotationsByType(Mask.class)) {
+                    String key = createKey(method, mask);
+                    masks.put(key, MethodRecord.createRecord(clazz, method));
+                }
             }
         }
     }
 
-    private static String createKey(String owner, MethodRecord record) {
-        String descriptor = removeFirstParameter(record.getDescriptor());
-        return MaskRegistry.getKey(owner, record.getName(), descriptor);
+    @InvokedViaHandle(handle = Handle.MASK_REGISTRY_PUT)
+    private static void put(String key, int opcode, String owner, String name, String descriptor, boolean isInterface) {
+        masks.put(key, new MethodRecord(opcode, owner, name, descriptor, isInterface));
     }
 
-    private static String removeFirstParameter(String descriptor) {
-        return '(' + descriptor.substring(descriptor.indexOf(';') + 1);
+    private static String createKey(Method method, Mask mask) {
+        String descriptor = Type.getMethodDescriptor(method);
+        if (!mask.isStatic()) {
+            // Remove the parameter for the receiver
+            descriptor = '(' + descriptor.substring(descriptor.indexOf(';') + 1);
+        }
+        return MaskRegistry.getKey(mask.name(), mask.owner(), descriptor);
     }
 }
