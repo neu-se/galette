@@ -5,15 +5,15 @@ import java.security.ProtectionDomain;
 
 @SuppressWarnings("unused")
 public final class UnsafeMasker {
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "defineAnonymousClass0", isStatic = false)
-    @Mask(owner = "sun/misc/Unsafe", name = "defineAnonymousClass", isStatic = false)
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "defineAnonymousClass0")
+    @Mask(owner = "sun/misc/Unsafe", name = "defineAnonymousClass")
     public static Class<?> defineAnonymousClass(Object unsafe, Class<?> hostClass, byte[] data, Object[] cpPatches) {
         byte[] instrumented = PhosphorTransformer.getInstanceAndTransform(data, true);
         return UnsafeAdapter.defineAnonymousClass(hostClass, instrumented, cpPatches);
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "defineClass0", isStatic = false)
-    @Mask(owner = "sun/misc/Unsafe", name = "defineClass", isStatic = false)
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "defineClass0")
+    @Mask(owner = "sun/misc/Unsafe", name = "defineClass")
     public static Class<?> defineClass(
             Object unsafe, String name, byte[] b, int off, int len, ClassLoader loader, ProtectionDomain domain) {
         if (b != null && off >= 0 && len >= 0 && off + len <= b.length) {

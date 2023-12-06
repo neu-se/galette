@@ -7,7 +7,8 @@ public enum Handle {
     TAG_GET_EMPTY(Tag.class),
     HANDLE_REGISTRY_PUT(HandleRegistry.class),
     MASK_REGISTRY_PUT(MaskRegistry.class),
-    FRAME_GET_INSTANCE(PhosphorFrame.class);
+    FRAME_GET_INSTANCE(PhosphorFrame.class),
+    FRAME_SET_CALLER_CLASS(PhosphorFrame.class);
 
     private final Class<?> owner;
 

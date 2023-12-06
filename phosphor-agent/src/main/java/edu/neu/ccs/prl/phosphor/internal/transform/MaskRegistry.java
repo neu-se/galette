@@ -7,13 +7,15 @@ import edu.neu.ccs.prl.phosphor.internal.runtime.Patched;
 import edu.neu.ccs.prl.phosphor.internal.runtime.collection.SimpleList;
 import edu.neu.ccs.prl.phosphor.internal.runtime.collection.SimpleMap;
 import edu.neu.ccs.prl.phosphor.internal.runtime.mask.Mask;
+import edu.neu.ccs.prl.phosphor.internal.runtime.mask.MaskType;
+import edu.neu.ccs.prl.phosphor.internal.runtime.mask.ReflectionMasker;
 import edu.neu.ccs.prl.phosphor.internal.runtime.mask.UnsafeMasker;
 import java.lang.reflect.Method;
 import org.objectweb.asm.Type;
 
 public final class MaskRegistry {
-    private static final Class<?>[] SOURCES = new Class[] {UnsafeMasker.class};
-    private static final SimpleMap<String, MethodRecord> masks = new SimpleMap<>();
+    private static final Class<?>[] SOURCES = new Class[] {UnsafeMasker.class, ReflectionMasker.class};
+    private static final SimpleMap<String, MaskInfo> masks = new SimpleMap<>();
 
     private MaskRegistry() {
         throw new AssertionError();
@@ -23,11 +25,11 @@ public final class MaskRegistry {
         initialize();
     }
 
-    public static MethodRecord getMask(String className, String methodName, String descriptor) {
+    public static MaskInfo getMask(String className, String methodName, String descriptor) {
         return getMask(getKey(className, methodName, descriptor));
     }
 
-    public static MethodRecord getMask(String key) {
+    public static MaskInfo getMask(String key) {
         return masks.get(key);
     }
 
@@ -48,15 +50,24 @@ public final class MaskRegistry {
             for (Method method : clazz.getDeclaredMethods()) {
                 for (Mask mask : method.getAnnotationsByType(Mask.class)) {
                     String key = createKey(method, mask);
-                    masks.put(key, MethodRecord.createRecord(clazz, method));
+                    MethodRecord record = MethodRecord.createRecord(clazz, method);
+                    masks.put(key, new MaskInfo(mask.type(), record));
                 }
             }
         }
     }
 
     @InvokedViaHandle(handle = Handle.MASK_REGISTRY_PUT)
-    private static void put(String key, int opcode, String owner, String name, String descriptor, boolean isInterface) {
-        masks.put(key, new MethodRecord(opcode, owner, name, descriptor, isInterface));
+    private static void put(
+            String key,
+            int typeOrdinal,
+            int opcode,
+            String owner,
+            String name,
+            String descriptor,
+            boolean isInterface) {
+        MethodRecord record = new MethodRecord(opcode, owner, name, descriptor, isInterface);
+        masks.put(key, new MaskInfo(MaskType.values()[typeOrdinal], record));
     }
 
     private static String createKey(Method method, Mask mask) {
@@ -65,6 +76,24 @@ public final class MaskRegistry {
             // Remove the parameter for the receiver
             descriptor = '(' + descriptor.substring(descriptor.indexOf(';') + 1);
         }
-        return MaskRegistry.getKey(mask.name(), mask.owner(), descriptor);
+        return MaskRegistry.getKey(mask.owner(), mask.name(), descriptor);
+    }
+
+    public static final class MaskInfo {
+        private final MaskType type;
+        private final MethodRecord record;
+
+        public MaskInfo(MaskType type, MethodRecord record) {
+            this.type = type;
+            this.record = record;
+        }
+
+        public MaskType getType() {
+            return type;
+        }
+
+        public MethodRecord getRecord() {
+            return record;
+        }
     }
 }

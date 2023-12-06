@@ -51,17 +51,18 @@ public class RegistryPatcher extends ClassVisitor {
             for (int i = 0; i < keys.size(); i++) {
                 String key = keys.get(i);
                 mv.visitLdcInsn(key);
-                push(mv, MaskRegistry.getMask(key));
+                MaskRegistry.MaskInfo mask = MaskRegistry.getMask(key);
+                AsmUtil.pushInt(mv, mask.getType().ordinal());
+                push(mv, mask.getRecord());
                 HandleRegistry.accept(mv, Handle.MASK_REGISTRY_PUT);
             }
         }
-
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(-1, -1);
         mv.visitEnd();
     }
 
-    private static void push(MethodVisitor mv, MethodRecord record) {
+    static void push(MethodVisitor mv, MethodRecord record) {
         AsmUtil.pushInt(mv, record.getOpcode());
         mv.visitLdcInsn(record.getOwner());
         mv.visitLdcInsn(record.getName());

@@ -1,6 +1,6 @@
 package edu.neu.ccs.prl.phosphor.instrument;
 
-import edu.neu.ccs.prl.phosphor.internal.patch.EmbeddedPatcher;
+import edu.neu.ccs.prl.phosphor.internal.patch.Patcher;
 import edu.neu.ccs.prl.phosphor.internal.runtime.Tag;
 import edu.neu.ccs.prl.phosphor.internal.transform.PhosphorTransformer;
 import java.io.File;
@@ -43,7 +43,7 @@ public class PhosphorInstrumentation implements Instrumentation {
 
     @Override
     public BiFunction<String, byte[], byte[]> createPatcher(Function<String, byte[]> entryLocator) {
-        EmbeddedPatcher patcher = new EmbeddedPatcher(entryLocator);
+        Patcher patcher = new Patcher(entryLocator);
         return patcher::patch;
     }
 

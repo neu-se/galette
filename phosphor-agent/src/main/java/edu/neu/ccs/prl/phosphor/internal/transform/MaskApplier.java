@@ -1,5 +1,6 @@
 package edu.neu.ccs.prl.phosphor.internal.transform;
 
+import edu.neu.ccs.prl.phosphor.internal.transform.MaskRegistry.MaskInfo;
 import org.objectweb.asm.MethodVisitor;
 
 class MaskApplier extends MethodVisitor {
@@ -9,11 +10,20 @@ class MaskApplier extends MethodVisitor {
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
-        MethodRecord mask = MaskRegistry.getMask(owner, name, descriptor);
+        MaskInfo mask = MaskRegistry.getMask(owner, name, descriptor);
         if (mask != null) {
-            mask.accept(getDelegate());
-        } else {
-            super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+            switch (mask.getType()) {
+                case REPLACE:
+                    mask.getRecord().accept(getDelegate());
+                    return;
+                case REPAIR_RETURN:
+                    super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+                    mask.getRecord().accept(getDelegate());
+                    return;
+                default:
+                    throw new AssertionError();
+            }
         }
+        super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
     }
 }

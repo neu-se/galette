@@ -3,21 +3,18 @@ package edu.neu.ccs.prl.phosphor.internal.patch;
 import edu.neu.ccs.prl.phosphor.internal.runtime.mask.UnsafeAdapter;
 import edu.neu.ccs.prl.phosphor.internal.transform.AsmUtil;
 import edu.neu.ccs.prl.phosphor.internal.transform.PhosphorTransformer;
+import java.util.function.Function;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-class UnsafeAdapterPatcher extends ClassVisitor {
-    private static final String JDK_UNSAFE_INTERNAL_NAME = "jdk/internal/misc/Unsafe";
-    private static final String SUN_UNSAFE_INTERNAL_NAME = "sun/misc/Unsafe";
-    private static final String UNSAFE_WRAPPER_INTERNAL_NAME = Type.getInternalName(UnsafeAdapter.class);
-    private static final String INVALID_FIELD_OFFSET_METHOD_NAME = "getInvalidFieldOffset";
-    private final Type unsafeType;
+final class UnsafeAdapterPatcher extends ClassVisitor {
+    private final Function<String, byte[]> entryLocator;
 
-    private UnsafeAdapterPatcher(ClassVisitor cv, String unsafeInternalName) {
+    UnsafeAdapterPatcher(ClassVisitor cv, Function<String, byte[]> entryLocator) {
         super(PhosphorTransformer.ASM_VERSION, cv);
-        unsafeType = Type.getObjectType(unsafeInternalName);
+        this.entryLocator = entryLocator;
     }
 
     @Override
@@ -36,41 +33,37 @@ class UnsafeAdapterPatcher extends ClassVisitor {
         return target;
     }
 
-    private void replaceBody(int access, String name, String descriptor, MethodVisitor target) {
-        target.visitCode();
-        if (name.equals(INVALID_FIELD_OFFSET_METHOD_NAME)) {
-            target.visitFieldInsn(Opcodes.GETSTATIC, unsafeType.getInternalName(), "INVALID_FIELD_OFFSET", "I");
+    private void replaceBody(int access, String name, String descriptor, MethodVisitor mv) {
+        // TODO fix getObject vs getReference for Java 11 vs 17
+        // Use the JDK version for embedded Phosphor
+        Type unsafeType = Type.getObjectType(entryLocator == null ? "sun/misc/Unsafe" : "jdk/internal/misc/Unsafe");
+        mv.visitCode();
+        // Special case for the field access
+        if (name.equals("getInvalidFieldOffset")) {
+            mv.visitFieldInsn(Opcodes.GETSTATIC, unsafeType.getInternalName(), "INVALID_FIELD_OFFSET", "I");
         } else {
             // Get the Unsafe instance
-            target.visitMethodInsn(
+            mv.visitMethodInsn(
                     Opcodes.INVOKESTATIC,
                     unsafeType.getInternalName(),
                     "getUnsafe",
                     "()" + unsafeType.getDescriptor(),
                     false);
             // Load the method arguments from the parameters
-            AsmUtil.loadArguments(target, access, descriptor);
+            AsmUtil.loadArguments(mv, access, descriptor);
             // Call the corresponding Unsafe method
-            if (unsafeType.getInternalName().equals(JDK_UNSAFE_INTERNAL_NAME) && name.startsWith("define")) {
+            if (entryLocator != null && name.startsWith("define")) {
                 // For Java 9+ the native method has a suffix appended
                 name += "0";
             }
-            target.visitMethodInsn(Opcodes.INVOKEVIRTUAL, unsafeType.getInternalName(), name, descriptor, false);
+            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, unsafeType.getInternalName(), name, descriptor, false);
         }
-        target.visitInsn(Type.getReturnType(descriptor).getOpcode(Opcodes.IRETURN));
-        target.visitMaxs(-1, -1);
-        target.visitEnd();
+        mv.visitInsn(Type.getReturnType(descriptor).getOpcode(Opcodes.IRETURN));
+        mv.visitMaxs(-1, -1);
+        mv.visitEnd();
     }
 
     public static boolean isApplicable(String className) {
-        return UNSAFE_WRAPPER_INTERNAL_NAME.equals(className);
-    }
-
-    public static UnsafeAdapterPatcher createForStandard(ClassVisitor cv) {
-        return new UnsafeAdapterPatcher(cv, SUN_UNSAFE_INTERNAL_NAME);
-    }
-
-    public static UnsafeAdapterPatcher createForEmbedded(ClassVisitor cv) {
-        return new UnsafeAdapterPatcher(cv, JDK_UNSAFE_INTERNAL_NAME);
+        return Type.getInternalName(UnsafeAdapter.class).equals(className);
     }
 }

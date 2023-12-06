@@ -14,19 +14,41 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
 public final class Patcher {
-    private Patcher() {
-        throw new AssertionError();
+    /**
+     * Function for locating the bytes of JCL classes or {@code null} if this patcher is not being applied to an
+     * embedded Phosphor distribution.
+     */
+    private final Function<String, byte[]> entryLocator;
+
+    public Patcher(Function<String, byte[]> entryLocator) {
+        this.entryLocator = entryLocator;
+    }
+
+    public byte[] patch(String name, byte[] classFileBuffer) {
+        String className = name.endsWith(".class") ? name.substring(0, name.length() - ".class".length()) : name;
+        ClassReader cr = new ClassReader(classFileBuffer);
+        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
+        ClassVisitor cv = cw;
+        if (RegistryPatcher.isApplicable(className)) {
+            cv = new RegistryPatcher(cv, className);
+        }
+        if (UnsafeAdapterPatcher.isApplicable(className)) {
+            cv = new UnsafeAdapterPatcher(cv, entryLocator);
+        }
+        cr.accept(cv, ClassReader.EXPAND_FRAMES);
+        return cw.toByteArray();
     }
 
     public static void main(String[] args) throws IOException {
         File archive = new File(args[0]);
         File temp = FileUtil.createTemporaryFile("patch-", ".jar");
+        Patcher patcher = new Patcher(null);
         try (ZipInputStream zin = new ZipInputStream(Files.newInputStream(archive.toPath()));
                 ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(temp.toPath()))) {
             for (ZipEntry entry; (entry = zin.getNextEntry()) != null; ) {
                 byte[] content = FileUtil.readAllBytes(zin);
                 if (entry.getName().endsWith(".class")) {
-                    content = patch(entry.getName(), content);
+                    content = patcher.patch(entry.getName(), content);
                 }
                 writeEntry(zos, entry, content);
             }
@@ -53,24 +75,5 @@ public final class Patcher {
         zos.putNextEntry(outEntry);
         zos.write(content);
         zos.closeEntry();
-    }
-
-    private static byte[] patch(String name, byte[] classFileBuffer) {
-        String className = name.replace(".class", "");
-        if (UnsafeAdapterPatcher.isApplicable(className)) {
-            return apply(classFileBuffer, UnsafeAdapterPatcher::createForStandard);
-        } else if (RegistryPatcher.isApplicable(className)) {
-            return apply(classFileBuffer, cv -> new RegistryPatcher(cv, className));
-        }
-        return classFileBuffer;
-    }
-
-    public static byte[] apply(
-            byte[] classFileBuffer, Function<? super ClassVisitor, ? extends ClassVisitor> visitorFactory) {
-        ClassReader cr = new ClassReader(classFileBuffer);
-        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
-        ClassVisitor cv = visitorFactory.apply(cw);
-        cr.accept(cv, ClassReader.EXPAND_FRAMES);
-        return cw.toByteArray();
     }
 }
