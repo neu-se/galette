@@ -31,7 +31,7 @@ class CallerSensitiveFixer extends MethodVisitor {
         if (reflectionInternalName != null && ShadowMethodCreator.isShadowMethod(descriptor)) {
             // Top of stack should be the frame
             super.visitMethodInsn(
-                    Opcodes.INVOKESPECIAL, reflectionInternalName, "getCallerClass", "()Ljava/lang/Class;", false);
+                    Opcodes.INVOKESTATIC, reflectionInternalName, "getCallerClass", "()Ljava/lang/Class;", false);
             HandleRegistry.accept(getDelegate(), Handle.FRAME_SET_CALLER_CLASS);
         }
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
