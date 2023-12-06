@@ -127,7 +127,7 @@ class ShadowMethodCreator {
     }
 
     public static boolean isShadowMethod(String descriptor) {
-        return descriptor.contains(FRAME_TYPE.getDescriptor());
+        return descriptor.contains(FRAME_TYPE.getDescriptor() + ")");
     }
 
     public static boolean shouldShadow(String className, String methodName) {
