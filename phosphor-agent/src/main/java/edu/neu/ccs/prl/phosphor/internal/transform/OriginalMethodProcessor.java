@@ -50,10 +50,11 @@ class OriginalMethodProcessor {
                     && !classNode.name.startsWith("java/")
                     && ShadowMethodCreator.shouldShadow(classNode.name, mn.name)) {
                 // Convert non-native, non-abstract methods to wrappers around the corresponding shadow
+                mv = new CallerSensitiveFixer(mv);
                 mv = new WrapperCreator(classNode.name, isInterface, mv, processed, isHostedAnonymous);
             } else if (propagate) {
                 // If there is no shadow, add the propagation logic directly to the original method
-                mv = new TagPropagator(mv);
+                mv = new TagPropagator(mv, mn, false);
             }
         }
         mn.accept(mv);

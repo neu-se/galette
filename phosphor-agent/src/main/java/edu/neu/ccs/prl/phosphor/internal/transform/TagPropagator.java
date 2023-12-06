@@ -1,20 +1,66 @@
 package edu.neu.ccs.prl.phosphor.internal.transform;
 
 import edu.neu.ccs.prl.phosphor.internal.runtime.Handle;
+import edu.neu.ccs.prl.phosphor.internal.runtime.PhosphorFrame;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.MethodNode;
 
-// TODO
 class TagPropagator extends MethodVisitor {
-    TagPropagator(MethodVisitor mv) {
+    /**
+     * MethodNode storing for the original uninstrumented method.
+     *
+     */
+    private final MethodNode original;
+    /**
+     * Local variable index used to store the {@link edu.neu.ccs.prl.phosphor.internal.runtime.PhosphorFrame}
+     * for this method.
+     */
+    private final int frameIndex;
+    /**
+     * {@code true} if the method being visited was passed a
+     * {@link edu.neu.ccs.prl.phosphor.internal.runtime.PhosphorFrame} as an argument.
+     */
+    private final boolean isShadow;
+    /**
+     * Label marking the end of the frame local variable's scope.
+     */
+    private final Label frameEnd = new Label();
+
+    TagPropagator(MethodVisitor mv, MethodNode original, boolean isShadow) {
         super(PhosphorTransformer.ASM_VERSION, mv);
+        this.original = original;
+        this.frameIndex = original.maxLocals;
+        this.isShadow = isShadow;
     }
 
     @Override
     public void visitCode() {
-        // Store the frame immediately
+        super.visitCode();
+        storeFrame();
         // Load argument tags from the frame
         // TODO initialize shadow local variables and stack
         super.visitCode();
+    }
+
+    private void storeFrame() {
+        Label frameStart = new Label();
+        super.visitLabel(frameStart);
+        super.visitLocalVariable(
+                PhosphorTransformer.ADDED_MEMBER_PREFIX + "frame",
+                Type.getDescriptor(PhosphorFrame.class),
+                null,
+                frameStart,
+                frameEnd,
+                frameIndex);
+        if (isShadow) {
+            loadPassedFrame();
+        } else {
+            HandleRegistry.accept(mv, Handle.FRAME_GET_INSTANCE);
+        }
+        super.visitVarInsn(Opcodes.ASTORE, frameIndex);
     }
 
     @Override
@@ -26,6 +72,17 @@ class TagPropagator extends MethodVisitor {
             HandleRegistry.accept(mv, Handle.FRAME_GET_INSTANCE);
         }
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+    }
+
+    @Override
+    public void visitFrame(int type, int numLocal, Object[] local, int numStack, Object[] stack) {
+        super.visitFrame(type, numLocal, local, numStack, stack);
+    }
+
+    @Override
+    public void visitMaxs(int maxStack, int maxLocals) {
+        super.visitLabel(frameEnd);
+        super.visitMaxs(-1, -1);
     }
 
     private static boolean isIgnoredMethod(String owner, String name) {
@@ -55,5 +112,13 @@ class TagPropagator extends MethodVisitor {
             return name.equals("getCallerClass");
         }
         return ShadowMethodCreator.shouldShadow(owner, name);
+    }
+
+    private void loadPassedFrame() {
+        int varIndex = AsmUtil.isSet(original.access, Opcodes.ACC_STATIC) ? 0 : 1;
+        for (Type argument : Type.getArgumentTypes(original.desc)) {
+            varIndex += argument.getSize();
+        }
+        super.visitVarInsn(Opcodes.ALOAD, varIndex);
     }
 }
