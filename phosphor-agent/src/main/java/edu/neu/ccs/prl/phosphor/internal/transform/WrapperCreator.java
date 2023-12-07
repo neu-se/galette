@@ -25,6 +25,11 @@ class WrapperCreator extends MethodVisitor {
      * {@code true} if this class will be defined using {@link jdk.internal.misc.Unsafe#defineAnonymousClass}.
      */
     private final boolean isHostedAnonymous;
+    /**
+     * Instance used to "fix" issues caused by wrapping a shadow for an original method that calls
+     * {@code Reflection.getCallerClass()}.
+     */
+    private final CallerSensitiveFixer fixer = new CallerSensitiveFixer();
 
     WrapperCreator(String owner, boolean isInterface, MethodVisitor mv, MethodNode mn, boolean isHostedAnonymous) {
         this(owner, isInterface, mv, mn.access, mn.name, mn.desc, isHostedAnonymous);
@@ -55,6 +60,12 @@ class WrapperCreator extends MethodVisitor {
     }
 
     @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
+        fixer.visitMethodInsn(owner, name, descriptor);
+        super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+    }
+
+    @Override
     public void visitEnd() {
         // Restore the delegate
         mv = delegate;
@@ -72,6 +83,8 @@ class WrapperCreator extends MethodVisitor {
             // Wrapping a shadow; load all arguments and add a frame
             AsmUtil.loadThisAndArguments(mv, methodAccess, methodDescriptor);
             HandleRegistry.accept(mv, Handle.FRAME_GET_INSTANCE);
+            // If the original method called getCallerClass, compute the caller class now and push to the frame
+            fixer.fix(mv);
             calleeName = ShadowMethodCreator.getShadowMethodName(methodName);
             calleeDesc = ShadowMethodCreator.getShadowMethodDescriptor(methodDescriptor);
         }
@@ -98,5 +111,40 @@ class WrapperCreator extends MethodVisitor {
             opcode = Opcodes.INVOKESPECIAL;
         }
         return opcode;
+    }
+
+    private static final class CallerSensitiveFixer {
+        private static final String JDK_REFLECTION_INTERNAL_NAME = "jdk/internal/reflect/Reflection";
+        private static final String SUN_REFLECTION_INTERNAL_NAME = "sun/reflect/Reflection";
+
+        private static final String TARGET_METHOD_NAME = "getCallerClass";
+        private static final String TARGET_METHOD_DESCRIPTOR = "()Ljava/lang/Class;";
+        private boolean foundJdkCall = false;
+        private boolean foundSunCall = false;
+
+        void visitMethodInsn(String owner, String name, String descriptor) {
+            if (name.equals(TARGET_METHOD_NAME) && TARGET_METHOD_DESCRIPTOR.equals(descriptor)) {
+                if (JDK_REFLECTION_INTERNAL_NAME.equals(owner)) {
+                    foundJdkCall = true;
+                } else if (SUN_REFLECTION_INTERNAL_NAME.equals(owner)) {
+                    foundSunCall = true;
+                }
+            }
+        }
+
+        void fix(MethodVisitor mv) {
+            // Top of stack should be the frame
+            if (foundJdkCall) {
+                setCallerClass(mv, JDK_REFLECTION_INTERNAL_NAME);
+            } else if (foundSunCall) {
+                setCallerClass(mv, SUN_REFLECTION_INTERNAL_NAME);
+            }
+        }
+
+        private static void setCallerClass(MethodVisitor mv, String reflectionInternalName) {
+            mv.visitMethodInsn(
+                    Opcodes.INVOKESTATIC, reflectionInternalName, TARGET_METHOD_NAME, TARGET_METHOD_DESCRIPTOR, false);
+            HandleRegistry.accept(mv, Handle.FRAME_SET_CALLER_CLASS);
+        }
     }
 }

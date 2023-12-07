@@ -135,7 +135,7 @@ class ShadowMethodCreator {
             return false;
         } else if (methodName.equals("<init>")) {
             // InnerClassLambdaMetafactory will check the number of constructors for some lambdas.
-            // Since instance initialization methods are never dynamically dispatched (INVOKESPECIAL is used),
+            // Since instance initialization methods are never dynamically dispatched,
             // it is safe for these shadows to be missing.
             // TODO check if this is necessary
             return !className.contains("$$Lambda$");
