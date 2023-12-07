@@ -16,12 +16,20 @@ public final class UnsafeMasker {
     @Mask(owner = "sun/misc/Unsafe", name = "defineClass")
     public static Class<?> defineClass(
             Object unsafe, String name, byte[] b, int off, int len, ClassLoader loader, ProtectionDomain domain) {
-        if (b != null && off >= 0 && len >= 0 && off + len <= b.length) {
-            byte[] buffer = new byte[len];
-            System.arraycopy(b, off, buffer, 0, len);
+        byte[] buffer = copy(b, off, len);
+        if (buffer != null) {
             byte[] instrumented = PhosphorTransformer.getInstanceAndTransform(buffer, false);
             return UnsafeAdapter.defineClass(name, instrumented, 0, instrumented.length, loader, domain);
         }
         return UnsafeAdapter.defineClass(name, b, off, len, loader, domain);
+    }
+
+    public static byte[] copy(byte[] b, int off, int len) {
+        if (b != null && off >= 0 && len >= 0 && off + len <= b.length) {
+            byte[] buffer = new byte[len];
+            System.arraycopy(b, off, buffer, 0, len);
+            return buffer;
+        }
+        return null;
     }
 }
