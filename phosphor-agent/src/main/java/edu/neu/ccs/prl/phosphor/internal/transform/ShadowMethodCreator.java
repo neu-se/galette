@@ -44,11 +44,11 @@ public final class ShadowMethodCreator {
     public SimpleList<MethodNode> createShadows() {
         SimpleList<MethodNode> shadows = new SimpleList<>();
         for (MethodNode mn : classNode.methods) {
-            if (shouldShadow(classNode.name, mn.name)) {
+            if (shouldShadow(mn.name)) {
                 shadows.add(createShadow(mn));
             }
         }
-        if (!isInterface && (classNode.superName == null || classNode.superName.equals("java/lang/Object"))) {
+        if ((classNode.superName == null || classNode.superName.equals("java/lang/Object"))) {
             SimpleList<ObjectMethod> missing = findMissingObjectShadows();
             for (int i = 0; i < missing.size(); i++) {
                 shadows.add(createObjectShadow(missing.get(i)));
@@ -80,6 +80,9 @@ public final class ShadowMethodCreator {
     private MethodNode createObjectShadow(ObjectMethod objectMethod) {
         MethodRecord record = objectMethod.getRecord();
         int shadowAccess = Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC;
+        if (isInterface) {
+            shadowAccess |= Opcodes.ACC_ABSTRACT;
+        }
         MethodNode shadow = new MethodNode(
                 PhosphorTransformer.ASM_VERSION,
                 shadowAccess,
@@ -87,9 +90,11 @@ public final class ShadowMethodCreator {
                 getShadowMethodDescriptor(record.getDescriptor()),
                 getShadowSignature(null),
                 null);
-        MethodVisitor mv = new MaskApplier(shadow);
-        mv = new WrapperCreator(classNode.name, isInterface, mv, shadow, isHostedAnonymous);
-        mv.visitEnd();
+        if (!isInterface) {
+            MethodVisitor mv = new MaskApplier(shadow);
+            mv = new WrapperCreator(classNode.name, false, mv, shadow, isHostedAnonymous);
+            mv.visitEnd();
+        }
         return shadow;
     }
 
@@ -166,7 +171,7 @@ public final class ShadowMethodCreator {
         return descriptor.contains(FRAME_TYPE.getDescriptor() + ")");
     }
 
-    public static boolean shouldShadow(String className, String methodName) {
+    public static boolean shouldShadow(String methodName) {
         return !methodName.equals("<clinit>");
     }
 }

@@ -3,8 +3,8 @@ package edu.neu.ccs.prl.phosphor.internal.transform;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 
-class UnsafeAccessModifier extends ClassVisitor {
-    UnsafeAccessModifier(ClassVisitor classVisitor) {
+class AccessModifier extends ClassVisitor {
+    AccessModifier(ClassVisitor classVisitor) {
         super(PhosphorTransformer.ASM_VERSION, classVisitor);
     }
 
@@ -20,6 +20,8 @@ class UnsafeAccessModifier extends ClassVisitor {
     }
 
     public static boolean isApplicable(String className) {
-        return "sun/misc/Unsafe".equals(className) || "jdk/internal/misc/Unsafe".equals(className);
+        return "sun/misc/Unsafe".equals(className)
+                || "jdk/internal/misc/Unsafe".equals(className)
+                || "java/lang/ClassLoader".equals(className);
     }
 }

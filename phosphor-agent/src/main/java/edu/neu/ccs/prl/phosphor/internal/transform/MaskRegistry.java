@@ -6,15 +6,13 @@ import edu.neu.ccs.prl.phosphor.internal.runtime.InvokedViaHandle;
 import edu.neu.ccs.prl.phosphor.internal.runtime.Patched;
 import edu.neu.ccs.prl.phosphor.internal.runtime.collection.SimpleList;
 import edu.neu.ccs.prl.phosphor.internal.runtime.collection.SimpleMap;
-import edu.neu.ccs.prl.phosphor.internal.runtime.mask.Mask;
-import edu.neu.ccs.prl.phosphor.internal.runtime.mask.MaskType;
-import edu.neu.ccs.prl.phosphor.internal.runtime.mask.ReflectionMasker;
-import edu.neu.ccs.prl.phosphor.internal.runtime.mask.UnsafeMasker;
+import edu.neu.ccs.prl.phosphor.internal.runtime.mask.*;
 import java.lang.reflect.Method;
 import org.objectweb.asm.Type;
 
 public final class MaskRegistry {
-    private static final Class<?>[] SOURCES = new Class[] {UnsafeMasker.class, ReflectionMasker.class};
+    private static final Class<?>[] SOURCES =
+            new Class[] {UnsafeMasker.class, ReflectionMasker.class, ClassLoaderMasker.class};
     private static final SimpleMap<String, MaskInfo> masks = new SimpleMap<>();
 
     private MaskRegistry() {

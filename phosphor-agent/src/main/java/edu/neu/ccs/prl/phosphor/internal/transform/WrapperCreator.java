@@ -36,6 +36,9 @@ class WrapperCreator extends MethodVisitor {
             String methodDescriptor,
             boolean isHostedAnonymous) {
         super(PhosphorTransformer.ASM_VERSION, mv);
+        if (!AsmUtil.hasMethodBody(methodAccess)) {
+            throw new IllegalArgumentException("Methods that are native or abstract cannot be wrappers");
+        }
         this.isInterface = isInterface;
         this.owner = owner;
         this.methodAccess = methodAccess;

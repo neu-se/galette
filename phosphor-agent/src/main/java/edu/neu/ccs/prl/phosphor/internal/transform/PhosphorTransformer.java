@@ -92,8 +92,8 @@ public class PhosphorTransformer {
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
         ClassVisitor cv = cw;
         // Make the members of Unsafe publicly accessible
-        if (UnsafeAccessModifier.isApplicable(cn.name)) {
-            cv = new UnsafeAccessModifier(cv);
+        if (AccessModifier.isApplicable(cn.name)) {
+            cv = new AccessModifier(cv);
         }
         cn.accept(cv);
         return cw.toByteArray();

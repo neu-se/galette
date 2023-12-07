@@ -35,6 +35,9 @@ public final class Patcher {
         if (UnsafeAdapterPatcher.isApplicable(className)) {
             cv = new UnsafeAdapterPatcher(cv, entryLocator);
         }
+        if (ClassLoaderAdapterPatcher.isApplicable(className)) {
+            cv = new ClassLoaderAdapterPatcher(cv);
+        }
         cr.accept(cv, ClassReader.EXPAND_FRAMES);
         return cw.toByteArray();
     }

@@ -169,6 +169,6 @@ class TagPropagator extends MethodVisitor {
             return true;
         }
         // A shadow was not created for the original method
-        return !ShadowMethodCreator.shouldShadow(owner, name);
+        return !ShadowMethodCreator.shouldShadow(name);
     }
 }
