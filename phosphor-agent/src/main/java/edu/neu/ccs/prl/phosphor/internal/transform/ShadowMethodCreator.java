@@ -8,7 +8,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-class ShadowMethodCreator {
+public final class ShadowMethodCreator {
     /**
      * Type for {@link PhosphorFrame}.
      * <p>
@@ -79,8 +79,7 @@ class ShadowMethodCreator {
 
     private MethodNode createObjectShadow(ObjectMethod objectMethod) {
         MethodRecord record = objectMethod.getRecord();
-        // int shadowAccess = Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC;
-        int shadowAccess = Opcodes.ACC_PUBLIC;
+        int shadowAccess = Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC;
         MethodNode shadow = new MethodNode(
                 PhosphorTransformer.ASM_VERSION,
                 shadowAccess,
@@ -114,7 +113,7 @@ class ShadowMethodCreator {
 
     private static String getShadowSignature(String signature) {
         int i;
-        if (signature == null || (i = signature.indexOf('(')) == -1) {
+        if (signature == null || (i = signature.indexOf(')')) == -1) {
             return null;
         }
         String start = signature.substring(0, i);
@@ -168,16 +167,6 @@ class ShadowMethodCreator {
     }
 
     public static boolean shouldShadow(String className, String methodName) {
-        if (methodName.equals("<clinit>")) {
-            return false;
-        } else if (methodName.equals("<init>")) {
-            // InnerClassLambdaMetafactory will check the number of constructors for some lambdas.
-            // Since instance initialization methods are never dynamically dispatched,
-            // it is safe for these shadows to be missing.
-            // TODO check if this is necessary
-            return !className.contains("$$Lambda$");
-        } else {
-            return true;
-        }
+        return !methodName.equals("<clinit>");
     }
 }

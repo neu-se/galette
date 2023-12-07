@@ -1,6 +1,5 @@
 package edu.neu.ccs.prl.phosphor.internal.runtime.mask;
 
-import edu.neu.ccs.prl.phosphor.internal.runtime.PhosphorFrame;
 import edu.neu.ccs.prl.phosphor.internal.transform.PhosphorTransformer;
 import java.security.ProtectionDomain;
 
@@ -24,26 +23,5 @@ public final class UnsafeMasker {
             return UnsafeAdapter.defineClass(name, instrumented, 0, instrumented.length, loader, domain);
         }
         return UnsafeAdapter.defineClass(name, b, off, len, loader, domain);
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "defineAnonymousClass0")
-    @Mask(owner = "sun/misc/Unsafe", name = "defineAnonymousClass")
-    public static Class<?> defineAnonymousClass(
-            Object unsafe, Class<?> hostClass, byte[] data, Object[] cpPatches, PhosphorFrame frame) {
-        return defineAnonymousClass(unsafe, hostClass, data, cpPatches);
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "defineClass0")
-    @Mask(owner = "sun/misc/Unsafe", name = "defineClass")
-    public static Class<?> defineClass(
-            Object unsafe,
-            String name,
-            byte[] b,
-            int off,
-            int len,
-            ClassLoader loader,
-            ProtectionDomain domain,
-            PhosphorFrame frame) {
-        return defineClass(unsafe, name, b, off, len, loader, domain);
     }
 }

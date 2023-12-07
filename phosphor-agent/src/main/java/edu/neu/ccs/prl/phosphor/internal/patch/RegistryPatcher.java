@@ -44,7 +44,7 @@ public class RegistryPatcher extends ClassVisitor {
             for (Handle handle : Handle.values()) {
                 AsmUtil.pushInt(mv, handle.ordinal());
                 push(mv, HandleRegistry.getRecord(handle));
-                HandleRegistry.accept(mv, Handle.HANDLE_REGISTRY_PUT);
+                Handle.HANDLE_REGISTRY_PUT.accept(mv);
             }
         } else {
             SimpleList<String> keys = MaskRegistry.getKeys();
@@ -54,7 +54,7 @@ public class RegistryPatcher extends ClassVisitor {
                 MaskRegistry.MaskInfo mask = MaskRegistry.getMask(key);
                 AsmUtil.pushInt(mv, mask.getType().ordinal());
                 push(mv, mask.getRecord());
-                HandleRegistry.accept(mv, Handle.MASK_REGISTRY_PUT);
+                Handle.MASK_REGISTRY_PUT.accept(mv);
             }
         }
         mv.visitInsn(Opcodes.RETURN);

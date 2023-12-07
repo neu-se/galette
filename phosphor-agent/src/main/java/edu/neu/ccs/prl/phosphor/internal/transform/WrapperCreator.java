@@ -74,7 +74,7 @@ class WrapperCreator extends MethodVisitor {
         } else {
             // Wrapping a shadow; load all arguments and add a frame
             AsmUtil.loadThisAndArguments(mv, methodAccess, methodDescriptor);
-            HandleRegistry.accept(mv, Handle.FRAME_GET_INSTANCE);
+            Handle.FRAME_GET_INSTANCE.accept(mv);
             // If the original method called getCallerClass, compute the caller class now and push to the frame
             fixer.fix(mv);
             calleeName = ShadowMethodCreator.getShadowMethodName(methodName);
@@ -138,7 +138,7 @@ class WrapperCreator extends MethodVisitor {
         private static void setCallerClass(MethodVisitor mv, String reflectionInternalName) {
             mv.visitMethodInsn(
                     Opcodes.INVOKESTATIC, reflectionInternalName, TARGET_METHOD_NAME, TARGET_METHOD_DESCRIPTOR, false);
-            HandleRegistry.accept(mv, Handle.FRAME_SET_CALLER_CLASS);
+            Handle.FRAME_SET_CALLER.accept(mv);
         }
     }
 }

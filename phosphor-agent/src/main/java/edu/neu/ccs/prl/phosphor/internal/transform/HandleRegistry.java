@@ -7,7 +7,6 @@ import edu.neu.ccs.prl.phosphor.internal.runtime.Patched;
 import edu.neu.ccs.prl.phosphor.internal.runtime.collection.SimpleMap;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import org.objectweb.asm.MethodVisitor;
 
 public final class HandleRegistry {
     private static final SimpleMap<Handle, MethodRecord> handles = new SimpleMap<>();
@@ -18,10 +17,6 @@ public final class HandleRegistry {
 
     public static MethodRecord getRecord(Handle handle) {
         return handles.get(handle);
-    }
-
-    public static void accept(MethodVisitor mv, Handle handle) {
-        getRecord(handle).accept(mv);
     }
 
     /**

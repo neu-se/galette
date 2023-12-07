@@ -71,10 +71,13 @@ public final class MaskRegistry {
     }
 
     private static String createKey(Method method, Mask mask) {
-        String descriptor = Type.getMethodDescriptor(method);
-        if (!mask.isStatic()) {
-            // Remove the parameter for the receiver
-            descriptor = '(' + descriptor.substring(descriptor.indexOf(';') + 1);
+        String descriptor = mask.descriptor();
+        if (descriptor.isEmpty()) {
+            descriptor = Type.getMethodDescriptor(method);
+            if (!mask.isStatic()) {
+                // Remove the parameter for the receiver
+                descriptor = '(' + descriptor.substring(descriptor.indexOf(';') + 1);
+            }
         }
         return MaskRegistry.getKey(mask.owner(), mask.name(), descriptor);
     }
