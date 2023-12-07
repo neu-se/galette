@@ -50,9 +50,9 @@ public final class AsmTestUtil {
         return expandFramesAndComputeMaxStack(result);
     }
 
-    public static Method findMethod(MethodNode target, Class<?> clazz) {
+    public static Method findMethod(Class<?> clazz, String name) {
         for (Method method : clazz.getDeclaredMethods()) {
-            if (method.getName().equals(target.name)) {
+            if (method.getName().equals(name)) {
                 method.setAccessible(true);
                 return method;
             }

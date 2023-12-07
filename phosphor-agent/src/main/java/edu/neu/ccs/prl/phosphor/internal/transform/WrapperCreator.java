@@ -1,20 +1,12 @@
 package edu.neu.ccs.prl.phosphor.internal.transform;
 
 import edu.neu.ccs.prl.phosphor.internal.runtime.Handle;
-import edu.neu.ccs.prl.phosphor.internal.runtime.PhosphorFrame;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;
 
 class WrapperCreator extends MethodVisitor {
-    /**
-     * Type for {@link PhosphorFrame}.
-     * <p>
-     * Non-null.
-     */
-    private static final Type FRAME_TYPE = Type.getType(PhosphorFrame.class);
-
     private final String owner;
     private final int methodAccess;
     private final String methodName;
@@ -73,7 +65,7 @@ class WrapperCreator extends MethodVisitor {
         super.visitCode();
         String calleeDesc;
         String calleeName;
-        if (methodDescriptor.contains(FRAME_TYPE.getDescriptor())) {
+        if (ShadowMethodCreator.isShadowMethod(methodDescriptor)) {
             // Wrapping a native method; pop the frame
             AsmUtil.loadThisAndArguments(mv, methodAccess, methodDescriptor);
             super.visitInsn(Opcodes.POP);
@@ -103,9 +95,11 @@ class WrapperCreator extends MethodVisitor {
         } else if (isHostedAnonymous) {
             // Hosted anonymous classes should not be subclassed, so INVOKEVIRTUAL should be safe.
             // Based on src/hotspot/share/interpreter/linkResolver.cpp from Eclipse Temurin JDK (version 11.0.21+9):
-            // We cannot use INVOKESPECIAL because the "context" for checking the INVOKESPECIAL is the host class,
-            // so the receiver of the INVOKESPECIAL must be an instance of the host class.
-            opcode = Opcodes.INVOKEVIRTUAL;
+            // We cannot use INVOKESPECIAL for non-instance initialization methods because the "context" for checking
+            // the INVOKESPECIAL is the host class, so the receiver of the INVOKESPECIAL must be an instance of the
+            // host class or subclass of the host class.
+            // An instance of the anonymous class will be the receiver, and it may not extend the host class.
+            opcode = methodName.equals("<init>") ? Opcodes.INVOKESPECIAL : Opcodes.INVOKEVIRTUAL;
         } else {
             // We do not want the call dynamically dispatched; use INVOKESPECIAL.
             opcode = Opcodes.INVOKESPECIAL;

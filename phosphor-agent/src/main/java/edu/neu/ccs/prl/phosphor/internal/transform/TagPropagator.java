@@ -49,7 +49,7 @@ class TagPropagator extends MethodVisitor {
         Label frameStart = new Label();
         super.visitLabel(frameStart);
         super.visitLocalVariable(
-                PhosphorTransformer.ADDED_MEMBER_PREFIX + "frame",
+                getShadowVariableName("phosphorFrame"),
                 Type.getDescriptor(PhosphorFrame.class),
                 null,
                 frameStart,
@@ -120,5 +120,9 @@ class TagPropagator extends MethodVisitor {
             varIndex += argument.getSize();
         }
         super.visitVarInsn(Opcodes.ALOAD, varIndex);
+    }
+
+    private static String getShadowVariableName(String name) {
+        return PhosphorTransformer.ADDED_MEMBER_PREFIX + name;
     }
 }

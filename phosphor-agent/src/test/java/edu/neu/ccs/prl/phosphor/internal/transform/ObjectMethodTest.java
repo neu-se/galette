@@ -12,7 +12,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
-class ShadowlessMethodsTest {
+class ObjectMethodTest {
     @ParameterizedTest
     @MethodSource("records")
     void methodExists(MethodRecord record) throws ClassNotFoundException {
@@ -23,17 +23,15 @@ class ShadowlessMethodsTest {
     void allAccessibleObjectMethodsIncluded() {
         ClassNode cn = AsmTestUtil.getClassNode(Object.class);
         Map<MethodRecord, Boolean> values = new HashMap<>();
-        for (ShadowlessMethod sm : ShadowlessMethod.values()) {
+        for (ObjectMethod sm : ObjectMethod.values()) {
             values.put(sm.getRecord(), sm.isFinal());
         }
         for (MethodNode mn : cn.methods) {
-            if (!AsmUtil.isSet(mn.access, Opcodes.ACC_PRIVATE) && !"<clinit>".equals(mn.name)) {
-                int opcode = Opcodes.INVOKEVIRTUAL;
-                if (AsmUtil.isSet(mn.access, Opcodes.ACC_STATIC)) {
-                    opcode = Opcodes.INVOKESTATIC;
-                } else if (mn.name.equals("<init>")) {
-                    opcode = Opcodes.INVOKESPECIAL;
-                }
+            if (!AsmUtil.isSet(mn.access, Opcodes.ACC_PRIVATE)
+                    && !"<clinit>".equals(mn.name)
+                    && !"<init>".equals(mn.name)) {
+                int opcode =
+                        AsmUtil.isSet(mn.access, Opcodes.ACC_STATIC) ? Opcodes.INVOKESTATIC : Opcodes.INVOKEVIRTUAL;
                 MethodRecord record = new MethodRecord(opcode, cn.name, mn.name, mn.desc, false);
                 Assertions.assertTrue(values.containsKey(record), "Missing value for: " + record);
                 boolean isFinal = AsmUtil.isSet(mn.access, Opcodes.ACC_FINAL);
@@ -46,6 +44,6 @@ class ShadowlessMethodsTest {
     }
 
     static Stream<MethodRecord> records() {
-        return Arrays.stream(ShadowlessMethod.values()).map(ShadowlessMethod::getRecord);
+        return Arrays.stream(ObjectMethod.values()).map(ObjectMethod::getRecord);
     }
 }

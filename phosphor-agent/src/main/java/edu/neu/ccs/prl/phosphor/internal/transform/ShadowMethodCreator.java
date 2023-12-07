@@ -48,9 +48,11 @@ class ShadowMethodCreator {
                 shadows.add(createShadow(mn));
             }
         }
-        if (!AsmUtil.isSet(classNode.access, Opcodes.ACC_ABSTRACT)
-                && (classNode.superName == null || classNode.superName.equals("java/lang/Object"))) {
-            // TODO add shadow wrappers for Object methods not overridden by this class
+        if (!isInterface && (classNode.superName == null || classNode.superName.equals("java/lang/Object"))) {
+            SimpleList<ObjectMethod> missing = findMissingObjectShadows();
+            for (int i = 0; i < missing.size(); i++) {
+                shadows.add(createObjectShadow(missing.get(i)));
+            }
         }
         return shadows;
     }
@@ -73,6 +75,41 @@ class ShadowMethodCreator {
         }
         mn.accept(mv);
         return shadow;
+    }
+
+    private MethodNode createObjectShadow(ObjectMethod objectMethod) {
+        MethodRecord record = objectMethod.getRecord();
+        // int shadowAccess = Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC;
+        int shadowAccess = Opcodes.ACC_PUBLIC;
+        MethodNode shadow = new MethodNode(
+                PhosphorTransformer.ASM_VERSION,
+                shadowAccess,
+                getShadowMethodName(record.getName()),
+                getShadowMethodDescriptor(record.getDescriptor()),
+                getShadowSignature(null),
+                null);
+        MethodVisitor mv = new MaskApplier(shadow);
+        mv = new WrapperCreator(classNode.name, isInterface, mv, shadow, isHostedAnonymous);
+        mv.visitEnd();
+        return shadow;
+    }
+
+    private SimpleList<ObjectMethod> findMissingObjectShadows() {
+        // Find virtual methods from java/lang/Object for which we have not already created a shadow
+        boolean[] matches = new boolean[ObjectMethod.values().length];
+        for (MethodNode mn : classNode.methods) {
+            ObjectMethod m = ObjectMethod.findMatch(mn.name, mn.desc);
+            if (m != null) {
+                matches[m.ordinal()] = true;
+            }
+        }
+        SimpleList<ObjectMethod> result = new SimpleList<>();
+        for (int i = 0; i < matches.length; i++) {
+            if (!matches[i]) {
+                result.add(ObjectMethod.values()[i]);
+            }
+        }
+        return result;
     }
 
     private static String getShadowSignature(String signature) {
