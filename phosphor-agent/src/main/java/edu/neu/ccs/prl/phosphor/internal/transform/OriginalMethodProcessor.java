@@ -46,8 +46,9 @@ class OriginalMethodProcessor {
                 PhosphorTransformer.ASM_VERSION, mn.access, mn.name, mn.desc, mn.signature, AsmUtil.copyExceptions(mn));
         MethodVisitor mv = new MaskApplier(processed);
         if (AsmUtil.hasMethodBody(mn.access)) {
+            // Process non-native, non-abstract methods
             if (!isGeneratedProxy(classNode.name) && ShadowMethodCreator.shouldShadow(mn.name)) {
-                // Convert non-native, non-abstract methods to wrappers around the corresponding shadow
+                // Convert original methods to wrappers around the corresponding shadow
                 mv = new WrapperCreator(classNode.name, isInterface, mv, processed, isHostedAnonymous);
             } else if (propagate) {
                 // If there is no shadow, add the propagation logic directly to the original method

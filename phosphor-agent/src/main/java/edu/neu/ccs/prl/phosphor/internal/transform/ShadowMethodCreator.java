@@ -30,7 +30,7 @@ public final class ShadowMethodCreator {
      */
     private final boolean propagate;
     /**
-     * {@code true} if this class will be defined using {@link jdk.internal.misc.Unsafe#defineAnonymousClass}.
+     * {@code true} if this class will be defined using {@code jdk.internal.misc.Unsafe#defineAnonymousClass}.
      */
     private final boolean isHostedAnonymous;
 

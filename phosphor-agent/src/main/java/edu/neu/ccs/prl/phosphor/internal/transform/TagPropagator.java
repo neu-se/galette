@@ -160,6 +160,7 @@ class TagPropagator extends MethodVisitor {
         if (owner.startsWith("com/jprofiler")) {
             return true;
         }
+        // TODO figure out why these are needed and if there are other Handles that need to listed
         // TODO check if needed
         if (owner.equals("java/lang/invoke/MethodHandle")) {
             return true;
@@ -167,7 +168,6 @@ class TagPropagator extends MethodVisitor {
         if (owner.equals("java/lang/invoke/BoundMethodHandle")) {
             return true;
         }
-        // TODO check if needed
         if (owner.equals("java/lang/invoke/VarHandle")) {
             return true;
         }
