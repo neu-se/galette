@@ -1,6 +1,7 @@
 package edu.neu.ccs.prl.phosphor.internal.transform;
 
 import edu.neu.ccs.prl.phosphor.internal.runtime.collection.SimpleList;
+import java.io.IOException;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -49,13 +50,40 @@ public class PhosphorTransformer {
      */
     private static final ExclusionList exclusions = new ExclusionList("java/lang/Object", INTERNAL_PACKAGE_PREFIX);
 
+    private static TransformationCache cache;
+
     public byte[] transform(byte[] classFileBuffer, boolean isHostedAnonymous) {
         ClassReader cr = new ClassReader(classFileBuffer);
         String className = cr.getClassName();
+        TransformationCache currentCache = getCache();
         if (exclusions.isExcluded(className) || AsmUtil.isSet(cr.getAccess(), Opcodes.ACC_MODULE)) {
             // Skip excluded classes and module info
             return null;
         }
+        try {
+            // Only cache dynamically instrumented files that are not synthetic
+            if (!AsmUtil.isSet(cr.getAccess(), Opcodes.ACC_SYNTHETIC)
+                    && !className.contains("$$Lambda")
+                    && FileUtil.isInitialized()
+                    && currentCache != null
+                    && currentCache.hasEntry(className, classFileBuffer)) {
+                return currentCache.loadEntry(className);
+            }
+            byte[] result = transformInternal(cr, isHostedAnonymous);
+            if (className != null && currentCache != null && result != null) {
+                currentCache.storeEntry(className, classFileBuffer, result);
+            }
+            return result;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load or store cache entry", e);
+        } catch (Throwable t) {
+            // Log the error to prevent it from being silently swallowed by the JVM
+            PhosphorLog.error("Failed to instrument class: " + className, t);
+            throw t;
+        }
+    }
+
+    private byte[] transformInternal(ClassReader cr, boolean isHostedAnonymous) {
         try {
             return transform(cr, true, isHostedAnonymous);
         } catch (ClassTooLargeException | MethodTooLargeException e) {
@@ -127,5 +155,13 @@ public class PhosphorTransformer {
 
     public static boolean isExcluded(String className) {
         return exclusions.isExcluded(className);
+    }
+
+    public static synchronized void setCache(TransformationCache cache) {
+        PhosphorTransformer.cache = cache;
+    }
+
+    private static synchronized TransformationCache getCache() {
+        return cache;
     }
 }

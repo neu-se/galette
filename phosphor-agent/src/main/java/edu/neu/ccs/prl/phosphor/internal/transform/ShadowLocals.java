@@ -167,6 +167,10 @@ class ShadowLocals extends MethodVisitor {
     public void visitLocalVariable(
             String name, String descriptor, String signature, Label start, Label end, int index) {
         super.visitLocalVariable(name, descriptor, signature, start, end, index);
+        if (name.equals("this") && index == 0) {
+            // The $ prefix is necessary for some debuggers to pick up this local variable entry
+            name = "$this";
+        }
         super.visitLocalVariable(getShadowVariableName(name), TAG_DESCRIPTOR, null, start, end, getShadowIndex(index));
     }
 

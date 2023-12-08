@@ -21,6 +21,11 @@ public final class FileUtil {
         }
     }
 
+    public static boolean isInitialized() {
+        // Prevents issues produced from circular class initialization from dynamic class definitions
+        return digest != null;
+    }
+
     private FileUtil() {
         throw new AssertionError();
     }
