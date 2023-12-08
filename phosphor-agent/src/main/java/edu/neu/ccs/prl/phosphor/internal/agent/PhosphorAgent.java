@@ -16,8 +16,7 @@ public final class PhosphorAgent {
     }
 
     @SuppressWarnings("unused")
-    public static void $$PHOSPHOR_premain(String agentArgs, Instrumentation inst, PhosphorFrame frame)
-            throws IOException {
+    public static void premain(String agentArgs, Instrumentation inst, PhosphorFrame frame) throws IOException {
         premain(agentArgs, inst);
     }
 
@@ -37,7 +36,7 @@ public final class PhosphorAgent {
         }
 
         @SuppressWarnings("unused")
-        public byte[] $$PHOSPHOR_transform(
+        public byte[] transform(
                 ClassLoader loader,
                 String className,
                 Class<?> classBeingRedefined,

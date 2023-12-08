@@ -12,12 +12,12 @@ public final class ReflectionMasker {
 
     @Mask(
             owner = "java/lang/Class",
-            name = "$$PHOSPHOR_getFields",
+            name = "getFields",
             descriptor = "(Ledu/neu/ccs/prl/phosphor/internal/runtime/PhosphorFrame;)[Ljava/lang/reflect/Field;",
             type = MaskType.REPAIR_RETURN)
     @Mask(
             owner = "java/lang/Class",
-            name = "$$PHOSPHOR_getDeclaredFields",
+            name = "getDeclaredFields",
             descriptor = "(Ledu/neu/ccs/prl/phosphor/internal/runtime/PhosphorFrame;)[Ljava/lang/reflect/Field;",
             type = MaskType.REPAIR_RETURN)
     public static Field[] getFields(Field[] fields) {
@@ -32,12 +32,12 @@ public final class ReflectionMasker {
 
     @Mask(
             owner = "java/lang/Class",
-            name = "$$PHOSPHOR_getMethods",
+            name = "getMethods",
             descriptor = "(Ledu/neu/ccs/prl/phosphor/internal/runtime/PhosphorFrame;)[Ljava/lang/reflect/Method;",
             type = MaskType.REPAIR_RETURN)
     @Mask(
             owner = "java/lang/Class",
-            name = "$$PHOSPHOR_getDeclaredMethods",
+            name = "getDeclaredMethods",
             descriptor = "(Ledu/neu/ccs/prl/phosphor/internal/runtime/PhosphorFrame;)[Ljava/lang/reflect/Method;",
             type = MaskType.REPAIR_RETURN)
     public static Method[] getMethods(Method[] methods) {
@@ -52,12 +52,12 @@ public final class ReflectionMasker {
 
     @Mask(
             owner = "java/lang/Class",
-            name = "$$PHOSPHOR_getConstructors",
+            name = "getConstructors",
             descriptor = "(Ledu/neu/ccs/prl/phosphor/internal/runtime/PhosphorFrame;)[Ljava/lang/reflect/Constructor;",
             type = MaskType.REPAIR_RETURN)
     @Mask(
             owner = "java/lang/Class",
-            name = "$$PHOSPHOR_getDeclaredConstructors",
+            name = "getDeclaredConstructors",
             descriptor = "(Ledu/neu/ccs/prl/phosphor/internal/runtime/PhosphorFrame;)[Ljava/lang/reflect/Constructor;",
             type = MaskType.REPAIR_RETURN)
     public static Constructor<?>[] getConstructors(Constructor<?>[] constructors) {

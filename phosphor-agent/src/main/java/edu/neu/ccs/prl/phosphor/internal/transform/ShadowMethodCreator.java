@@ -62,7 +62,7 @@ public final class ShadowMethodCreator {
         MethodNode shadow = new MethodNode(
                 PhosphorTransformer.ASM_VERSION,
                 shadowAccess,
-                getShadowMethodName(mn.name),
+                mn.name,
                 getShadowMethodDescriptor(mn.desc),
                 getShadowSignature(mn.signature),
                 AsmUtil.copyExceptions(mn));
@@ -86,7 +86,7 @@ public final class ShadowMethodCreator {
         MethodNode shadow = new MethodNode(
                 PhosphorTransformer.ASM_VERSION,
                 shadowAccess,
-                getShadowMethodName(record.getName()),
+                record.getName(),
                 getShadowMethodDescriptor(record.getDescriptor()),
                 getShadowSignature(null),
                 null);
@@ -124,30 +124,6 @@ public final class ShadowMethodCreator {
         String start = signature.substring(0, i);
         String end = signature.substring(i);
         return start + FRAME_TYPE.getDescriptor() + end;
-    }
-
-    public static String getOriginalMethodName(String name) {
-        if ("<clinit>".equals(name)) {
-            throw new IllegalArgumentException();
-        } else if (name.startsWith(PhosphorTransformer.ADDED_MEMBER_PREFIX)) {
-            return name.substring(PhosphorTransformer.ADDED_MEMBER_PREFIX.length());
-        } else {
-            return name;
-        }
-    }
-
-    public static String getShadowMethodName(String name) {
-        if ("<clinit>".equals(name)) {
-            throw new IllegalArgumentException();
-        } else if (name.equals("<init>")) {
-            // Cannot rename instance initialization methods
-            return name;
-        } else if (name.startsWith(PhosphorTransformer.ADDED_MEMBER_PREFIX)) {
-            // This is already a shadow method name
-            return name;
-        } else {
-            return PhosphorTransformer.ADDED_MEMBER_PREFIX + name;
-        }
     }
 
     public static String getOriginalMethodDescriptor(String descriptor) {

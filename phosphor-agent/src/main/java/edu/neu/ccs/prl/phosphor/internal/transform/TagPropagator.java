@@ -77,7 +77,6 @@ class TagPropagator extends MethodVisitor {
             Handle.FRAME_GET_CALLER.accept(mv);
             // [Class]
         } else if (!isIgnoredMethod(owner, name)) {
-            name = ShadowMethodCreator.getShadowMethodName(name);
             descriptor = ShadowMethodCreator.getShadowMethodDescriptor(descriptor);
             super.visitVarInsn(Opcodes.ALOAD, frameIndex);
             Handle.FRAME_CREATE_FOR_CALL.accept(mv);

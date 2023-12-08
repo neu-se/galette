@@ -1,8 +1,6 @@
 package edu.neu.ccs.prl.phosphor.internal.transform;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.NoSuchElementException;
 import java.util.function.Function;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -48,16 +46,6 @@ public final class AsmTestUtil {
         cn = expandFramesAndComputeMaxStack(cn);
         cn.accept(f.apply(result));
         return expandFramesAndComputeMaxStack(result);
-    }
-
-    public static Method findMethod(Class<?> clazz, String name) {
-        for (Method method : clazz.getDeclaredMethods()) {
-            if (method.getName().equals(name)) {
-                method.setAccessible(true);
-                return method;
-            }
-        }
-        throw new NoSuchElementException();
     }
 
     public static Class<?> load(ClassNode cn) {

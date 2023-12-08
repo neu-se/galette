@@ -67,12 +67,10 @@ class WrapperCreator extends MethodVisitor {
         // Create a replacement method body
         super.visitCode();
         String calleeDesc;
-        String calleeName;
         if (ShadowMethodCreator.isShadowMethod(methodDescriptor)) {
             // Wrapping a native method; pop the frame
             AsmUtil.loadThisAndArguments(mv, methodAccess, methodDescriptor);
             super.visitInsn(Opcodes.POP);
-            calleeName = ShadowMethodCreator.getOriginalMethodName(methodName);
             calleeDesc = ShadowMethodCreator.getOriginalMethodDescriptor(methodDescriptor);
         } else {
             // Wrapping a shadow; load all arguments and add a frame
@@ -80,12 +78,11 @@ class WrapperCreator extends MethodVisitor {
             Handle.FRAME_GET_INSTANCE.accept(mv);
             // If the original method called getCallerClass, compute the caller class now and push to the frame
             fixer.fix(mv);
-            calleeName = ShadowMethodCreator.getShadowMethodName(methodName);
             calleeDesc = ShadowMethodCreator.getShadowMethodDescriptor(methodDescriptor);
         }
         int opcode = computeOpcode();
         // Add the call to the wrapped method
-        super.visitMethodInsn(opcode, owner, calleeName, calleeDesc, isInterface);
+        super.visitMethodInsn(opcode, owner, methodName, calleeDesc, isInterface);
         super.visitInsn(Type.getReturnType(methodDescriptor).getOpcode(Opcodes.IRETURN));
         super.visitMaxs(-1, -1);
         super.visitEnd();
