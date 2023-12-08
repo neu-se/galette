@@ -11,7 +11,11 @@ public enum Handle {
     FRAME_GET_INSTANCE(PhosphorFrame.class),
     FRAME_CREATE_FOR_CALL(PhosphorFrame.class),
     FRAME_SET_CALLER(PhosphorFrame.class),
-    FRAME_GET_CALLER(PhosphorFrame.class);
+    FRAME_GET_CALLER(PhosphorFrame.class),
+    FRAME_POP(PhosphorFrame.class),
+    FRAME_PUSH(PhosphorFrame.class),
+    FRAME_GET_RETURN_TAG(PhosphorFrame.class),
+    FRAME_SET_RETURN_TAG(PhosphorFrame.class);
 
     private final Class<?> owner;
 
