@@ -20,8 +20,9 @@ public final class ClassLoaderMasker {
             Object classData) {
         byte[] buffer = UnsafeMasker.copy(b, off, len);
         if (buffer != null) {
-            // TODO isHostedAnonymous?
-            byte[] instrumented = PhosphorTransformer.getInstanceAndTransform(buffer, true);
+            // isHostedAnonymous appears to only be an issue for Java 11
+            // ClassLoader#defineClass0 is not defined for Java 11
+            byte[] instrumented = PhosphorTransformer.getInstanceAndTransform(buffer, false);
             return ClassLoaderAdapter.defineClass0(
                     loader, lookup, name, instrumented, 0, instrumented.length, domain, initialize, flags, classData);
         }
