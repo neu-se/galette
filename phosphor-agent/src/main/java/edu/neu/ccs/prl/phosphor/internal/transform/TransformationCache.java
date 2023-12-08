@@ -19,6 +19,9 @@ public final class TransformationCache {
     }
 
     public void storeEntry(String className, byte[] originalBuffer, byte[] instrumentedBuffer) throws IOException {
+        if (!FileUtil.isInitialized()) {
+            return;
+        }
         try (FileOutputStream fos = new FileOutputStream(getEntryFile(className))) {
             fos.write(instrumentedBuffer);
         }
@@ -28,6 +31,9 @@ public final class TransformationCache {
     }
 
     public boolean hasEntry(String className, byte[] originalBuffer) throws IOException {
+        if (!FileUtil.isInitialized()) {
+            return false;
+        }
         File checksumFile = getChecksumFile(className);
         return checksumFile.exists()
                 && Arrays.equals(FileUtil.checksum(originalBuffer), Files.readAllBytes(checksumFile.toPath()));

@@ -62,15 +62,14 @@ public class PhosphorTransformer {
         }
         try {
             // Only cache dynamically instrumented files that are not synthetic
-            if (!AsmUtil.isSet(cr.getAccess(), Opcodes.ACC_SYNTHETIC)
-                    && !className.contains("$$Lambda")
-                    && FileUtil.isInitialized()
-                    && currentCache != null
-                    && currentCache.hasEntry(className, classFileBuffer)) {
+            if (currentCache != null && currentCache.hasEntry(className, classFileBuffer)) {
                 return currentCache.loadEntry(className);
             }
             byte[] result = transformInternal(cr, isHostedAnonymous);
-            if (className != null && currentCache != null && result != null) {
+            if (!className.contains("$$Lambda")
+                    && !AsmUtil.isSet(cr.getAccess(), Opcodes.ACC_SYNTHETIC)
+                    && currentCache != null
+                    && result != null) {
                 currentCache.storeEntry(className, classFileBuffer, result);
             }
             return result;
