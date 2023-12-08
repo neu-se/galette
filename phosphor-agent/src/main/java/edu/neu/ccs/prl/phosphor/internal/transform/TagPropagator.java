@@ -164,6 +164,9 @@ class TagPropagator extends MethodVisitor {
         if (owner.equals("java/lang/invoke/MethodHandle")) {
             return true;
         }
+        if (owner.equals("java/lang/invoke/BoundMethodHandle")) {
+            return true;
+        }
         // TODO check if needed
         if (owner.equals("java/lang/invoke/VarHandle")) {
             return true;

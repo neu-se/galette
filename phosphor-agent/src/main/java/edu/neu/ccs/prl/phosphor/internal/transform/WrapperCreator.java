@@ -14,7 +14,7 @@ class WrapperCreator extends MethodVisitor {
     private final boolean isInterface;
     private final MethodVisitor delegate;
     /**
-     * {@code true} if this class will be defined using {@link jdk.internal.misc.Unsafe#defineAnonymousClass}.
+     * {@code true} if this class will be defined using {@code jdk.internal.misc.Unsafe#defineAnonymousClass}.
      */
     private final boolean isHostedAnonymous;
     /**

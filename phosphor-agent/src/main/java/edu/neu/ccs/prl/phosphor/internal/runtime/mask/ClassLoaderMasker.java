@@ -1,7 +1,6 @@
 package edu.neu.ccs.prl.phosphor.internal.runtime.mask;
 
 import edu.neu.ccs.prl.phosphor.internal.transform.PhosphorTransformer;
-
 import java.nio.ByteBuffer;
 import java.security.ProtectionDomain;
 
@@ -34,7 +33,6 @@ public final class ClassLoaderMasker {
             ClassLoader loader, String name, byte[] b, int off, int len, ProtectionDomain pd, String source) {
         byte[] buffer = UnsafeMasker.copy(b, off, len);
         if (buffer != null) {
-            // TODO isHostedAnonymous?
             byte[] instrumented = PhosphorTransformer.getInstanceAndTransform(buffer, false);
             return ClassLoaderAdapter.defineClass1(loader, name, instrumented, 0, instrumented.length, pd, source);
         }
@@ -44,13 +42,16 @@ public final class ClassLoaderMasker {
     @Mask(owner = "java/lang/ClassLoader", name = "defineClass2", isStatic = true)
     public static Class<?> defineClass2(
             ClassLoader loader, String name, ByteBuffer b, int off, int len, ProtectionDomain pd, String source) {
-        if (b != null && off >= 0 && len >= 0) {
-            // TODO isHostedAnonymous?
-            byte[] buffer = new byte[len];
-            b.get(buffer, off, len);
-            byte[] instrumented = PhosphorTransformer.getInstanceAndTransform(buffer, false);
-            return ClassLoaderAdapter.defineClass2(
-                    loader, name, ByteBuffer.wrap(instrumented), 0, instrumented.length, pd, source);
+        if (b != null && off >= 0 && len >= 0 && len + off <= b.limit()) {
+            byte[] classFileBuffer = new byte[len];
+            for (int i = 0; i < len; i++) {
+                classFileBuffer[i] = b.get(i + off);
+            }
+            byte[] instrumented = PhosphorTransformer.getInstanceAndTransform(classFileBuffer, false);
+            ByteBuffer buffer = ByteBuffer.allocateDirect(instrumented.length);
+            buffer.put(instrumented);
+            buffer.rewind();
+            return ClassLoaderAdapter.defineClass2(loader, name, buffer, 0, instrumented.length, pd, source);
         }
         return ClassLoaderAdapter.defineClass2(loader, name, b, off, len, pd, source);
     }
