@@ -39,6 +39,11 @@ public class PhosphorFrame {
         return this;
     }
 
+    @InvokedViaHandle(handle = Handle.FRAME_SET_THROWN_TAG)
+    public void setThrownTag(Throwable t, Tag tag) {
+        // TODO
+    }
+
     @InvokedViaHandle(handle = Handle.FRAME_CREATE_FOR_CALL)
     public static PhosphorFrame createForCall(PhosphorFrame callerFrame) {
         // TODO

@@ -1,6 +1,9 @@
 package edu.neu.ccs.prl.phosphor.internal.transform;
 
+import static org.objectweb.asm.Opcodes.*;
+
 import edu.neu.ccs.prl.phosphor.internal.runtime.Handle;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
@@ -21,8 +24,580 @@ class TagPropagator extends MethodVisitor {
     }
 
     @Override
+    public void visitInsn(int opcode) {
+        switch (opcode) {
+            case Opcodes.NOP:
+                break;
+            case ACONST_NULL:
+            case ICONST_M1:
+            case ICONST_0:
+            case ICONST_1:
+            case ICONST_2:
+            case ICONST_3:
+            case ICONST_4:
+            case ICONST_5:
+            case FCONST_0:
+            case FCONST_1:
+            case FCONST_2:
+                // ... -> ..., value
+                Handle.TAG_GET_EMPTY.accept(mv);
+                shadowLocals.push(1);
+                break;
+            case LCONST_0:
+            case LCONST_1:
+            case DCONST_0:
+            case DCONST_1:
+                // ... -> ..., value, top
+                Handle.TAG_GET_EMPTY.accept(mv);
+                shadowLocals.pushWide();
+                break;
+            case IALOAD:
+            case FALOAD:
+            case AALOAD:
+            case BALOAD:
+            case CALOAD:
+            case SALOAD:
+                // ..., arrayref, index -> ..., value
+                super.visitInsn(Opcodes.DUP2);
+                // arrayref, index, arrayref, index
+                shadowLocals.peekAll(2);
+                // arrayref, index, arrayref, index, arrayref-tag, index-tag
+                Handle.ARRAY_TAINTER_GET_TAG.accept(mv);
+                // arrayref, index, value-tag
+                shadowLocals.pop(2);
+                shadowLocals.push(1);
+                break;
+            case LALOAD:
+            case DALOAD:
+                // ..., arrayref, index -> ..., value, top
+                super.visitInsn(Opcodes.DUP2);
+                // arrayref, index, arrayref, index
+                shadowLocals.peekAll(2);
+                // arrayref, index, arrayref, index, arrayref-tag, index-tag
+                Handle.ARRAY_TAINTER_GET_TAG.accept(mv);
+                // arrayref, index, value-tag
+                shadowLocals.pop(2);
+                shadowLocals.pushWide();
+                break;
+            case IASTORE:
+            case FASTORE:
+            case AASTORE:
+            case BASTORE:
+            case CASTORE:
+            case SASTORE:
+                // ..., arrayref, index, value -> ...
+                super.visitInsn(Opcodes.DUP_X2);
+                // value, arrayref, index, value
+                super.visitInsn(Opcodes.POP);
+                // value, arrayref, index
+                super.visitInsn(Opcodes.DUP2_X1);
+                // arrayref, index, value, arrayref, index
+                shadowLocals.peek(2);
+                shadowLocals.peek(1);
+                // arrayref, index, value, arrayref, index, arrayref-tag, index-tag
+                Handle.ARRAY_TAINTER_SET_TAG.accept(mv);
+                // arrayref, index, value
+                shadowLocals.pop(3);
+                break;
+            case LASTORE:
+            case DASTORE:
+                // ..., arrayref, index, value, top -> ...
+                super.visitInsn(Opcodes.DUP2_X2);
+                // value, top, arrayref, index, value, top
+                super.visitInsn(Opcodes.POP2);
+                // value, top, arrayref, index
+                super.visitInsn(Opcodes.DUP2_X2);
+                // arrayref, index, value, top, arrayref, index
+                shadowLocals.peek(3);
+                shadowLocals.peek(2);
+                // arrayref, index, value, top, arrayref, index, arrayref-tag, index-tag
+                Handle.ARRAY_TAINTER_SET_TAG.accept(mv);
+                // arrayref, index, value, top
+                shadowLocals.pop(4);
+                break;
+            case Opcodes.POP:
+                // ..., value -> ...
+                shadowLocals.pop(1);
+                break;
+            case Opcodes.POP2:
+                // ..., value1, value2 -> ...
+                shadowLocals.pop(2);
+                break;
+            case Opcodes.DUP:
+                // ..., value -> ..., value, value
+                shadowLocals.peek(0);
+                shadowLocals.push(1);
+                break;
+            case Opcodes.DUP_X1:
+                manipulateStack(opcode, 2, 3);
+                break;
+            case Opcodes.DUP_X2:
+                manipulateStack(opcode, 3, 4);
+                break;
+            case Opcodes.DUP2:
+                // ..., value1, value2 -> ..., value1, value2, value1, value2
+                shadowLocals.peekAll(2);
+                shadowLocals.push(2);
+                break;
+            case Opcodes.DUP2_X1:
+                manipulateStack(opcode, 3, 5);
+                break;
+            case Opcodes.DUP2_X2:
+                manipulateStack(opcode, 4, 6);
+                break;
+            case Opcodes.SWAP:
+                manipulateStack(opcode, 2, 2);
+                break;
+            case IADD:
+            case FADD:
+            case ISUB:
+            case FSUB:
+            case IMUL:
+            case FMUL:
+            case IDIV:
+            case FDIV:
+            case IREM:
+            case FREM:
+            case ISHL:
+            case ISHR:
+            case IUSHR:
+            case IAND:
+            case IOR:
+            case IXOR:
+            case FCMPL:
+            case FCMPG:
+                // ..., value1, value2 -> ..., result
+                shadowLocals.peekAll(2);
+                Handle.TAG_UNION.accept(mv);
+                shadowLocals.pop(2);
+                shadowLocals.push(1);
+                break;
+            case LADD:
+            case DADD:
+            case LSUB:
+            case DSUB:
+            case LMUL:
+            case DMUL:
+            case LDIV:
+            case DDIV:
+            case LREM:
+            case DREM:
+            case LAND:
+            case LOR:
+            case LXOR:
+                // ..., value1, top, value2, top -> ..., result, top
+                shadowLocals.peek(3);
+                shadowLocals.peek(1);
+                Handle.TAG_UNION.accept(mv);
+                shadowLocals.pop(4);
+                shadowLocals.pushWide();
+                break;
+            case LSHL:
+            case LUSHR:
+            case LSHR:
+                // ..., value1, top, value2 -> ..., result, top
+                shadowLocals.peek(2);
+                shadowLocals.peek(0);
+                Handle.TAG_UNION.accept(mv);
+                shadowLocals.pop(3);
+                shadowLocals.pushWide();
+                break;
+            case LCMP:
+            case DCMPL:
+            case DCMPG:
+                // ..., value1, top, value2, top -> ..., result
+                shadowLocals.peek(3);
+                shadowLocals.peek(1);
+                Handle.TAG_UNION.accept(mv);
+                shadowLocals.pop(4);
+                shadowLocals.push(1);
+                break;
+            case Opcodes.INEG:
+            case Opcodes.FNEG:
+            case Opcodes.I2F:
+            case Opcodes.F2I:
+            case Opcodes.I2B:
+            case Opcodes.I2C:
+            case Opcodes.I2S:
+                // ..., value -> ..., result
+                // No need to do anything for data flow propagation
+                break;
+            case Opcodes.LNEG:
+            case Opcodes.DNEG:
+            case Opcodes.L2D:
+            case Opcodes.D2L:
+                // ..., value, top -> ..., result, top
+                // No need to do anything for data flow propagation
+                break;
+            case Opcodes.I2L:
+            case Opcodes.I2D:
+            case Opcodes.F2L:
+            case Opcodes.F2D:
+                // ..., value -> ..., result, top
+                shadowLocals.peek(0);
+                shadowLocals.pop(1);
+                shadowLocals.pushWide();
+                break;
+            case Opcodes.L2I:
+            case Opcodes.L2F:
+            case Opcodes.D2I:
+            case Opcodes.D2F:
+                // ..., value, top -> ..., result
+                shadowLocals.pop(1);
+                break;
+            case Opcodes.IRETURN:
+            case Opcodes.FRETURN:
+            case Opcodes.ARETURN:
+                // ..., value -> []
+                shadowLocals.loadPhosphorFrame();
+                shadowLocals.peek(0);
+                Handle.FRAME_SET_RETURN_TAG.accept(mv);
+                shadowLocals.pop(1);
+                break;
+            case Opcodes.DRETURN:
+            case Opcodes.LRETURN:
+                // ..., value, top -> []
+                shadowLocals.loadPhosphorFrame();
+                shadowLocals.peek(1);
+                Handle.FRAME_SET_RETURN_TAG.accept(mv);
+                shadowLocals.pop(2);
+                break;
+            case Opcodes.RETURN:
+                // ..., -> []
+                break;
+            case Opcodes.ARRAYLENGTH:
+                // ..., arrayref -> ..., length
+                super.visitInsn(DUP);
+                shadowLocals.peek(0);
+                // arrayref, arrayref, arrayref-tag
+                Handle.ARRAY_TAINTER_GET_LENGTH_TAG.accept(mv);
+                // arrayref
+                shadowLocals.pop(1);
+                shadowLocals.push(1);
+                break;
+            case Opcodes.ATHROW:
+                // ..., objectref -> []
+                super.visitInsn(DUP);
+                shadowLocals.loadPhosphorFrame();
+                super.visitInsn(SWAP);
+                shadowLocals.peek(0);
+                // objectref, frame, objectref, objectref-tag
+                Handle.FRAME_SET_THROWN_TAG.accept(mv);
+                // objectref
+                shadowLocals.pop(1);
+                break;
+            case Opcodes.MONITORENTER:
+            case Opcodes.MONITOREXIT:
+                // ..., objectref -> ...
+                shadowLocals.pop(0);
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+        super.visitInsn(opcode);
+    }
+
+    private void manipulateStack(int opcode, int consumes, int produces) {
+        shadowLocals.peekAll(consumes);
+        super.visitInsn(opcode);
+        shadowLocals.pop(consumes);
+        shadowLocals.push(produces);
+    }
+
+    @Override
+    public void visitIntInsn(int opcode, int operand) {
+        switch (opcode) {
+            case BIPUSH:
+            case SIPUSH:
+                // ... -> ..., value
+                Handle.TAG_GET_EMPTY.accept(mv);
+                shadowLocals.push(1);
+                super.visitIntInsn(opcode, operand);
+                break;
+            case NEWARRAY:
+                // ..., count -> ..., arrayref
+                super.visitIntInsn(opcode, operand);
+                // arrayref
+                super.visitInsn(DUP);
+                shadowLocals.peek(0);
+                // arrayref, arrayref, count-tag
+                Handle.ARRAY_TAINTER_SET_LENGTH_TAG.accept(mv);
+                // arrayref
+                Handle.TAG_GET_EMPTY.accept(mv);
+                shadowLocals.push(1);
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    @Override
+    public void visitVarInsn(int opcode, int varIndex) {
+        switch (opcode) {
+            case ILOAD:
+            case FLOAD:
+            case ALOAD:
+                // ... -> ..., value
+                shadowLocals.loadShadowVar(varIndex);
+                shadowLocals.push(1);
+                break;
+            case DLOAD:
+            case LLOAD:
+                // ... -> ..., value, top
+                shadowLocals.loadShadowVar(varIndex);
+                shadowLocals.pushWide();
+                break;
+            case ISTORE:
+            case FSTORE:
+            case ASTORE:
+                // ..., value -> ...
+                shadowLocals.peek(0);
+                shadowLocals.storeShadowVar(varIndex);
+                shadowLocals.pop(1);
+                break;
+            case LSTORE:
+            case DSTORE:
+                // ..., value, top -> ...
+                shadowLocals.peek(1);
+                shadowLocals.storeShadowVar(varIndex);
+                shadowLocals.pop(2);
+                break;
+            case RET:
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+        super.visitVarInsn(opcode, varIndex);
+    }
+
+    @Override
+    public void visitTypeInsn(int opcode, String type) {
+        switch (opcode) {
+            case NEW:
+                visitNew(type);
+                break;
+            case ANEWARRAY:
+                visitNewReferenceArray(type);
+                break;
+            case CHECKCAST:
+                visitCheckCast(type);
+                break;
+            case INSTANCEOF:
+                visitInstanceOf(type);
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    private void visitInstanceOf(String type) {
+        // ..., objectref -> ..., result
+        // No need to do anything for data flow propagation
+        super.visitTypeInsn(INSTANCEOF, type);
+    }
+
+    private void visitCheckCast(String type) {
+        // ..., objectref -> ..., objectref
+        // No need to do anything for data flow propagation
+        super.visitTypeInsn(CHECKCAST, type);
+    }
+
+    private void visitNewReferenceArray(String type) {
+        // ..., count -> ..., arrayref
+        super.visitTypeInsn(ANEWARRAY, type);
+        // arrayref
+        super.visitInsn(DUP);
+        shadowLocals.peek(0);
+        // arrayref, arrayref, count-tag
+        Handle.ARRAY_TAINTER_SET_LENGTH_TAG.accept(mv);
+        // arrayref
+        Handle.TAG_GET_EMPTY.accept(mv);
+        shadowLocals.push(1);
+    }
+
+    private void visitNew(String type) {
+        // ... -> ..., objectref
+        Handle.TAG_GET_EMPTY.accept(mv);
+        shadowLocals.push(1);
+        super.visitTypeInsn(NEW, type);
+    }
+
+    @Override
+    public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
+        switch (opcode) {
+            case GETSTATIC:
+                visitGetStatic(owner, name, descriptor);
+                break;
+            case PUTSTATIC:
+                visitPutStatic(owner, name, descriptor);
+                break;
+            case GETFIELD:
+                visitGetField(owner, name, descriptor);
+                break;
+            case PUTFIELD:
+                visitPutField(owner, name, descriptor);
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
+    private void visitPutField(String owner, String name, String descriptor) {
+        // ..., objectref, value -> ...
+        if (!ShadowFieldAdder.hasShadowFields(owner)) {
+            shadowLocals.peek(0);
+            super.visitFieldInsn(
+                    PUTFIELD, owner, ShadowFieldAdder.getShadowFieldName(name), ShadowFieldAdder.TAG_DESCRIPTOR);
+        }
+        shadowLocals.pop(1);
+        super.visitFieldInsn(PUTFIELD, owner, name, descriptor);
+    }
+
+    private void visitGetField(String owner, String name, String descriptor) {
+        // ..., objectref -> ..., value
+        if (!ShadowFieldAdder.hasShadowFields(owner)) {
+            super.visitInsn(DUP);
+            super.visitFieldInsn(
+                    GETFIELD, owner, ShadowFieldAdder.getShadowFieldName(name), ShadowFieldAdder.TAG_DESCRIPTOR);
+        } else {
+            Handle.TAG_GET_EMPTY.accept(mv);
+        }
+        shadowLocals.push(1);
+        super.visitFieldInsn(GETFIELD, owner, name, descriptor);
+    }
+
+    private void visitPutStatic(String owner, String name, String descriptor) {
+        // ..., value -> ...
+        if (!ShadowFieldAdder.hasShadowFields(owner)) {
+            shadowLocals.peek(0);
+            super.visitFieldInsn(
+                    PUTSTATIC, owner, ShadowFieldAdder.getShadowFieldName(name), ShadowFieldAdder.TAG_DESCRIPTOR);
+        }
+        shadowLocals.pop(1);
+        super.visitFieldInsn(PUTSTATIC, owner, name, descriptor);
+    }
+
+    private void visitGetStatic(String owner, String name, String descriptor) {
+        // ... -> ..., value
+        if (!ShadowFieldAdder.hasShadowFields(owner)) {
+            super.visitFieldInsn(
+                    GETSTATIC, owner, ShadowFieldAdder.getShadowFieldName(name), ShadowFieldAdder.TAG_DESCRIPTOR);
+        } else {
+            Handle.TAG_GET_EMPTY.accept(mv);
+        }
+        shadowLocals.push(1);
+        super.visitFieldInsn(GETSTATIC, owner, name, descriptor);
+    }
+
+    @Override
+    public void visitInvokeDynamicInsn(
+            String name,
+            String descriptor,
+            org.objectweb.asm.Handle bootstrapMethodHandle,
+            Object... bootstrapMethodArguments) {
+        // ..., [arg1, [arg2 ...]] -> ...
+        shadowLocals.createFrameForCall(false, descriptor);
+        super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
+        shadowLocals.restoreFromFrame(descriptor);
+    }
+
+    @Override
+    public void visitJumpInsn(int opcode, Label label) {
+        switch (opcode) {
+            case IFEQ:
+            case IFNE:
+            case IFLT:
+            case IFGE:
+            case IFGT:
+            case IFLE:
+            case IFNULL:
+            case IFNONNULL:
+                // ..., value -> ...
+                shadowLocals.pop(1);
+                break;
+            case IF_ICMPEQ:
+            case IF_ICMPNE:
+            case IF_ICMPLT:
+            case IF_ICMPGE:
+            case IF_ICMPGT:
+            case IF_ICMPLE:
+            case IF_ACMPEQ:
+            case IF_ACMPNE:
+                // ..., value1, value2 -> ...
+                shadowLocals.pop(2);
+                break;
+            case GOTO:
+                // ... -> ...
+                break;
+            case JSR:
+                // ... -> ..., address
+                Handle.TAG_GET_EMPTY.accept(mv);
+                shadowLocals.push(1);
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
+        super.visitJumpInsn(opcode, label);
+    }
+
+    @Override
+    public void visitLdcInsn(Object value) {
+        Handle.TAG_GET_EMPTY.accept(mv);
+        if (value instanceof Double || value instanceof Long) {
+            // ... -> ..., value, top
+            shadowLocals.pushWide();
+        } else {
+            // ... -> ..., value
+            shadowLocals.push(1);
+        }
+        super.visitLdcInsn(value);
+    }
+
+    @Override
+    public void visitIincInsn(int varIndex, int increment) {
+        // No need to do anything for data flow propagation
+        super.visitIincInsn(varIndex, increment);
+    }
+
+    @Override
+    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+        // ..., index -> ...
+        shadowLocals.pop(1);
+        super.visitTableSwitchInsn(min, max, dflt, labels);
+    }
+
+    @Override
+    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+        // ..., key -> ...
+        shadowLocals.pop(1);
+        super.visitLookupSwitchInsn(dflt, keys, labels);
+    }
+
+    @Override
+    public void visitMultiANewArrayInsn(String descriptor, int numDimensions) {
+        // ..., count1, [count2, ...] -> ..., arrayref
+        super.visitMultiANewArrayInsn(descriptor, numDimensions);
+        // arrayref
+        super.visitInsn(DUP);
+        shadowLocals.peekAll(numDimensions);
+        // arrayref, arrayref, count1-tag, [count2-tag, ...]
+        for (int i = 0; i < numDimensions - 1; i++) {
+            Handle.TAG_UNION.accept(mv);
+        }
+        // arrayref, arrayref, merged-count-tag
+        Handle.ARRAY_TAINTER_SET_LENGTH_TAG.accept(mv);
+        // arrayref
+        // Set the tag for the newly created array in the shadow stack
+        Handle.TAG_GET_EMPTY.accept(mv);
+        shadowLocals.push(1);
+    }
+
+    @Override
     public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
+        shadowLocals.createFrameForCall(opcode == INVOKESTATIC, descriptor);
         if (isGetCallerClass(owner, name, descriptor)) {
+            // Pop the frame
+            super.visitInsn(POP);
             // Call the original method
             super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
             // [Class]
@@ -33,13 +608,14 @@ class TagPropagator extends MethodVisitor {
             Handle.FRAME_GET_CALLER.accept(mv);
             // [Class]
         } else if (!isIgnoredMethod(owner, name)) {
-            descriptor = ShadowMethodCreator.getShadowMethodDescriptor(descriptor);
-            shadowLocals.loadPhosphorFrame();
-            Handle.FRAME_CREATE_FOR_CALL.accept(mv);
-            super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+            super.visitMethodInsn(
+                    opcode, owner, name, ShadowMethodCreator.getShadowMethodDescriptor(descriptor), isInterface);
         } else {
+            // Pop the frame
+            super.visitInsn(POP);
             super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
         }
+        shadowLocals.restoreFromFrame(descriptor);
     }
 
     private static boolean isGetCallerClass(String owner, String name, String descriptor) {

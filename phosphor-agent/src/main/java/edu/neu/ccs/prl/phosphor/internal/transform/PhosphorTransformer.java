@@ -3,10 +3,7 @@ package edu.neu.ccs.prl.phosphor.internal.transform;
 import edu.neu.ccs.prl.phosphor.internal.runtime.collection.SimpleList;
 import java.io.IOException;
 import org.objectweb.asm.*;
-import org.objectweb.asm.tree.AnnotationNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.*;
 
 public class PhosphorTransformer {
     /**
@@ -92,12 +89,14 @@ public class PhosphorTransformer {
     }
 
     private byte[] transform(ClassReader cr, boolean propagate, boolean isHostedAnonymous) {
-        ClassNode cn = new ClassNode();
+        ClassNode cn = new ClassNode(ASM_VERSION);
         cr.accept(cn, ClassReader.EXPAND_FRAMES);
         if (hasShadowInstrumentation(cn)) {
             // This class has already been instrumented; return null to indicate that the class was unchanged
             return null;
         }
+        boolean hasFrames = containsFrames(cn);
+        cn = preprocess(cn, hasFrames);
         // Add an annotation indicating that the class has been instrumented
         cn.visitAnnotation(ANNOTATION_DESC, false);
         // Add shadow fields
@@ -117,13 +116,32 @@ public class PhosphorTransformer {
         }
         // Write the transformed class
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
-        ClassVisitor cv = cw;
+        // Remove computed frames
+        ClassVisitor cv = hasFrames ? cw : new FrameRemover(cw);
         // Make the members of Unsafe publicly accessible
         if (AccessModifier.isApplicable(cn.name)) {
             cv = new AccessModifier(cv);
         }
         cn.accept(cv);
         return cw.toByteArray();
+    }
+
+    private static ClassNode preprocess(ClassNode cn, boolean hasFrames) {
+        // Inline subroutines and compute naive frames if necessary
+        int flags = ClassWriter.COMPUTE_MAXS;
+        if (!hasFrames) {
+            flags |= ClassWriter.COMPUTE_FRAMES;
+        }
+        ClassWriter cw = new ClassWriter(flags) {
+            @Override
+            protected String getCommonSuperClass(String type1, String type2) {
+                return "java/lang/Object";
+            }
+        };
+        cn.accept(new SubroutineInliner(cw));
+        ClassNode result = new ClassNode(ASM_VERSION);
+        new ClassReader(cw.toByteArray()).accept(result, ClassReader.EXPAND_FRAMES);
+        return result;
     }
 
     private static boolean hasShadowInstrumentation(ClassNode cn) {
@@ -162,5 +180,16 @@ public class PhosphorTransformer {
 
     private static synchronized TransformationCache getCache() {
         return cache;
+    }
+
+    private static boolean containsFrames(ClassNode cn) {
+        for (MethodNode mn : cn.methods) {
+            for (AbstractInsnNode in : mn.instructions) {
+                if (in instanceof FrameNode) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

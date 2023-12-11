@@ -6,6 +6,7 @@ import org.objectweb.asm.MethodVisitor;
 
 public enum Handle {
     TAG_GET_EMPTY(Tag.class),
+    TAG_UNION(Tag.class),
     HANDLE_REGISTRY_PUT(HandleRegistry.class),
     MASK_REGISTRY_PUT(MaskRegistry.class),
     FRAME_GET_INSTANCE(PhosphorFrame.class),
@@ -15,7 +16,12 @@ public enum Handle {
     FRAME_POP(PhosphorFrame.class),
     FRAME_PUSH(PhosphorFrame.class),
     FRAME_GET_RETURN_TAG(PhosphorFrame.class),
-    FRAME_SET_RETURN_TAG(PhosphorFrame.class);
+    FRAME_SET_RETURN_TAG(PhosphorFrame.class),
+    FRAME_SET_THROWN_TAG(PhosphorFrame.class),
+    ARRAY_TAINTER_GET_LENGTH_TAG(ArrayTainter.class),
+    ARRAY_TAINTER_SET_LENGTH_TAG(ArrayTainter.class),
+    ARRAY_TAINTER_GET_TAG(ArrayTainter.class),
+    ARRAY_TAINTER_SET_TAG(ArrayTainter.class);
 
     private final Class<?> owner;
 

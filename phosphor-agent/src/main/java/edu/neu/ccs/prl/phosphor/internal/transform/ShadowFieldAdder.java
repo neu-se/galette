@@ -10,7 +10,7 @@ class ShadowFieldAdder {
     /**
      * Descriptor for {@link Tag}.
      */
-    private static final String TAG_DESCRIPTOR = Type.getDescriptor(Tag.class);
+    static final String TAG_DESCRIPTOR = Type.getDescriptor(Tag.class);
 
     public void process(ClassNode cn) {
         // Add the shadow fields at the end after all other fields have been visited.
@@ -46,5 +46,9 @@ class ShadowFieldAdder {
 
     public static boolean isShadowField(String fieldName) {
         return fieldName.startsWith(PhosphorTransformer.ADDED_MEMBER_PREFIX);
+    }
+
+    public static boolean hasShadowFields(String owner) {
+        return !HardCoded.hasHardCodedStaticOffset(owner);
     }
 }

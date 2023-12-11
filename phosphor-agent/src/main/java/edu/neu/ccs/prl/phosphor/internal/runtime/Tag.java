@@ -5,4 +5,9 @@ public final class Tag {
     public static Tag getEmptyTag() {
         return null;
     }
+
+    @InvokedViaHandle(handle = Handle.TAG_UNION)
+    public static Tag union(Tag t1, Tag t2) {
+        return null;
+    }
 }
