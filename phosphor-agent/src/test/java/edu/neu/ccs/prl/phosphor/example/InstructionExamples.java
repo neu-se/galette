@@ -1,7 +1,7 @@
 package edu.neu.ccs.prl.phosphor.example;
 
 @SuppressWarnings({"unused", "ConstantValue", "MismatchedReadAndWriteOfArray", "DataFlowIssue"})
-public class Example {
+public class InstructionExamples {
     public static Object loadNullConstant() {
         return null;
     }
@@ -74,7 +74,7 @@ public class Example {
     }
 
     public static int monitor() {
-        synchronized (Example.class) {
+        synchronized (InstructionExamples.class) {
             return 9;
         }
     }

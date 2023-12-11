@@ -40,6 +40,16 @@ public final class AsmTestUtil {
         return new ByteClassLoader().createClass(AsmUtil.toBytes(cn));
     }
 
+    public static ClassNode instrument(ClassNode cn, Function<byte[], byte[]> f) {
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        cn.accept(cw);
+        byte[] buffer = f.apply(cw.toByteArray());
+        ClassReader cr = new ClassReader(buffer);
+        ClassNode result = new ClassNode();
+        cr.accept(result, ClassReader.EXPAND_FRAMES);
+        return result;
+    }
+
     private static class ByteClassLoader extends ClassLoader {
         public Class<?> createClass(byte[] buffer) {
             return defineClass(null, buffer, 0, buffer.length);

@@ -496,7 +496,7 @@ class TagPropagator extends MethodVisitor {
             org.objectweb.asm.Handle bootstrapMethodHandle,
             Object... bootstrapMethodArguments) {
         // ..., [arg1, [arg2 ...]] -> ...
-        shadowLocals.createFrameForCall(false, descriptor);
+        shadowLocals.createFrameForCall(true, descriptor);
         super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
         shadowLocals.restoreFromFrame(descriptor);
     }
