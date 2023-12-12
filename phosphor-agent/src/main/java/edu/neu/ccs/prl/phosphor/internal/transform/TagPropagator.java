@@ -1,13 +1,13 @@
 package edu.neu.ccs.prl.phosphor.internal.transform;
 
-import static org.objectweb.asm.Opcodes.*;
-
 import edu.neu.ccs.prl.phosphor.internal.runtime.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;
+
+import static org.objectweb.asm.Opcodes.*;
 
 class TagPropagator extends MethodVisitor {
     private final ShadowLocals shadowLocals;
@@ -418,9 +418,11 @@ class TagPropagator extends MethodVisitor {
 
     private void visitNew(String type) {
         // ... -> ..., objectref
+        // Must visit the original NEW instruction first to keep it next to the label used to represent
+        // it in stack frames
+        super.visitTypeInsn(NEW, type);
         Handle.TAG_GET_EMPTY.accept(mv);
         shadowLocals.push(1);
-        super.visitTypeInsn(NEW, type);
     }
 
     @Override
@@ -535,6 +537,8 @@ class TagPropagator extends MethodVisitor {
             Object... bootstrapMethodArguments) {
         // ..., [arg1, [arg2 ...]] -> ...
         shadowLocals.createFrameForCall(true, descriptor);
+        // Remove the created frame from the runtime stack
+        super.visitInsn(POP);
         super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
         shadowLocals.restoreFromFrame(descriptor);
     }
