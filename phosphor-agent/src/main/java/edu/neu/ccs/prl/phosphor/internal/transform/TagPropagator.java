@@ -1,13 +1,13 @@
 package edu.neu.ccs.prl.phosphor.internal.transform;
 
+import static org.objectweb.asm.Opcodes.*;
+
 import edu.neu.ccs.prl.phosphor.internal.runtime.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;
-
-import static org.objectweb.asm.Opcodes.*;
 
 class TagPropagator extends MethodVisitor {
     private final ShadowLocals shadowLocals;
@@ -448,7 +448,7 @@ class TagPropagator extends MethodVisitor {
     private void visitPutField(String owner, String name, String descriptor) {
         // ..., objectref, value -> ...
         int valueSize = Type.getType(descriptor).getSize();
-        if (ShadowFieldAdder.hasShadowFields(owner)) {
+        if (!isIgnoredField(owner)) {
             if (valueSize == 2) {
                 // objectref, value, top
                 super.visitInsn(DUP2_X1);
@@ -478,7 +478,7 @@ class TagPropagator extends MethodVisitor {
 
     private void visitGetField(String owner, String name, String descriptor) {
         // ..., objectref -> ..., value
-        if (ShadowFieldAdder.hasShadowFields(owner)) {
+        if (!isIgnoredField(owner)) {
             super.visitInsn(DUP);
             // objectref, objectref
             super.visitFieldInsn(
@@ -500,7 +500,7 @@ class TagPropagator extends MethodVisitor {
     private void visitPutStatic(String owner, String name, String descriptor) {
         // ..., value -> ...
         int valueSize = Type.getType(descriptor).getSize();
-        if (ShadowFieldAdder.hasShadowFields(owner)) {
+        if (!isIgnoredField(owner)) {
             // value OR value, top
             shadowLocals.peek(valueSize - 1);
             // value, tag OR value, top, tag
@@ -669,6 +669,10 @@ class TagPropagator extends MethodVisitor {
         return false;
     }
 
+    private static boolean isIgnoredField(String owner) {
+        return isIgnoredMethod(owner, "placeHolder") || !ShadowFieldAdder.hasShadowFields(owner);
+    }
+
     private static boolean isIgnoredMethod(String owner, String name) {
         if (Configuration.isInternalTaintingClass(owner)) {
             return false;
@@ -695,7 +699,7 @@ class TagPropagator extends MethodVisitor {
         if (owner.equals("java/lang/invoke/MethodHandle")) {
             return true;
         }
-        if (owner.equals("java/lang/invoke/BoundMethodHandle")) {
+        if (owner.startsWith("java/lang/invoke/BoundMethodHandle")) {
             return true;
         }
         if (owner.equals("java/lang/invoke/VarHandle")) {
