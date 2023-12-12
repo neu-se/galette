@@ -6,6 +6,7 @@ import edu.neu.ccs.prl.phosphor.internal.runtime.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;
 
 class TagPropagator extends MethodVisitor {
@@ -444,48 +445,85 @@ class TagPropagator extends MethodVisitor {
 
     private void visitPutField(String owner, String name, String descriptor) {
         // ..., objectref, value -> ...
-        if (!ShadowFieldAdder.hasShadowFields(owner)) {
-            shadowLocals.peek(0);
+        int valueSize = Type.getType(descriptor).getSize();
+        if (ShadowFieldAdder.hasShadowFields(owner)) {
+            if (valueSize == 2) {
+                // objectref, value, top
+                super.visitInsn(DUP2_X1);
+                // value, top, objectref, value, top
+                super.visitInsn(POP2);
+                // value, top, objectref
+                super.visitInsn(DUP_X2);
+                // objectref, value, top, objectref
+                shadowLocals.peek(1);
+                // objectref, value, top, objectref, value-tag
+            } else {
+                // objectref, value
+                super.visitInsn(DUP2);
+                // objectref, value, objectref, value
+                super.visitInsn(POP);
+                // objectref, value, objectref
+                shadowLocals.peek(0);
+                // objectref, value, objectref, value-tag
+            }
             super.visitFieldInsn(
                     PUTFIELD, owner, ShadowFieldAdder.getShadowFieldName(name), ShadowFieldAdder.TAG_DESCRIPTOR);
         }
-        shadowLocals.pop(1);
+        // Remove the tags on the shadow stack for the slots consumed by this instruction
+        shadowLocals.pop(valueSize + 1);
         super.visitFieldInsn(PUTFIELD, owner, name, descriptor);
     }
 
     private void visitGetField(String owner, String name, String descriptor) {
         // ..., objectref -> ..., value
-        if (!ShadowFieldAdder.hasShadowFields(owner)) {
+        if (ShadowFieldAdder.hasShadowFields(owner)) {
             super.visitInsn(DUP);
+            // objectref, objectref
             super.visitFieldInsn(
                     GETFIELD, owner, ShadowFieldAdder.getShadowFieldName(name), ShadowFieldAdder.TAG_DESCRIPTOR);
+            // objectref, value-tag
         } else {
             Handle.TAG_GET_EMPTY.accept(mv);
         }
-        shadowLocals.push(1);
+        // Remove the tags on the shadow stack for the slot consumed by this instruction
+        shadowLocals.pop(1);
+        if (Type.getType(descriptor).getSize() == 2) {
+            shadowLocals.pushWide();
+        } else {
+            shadowLocals.push(1);
+        }
         super.visitFieldInsn(GETFIELD, owner, name, descriptor);
     }
 
     private void visitPutStatic(String owner, String name, String descriptor) {
         // ..., value -> ...
-        if (!ShadowFieldAdder.hasShadowFields(owner)) {
-            shadowLocals.peek(0);
+        int valueSize = Type.getType(descriptor).getSize();
+        if (ShadowFieldAdder.hasShadowFields(owner)) {
+            // value OR value, top
+            shadowLocals.peek(valueSize - 1);
+            // value, tag OR value, top, tag
             super.visitFieldInsn(
                     PUTSTATIC, owner, ShadowFieldAdder.getShadowFieldName(name), ShadowFieldAdder.TAG_DESCRIPTOR);
+            // value or value, top
         }
-        shadowLocals.pop(1);
+        // Remove the tags on the shadow stack for the slots consumed by this instruction
+        shadowLocals.pop(valueSize);
         super.visitFieldInsn(PUTSTATIC, owner, name, descriptor);
     }
 
     private void visitGetStatic(String owner, String name, String descriptor) {
         // ... -> ..., value
-        if (!ShadowFieldAdder.hasShadowFields(owner)) {
+        if (ShadowFieldAdder.hasShadowFields(owner)) {
             super.visitFieldInsn(
                     GETSTATIC, owner, ShadowFieldAdder.getShadowFieldName(name), ShadowFieldAdder.TAG_DESCRIPTOR);
         } else {
             Handle.TAG_GET_EMPTY.accept(mv);
         }
-        shadowLocals.push(1);
+        if (Type.getType(descriptor).getSize() == 2) {
+            shadowLocals.pushWide();
+        } else {
+            shadowLocals.push(1);
+        }
         super.visitFieldInsn(GETSTATIC, owner, name, descriptor);
     }
 

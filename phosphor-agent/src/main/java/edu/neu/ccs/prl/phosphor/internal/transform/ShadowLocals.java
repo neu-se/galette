@@ -259,7 +259,8 @@ class ShadowLocals extends MethodVisitor {
      */
     public void pushWide() {
         push(1);
-        shadowStackSize++;
+        super.visitInsn(Opcodes.ACONST_NULL);
+        push(1);
     }
 
     /**
@@ -320,14 +321,19 @@ class ShadowLocals extends MethodVisitor {
     public void createFrameForCall(boolean isStatic, String descriptor) {
         int slots = countSlots(isStatic, descriptor);
         loadPhosphorFrame();
+        // frame
         Handle.FRAME_CREATE_FOR_CALL.accept(mv);
-        peekAll(slots);
         for (int i = 0; i < slots; i++) {
+            peek(i);
+            // frame, tag
             Handle.FRAME_PUSH.accept(mv);
+            // frame
         }
-        pop(slots);
         super.visitInsn(Opcodes.DUP);
+        // frame, frame
         super.visitVarInsn(Opcodes.ASTORE, childFrameIndex);
+        // frame
+        pop(slots);
     }
 
     public void restoreFromFrame(String descriptor) {
