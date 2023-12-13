@@ -46,7 +46,7 @@ public final class Tainter {
         return value;
     }
 
-    public static Object setTag(Object value, Tag tag, PhosphorFrame frame) {
+    public static <T> T setTag(T value, Tag tag, PhosphorFrame frame) {
         frame.setReturnTag(tag);
         return value;
     }
@@ -83,7 +83,7 @@ public final class Tainter {
         throw new AssertionError("Uninstrumented placeholder method was called");
     }
 
-    public static Object setTag(Object value, Tag tag) {
+    public static <T> T setTag(T value, Tag tag) {
         throw new AssertionError("Uninstrumented placeholder method was called");
     }
 
@@ -123,7 +123,7 @@ public final class Tainter {
         return frame.pop();
     }
 
-    public static Tag getTag(boolean value, Tag tag) {
+    public static Tag getTag(boolean value) {
         throw new AssertionError("Uninstrumented placeholder method was called");
     }
 
