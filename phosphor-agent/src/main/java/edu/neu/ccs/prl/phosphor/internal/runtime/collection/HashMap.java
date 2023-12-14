@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 /**
  * Null key values are supported.
  */
-public class ObjectIntMap<K> {
+public class HashMap<K, V> {
     /**
      * The maximum ratio of stored elements to storage size that does not lead to rehash.
      */
@@ -25,9 +25,9 @@ public class ObjectIntMap<K> {
     /**
      * Holds the entries in this map.
      */
-    private transient Entry<K>[] entries;
+    private transient Entry<K, V>[] entries;
     /**
-     * Track of structural modifications between the ObjectIntMap and the iterator.
+     * Track of structural modifications between the HashMap and the iterator.
      */
     private transient int modCount = 0;
     /**
@@ -38,7 +38,7 @@ public class ObjectIntMap<K> {
     /**
      * Constructs a new, empty map.
      */
-    public ObjectIntMap() {
+    public HashMap() {
         this(16);
     }
 
@@ -48,9 +48,9 @@ public class ObjectIntMap<K> {
      * @param capacity the initial capacity of this hash map.
      * @throws IllegalArgumentException when the capacity is less than zero.
      */
-    public ObjectIntMap(int capacity) {
+    public HashMap(int capacity) {
         if (capacity >= 0) {
-            capacity = calculateCapacity(capacity);
+            capacity = ObjectIntMap.calculateCapacity(capacity);
             size = 0;
             entries = newElementArray(capacity);
             computeThreshold();
@@ -66,8 +66,8 @@ public class ObjectIntMap<K> {
      * @param map the map whose entries are to be added to the constructed map
      * @throws NullPointerException if the specified map is null
      */
-    public ObjectIntMap(ObjectIntMap<? extends K> map) {
-        this(calculateCapacity(map.size()));
+    public HashMap(HashMap<? extends K, ? extends V> map) {
+        this(ObjectIntMap.calculateCapacity(map.size()));
         putAll(map);
     }
 
@@ -94,17 +94,17 @@ public class ObjectIntMap<K> {
     }
 
     /**
-     * Returns true if this map contains an entry for the specified key.
+     * Returns {@code true} if this map contains an entry for the specified key.
      *
      * @param key the key to be searched for
-     * @return true if this map contains an entry for the specified key
+     * @return {@code true} if this map contains an entry for the specified key
      */
     public boolean containsKey(Object key) {
-        Entry<K> m = getEntry(key);
+        Entry<K, V> m = getEntry(key);
         return m != null;
     }
 
-    public Iterator<Entry<K>> entryIterator() {
+    public Iterator<Entry<K, V>> entryIterator() {
         return new EntryIterator<>(this);
     }
 
@@ -112,35 +112,18 @@ public class ObjectIntMap<K> {
      * Returns the value of the entry in this map for the specified key.
      *
      * @param key the key to be searched for
-     * @return the value of entry for the specified key
-     * @throws NoSuchElementException if there is no entry for the specified key
+     * @return the value of entry for the specified key or {@code null} if there is no entry for the specified key
      */
-    public int get(K key) {
-        Entry<K> m = getEntry(key);
+    public V get(Object key) {
+        Entry<K, V> m = getEntry(key);
         if (m == null) {
-            throw new NoSuchElementException();
-        }
-        return m.getValue();
-    }
-
-    /**
-     * Returns the value of the entry in this map for the specified key or the specified default value if
-     * there is no entry for the specified key.
-     *
-     * @param key the key to be searched for
-     * @return the value of entry for the specified key or the specified default value if there is no entry for
-     * the specified key
-     */
-    public int getOrDefault(Object key, int defaultValue) {
-        Entry<K> m = getEntry(key);
-        if (m == null) {
-            return defaultValue;
+            return null;
         }
         return m.getValue();
     }
 
     @SuppressWarnings("unchecked")
-    private Entry<K>[] newElementArray(int s) {
+    private Entry<K, V>[] newElementArray(int s) {
         return new Entry[s];
     }
 
@@ -148,10 +131,10 @@ public class ObjectIntMap<K> {
         threshold = (int) (entries.length * LOAD_FACTOR);
     }
 
-    private Entry<K> getEntry(Object key) {
+    private Entry<K, V> getEntry(Object key) {
         int hash = key == null ? 0 : key.hashCode();
         int index = hash & (entries.length - 1);
-        Entry<K> m = entries[index];
+        Entry<K, V> m = entries[index];
         while (m != null && (m.hash != hash || !objectEquals(key, m.getKey()))) {
             m = m.next;
         }
@@ -164,8 +147,8 @@ public class ObjectIntMap<K> {
      * @param key   the key
      * @param value the value
      */
-    public void put(K key, int value) {
-        Entry<K> entry = getEntry(key);
+    public V put(K key, V value) {
+        Entry<K, V> entry = getEntry(key);
         if (entry == null) {
             modCount++;
             int hash = key == null ? 0 : key.hashCode();
@@ -176,33 +159,38 @@ public class ObjectIntMap<K> {
             if (++size > threshold) {
                 rehash(entries.length);
             }
+            return null;
+        } else {
+            V result = entry.value;
+            entry.value = value;
+            return result;
         }
-        entry.value = value;
     }
 
-    public void putAll(ObjectIntMap<? extends K> map) {
+    public void putAll(HashMap<? extends K, ? extends V> map) {
         if (!map.isEmpty()) {
             int capacity = size + map.size();
             if (capacity > threshold) {
                 rehash(capacity);
             }
-            Iterator<? extends Entry<? extends K>> itr = map.entryIterator();
+            Iterator<? extends Entry<? extends K, ? extends V>> itr = map.entryIterator();
             while (itr.hasNext()) {
-                Entry<? extends K> entry = itr.next();
+                Entry<? extends K, ? extends V> entry = itr.next();
                 put(entry.getKey(), entry.getValue());
             }
         }
     }
 
     private void rehash(int capacity) {
-        int length = calculateCapacity((capacity == 0 ? 1 : capacity << 1));
-        Entry<K>[] newData = newElementArray(length);
+        int x = (capacity == 0 ? 1 : capacity << 1);
+        int length = ObjectIntMap.calculateCapacity(x);
+        Entry<K, V>[] newData = newElementArray(length);
         for (int i = 0; i < entries.length; i++) {
-            Entry<K> entry = entries[i];
+            Entry<K, V> entry = entries[i];
             entries[i] = null;
             while (entry != null) {
                 int index = entry.hash & (length - 1);
-                Entry<K> next = entry.next;
+                Entry<K, V> next = entry.next;
                 entry.next = newData[index];
                 newData[index] = entry;
                 entry = next;
@@ -218,14 +206,14 @@ public class ObjectIntMap<K> {
      * @param key the key of the entry to remove
      * @return true if an entry was removed
      */
-    public boolean remove(K key) {
+    public boolean remove(Object key) {
         return removeEntry(key) != null;
     }
 
-    private Entry<K> removeEntry(K key) {
+    private Entry<K, V> removeEntry(Object key) {
         int index = 0;
-        Entry<K> entry;
-        Entry<K> last = null;
+        Entry<K, V> entry;
+        Entry<K, V> last = null;
         if (key != null) {
             int hash = key.hashCode();
             index = hash & (entries.length - 1);
@@ -266,7 +254,7 @@ public class ObjectIntMap<K> {
     @Override
     public int hashCode() {
         int result = 0;
-        Iterator<Entry<K>> it = entryIterator();
+        Iterator<Entry<K, V>> it = entryIterator();
         while (it.hasNext()) {
             result += it.next().hashCode();
         }
@@ -277,20 +265,20 @@ public class ObjectIntMap<K> {
     public boolean equals(Object object) {
         if (this == object) {
             return true;
-        } else if (!(object instanceof ObjectIntMap)) {
+        } else if (!(object instanceof HashMap)) {
             return false;
         }
         try {
             @SuppressWarnings("unchecked")
-            ObjectIntMap<K> map = (ObjectIntMap<K>) object;
+            HashMap<K, V> map = (HashMap<K, V>) object;
             if (size() != map.size()) {
                 return false;
             }
-            Iterator<Entry<K>> itr = entryIterator();
+            Iterator<Entry<K, V>> itr = entryIterator();
             while (itr.hasNext()) {
-                Entry<K> entry = itr.next();
+                Entry<K, V> entry = itr.next();
                 K key = entry.getKey();
-                if (!map.containsKey(key) || entry.getValue() != map.get(key)) {
+                if (!map.containsKey(key) || !objectEquals(entry.getValue(), map.get(key))) {
                     return false;
                 }
             }
@@ -306,9 +294,9 @@ public class ObjectIntMap<K> {
             return "{}";
         }
         StringBuilder buffer = new StringBuilder(size() * 28).append('{');
-        Iterator<Entry<K>> it = entryIterator();
+        Iterator<Entry<K, V>> it = entryIterator();
         while (it.hasNext()) {
-            Entry<K> entry = it.next();
+            Entry<K, V> entry = it.next();
             buffer.append(entry.getKey() == this ? "(this Map)" : entry.getKey())
                     .append('=')
                     .append(entry.getValue());
@@ -324,38 +312,22 @@ public class ObjectIntMap<K> {
         return (o1 == o2) || (o1 != null && o1.equals(o2));
     }
 
-    static int calculateCapacity(int x) {
-        if (x >= 1 << 30) {
-            return 1 << 30;
-        }
-        if (x == 0) {
-            return 16;
-        }
-        x = x - 1;
-        x |= x >> 1;
-        x |= x >> 2;
-        x |= x >> 4;
-        x |= x >> 8;
-        x |= x >> 16;
-        return x + 1;
-    }
-
     public SimpleList<K> getKeys() {
         SimpleList<K> keys = new SimpleList<>();
-        Iterator<Entry<K>> itr = entryIterator();
+        Iterator<Entry<K, V>> itr = entryIterator();
         while (itr.hasNext()) {
             keys.add(itr.next().getKey());
         }
         return keys;
     }
 
-    public static class Entry<K> {
+    public static class Entry<K, V> {
         private final int hash;
         private final K key;
-        private Entry<K> next;
-        private int value;
+        private Entry<K, V> next;
+        private V value;
 
-        private Entry(K key, int hash, int value) {
+        private Entry(K key, int hash, V value) {
             this.key = key;
             this.hash = hash;
             this.value = value;
@@ -365,22 +337,22 @@ public class ObjectIntMap<K> {
             return key;
         }
 
-        public int getValue() {
+        public V getValue() {
             return value;
         }
 
         @Override
         public int hashCode() {
-            return hash ^ value;
+            return hash ^ value.hashCode();
         }
 
         @Override
         public boolean equals(Object object) {
             if (this == object) {
                 return true;
-            } else if (object instanceof ObjectIntMap.Entry) {
-                Entry<?> entry = (Entry<?>) object;
-                return objectEquals(key, entry.getKey()) && value == entry.value;
+            } else if (object instanceof HashMap.Entry) {
+                Entry<?, ?> entry = (Entry<?, ?>) object;
+                return objectEquals(key, entry.getKey()) && objectEquals(value, entry.value);
             } else {
                 return false;
             }
@@ -392,15 +364,15 @@ public class ObjectIntMap<K> {
         }
     }
 
-    private static class EntryIterator<K> implements Iterator<Entry<K>> {
-        final ObjectIntMap<K> associatedMap;
+    private static class EntryIterator<K, V> implements Iterator<Entry<K, V>> {
+        final HashMap<K, V> associatedMap;
         int expectedModCount;
-        Entry<K> futureEntry;
-        Entry<K> currentEntry;
-        Entry<K> prevEntry;
+        Entry<K, V> futureEntry;
+        Entry<K, V> currentEntry;
+        Entry<K, V> prevEntry;
         private int position = 0;
 
-        EntryIterator(ObjectIntMap<K> map) {
+        EntryIterator(HashMap<K, V> map) {
             this.associatedMap = map;
             this.expectedModCount = map.modCount;
             this.futureEntry = null;
@@ -420,7 +392,7 @@ public class ObjectIntMap<K> {
             return false;
         }
 
-        public Entry<K> next() {
+        public Entry<K, V> next() {
             makeNext();
             return currentEntry;
         }

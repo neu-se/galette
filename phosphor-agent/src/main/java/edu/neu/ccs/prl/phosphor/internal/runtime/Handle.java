@@ -21,7 +21,8 @@ public enum Handle {
     ARRAY_TAINTER_GET_LENGTH_TAG(ArrayTainter.class),
     ARRAY_TAINTER_SET_LENGTH_TAG(ArrayTainter.class),
     ARRAY_TAINTER_GET_TAG(ArrayTainter.class),
-    ARRAY_TAINTER_SET_TAG(ArrayTainter.class);
+    ARRAY_TAINTER_SET_TAG(ArrayTainter.class),
+    ARRAY_TAINTER_SET_LENGTH_TAGS(ArrayTainter.class);
 
     private final Class<?> owner;
 

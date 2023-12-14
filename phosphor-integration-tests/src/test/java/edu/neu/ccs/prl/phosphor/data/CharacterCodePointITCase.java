@@ -3,10 +3,8 @@ package edu.neu.ccs.prl.phosphor.data;
 import edu.neu.ccs.prl.phosphor.internal.runtime.Tag;
 import edu.neu.ccs.prl.phosphor.internal.runtime.Tainter;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled
 public class CharacterCodePointITCase {
     @Test
     public void codePointAt() {

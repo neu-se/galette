@@ -3,10 +3,9 @@ package edu.neu.ccs.prl.phosphor.data;
 import edu.neu.ccs.prl.phosphor.internal.runtime.Tag;
 import edu.neu.ccs.prl.phosphor.internal.runtime.Tainter;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled
+@SuppressWarnings("MismatchedReadAndWriteOfArray")
 public class ArrayLengthITCase {
     @Test
     public void primitiveArrayLength() {
@@ -28,9 +27,27 @@ public class ArrayLengthITCase {
 
     @Test
     public void multiPrimitiveArrayLength() {
+        Tag label1 = Tag.create("label1");
+        Tag label2 = Tag.create("label2");
+        Tag label3 = Tag.create("label3");
+        int[][][] a = new int[Tainter.setTag(2, label1)][Tainter.setTag(3, label2)][Tainter.setTag(1, label3)];
+        Tag actual = Tainter.getTag(a.length);
+        Assertions.assertEquals(label1, actual);
+        for (int[][] x : a) {
+            actual = Tainter.getTag(x.length);
+            Assertions.assertEquals(label2, actual);
+            for (int[] y : x) {
+                actual = Tainter.getTag(y.length);
+                Assertions.assertEquals(label3, actual);
+            }
+        }
+    }
+
+    @Test
+    public void multiPrimitiveArrayLengthJagged() {
         Tag expected = Tag.create("label");
         int i = Tainter.setTag(5, expected);
-        int[][] a = new int[i][i];
+        int[][][] a = new int[i][i][];
         Tag actual = Tainter.getTag(a.length);
         Assertions.assertEquals(expected, actual);
         actual = Tainter.getTag(a[0].length);

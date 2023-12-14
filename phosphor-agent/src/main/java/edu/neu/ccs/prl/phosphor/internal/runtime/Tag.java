@@ -73,9 +73,9 @@ public final class Tag {
 
     @InvokedViaHandle(handle = Handle.TAG_UNION)
     public static Tag union(Tag t1, Tag t2) {
-        if (t1 == null || t1.isEmpty() || t1 == t2) {
+        if (isEmpty(t1) || t1 == t2) {
             return t2;
-        } else if (t2 == null || t2.isEmpty()) {
+        } else if (isEmpty(t2)) {
             return t1;
         } else {
             ObjectIntMap<Object> labels = new ObjectIntMap<>(t1.backingMap);
@@ -93,5 +93,9 @@ public final class Tag {
             distinct.put(label, 1);
         }
         return new Tag(distinct);
+    }
+
+    public static boolean isEmpty(Tag tag) {
+        return tag == null || tag.isEmpty();
     }
 }

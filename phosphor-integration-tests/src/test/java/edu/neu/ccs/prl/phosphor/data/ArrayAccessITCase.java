@@ -3,10 +3,8 @@ package edu.neu.ccs.prl.phosphor.data;
 import edu.neu.ccs.prl.phosphor.internal.runtime.Tag;
 import edu.neu.ccs.prl.phosphor.internal.runtime.Tainter;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled
 @SuppressWarnings("MismatchedReadAndWriteOfArray")
 public class ArrayAccessITCase {
     @Test
@@ -69,6 +67,36 @@ public class ArrayAccessITCase {
         a[i] = 7;
         long value = a[5];
         Tag actual = Tainter.getTag(value);
-        Assertions.assertTrue(actual.isEmpty());
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void taintedIntArrayElement() {
+        Tag expected = Tag.create("label");
+        int[] a = new int[10];
+        a[5] = Tainter.setTag(5, expected);
+        int value = a[5];
+        Tag actual = Tainter.getTag(value);
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void taintedReferenceArrayElement() {
+        Tag expected = Tag.create("label");
+        String[] a = new String[10];
+        a[5] = Tainter.setTag("hello", expected);
+        String value = a[5];
+        Tag actual = Tainter.getTag(value);
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void taintedLongArrayElement() {
+        Tag expected = Tag.create("label");
+        long[] a = new long[10];
+        a[5] = Tainter.setTag(5L, expected);
+        long value = a[5];
+        Tag actual = Tainter.getTag(value);
+        Assertions.assertEquals(expected, actual);
     }
 }

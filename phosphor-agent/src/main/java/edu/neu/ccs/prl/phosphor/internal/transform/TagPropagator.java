@@ -3,6 +3,7 @@ package edu.neu.ccs.prl.phosphor.internal.transform;
 import static org.objectweb.asm.Opcodes.*;
 
 import edu.neu.ccs.prl.phosphor.internal.runtime.Handle;
+import edu.neu.ccs.prl.phosphor.internal.runtime.Tag;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -93,9 +94,8 @@ class TagPropagator extends MethodVisitor {
                 // value, arrayref, index
                 super.visitInsn(Opcodes.DUP2_X1);
                 // arrayref, index, value, arrayref, index
-                shadowLocals.peek(2);
-                shadowLocals.peek(1);
-                // arrayref, index, value, arrayref, index, arrayref-tag, index-tag
+                shadowLocals.peekAll(3);
+                // arrayref, index, value, arrayref, index, arrayref-tag, index-tag, value-tag
                 Handle.ARRAY_TAINTER_SET_TAG.accept(mv);
                 // arrayref, index, value
                 shadowLocals.pop(3);
@@ -111,7 +111,8 @@ class TagPropagator extends MethodVisitor {
                 // arrayref, index, value, top, arrayref, index
                 shadowLocals.peek(3);
                 shadowLocals.peek(2);
-                // arrayref, index, value, top, arrayref, index, arrayref-tag, index-tag
+                shadowLocals.peek(1);
+                // arrayref, index, value, top, arrayref, index, arrayref-tag, index-tag, value-tag
                 Handle.ARRAY_TAINTER_SET_TAG.accept(mv);
                 // arrayref, index, value, top
                 shadowLocals.pop(4);
@@ -621,13 +622,21 @@ class TagPropagator extends MethodVisitor {
         super.visitMultiANewArrayInsn(descriptor, numDimensions);
         // arrayref
         super.visitInsn(DUP);
-        shadowLocals.peekAll(numDimensions);
-        // arrayref, arrayref, count1-tag, [count2-tag, ...]
-        for (int i = 0; i < numDimensions - 1; i++) {
-            Handle.TAG_UNION.accept(mv);
+        // arrayref, arrayref
+        AsmUtil.pushInt(mv, numDimensions);
+        super.visitTypeInsn(ANEWARRAY, Type.getInternalName(Tag.class));
+        // arrayref, arrayref, tag-array
+        int index = 0;
+        for (int i = numDimensions - 1; i >= 0; i--, index++) {
+            super.visitInsn(DUP);
+            AsmUtil.pushInt(mv, index);
+            shadowLocals.peek(i);
+            // arrayref, arrayref, tag-array, tag-array, count-tag
+            super.visitInsn(AASTORE);
+            // arrayref, arrayref, tag-array
         }
-        // arrayref, arrayref, merged-count-tag
-        Handle.ARRAY_TAINTER_SET_LENGTH_TAG.accept(mv);
+        // arrayref, arrayref, tag-array
+        Handle.ARRAY_TAINTER_SET_LENGTH_TAGS.accept(mv);
         // arrayref
         // Set the tag for the newly created array in the shadow stack
         Handle.TAG_GET_EMPTY.accept(mv);
