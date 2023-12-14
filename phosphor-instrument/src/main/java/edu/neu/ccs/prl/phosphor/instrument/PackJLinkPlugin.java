@@ -2,28 +2,32 @@ package edu.neu.ccs.prl.phosphor.instrument;
 
 import jdk.tools.jlink.plugin.ResourcePoolEntry;
 
-public class InstrumentJLinkPlugin extends PhosphorJLinkPlugin {
+public class PackJLinkPlugin extends PhosphorJLinkPlugin {
     @Override
     public String getName() {
-        return "instrument";
+        return "pack";
     }
 
     @Override
     public String getDescription() {
-        return "Applies instrumentation to the runtime image.";
+        return "Packs Phosphor classes into the java.base module";
     }
 
     @Override
     public Category getType() {
-        return Category.MODULEINFO_TRANSFORMER;
+        return Category.FILTER;
     }
 
     @Override
     protected ResourcePoolEntry transform(ResourcePoolEntry entry) {
         if (entry.type().equals(ResourcePoolEntry.Type.CLASS_OR_RESOURCE)
                 && entry.path().endsWith(".class")) {
-            byte[] instrumented = instrumentation.apply(entry.contentBytes());
-            return instrumented == null ? entry : entry.copyWithContent(instrumented);
+            if (entry.path().endsWith("module-info.class")) {
+                if (entry.path().startsWith("/java.base")) {
+                    // Transform java.base's module-info.class file and pack core classes into java.base
+                    return packer.pack(entry);
+                }
+            }
         }
         return entry;
     }

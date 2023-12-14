@@ -211,7 +211,7 @@ import java.util.*;
 
 /**
  * Alters the jdk.jlink module to export the "jdk.tools.jlink.plugin" package to this class' module.
- * Alters this class' module to provide our custom JLink plugin as a service.
+ * Alters this class' module to provide our custom JLink plugins as a service.
  */
 @SuppressWarnings("Since15")
 public final class JLinkRegistrationAgent {
@@ -235,7 +235,7 @@ public final class JLinkRegistrationAgent {
                 Collections.emptyMap());
         Class<?> jlinkPluginClass = jlinkModule.getClassLoader().loadClass(JLINK_PLUGIN_CLASS_NAME);
         Map<Class<?>, List<Class<?>>> extraProvides = new HashMap<>();
-        extraProvides.put(jlinkPluginClass, Collections.singletonList(InstrumentJLinkPlugin.class));
+        extraProvides.put(jlinkPluginClass, Arrays.asList(PackJLinkPlugin.class, InstrumentJLinkPlugin.class));
         // Alter our custom JLink plugin's module to provide our custom JLink plugin as a service
         inst.redefineModule(
                 customPluginModule,

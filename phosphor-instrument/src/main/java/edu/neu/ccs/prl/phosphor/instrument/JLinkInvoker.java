@@ -24,7 +24,8 @@ public final class JLinkInvoker {
         command.add("-J--add-reads=" + JLinkRegistrationAgent.MODULE_NAME + "=ALL-UNNAMED");
         command.add("-J--module-path=" + jlinkAgentJar);
         command.add("-J--add-modules=" + JLinkRegistrationAgent.MODULE_NAME);
-        command.add(getPluginOption(instrumentation));
+        command.add(getPluginOption("pack", instrumentation));
+        command.add(getPluginOption("instrument", instrumentation));
         command.add("--output=" + outputDirectory.getAbsolutePath());
         command.add("--add-modules");
         command.add(processModules(instrumentation, modules));
@@ -51,9 +52,10 @@ public final class JLinkInvoker {
                 .collect(Collectors.joining(File.pathSeparator));
     }
 
-    private static String getPluginOption(Instrumentation instrumentation) throws IOException {
+    private static String getPluginOption(String plugin, Instrumentation instrumentation) throws IOException {
         return String.format(
-                "--instrument=x:type=%s:options=%s",
+                "--%s=x:type=%s:options=%s",
+                plugin,
                 instrumentation.getClass().getName(),
                 storeOptions(instrumentation.getOptions()).getAbsolutePath());
     }
