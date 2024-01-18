@@ -128,10 +128,6 @@
                         <executions>
                             <execution>
                                 <id>default-testCompile</id>
-                                <phase>test-compile</phase>
-                                <goals>
-                                    <goal>testCompile</goal>
-                                </goals>
                                 <configuration>
                                     <release>9</release>
                                     <source>9</source>
@@ -153,11 +149,16 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
-                        <configuration>
-                            <testExcludes>
-                                <exclude>**/VarHandleITCase.java</exclude>
-                            </testExcludes>
-                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>default-testCompile</id>
+                                <configuration>
+                                    <testExcludes>
+                                        <exclude>**/VarHandleITCase.java</exclude>
+                                    </testExcludes>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>

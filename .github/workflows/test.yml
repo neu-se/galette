@@ -13,7 +13,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ '8', '11', '17', '21' ]
+        distribution: ['temurin', 'corretto', 'oracle']
+        version: [ '8', '11', '17', '21' ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -22,8 +23,8 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version:  ${{ matrix.java }}
+          distribution: ${{ matrix.distribution }}
+          java-version:  ${{ matrix.version }}
       - name: Test
         run: mvn -B -ntp -errors -pl '!:phosphor-instrument' install
         shell: bash
