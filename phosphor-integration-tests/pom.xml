@@ -133,6 +133,10 @@
                         <executions>
                             <execution>
                                 <id>special-testCompile</id>
+                                <phase>test-compile</phase>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
                                 <configuration>
                                     <release>9</release>
                                     <source>9</source>
