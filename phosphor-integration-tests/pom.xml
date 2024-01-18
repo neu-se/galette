@@ -42,8 +42,32 @@
                         <goals>
                             <goal>testCompile</goal>
                         </goals>
+                        <configuration>
+                            <testExcludes>
+                                <exclude>**/VarHandleITCase.java</exclude>
+                            </testExcludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>special-testCompile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                            <testIncludes>
+                                <include>**/VarHandleITCase.java</include>
+                            </testIncludes>
+                            <release>9</release>
+                            <source>9</source>
+                            <target>9</target>
+                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <source>9</source>
+                    <target>9</target>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
