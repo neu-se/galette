@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distribution: ['temurin', 'corretto', 'oracle']
+        distribution: ['temurin', 'corretto']
         version: [ '8', '11', '17', '21' ]
     steps:
       - name: Checkout

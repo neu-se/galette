@@ -42,6 +42,11 @@
                         <goals>
                             <goal>testCompile</goal>
                         </goals>
+                        <configuration>
+                            <testExcludes>
+                                <exclude>**/VarHandleITCase.java</exclude>
+                            </testExcludes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -127,11 +132,14 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>default-testCompile</id>
+                                <id>special-testCompile</id>
                                 <configuration>
                                     <release>9</release>
                                     <source>9</source>
                                     <target>9</target>
+                                    <testIncludes>
+                                        <include>**/VarHandleITCase.java</include>
+                                    </testIncludes>
                                 </configuration>
                             </execution>
                         </executions>
@@ -146,20 +154,6 @@
             </activation>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>default-testCompile</id>
-                                <configuration>
-                                    <testExcludes>
-                                        <exclude>**/VarHandleITCase.java</exclude>
-                                    </testExcludes>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
