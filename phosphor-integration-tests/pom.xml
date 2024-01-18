@@ -161,11 +161,16 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/VarHandleITCase.java</exclude>
-                            </excludes>
-                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>data</id>
+                                <configuration>
+                                    <excludes>
+                                        <exclude>**/VarHandleITCase.java</exclude>
+                                    </excludes>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
