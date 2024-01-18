@@ -1,5 +1,7 @@
 package edu.neu.ccs.prl.phosphor.internal.transform;
 
+import static org.objectweb.asm.Opcodes.*;
+
 import edu.neu.ccs.prl.phosphor.internal.runtime.Handle;
 import edu.neu.ccs.prl.phosphor.internal.runtime.Tag;
 import org.objectweb.asm.Label;
@@ -7,8 +9,6 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodNode;
-
-import static org.objectweb.asm.Opcodes.*;
 
 class TagPropagator extends MethodVisitor {
     private final ShadowLocals shadowLocals;
