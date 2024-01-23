@@ -700,13 +700,9 @@ class TagPropagator extends MethodVisitor {
         }
         // TODO figure out why these are needed and if there are other Handles that need to listed
         // TODO check if needed
-        if (owner.equals("java/lang/invoke/MethodHandle")) {
-            return true;
-        }
-        if (owner.startsWith("java/lang/invoke/BoundMethodHandle")) {
-            return true;
-        }
-        if (owner.equals("java/lang/invoke/VarHandle")) {
+        if (owner.equals("java/lang/invoke/MethodHandle")
+                || owner.startsWith("java/lang/invoke/BoundMethodHandle")
+                || owner.equals("java/lang/invoke/VarHandle")) {
             return true;
         }
         // A shadow was not created for the original method
