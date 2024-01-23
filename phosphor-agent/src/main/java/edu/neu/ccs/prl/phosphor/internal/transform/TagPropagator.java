@@ -679,10 +679,10 @@ class TagPropagator extends MethodVisitor {
     }
 
     private static boolean isIgnoredField(String owner) {
-        return isIgnoredMethod(owner, "placeHolder") || !ShadowFieldAdder.hasShadowFields(owner);
+        return isIgnoredClass(owner) || !ShadowFieldAdder.hasShadowFields(owner);
     }
 
-    private static boolean isIgnoredMethod(String owner, String name) {
+    private static boolean isIgnoredClass(String owner) {
         if (Configuration.isInternalTaintingClass(owner)) {
             return false;
         }
@@ -690,8 +690,12 @@ class TagPropagator extends MethodVisitor {
         if (owner.equals("java/lang/Object") || owner.startsWith("[")) {
             return true;
         }
-        // Shadows are not created for classes explicitly from Phosphor instrumentation
-        if (PhosphorTransformer.isExcluded(owner)) {
+        // Shadows are not created for classes explicitly excluded from Phosphor instrumentation
+        return PhosphorTransformer.isExcluded(owner);
+    }
+
+    private static boolean isIgnoredMethod(String owner, String name) {
+        if (isIgnoredClass(owner)) {
             return true;
         }
         // TODO figure out why these are needed and if there are other Handles that need to listed
