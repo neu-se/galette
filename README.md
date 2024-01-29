@@ -1,14 +1,12 @@
-# PhosphorLite
+# Galette
 
-PhosphorLite is the successor to the
-[original Phosphor dynamic taint tracking system](https://github.com/gmu-swe/phosphor).
-PhosphorLite is a system for performing dynamic taint tracking in the Java Virtual Machine (JVM).
-PhosphorLite uses Java bytecode instrumentation to associate labels, which we referred to as taint tags,
-with program data and propagate these labels along information "flows" at runtime.
+Galette is a system for performing dynamic taint tracking in the Java Virtual Machine (JVM).
+Galette uses Java bytecode instrumentation to associate labels, also called "taint tags",
+with program data and to propagate these labels along information "flows" at runtime.
 
-PhosphorLite requires Java 11+ to build, but it can also be used on Java 8.
+Galette requires Java 11+ to build, but it can also be used on Java 8.
 
-## Building PhosphorLite
+## Building Galette
 
 ### Requirements
 
@@ -19,8 +17,8 @@ PhosphorLite requires Java 11+ to build, but it can also be used on Java 8.
 
 1. Clone or download this repository.
 2. Ensure that some version of the JDK 11+ is installed.
-   A JDK can be downloaded from [Oracle](https://www.oracle.com/java/technologies/downloads/) or
-   the [Adoptium Working Group](https://adoptium.net/temurin/releases/).
+   We recommend using a JDK from [Oracle](https://www.oracle.com/java/technologies/downloads/),
+   the [Adoptium Working Group](https://adoptium.net/temurin/releases/), or [Amazon](https://aws.amazon.com/corretto/).
 3. Set the JAVA_HOME environmental variable to the path of this JDK installation.
    On Linux and Mac, this can be done by running `export JAVA_HOME=<PATH-TO-JDK>`, where &lt;PATH-TO-JDK&gt; is the path
    of the JDK installation.
@@ -29,40 +27,40 @@ PhosphorLite requires Java 11+ to build, but it can also be used on Java 8.
    and [installing](https://maven.apache.org/install.html) Maven are available on the project page for Maven.
 5. In the root directory of this project (the one where this README file is located), run `mvn -DskipTests install`.
 
-## Running PhosphorLite's Tests
+## Running Galette's Tests
 
-Once you have built PhosphorLite according to the directions described above, you can run the tests and examples.
-Although PhosphorLite currently requires Java 11+ to build, it can also be used on Java 8.
-If you would like to run PhosphorLite's tests on Java 8, build PhosphorLite using Java 11+, then change the
+Once you have built Galette according to the directions described above, you can run the tests and examples.
+Although Galette currently requires Java 11+ to build, it can also be used on Java 8.
+If you would like to run Galette's tests on Java 8, build Galette using Java 11+, then change the
 `JAVA_HOME` environmental variable to the path of a JDK 8 installation before running the tests.
-To run the root directory of this project, run `mvn -pl :phosphor-integration-tests verify`.
-The first time you run this command, Maven will invoke the PhosphorLite Maven plugin to create
-PhosphorLite-instrumented Java installations.
+To run the root directory of this project, run `mvn -pl :galette-integration-tests verify`.
+The first time you run this command, Maven will invoke the Galette Maven plugin to create
+Galette-instrumented Java installations.
 These instrumented Java installations are cached for future use and will not be recreated unless one of the
-PhosphorLite JARs, the configuration used to create them, or the value of `JAVA_HOME` changes.
-Once the PhosphorLite Maven plugin finishes creating the instrumented Java installations, the tests will run.
-These tests demonstrate how PhosphorLite can be used and are a good reference when first learning PhosphorLite.
+Galette JARs, the configuration used to create them, or the value of `JAVA_HOME` changes.
+Once the Galette Maven plugin finishes creating the instrumented Java installations, the tests will run.
+These tests demonstrate how Galette can be used and are a good reference when first learning Galette.
 
 ## Creating an Instrumented Java Installation
 
 In order to track the flow of information through classes in the Java Class Library (JCL), such as `java.lang.String`
-and `java.util.List`, PhosphorLite must instrument the bytecode of JCL classes.
-Therefore, the first step when using PhosphorLite is to create an instrumented Java installation
+and `java.util.List`, Galette must instrument the bytecode of JCL classes.
+Therefore, the first step when using Galette is to create an instrumented Java installation
 (i.e., Java Development Kit or Java Runtime Environment).
 A Java installation can be downloaded from [Oracle](https://www.oracle.com/java/technologies/downloads/) or
 the [Adoptium Working Group](https://adoptium.net/temurin/releases/).
-Once you have obtained a Java installation, it can be instrumented using PhosphorLite's
+Once you have obtained a Java installation, it can be instrumented using Galette's
 Maven plugin.
 
 **Important note on Oracle's Java installations:**
 Oracle's Java installations require that the JAR that contains the cryptography routines `jce.jar` be signed by
 Oracle for export control purposes.
-PhosphorLite instrumentation will break these signatures.
-Therefore, it is not possible to use PhosphorLite with Oracle's Java installation *and* use the
+Galette instrumentation will break these signatures.
+Therefore, it is not possible to use Galette with Oracle's Java installation *and* use the
 cryptography functionality.
 
-To create a PhosphorLite-instrumented Java installation as part of your Maven build, add the
-`phosphor-maven-plugin` in your pom:
+To create a Galette-instrumented Java installation as part of your Maven build, add the
+`galette-maven-plugin` in your pom:
 
 ```
 <build>
@@ -70,8 +68,8 @@ To create a PhosphorLite-instrumented Java installation as part of your Maven bu
     <plugins>
         ...
         <plugin>
-            <groupId>edu.neu.ccs.prl.phosphor</groupId>
-            <artifactId>phosphor-maven-plugin</artifactId>
+            <groupId>edu.neu.ccs.prl.galette</groupId>
+            <artifactId>galette-maven-plugin</artifactId>
            <version>VERSION</version>
         </plugin>
         ...
@@ -82,11 +80,11 @@ To create a PhosphorLite-instrumented Java installation as part of your Maven bu
 
 [//]: # (TODO describe plugin option and how to run without adding to build)
 
-## Running Your Application with PhosphorLite
+## Running Your Application with Galette
 
 [//]: # (TODO)
 
-## Interacting with PhosphorLite
+## Interacting with Galette
 
 [//]: # (TODO)
 
@@ -94,7 +92,7 @@ To create a PhosphorLite-instrumented Java installation as part of your Maven bu
 
 This software release is licensed under the BSD 3-Clause License.
 
-Copyright (c) 2023, Katherine Hough and Jonathan Bell.
+Copyright (c) 2024, Katherine Hough and Jonathan Bell.
 
 All rights reserved.
 
@@ -120,7 +118,7 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY O
 
 ## Acknowledgements
 
-PhosphorLite makes use of the following libraries:
+Galette makes use of the following libraries:
 
 * [ASM](http://asm.ow2.org/), (c) INRIA, France
   Telecom, [license](http://asm.ow2.org/license.html)

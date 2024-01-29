@@ -2,12 +2,12 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>edu.neu.ccs.prl.phosphor</groupId>
-    <artifactId>phosphor</artifactId>
+    <groupId>edu.neu.ccs.prl.galette</groupId>
+    <artifactId>galette</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>
-        PhosphorLite is a dynamic taint tracking system for the JVM.
+        Galette is a dynamic taint tracking system for the JVM.
     </description>
     <url>https://github.com/neu-se/phosphor2/blob/main/README.md</url>
     <licenses>
@@ -39,10 +39,10 @@
         <url>https://github.com/neu-se/phosphor2/tree/main</url>
     </scm>
     <modules>
-        <module>phosphor-agent</module>
-        <module>phosphor-instrument</module>
-        <module>phosphor-maven-plugin</module>
-        <module>phosphor-integration-tests</module>
+        <module>galette-agent</module>
+        <module>galette-instrument</module>
+        <module>galette-maven-plugin</module>
+        <module>galette-integration-tests</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
