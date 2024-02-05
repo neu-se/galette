@@ -4,12 +4,12 @@ import edu.neu.ccs.prl.galette.internal.transform.GaletteTransformer;
 import java.security.ProtectionDomain;
 
 @SuppressWarnings("unused")
-public final class UnsafeMasker {
+public final class UnsafeMasks {
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "defineAnonymousClass0")
     @Mask(owner = "sun/misc/Unsafe", name = "defineAnonymousClass")
     public static Class<?> defineAnonymousClass(Object unsafe, Class<?> hostClass, byte[] data, Object[] cpPatches) {
         byte[] instrumented = GaletteTransformer.getInstanceAndTransform(data, true);
-        return UnsafeAdapter.defineAnonymousClass(hostClass, instrumented, cpPatches);
+        return UnsafeAccessor.defineAnonymousClass(hostClass, instrumented, cpPatches);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "defineClass0")
@@ -19,9 +19,9 @@ public final class UnsafeMasker {
         byte[] buffer = copy(b, off, len);
         if (buffer != null) {
             byte[] instrumented = GaletteTransformer.getInstanceAndTransform(buffer, false);
-            return UnsafeAdapter.defineClass(name, instrumented, 0, instrumented.length, loader, domain);
+            return UnsafeAccessor.defineClass(name, instrumented, 0, instrumented.length, loader, domain);
         }
-        return UnsafeAdapter.defineClass(name, b, off, len, loader, domain);
+        return UnsafeAccessor.defineClass(name, b, off, len, loader, domain);
     }
 
     public static byte[] copy(byte[] b, int off, int len) {

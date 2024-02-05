@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings({"UnnecessaryBoxing", "UnnecessaryUnboxing"})
 public class BoxedTypeITCase {
     @Test
-    @Disabled("cache")
     void boxedBoolean() {
         Tag expected = Tag.create("label");
         boolean value = Tainter.setTag(true, expected);
@@ -17,10 +16,11 @@ public class BoxedTypeITCase {
         boolean unboxed = boxed.booleanValue();
         Tag actual = Tainter.getTag(unboxed);
         Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(
+                Tag.getEmptyTag(), Tainter.getTag(Boolean.valueOf(true).booleanValue()));
     }
 
     @Test
-    @Disabled("cache")
     void boxedByte() {
         Tag expected = Tag.create("label");
         byte value = Tainter.setTag((byte) 8, expected);
@@ -28,10 +28,11 @@ public class BoxedTypeITCase {
         byte unboxed = boxed.byteValue();
         Tag actual = Tainter.getTag(unboxed);
         Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(
+                Tag.getEmptyTag(), Tainter.getTag(Byte.valueOf((byte) 8).byteValue()));
     }
 
     @Test
-    @Disabled("cache")
     void boxedCharacter() {
         Tag expected = Tag.create("label");
         char value = Tainter.setTag('x', expected);
@@ -39,10 +40,11 @@ public class BoxedTypeITCase {
         char unboxed = boxed.charValue();
         Tag actual = Tainter.getTag(unboxed);
         Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(
+                Tag.getEmptyTag(), Tainter.getTag(Character.valueOf('x').charValue()));
     }
 
     @Test
-    @Disabled("cache")
     void boxedShort() {
         Tag expected = Tag.create("label");
         short value = Tainter.setTag((short) 8, expected);
@@ -50,6 +52,8 @@ public class BoxedTypeITCase {
         short unboxed = boxed.shortValue();
         Tag actual = Tainter.getTag(unboxed);
         Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(
+                Tag.getEmptyTag(), Tainter.getTag(Short.valueOf((short) 8).shortValue()));
     }
 
     @Test
@@ -61,6 +65,8 @@ public class BoxedTypeITCase {
         int unboxed = boxed.intValue();
         Tag actual = Tainter.getTag(unboxed);
         Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(
+                Tag.getEmptyTag(), Tainter.getTag(Integer.valueOf(8).intValue()));
     }
 
     @Test
@@ -72,6 +78,8 @@ public class BoxedTypeITCase {
         long unboxed = boxed.longValue();
         Tag actual = Tainter.getTag(unboxed);
         Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(
+                Tag.getEmptyTag(), Tainter.getTag(Long.valueOf(8L).longValue()));
     }
 
     @Test
@@ -82,6 +90,8 @@ public class BoxedTypeITCase {
         float unboxed = boxed.floatValue();
         Tag actual = Tainter.getTag(unboxed);
         Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(
+                Tag.getEmptyTag(), Tainter.getTag(Float.valueOf(8f).floatValue()));
     }
 
     @Test
@@ -92,5 +102,7 @@ public class BoxedTypeITCase {
         double unboxed = boxed.doubleValue();
         Tag actual = Tainter.getTag(unboxed);
         Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(
+                Tag.getEmptyTag(), Tainter.getTag(Double.valueOf(8.0).doubleValue()));
     }
 }

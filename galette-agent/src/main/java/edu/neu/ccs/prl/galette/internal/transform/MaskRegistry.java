@@ -12,7 +12,7 @@ import org.objectweb.asm.Type;
 
 public final class MaskRegistry {
     private static final Class<?>[] SOURCES =
-            new Class[] {UnsafeMasker.class, ReflectionMasker.class, ClassLoaderMasker.class};
+            new Class[] {UnsafeMasks.class, ReflectionMasks.class, ClassLoaderMasks.class, BoxTypeMasks.class};
     private static final SimpleMap<String, MaskInfo> masks = new SimpleMap<>();
 
     private MaskRegistry() {

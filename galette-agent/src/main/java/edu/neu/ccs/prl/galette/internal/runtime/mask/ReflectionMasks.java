@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 @SuppressWarnings("unused")
-public final class ReflectionMasker {
+public final class ReflectionMasks {
 
     @Mask(
             owner = "java/lang/Class",

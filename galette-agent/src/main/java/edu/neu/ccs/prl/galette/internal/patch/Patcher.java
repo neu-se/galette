@@ -29,14 +29,14 @@ public final class Patcher {
         ClassReader cr = new ClassReader(classFileBuffer);
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
         ClassVisitor cv = cw;
-        if (RegistryPatcher.isApplicable(className)) {
+        if (entryLocator == null && RegistryPatcher.isApplicable(className)) {
             cv = new RegistryPatcher(cv, className);
         }
         if (UnsafeAdapterPatcher.isApplicable(className)) {
             cv = new UnsafeAdapterPatcher(cv, entryLocator);
         }
-        if (ClassLoaderAdapterPatcher.isApplicable(className)) {
-            cv = new ClassLoaderAdapterPatcher(cv);
+        if (entryLocator == null) {
+            cv = new MemberAccessGenerator(className, cv);
         }
         cr.accept(cv, ClassReader.EXPAND_FRAMES);
         return cw.toByteArray();

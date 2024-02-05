@@ -1,6 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.patch;
 
-import edu.neu.ccs.prl.galette.internal.runtime.mask.UnsafeAdapter;
+import edu.neu.ccs.prl.galette.internal.runtime.mask.UnsafeAccessor;
 import edu.neu.ccs.prl.galette.internal.transform.AsmUtil;
 import java.util.function.Function;
 import org.objectweb.asm.ClassVisitor;
@@ -47,6 +47,6 @@ final class UnsafeAdapterPatcher extends AdapterPatcher {
     }
 
     public static boolean isApplicable(String className) {
-        return Type.getInternalName(UnsafeAdapter.class).equals(className);
+        return Type.getInternalName(UnsafeAccessor.class).equals(className);
     }
 }

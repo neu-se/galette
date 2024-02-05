@@ -10,7 +10,7 @@ class HotSpotAnnotationRemover extends MethodVisitor {
 
     @Override
     public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-        // Shadow methods will have different signatures and can not be intrinsic candidates.
+        // Shadow methods will have different signatures and cannot be intrinsic candidates.
         if (descriptor.equals("Ljdk/internal/HotSpotIntrinsicCandidate;")
                 || descriptor.equals("Ljdk/internal/vm/annotation/IntrinsicCandidate;")) {
             return null;
