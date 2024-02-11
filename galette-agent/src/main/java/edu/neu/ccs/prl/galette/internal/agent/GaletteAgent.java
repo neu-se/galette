@@ -1,6 +1,8 @@
 package edu.neu.ccs.prl.galette.internal.agent;
 
+import edu.neu.ccs.prl.galette.internal.runtime.ArrayTagStore;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.runtime.TagStore;
 import edu.neu.ccs.prl.galette.internal.transform.GaletteLog;
 import edu.neu.ccs.prl.galette.internal.transform.GaletteTransformer;
 import edu.neu.ccs.prl.galette.internal.transform.TransformationCache;
@@ -11,6 +13,12 @@ import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 
 public final class GaletteAgent {
+    static {
+        // Allow values to be tainted
+        TagStore.initialize();
+        ArrayTagStore.initialize();
+    }
+
     private GaletteAgent() {
         throw new AssertionError();
     }

@@ -64,7 +64,7 @@ class TagPropagator extends MethodVisitor {
                 // arrayref, index, arrayref, index
                 shadowLocals.peekAll(2);
                 // arrayref, index, arrayref, index, arrayref-tag, index-tag
-                Handle.ARRAY_TAINTER_GET_TAG.accept(mv);
+                Handle.ARRAY_TAG_STORE_GET_TAG.accept(mv);
                 // arrayref, index, value-tag
                 shadowLocals.pop(2);
                 shadowLocals.push(1);
@@ -76,7 +76,7 @@ class TagPropagator extends MethodVisitor {
                 // arrayref, index, arrayref, index
                 shadowLocals.peekAll(2);
                 // arrayref, index, arrayref, index, arrayref-tag, index-tag
-                Handle.ARRAY_TAINTER_GET_TAG.accept(mv);
+                Handle.ARRAY_TAG_STORE_GET_TAG.accept(mv);
                 // arrayref, index, value-tag
                 shadowLocals.pop(2);
                 shadowLocals.pushWide();
@@ -96,7 +96,7 @@ class TagPropagator extends MethodVisitor {
                 // arrayref, index, value, arrayref, index
                 shadowLocals.peekAll(3);
                 // arrayref, index, value, arrayref, index, arrayref-tag, index-tag, value-tag
-                Handle.ARRAY_TAINTER_SET_TAG.accept(mv);
+                Handle.ARRAY_TAG_STORE_SET_TAG.accept(mv);
                 // arrayref, index, value
                 shadowLocals.pop(3);
                 break;
@@ -113,7 +113,7 @@ class TagPropagator extends MethodVisitor {
                 shadowLocals.peek(2);
                 shadowLocals.peek(1);
                 // arrayref, index, value, top, arrayref, index, arrayref-tag, index-tag, value-tag
-                Handle.ARRAY_TAINTER_SET_TAG.accept(mv);
+                Handle.ARRAY_TAG_STORE_SET_TAG.accept(mv);
                 // arrayref, index, value, top
                 shadowLocals.pop(4);
                 break;
@@ -272,7 +272,7 @@ class TagPropagator extends MethodVisitor {
                 super.visitInsn(DUP);
                 shadowLocals.peek(0);
                 // arrayref, arrayref, arrayref-tag
-                Handle.ARRAY_TAINTER_GET_LENGTH_TAG.accept(mv);
+                Handle.ARRAY_TAG_STORE_GET_LENGTH_TAG.accept(mv);
                 // arrayref
                 shadowLocals.pop(1);
                 shadowLocals.push(1);
@@ -323,7 +323,7 @@ class TagPropagator extends MethodVisitor {
                 super.visitInsn(DUP);
                 shadowLocals.peek(0);
                 // arrayref, arrayref, count-tag
-                Handle.ARRAY_TAINTER_SET_LENGTH_TAG.accept(mv);
+                Handle.ARRAY_TAG_STORE_SET_LENGTH_TAG.accept(mv);
                 // arrayref
                 Handle.TAG_GET_EMPTY.accept(mv);
                 shadowLocals.push(1);
@@ -411,7 +411,7 @@ class TagPropagator extends MethodVisitor {
         super.visitInsn(DUP);
         shadowLocals.peek(0);
         // arrayref, arrayref, count-tag
-        Handle.ARRAY_TAINTER_SET_LENGTH_TAG.accept(mv);
+        Handle.ARRAY_TAG_STORE_SET_LENGTH_TAG.accept(mv);
         // arrayref
         Handle.TAG_GET_EMPTY.accept(mv);
         shadowLocals.push(1);
@@ -449,7 +449,7 @@ class TagPropagator extends MethodVisitor {
     private void visitPutField(String owner, String name, String descriptor) {
         // ..., objectref, value -> ...
         int valueSize = Type.getType(descriptor).getSize();
-        if (!isIgnoredField(owner)) {
+        if (!isIgnoredField(owner) || isMirroredField(owner, name)) {
             if (valueSize == 2) {
                 // objectref, value, top
                 super.visitInsn(DUP2_X1);
@@ -469,8 +469,12 @@ class TagPropagator extends MethodVisitor {
                 shadowLocals.peek(0);
                 // objectref, value, objectref, value-tag
             }
-            super.visitFieldInsn(
-                    PUTFIELD, owner, ShadowFieldAdder.getShadowFieldName(name), ShadowFieldAdder.TAG_DESCRIPTOR);
+            if (isMirroredField(owner, name)) {
+                Handle.TAG_STORE_SET_TAG.accept(mv);
+            } else {
+                super.visitFieldInsn(
+                        PUTFIELD, owner, ShadowFieldAdder.getShadowFieldName(name), ShadowFieldAdder.TAG_DESCRIPTOR);
+            }
         }
         // Remove the tags on the shadow stack for the slots consumed by this instruction
         shadowLocals.pop(valueSize + 1);
@@ -484,6 +488,11 @@ class TagPropagator extends MethodVisitor {
             // objectref, objectref
             super.visitFieldInsn(
                     GETFIELD, owner, ShadowFieldAdder.getShadowFieldName(name), ShadowFieldAdder.TAG_DESCRIPTOR);
+            // objectref, value-tag
+        } else if (isMirroredField(owner, name)) {
+            super.visitInsn(DUP);
+            // objectref, objectref
+            Handle.TAG_STORE_GET_TAG.accept(mv);
             // objectref, value-tag
         } else {
             Handle.TAG_GET_EMPTY.accept(mv);
@@ -636,7 +645,7 @@ class TagPropagator extends MethodVisitor {
             // arrayref, arrayref, tag-array
         }
         // arrayref, arrayref, tag-array
-        Handle.ARRAY_TAINTER_SET_LENGTH_TAGS.accept(mv);
+        Handle.ARRAY_TAG_STORE_SET_LENGTH_TAGS.accept(mv);
         // arrayref
         // Set the tag for the newly created array in the shadow stack
         Handle.TAG_GET_EMPTY.accept(mv);
@@ -706,5 +715,9 @@ class TagPropagator extends MethodVisitor {
         }
         // A shadow was not created for the original method
         return !ShadowMethodCreator.shouldShadow(name);
+    }
+
+    private static boolean isMirroredField(String owner, String name) {
+        return "value".equals(name) && ("java/lang/Integer".equals(owner) || "java/lang/Long".equals(owner));
     }
 }

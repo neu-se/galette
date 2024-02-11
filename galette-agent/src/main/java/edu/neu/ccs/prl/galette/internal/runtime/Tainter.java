@@ -158,4 +158,13 @@ public final class Tainter {
     public static Tag getTag(Object value) {
         throw new AssertionError("Placeholder method was called");
     }
+
+    public static void clearTags() {
+        TagStore.clear();
+        ArrayTagStore.clear();
+    }
+
+    public static void clearTags(TagFrame frame) {
+        clearTags();
+    }
 }

@@ -18,11 +18,13 @@ public enum Handle {
     FRAME_GET_RETURN_TAG(TagFrame.class),
     FRAME_SET_RETURN_TAG(TagFrame.class),
     FRAME_SET_THROWN_TAG(TagFrame.class),
-    ARRAY_TAINTER_GET_LENGTH_TAG(ArrayTainter.class),
-    ARRAY_TAINTER_SET_LENGTH_TAG(ArrayTainter.class),
-    ARRAY_TAINTER_GET_TAG(ArrayTainter.class),
-    ARRAY_TAINTER_SET_TAG(ArrayTainter.class),
-    ARRAY_TAINTER_SET_LENGTH_TAGS(ArrayTainter.class);
+    ARRAY_TAG_STORE_GET_LENGTH_TAG(ArrayTagStore.class),
+    ARRAY_TAG_STORE_SET_LENGTH_TAG(ArrayTagStore.class),
+    ARRAY_TAG_STORE_GET_TAG(ArrayTagStore.class),
+    ARRAY_TAG_STORE_SET_TAG(ArrayTagStore.class),
+    ARRAY_TAG_STORE_SET_LENGTH_TAGS(ArrayTagStore.class),
+    TAG_STORE_GET_TAG(TagStore.class),
+    TAG_STORE_SET_TAG(TagStore.class);
 
     private final Class<?> owner;
 

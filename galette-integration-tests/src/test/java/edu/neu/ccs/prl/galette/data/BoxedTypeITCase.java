@@ -3,7 +3,6 @@ package edu.neu.ccs.prl.galette.data;
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.Tainter;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings({"UnnecessaryBoxing", "UnnecessaryUnboxing"})
@@ -57,7 +56,6 @@ public class BoxedTypeITCase {
     }
 
     @Test
-    @Disabled("cache + hard-coded offsets")
     void boxedInteger() {
         Tag expected = Tag.create("label");
         int value = Tainter.setTag(8, expected);
@@ -70,7 +68,6 @@ public class BoxedTypeITCase {
     }
 
     @Test
-    @Disabled("cache + hard-coded offsets")
     void boxedLong() {
         Tag expected = Tag.create("label");
         long value = Tainter.setTag(8L, expected);
