@@ -11,7 +11,7 @@ public class FieldITCase {
 
     @Test
     void staticField() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         FieldITCase.x = Tainter.setTag(7, expected);
         int value = FieldITCase.x;
         Tag actual = Tainter.getTag(value);
@@ -20,7 +20,7 @@ public class FieldITCase {
 
     @Test
     void instanceField() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         this.y = Tainter.setTag(77, expected);
         int value = this.y;
         Tag actual = Tainter.getTag(value);

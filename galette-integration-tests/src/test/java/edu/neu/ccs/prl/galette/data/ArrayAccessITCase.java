@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 public class ArrayAccessITCase {
     @Test
     public void intArrayTaintedIndexLoad() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         int i = Tainter.setTag(5, expected);
         int[] a = new int[10];
         int value = a[i];
@@ -19,7 +19,7 @@ public class ArrayAccessITCase {
 
     @Test
     public void referenceArrayTaintedIndexLoad() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         int i = Tainter.setTag(5, expected);
         String[] a = new String[10];
         String value = a[i];
@@ -29,7 +29,7 @@ public class ArrayAccessITCase {
 
     @Test
     public void longArrayTaintedIndexLoad() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         int i = Tainter.setTag(5, expected);
         long[] a = new long[10];
         long value = a[i];
@@ -39,7 +39,7 @@ public class ArrayAccessITCase {
 
     @Test
     public void intArrayTaintedIndexStore() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         int i = Tainter.setTag(5, expected);
         int[] a = new int[10];
         a[i] = 7;
@@ -50,7 +50,7 @@ public class ArrayAccessITCase {
 
     @Test
     public void referenceArrayTaintedIndexStore() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         int i = Tainter.setTag(5, expected);
         String[] a = new String[10];
         a[i] = "hello";
@@ -61,7 +61,7 @@ public class ArrayAccessITCase {
 
     @Test
     public void longArrayTaintedIndexStore() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         int i = Tainter.setTag(5, expected);
         long[] a = new long[10];
         a[i] = 7;
@@ -72,7 +72,7 @@ public class ArrayAccessITCase {
 
     @Test
     public void taintedIntArrayElement() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         int[] a = new int[10];
         a[5] = Tainter.setTag(5, expected);
         int value = a[5];
@@ -82,7 +82,7 @@ public class ArrayAccessITCase {
 
     @Test
     public void taintedReferenceArrayElement() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         String[] a = new String[10];
         a[5] = Tainter.setTag("hello", expected);
         String value = a[5];
@@ -92,7 +92,7 @@ public class ArrayAccessITCase {
 
     @Test
     public void taintedLongArrayElement() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         long[] a = new long[10];
         a[5] = Tainter.setTag(5L, expected);
         long value = a[5];

@@ -87,7 +87,7 @@ public final class Tag {
         }
     }
 
-    public static Tag create(Object... labels) {
+    public static Tag of(Object... labels) {
         ObjectIntMap<Object> distinct = new ObjectIntMap<>();
         for (Object label : labels) {
             distinct.put(label, 1);
@@ -97,5 +97,9 @@ public final class Tag {
 
     public static boolean isEmpty(Tag tag) {
         return tag == null || tag.isEmpty();
+    }
+
+    public static Object[] getLabels(Tag tag) {
+        return tag == null ? new Object[0] : tag.getLabels();
     }
 }

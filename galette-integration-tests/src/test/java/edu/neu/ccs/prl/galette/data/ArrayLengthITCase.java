@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 public class ArrayLengthITCase {
     @Test
     public void primitiveArrayLength() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         int i = Tainter.setTag(5, expected);
         int[] a = new int[i];
         Tag actual = Tainter.getTag(a.length);
@@ -18,7 +18,7 @@ public class ArrayLengthITCase {
 
     @Test
     public void referenceArrayLength() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         int i = Tainter.setTag(5, expected);
         String[] a = new String[i];
         Tag actual = Tainter.getTag(a.length);
@@ -27,9 +27,9 @@ public class ArrayLengthITCase {
 
     @Test
     public void multiPrimitiveArrayLength() {
-        Tag label1 = Tag.create("label1");
-        Tag label2 = Tag.create("label2");
-        Tag label3 = Tag.create("label3");
+        Tag label1 = Tag.of("label1");
+        Tag label2 = Tag.of("label2");
+        Tag label3 = Tag.of("label3");
         int[][][] a = new int[Tainter.setTag(2, label1)][Tainter.setTag(3, label2)][Tainter.setTag(1, label3)];
         Tag actual = Tainter.getTag(a.length);
         Assertions.assertEquals(label1, actual);
@@ -45,7 +45,7 @@ public class ArrayLengthITCase {
 
     @Test
     public void multiPrimitiveArrayLengthJagged() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         int i = Tainter.setTag(5, expected);
         int[][][] a = new int[i][i][];
         Tag actual = Tainter.getTag(a.length);
@@ -56,7 +56,7 @@ public class ArrayLengthITCase {
 
     @Test
     public void multiReferenceArrayLength() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         int i = Tainter.setTag(5, expected);
         String[][] ar = new String[i][i];
         Tag actual = Tainter.getTag(ar.length);

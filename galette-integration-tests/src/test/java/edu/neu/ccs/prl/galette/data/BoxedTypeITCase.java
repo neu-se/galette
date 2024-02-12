@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 public class BoxedTypeITCase {
     @Test
     void boxedBoolean() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         boolean value = Tainter.setTag(true, expected);
         Boolean boxed = Boolean.valueOf(value);
         boolean unboxed = boxed.booleanValue();
@@ -21,7 +21,7 @@ public class BoxedTypeITCase {
 
     @Test
     void boxedByte() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         byte value = Tainter.setTag((byte) 8, expected);
         Byte boxed = Byte.valueOf(value);
         byte unboxed = boxed.byteValue();
@@ -33,7 +33,7 @@ public class BoxedTypeITCase {
 
     @Test
     void boxedCharacter() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         char value = Tainter.setTag('x', expected);
         Character boxed = Character.valueOf(value);
         char unboxed = boxed.charValue();
@@ -45,7 +45,7 @@ public class BoxedTypeITCase {
 
     @Test
     void boxedShort() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         short value = Tainter.setTag((short) 8, expected);
         Short boxed = Short.valueOf(value);
         short unboxed = boxed.shortValue();
@@ -57,7 +57,7 @@ public class BoxedTypeITCase {
 
     @Test
     void boxedInteger() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         int value = Tainter.setTag(8, expected);
         Integer boxed = Integer.valueOf(value);
         int unboxed = boxed.intValue();
@@ -69,7 +69,7 @@ public class BoxedTypeITCase {
 
     @Test
     void boxedLong() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         long value = Tainter.setTag(8L, expected);
         Long boxed = Long.valueOf(value);
         long unboxed = boxed.longValue();
@@ -81,7 +81,7 @@ public class BoxedTypeITCase {
 
     @Test
     void boxedFloat() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         float value = Tainter.setTag(8f, expected);
         Float boxed = Float.valueOf(value);
         float unboxed = boxed.floatValue();
@@ -93,7 +93,7 @@ public class BoxedTypeITCase {
 
     @Test
     void boxedDouble() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         double value = Tainter.setTag(8.0, expected);
         Double boxed = Double.valueOf(value);
         double unboxed = boxed.doubleValue();

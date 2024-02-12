@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 public class ClassInitializerITCase {
     @Test
     public void classInitializer() {
-        Tag expected = Tag.create("label");
+        Tag expected = Tag.of("label");
         int i = Tainter.setTag(5, expected);
         int j = Example.addX(i);
         Tag actual = Tainter.getTag(j);
