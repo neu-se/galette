@@ -16,6 +16,7 @@
         <data.cache>${project.build.directory}/galette/data/cache</data.cache>
         <!--suppress UnresolvedMavenProperty -->
         <galette.agent.jar>${edu.neu.ccs.prl.galette:galette-agent:jar}</galette.agent.jar>
+        <galette.report>${project.build.directory}/galette/flow-report.csv</galette.report>
     </properties>
     <dependencies>
         <dependency>
@@ -109,6 +110,7 @@
                                         <include>**/data/**/*.java</include>
                                     </includes>
                                     <argLine>
+                                        -Dflow.report=${galette.report}
                                         -Dgalette.cache=${data.cache}
                                         -Xbootclasspath/a:${galette.agent.jar}
                                         -javaagent:${galette.agent.jar}
