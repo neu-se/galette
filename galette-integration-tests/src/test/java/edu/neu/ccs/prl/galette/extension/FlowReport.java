@@ -1,4 +1,4 @@
-package edu.neu.ccs.prl.galette.bench;
+package edu.neu.ccs.prl.galette.extension;
 
 import java.io.*;
 import java.lang.reflect.Method;

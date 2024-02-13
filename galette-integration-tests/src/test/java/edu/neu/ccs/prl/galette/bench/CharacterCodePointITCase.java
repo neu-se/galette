@@ -1,4 +1,4 @@
-package edu.neu.ccs.prl.galette.data;
+package edu.neu.ccs.prl.galette.bench;
 
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.Tainter;

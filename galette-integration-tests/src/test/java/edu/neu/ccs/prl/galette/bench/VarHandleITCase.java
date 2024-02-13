@@ -1,4 +1,4 @@
-package edu.neu.ccs.prl.galette.all;
+package edu.neu.ccs.prl.galette.bench;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;

@@ -1,15 +1,17 @@
-package edu.neu.ccs.prl.galette.all;
+package edu.neu.ccs.prl.galette.bench;
 
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import edu.neu.ccs.prl.galette.extension.FlowBench;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+@FlowBench
 public class MethodHandleITCase {
     @Test
     void invokeExactVirtual() throws Throwable {

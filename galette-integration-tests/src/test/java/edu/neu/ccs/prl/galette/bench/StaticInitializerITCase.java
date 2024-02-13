@@ -1,13 +1,15 @@
-package edu.neu.ccs.prl.galette.data;
+package edu.neu.ccs.prl.galette.bench;
 
+import edu.neu.ccs.prl.galette.extension.FlowBench;
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.Tainter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ClassInitializerITCase {
+@FlowBench
+public class StaticInitializerITCase {
     @Test
-    public void classInitializer() {
+    public void staticInitializer() {
         Tag expected = Tag.of("label");
         int i = Tainter.setTag(5, expected);
         int j = Example.addX(i);

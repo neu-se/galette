@@ -12,11 +12,11 @@
     <description>Integration Tests for Galette</description>
     <packaging>pom</packaging>
     <properties>
-        <data.java>${project.build.directory}/galette/data/java/</data.java>
-        <data.cache>${project.build.directory}/galette/data/cache</data.cache>
+        <galette.java>${project.build.directory}/galette/java/</galette.java>
+        <galette.cache>${project.build.directory}/galette/cache</galette.cache>
+        <galette.report>${project.build.directory}/galette/flow-report.csv</galette.report>
         <!--suppress UnresolvedMavenProperty -->
         <galette.agent.jar>${edu.neu.ccs.prl.galette:galette-agent:jar}</galette.agent.jar>
-        <galette.report>${project.build.directory}/galette/flow-report.csv</galette.report>
     </properties>
     <dependencies>
         <dependency>
@@ -39,15 +39,7 @@
                 <executions>
                     <execution>
                         <id>default-testCompile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                        <configuration>
-                            <testExcludes>
-                                <exclude>**/VarHandleITCase.java</exclude>
-                            </testExcludes>
-                        </configuration>
+                        <phase>none</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -62,11 +54,66 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test-jar</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>evaluate</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <phase>none</phase>
+                        <configuration>
+                            <jvm>${galette.java}/bin/java</jvm>
+                            <argLine>
+                                -Dflow.report=${galette.report}
+                                -Dgalette.cache=${galette.cache}
+                                -Xbootclasspath/a:${galette.agent.jar}
+                                -javaagent:${galette.agent.jar}
+                            </argLine>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>edu.neu.ccs.prl.galette</groupId>
+                <artifactId>galette-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <id>instrument</id>
+                        <goals>
+                            <goal>instrument</goal>
+                        </goals>
+                        <phase>none</phase>
+                        <configuration>
+                            <outputDirectory>${galette.java}</outputDirectory>
+                            <linkedCaches>
+                                <linkedCache>${galette.cache}</linkedCache>
+                            </linkedCaches>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
         <profile>
-            <id>data</id>
+            <id>evaluate</id>
             <activation>
                 <property>
                     <name>!skipTests</name>
@@ -77,18 +124,49 @@
                     <plugin>
                         <groupId>edu.neu.ccs.prl.galette</groupId>
                         <artifactId>galette-maven-plugin</artifactId>
-                        <version>${project.version}</version>
                         <executions>
                             <execution>
-                                <id>data</id>
+                                <id>instrument</id>
+                                <phase>process-test-resources</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>evaluate</id>
+                                <phase>integration-test</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>java8</id>
+            <activation>
+                <jdk>8</jdk>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>special-testCompile</id>
+                                <phase>test-compile</phase>
                                 <goals>
-                                    <goal>instrument</goal>
+                                    <goal>testCompile</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${data.java}</outputDirectory>
-                                    <linkedCaches>
-                                        <linkedCache>${data.cache}</linkedCache>
-                                    </linkedCaches>
+                                    <source>8</source>
+                                    <target>8</target>
+                                    <testExcludes>
+                                        <exclude>**/VarHandleITCase.java</exclude>
+                                    </testExcludes>
                                 </configuration>
                             </execution>
                         </executions>
@@ -98,23 +176,11 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>data</id>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
+                                <id>evaluate</id>
                                 <configuration>
-                                    <jvm>${data.java}/bin/java</jvm>
-                                    <includes>
-                                        <include>**/all/**/*.java</include>
-                                        <include>**/data/**/*.java</include>
-                                    </includes>
-                                    <argLine>
-                                        -Dflow.report=${galette.report}
-                                        -Dgalette.cache=${data.cache}
-                                        -Xbootclasspath/a:${galette.agent.jar}
-                                        -javaagent:${galette.agent.jar}
-                                    </argLine>
+                                    <excludes>
+                                        <exclude>**/VarHandleITCase.java</exclude>
+                                    </excludes>
                                 </configuration>
                             </execution>
                         </executions>
@@ -126,9 +192,6 @@
             <id>java9</id>
             <activation>
                 <jdk>[9,)</jdk>
-                <property>
-                    <name>!skipTests</name>
-                </property>
             </activation>
             <build>
                 <plugins>
@@ -146,33 +209,6 @@
                                     <release>9</release>
                                     <source>9</source>
                                     <target>9</target>
-                                    <testIncludes>
-                                        <include>**/VarHandleITCase.java</include>
-                                    </testIncludes>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>java8</id>
-            <activation>
-                <jdk>8</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>data</id>
-                                <configuration>
-                                    <excludes>
-                                        <exclude>**/VarHandleITCase.java</exclude>
-                                    </excludes>
                                 </configuration>
                             </execution>
                         </executions>

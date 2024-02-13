@@ -1,13 +1,13 @@
-package edu.neu.ccs.prl.galette.data;
+package edu.neu.ccs.prl.galette.bench;
 
-import edu.neu.ccs.prl.galette.bench.FlowBench;
-import edu.neu.ccs.prl.galette.bench.FlowChecker;
-import edu.neu.ccs.prl.galette.bench.TagManager;
+import edu.neu.ccs.prl.galette.extension.FlowBench;
+import edu.neu.ccs.prl.galette.extension.FlowChecker;
+import edu.neu.ccs.prl.galette.extension.TagManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 @FlowBench
-public class ConditionalBranchITCase {
+public class ConditionalITCase {
     @Test
     void ifBranchTaken(TagManager manager, FlowChecker checker) {
         int i = manager.setLabels(0, new Object[] {"i"});

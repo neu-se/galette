@@ -1,4 +1,4 @@
-package edu.neu.ccs.prl.galette.all;
+package edu.neu.ccs.prl.galette.bench;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;

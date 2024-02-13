@@ -1,4 +1,4 @@
-package edu.neu.ccs.prl.galette.bench;
+package edu.neu.ccs.prl.galette.extension;
 
 public interface TagManager {
     void reset();

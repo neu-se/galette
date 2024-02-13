@@ -1,10 +1,12 @@
-package edu.neu.ccs.prl.galette.data;
+package edu.neu.ccs.prl.galette.bench;
 
+import edu.neu.ccs.prl.galette.extension.FlowBench;
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.Tainter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+@FlowBench
 @SuppressWarnings({"UnnecessaryBoxing", "UnnecessaryUnboxing"})
 public class BoxedTypeITCase {
     @Test

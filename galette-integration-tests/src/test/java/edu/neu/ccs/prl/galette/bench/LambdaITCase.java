@@ -1,9 +1,11 @@
-package edu.neu.ccs.prl.galette.all;
+package edu.neu.ccs.prl.galette.bench;
 
+import edu.neu.ccs.prl.galette.extension.FlowBench;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+@FlowBench
 public class LambdaITCase {
     @Test
     void virtualMethodReference() {
