@@ -39,7 +39,16 @@
                 <executions>
                     <execution>
                         <id>default-testCompile</id>
-                        <phase>none</phase>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <configuration>
+                            <fork>true</fork>
+                            <testExcludes>
+                                <exclude>**/VarHandleITCase.java</exclude>
+                            </testExcludes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -145,51 +154,16 @@
             </build>
         </profile>
         <profile>
-            <id>java8</id>
+            <id>java-8</id>
             <activation>
-                <jdk>8</jdk>
+                <jdk>1.8</jdk>
             </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>special-testCompile</id>
-                                <phase>test-compile</phase>
-                                <goals>
-                                    <goal>testCompile</goal>
-                                </goals>
-                                <configuration>
-                                    <source>8</source>
-                                    <target>8</target>
-                                    <testExcludes>
-                                        <exclude>**/VarHandleITCase.java</exclude>
-                                    </testExcludes>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>evaluate</id>
-                                <configuration>
-                                    <excludes>
-                                        <exclude>**/VarHandleITCase.java</exclude>
-                                    </excludes>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
+            <properties>
+                <failsafe.excludes>**/VarHandleITCase.java</failsafe.excludes>
+            </properties>
         </profile>
         <profile>
-            <id>java9</id>
+            <id>java-9</id>
             <activation>
                 <jdk>[9,)</jdk>
             </activation>
@@ -200,15 +174,17 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>special-testCompile</id>
+                                <id>compile-9</id>
                                 <phase>test-compile</phase>
                                 <goals>
                                     <goal>testCompile</goal>
                                 </goals>
                                 <configuration>
+                                    <fork>true</fork>
                                     <release>9</release>
-                                    <source>9</source>
-                                    <target>9</target>
+                                    <testIncludes>
+                                        <include>**/VarHandleITCase.java</include>
+                                    </testIncludes>
                                 </configuration>
                             </execution>
                         </executions>
