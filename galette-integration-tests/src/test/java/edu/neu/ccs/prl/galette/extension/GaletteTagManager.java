@@ -5,7 +5,10 @@ import edu.neu.ccs.prl.galette.internal.runtime.Tainter;
 
 public class GaletteTagManager implements TagManager {
     @Override
-    public void reset() {
+    public void setUp() {}
+
+    @Override
+    public void tearDown() {
         Tainter.clearTags();
     }
 

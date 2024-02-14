@@ -2,7 +2,7 @@ package edu.neu.ccs.prl.galette.extension;
 
 import org.junit.jupiter.api.extension.*;
 
-class TagManagerResolver implements ParameterResolver, AfterTestExecutionCallback {
+class TagManagerResolver implements ParameterResolver, AfterEachCallback, BeforeEachCallback {
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
             throws ParameterResolutionException {
@@ -16,8 +16,13 @@ class TagManagerResolver implements ParameterResolver, AfterTestExecutionCallbac
     }
 
     @Override
-    public void afterTestExecution(ExtensionContext context) {
-        getTagManager(context).reset();
+    public void afterEach(ExtensionContext context) {
+        getTagManager(context).tearDown();
+    }
+
+    @Override
+    public void beforeEach(ExtensionContext context) {
+        getTagManager(context).setUp();
     }
 
     private TagManager getTagManager(ExtensionContext context) {

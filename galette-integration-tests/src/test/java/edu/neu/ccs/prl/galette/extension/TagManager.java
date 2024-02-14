@@ -1,7 +1,9 @@
 package edu.neu.ccs.prl.galette.extension;
 
 public interface TagManager {
-    void reset();
+    void setUp();
+
+    void tearDown();
 
     boolean setLabels(boolean value, Object[] labels);
 
