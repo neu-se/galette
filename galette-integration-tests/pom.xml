@@ -9,7 +9,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>galette-integration-tests</artifactId>
-    <description>Integration Tests for Galette</description>
+    <description>Integration tests for Galette</description>
     <packaging>pom</packaging>
     <properties>
         <galette.java>${project.build.directory}/galette/java/</galette.java>
@@ -22,6 +22,12 @@
         <dependency>
             <groupId>edu.neu.ccs.prl.galette</groupId>
             <artifactId>galette-agent</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>edu.neu.ccs.prl.galette</groupId>
+            <artifactId>galette-benchmark</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
@@ -45,9 +51,6 @@
                         </goals>
                         <configuration>
                             <fork>true</fork>
-                            <testExcludes>
-                                <exclude>**/VarHandleITCase.java</exclude>
-                            </testExcludes>
                         </configuration>
                     </execution>
                 </executions>
@@ -63,66 +66,11 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>test-jar</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>evaluate</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                        <phase>none</phase>
-                        <configuration>
-                            <jvm>${galette.java}/bin/java</jvm>
-                            <argLine>
-                                -Dflow.report=${galette.report}
-                                -Dgalette.cache=${galette.cache}
-                                -Xbootclasspath/a:${galette.agent.jar}
-                                -javaagent:${galette.agent.jar}
-                            </argLine>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>edu.neu.ccs.prl.galette</groupId>
-                <artifactId>galette-maven-plugin</artifactId>
-                <version>${project.version}</version>
-                <executions>
-                    <execution>
-                        <id>instrument</id>
-                        <goals>
-                            <goal>instrument</goal>
-                        </goals>
-                        <phase>none</phase>
-                        <configuration>
-                            <outputDirectory>${galette.java}</outputDirectory>
-                            <linkedCaches>
-                                <linkedCache>${galette.cache}</linkedCache>
-                            </linkedCaches>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
     <profiles>
         <profile>
-            <id>evaluate</id>
+            <id>test</id>
             <activation>
                 <property>
                     <name>!skipTests</name>
@@ -133,10 +81,20 @@
                     <plugin>
                         <groupId>edu.neu.ccs.prl.galette</groupId>
                         <artifactId>galette-maven-plugin</artifactId>
+                        <version>${project.version}</version>
                         <executions>
                             <execution>
                                 <id>instrument</id>
+                                <goals>
+                                    <goal>instrument</goal>
+                                </goals>
                                 <phase>process-test-resources</phase>
+                                <configuration>
+                                    <outputDirectory>${galette.java}</outputDirectory>
+                                    <linkedCaches>
+                                        <linkedCache>${galette.cache}</linkedCache>
+                                    </linkedCaches>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -146,45 +104,26 @@
                         <executions>
                             <execution>
                                 <id>evaluate</id>
-                                <phase>integration-test</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>java-8</id>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <properties>
-                <failsafe.excludes>**/VarHandleITCase.java</failsafe.excludes>
-            </properties>
-        </profile>
-        <profile>
-            <id>java-9</id>
-            <activation>
-                <jdk>[9,)</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>compile-9</id>
-                                <phase>test-compile</phase>
                                 <goals>
-                                    <goal>testCompile</goal>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
                                 </goals>
+                                <phase>integration-test</phase>
                                 <configuration>
-                                    <fork>true</fork>
-                                    <release>9</release>
-                                    <testIncludes>
-                                        <include>**/VarHandleITCase.java</include>
-                                    </testIncludes>
+                                    <jvm>${galette.java}/bin/java</jvm>
+                                    <argLine>
+                                        -Dflow.report=${galette.report}
+                                        -Dflow.manager=edu.neu.ccs.prl.galette.bench.extension.GaletteTagManager
+                                        -Dgalette.cache=${galette.cache}
+                                        -Xbootclasspath/a:${galette.agent.jar}
+                                        -javaagent:${galette.agent.jar}
+                                    </argLine>
+                                    <dependenciesToScan>
+                                        <scan>edu.neu.ccs.prl.galette:galette-benchmark</scan>
+                                    </dependenciesToScan>
+                                    <excludes>
+                                        <exclude>META-INF/**/*</exclude>
+                                    </excludes>
                                 </configuration>
                             </execution>
                         </executions>

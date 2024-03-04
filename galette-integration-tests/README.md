@@ -11,7 +11,7 @@ If an instrumented Java installation has already been created, and you want to r
 running a test, you have to invoke the maven-dependency-plugin before failsafe.
 For example,
 ```bash
-mvn -Dit.test=AssignmentITCase dependency:properties failsafe:integration-test
+mvn -Dit.test=AssignmentITCasee dependency:properties failsafe:integration-test@evaluate
 ```
 
 Add the option `-Dgalette.forceCreation` to Maven commands to force the Galette Maven plugin to create a

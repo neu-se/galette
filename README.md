@@ -43,7 +43,7 @@ These tests demonstrate how Galette can be used and are a good reference when fi
 
 ## Creating an Instrumented Java Installation
 
-In order to track the flow of information through classes in the Java Class Library (JCL), such as `java.lang.String`
+To track the flow of information through classes in the Java Class Library (JCL), such as `java.lang.String`
 and `java.util.List`, Galette must instrument the bytecode of JCL classes.
 Therefore, the first step when using Galette is to create an instrumented Java installation
 (i.e., Java Development Kit or Java Runtime Environment).

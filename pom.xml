@@ -42,7 +42,10 @@
         <module>galette-agent</module>
         <module>galette-instrument</module>
         <module>galette-maven-plugin</module>
+        <module>galette-benchmark</module>
         <module>galette-integration-tests</module>
+        <!-- TODO remove module to avoid linking against MirrorTaint -->
+        <module>galette-evaluation</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
