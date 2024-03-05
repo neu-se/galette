@@ -17,6 +17,8 @@ public class ArrayLengthITCase {
         Assertions.assertEquals(5, a.length);
         Object[] actual = manager.getLabels(a.length);
         checker.check(expected, actual);
+        a = new int[5];
+        checker.checkEmpty(manager.getLabels(a.length));
     }
 
     @Test
@@ -27,21 +29,21 @@ public class ArrayLengthITCase {
         Assertions.assertEquals(5, a.length);
         Object[] actual = manager.getLabels(a.length);
         checker.check(expected, actual);
+        a = new String[5];
+        checker.checkEmpty(manager.getLabels(a.length));
     }
 
     @Test
-    public void multiPrimitiveArrayLength(TagManager manager, FlowChecker checker) {
+    public void multiDimensionalPrimitiveArrayLength(TagManager manager, FlowChecker checker) {
         Object[] tag1 = new Object[] {"label1"};
-        Object[] tag2 = new Object[] {"label2"};
         Object[] tag3 = new Object[] {"label3"};
-        int[][][] a = new int[manager.setLabels(2, tag1)][manager.setLabels(3, tag2)][manager.setLabels(1, tag3)];
+        int[][][] a = new int[manager.setLabels(2, tag1)][3][manager.setLabels(1, tag3)];
         Assertions.assertEquals(2, a.length);
         Object[] actual = manager.getLabels(a.length);
         checker.check(tag1, actual);
         for (int[][] x : a) {
             Assertions.assertEquals(3, x.length);
-            actual = manager.getLabels(x.length);
-            checker.check(tag2, actual);
+            checker.checkEmpty(manager.getLabels(x.length));
             for (int[] y : x) {
                 Assertions.assertEquals(1, y.length);
                 actual = manager.getLabels(y.length);
@@ -51,7 +53,7 @@ public class ArrayLengthITCase {
     }
 
     @Test
-    public void multiPrimitiveArrayLengthJagged(TagManager manager, FlowChecker checker) {
+    public void multiDimensionalPrimitiveArrayLengthJagged(TagManager manager, FlowChecker checker) {
         Object[] tag1 = new Object[] {"label1"};
         Object[] tag2 = new Object[] {"label2"};
         int[][][] a = new int[manager.setLabels(5, tag1)][manager.setLabels(6, tag2)][];
@@ -66,7 +68,7 @@ public class ArrayLengthITCase {
     }
 
     @Test
-    public void multiReferenceArrayLength(TagManager manager, FlowChecker checker) {
+    public void multiDimensionReferenceArrayLength(TagManager manager, FlowChecker checker) {
         Object[] tag1 = new Object[] {"label1"};
         Object[] tag2 = new Object[] {"label2"};
         String[][] a = new String[manager.setLabels(5, tag1)][manager.setLabels(6, tag2)];

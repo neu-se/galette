@@ -190,7 +190,9 @@ public class InstrumentMojo extends AbstractMojo {
                 Properties foundOptions = new Properties();
                 foundOptions.load(reader);
                 if (!foundOptions.equals(options)
-                        || !Arrays.equals(checksum, Files.readAllBytes(checksumFile.toPath()))) return false;
+                        || !Arrays.equals(checksum, Files.readAllBytes(checksumFile.toPath()))) {
+                    return false;
+                }
                 return new String(Files.readAllBytes(infoFile.toPath())).equals(info);
             } catch (IOException e) {
                 throw new MojoExecutionException("Failed to read match info", e);

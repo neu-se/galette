@@ -13,47 +13,47 @@ public class GaletteTagManager implements TagManager {
     }
 
     @Override
-    public boolean setLabels(boolean value, Object... labels) {
+    public boolean setLabels(boolean value, Object[] labels) {
         return Tainter.setTag(value, Tag.of(labels));
     }
 
     @Override
-    public byte setLabels(byte value, Object... labels) {
+    public byte setLabels(byte value, Object[] labels) {
         return Tainter.setTag(value, Tag.of(labels));
     }
 
     @Override
-    public char setLabels(char value, Object... labels) {
+    public char setLabels(char value, Object[] labels) {
         return Tainter.setTag(value, Tag.of(labels));
     }
 
     @Override
-    public short setLabels(short value, Object... labels) {
+    public short setLabels(short value, Object[] labels) {
         return Tainter.setTag(value, Tag.of(labels));
     }
 
     @Override
-    public int setLabels(int value, Object... labels) {
+    public int setLabels(int value, Object[] labels) {
         return Tainter.setTag(value, Tag.of(labels));
     }
 
     @Override
-    public long setLabels(long value, Object... labels) {
+    public long setLabels(long value, Object[] labels) {
         return Tainter.setTag(value, Tag.of(labels));
     }
 
     @Override
-    public float setLabels(float value, Object... labels) {
+    public float setLabels(float value, Object[] labels) {
         return Tainter.setTag(value, Tag.of(labels));
     }
 
     @Override
-    public double setLabels(double value, Object... labels) {
+    public double setLabels(double value, Object[] labels) {
         return Tainter.setTag(value, Tag.of(labels));
     }
 
     @Override
-    public <T> T setLabels(T value, Object... labels) {
+    public <T> T setLabels(T value, Object[] labels) {
         return Tainter.setTag(value, Tag.of(labels));
     }
 

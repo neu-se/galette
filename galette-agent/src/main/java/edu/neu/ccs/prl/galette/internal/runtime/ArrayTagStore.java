@@ -88,6 +88,24 @@ public final class ArrayTagStore {
         shadow.setElement(tag, index);
     }
 
+    public static synchronized void arraycopyTags(Object src, int srcPos, Object dest, int destPos, int length) {
+        if (shadows == null || src == null || dest == null) {
+            return;
+        }
+        ArrayShadow sourceShadow = shadows.get(src);
+        ArrayShadow destShadow = shadows.get(dest);
+        if (sourceShadow != null || destShadow != null) {
+            if (destShadow == null) {
+                destShadow = new ArrayShadow(dest);
+                shadows.put(dest, destShadow);
+            }
+            if (sourceShadow == null) {
+                sourceShadow = new ArrayShadow(src);
+            }
+            System.arraycopy(sourceShadow.elements, srcPos, destShadow.elements, destPos, length);
+        }
+    }
+
     public static synchronized void clear() {
         if (shadows != null) {
             shadows.clear();

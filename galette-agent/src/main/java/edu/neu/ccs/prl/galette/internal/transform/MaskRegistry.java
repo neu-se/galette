@@ -11,8 +11,14 @@ import java.lang.reflect.Method;
 import org.objectweb.asm.Type;
 
 public final class MaskRegistry {
-    private static final Class<?>[] SOURCES =
-            new Class[] {UnsafeMasks.class, ReflectionMasks.class, ClassLoaderMasks.class, BoxTypeMasks.class};
+    private static final Class<?>[] SOURCES = new Class[] {
+        UnsafeMasks.class,
+        ReflectionMasks.class,
+        ClassLoaderMasks.class,
+        BoxTypeMasks.class,
+        SystemMasks.class,
+        EnumMasks.class
+    };
     private static final SimpleMap<String, MaskInfo> masks = new SimpleMap<>();
 
     private MaskRegistry() {

@@ -34,6 +34,10 @@ public class FlowChecker {
         check(new HashSet<>(Arrays.asList(expected)), new HashSet<>(Arrays.asList(actual)));
     }
 
+    public void checkEmpty(Object[] actual) {
+        check(Collections.emptySet(), new HashSet<>(Arrays.asList(actual)));
+    }
+
     int getTruePositives() {
         return truePositives;
     }

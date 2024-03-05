@@ -5,23 +5,23 @@ public interface TagManager {
 
     void tearDown();
 
-    boolean setLabels(boolean value, Object... labels);
+    boolean setLabels(boolean value, Object[] labels);
 
-    byte setLabels(byte value, Object... labels);
+    byte setLabels(byte value, Object[] labels);
 
-    char setLabels(char value, Object... labels);
+    char setLabels(char value, Object[] labels);
 
-    short setLabels(short value, Object... labels);
+    short setLabels(short value, Object[] labels);
 
-    int setLabels(int value, Object... labels);
+    int setLabels(int value, Object[] labels);
 
-    long setLabels(long value, Object... labels);
+    long setLabels(long value, Object[] labels);
 
-    float setLabels(float value, Object... labels);
+    float setLabels(float value, Object[] labels);
 
-    double setLabels(double value, Object... labels);
+    double setLabels(double value, Object[] labels);
 
-    <T> T setLabels(T value, Object... labels);
+    <T> T setLabels(T value, Object[] labels);
 
     Object[] getLabels(boolean value);
 

@@ -23,7 +23,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public boolean setLabels(boolean value, Object... labels) {
+    public boolean setLabels(boolean value, Object[] labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -38,7 +38,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public byte setLabels(byte value, Object... labels) {
+    public byte setLabels(byte value, Object[] labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -52,7 +52,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public char setLabels(char value, Object... labels) {
+    public char setLabels(char value, Object[] labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -66,7 +66,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public short setLabels(short value, Object... labels) {
+    public short setLabels(short value, Object[] labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -80,7 +80,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public int setLabels(int value, Object... labels) {
+    public int setLabels(int value, Object[] labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -94,7 +94,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public long setLabels(long value, Object... labels) {
+    public long setLabels(long value, Object[] labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -108,7 +108,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public float setLabels(float value, Object... labels) {
+    public float setLabels(float value, Object[] labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -122,7 +122,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public double setLabels(double value, Object... labels) {
+    public double setLabels(double value, Object[] labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -136,7 +136,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public <T> T setLabels(T value, Object... labels) {
+    public <T> T setLabels(T value, Object[] labels) {
         Set<TaintLabel> labelSet = new HashSet<>();
         for (Object label : labels) {
             if (!(label instanceof String)) {

@@ -4,6 +4,7 @@ import edu.neu.ccs.prl.galette.bench.extension.FlowBench;
 import edu.neu.ccs.prl.galette.bench.extension.FlowChecker;
 import edu.neu.ccs.prl.galette.bench.extension.TagManager;
 import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -11,9 +12,9 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings("ConstantValue")
 public class AssignmentITCase {
     @Test
-    public void taintedObject(TagManager manager, FlowChecker checker) {
+    public void taintedReference(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
-        HashMap<Object, Object> item = new HashMap<>();
+        Map<Object, Object> item = new HashMap<>();
         item = manager.setLabels(item, expected);
         Assertions.assertEquals(new HashMap<>(), item);
         Object[] actual = manager.getLabels(item);
@@ -46,6 +47,7 @@ public class AssignmentITCase {
         Assertions.assertTrue(item);
         Object[] actual = manager.getLabels(item);
         checker.check(expected, actual);
+        checker.checkEmpty(manager.getLabels(true));
     }
 
     @Test
@@ -56,6 +58,7 @@ public class AssignmentITCase {
         Assertions.assertEquals(7, item);
         Object[] actual = manager.getLabels(item);
         checker.check(expected, actual);
+        checker.checkEmpty(manager.getLabels((byte) 7));
     }
 
     @Test
@@ -66,6 +69,7 @@ public class AssignmentITCase {
         Assertions.assertEquals(7, item);
         Object[] actual = manager.getLabels(item);
         checker.check(expected, actual);
+        checker.checkEmpty(manager.getLabels((char) 7));
     }
 
     @Test
@@ -76,6 +80,7 @@ public class AssignmentITCase {
         Assertions.assertEquals(7, item);
         Object[] actual = manager.getLabels(item);
         checker.check(expected, actual);
+        checker.checkEmpty(manager.getLabels((short) 7));
     }
 
     @Test
@@ -86,6 +91,7 @@ public class AssignmentITCase {
         Assertions.assertEquals(7, item);
         Object[] actual = manager.getLabels(item);
         checker.check(expected, actual);
+        checker.checkEmpty(manager.getLabels(7));
     }
 
     @Test
@@ -96,6 +102,7 @@ public class AssignmentITCase {
         Assertions.assertEquals(7, item);
         Object[] actual = manager.getLabels(item);
         checker.check(expected, actual);
+        checker.checkEmpty(manager.getLabels(7L));
     }
 
     @Test
@@ -106,6 +113,7 @@ public class AssignmentITCase {
         Assertions.assertEquals(7, item);
         Object[] actual = manager.getLabels(item);
         checker.check(expected, actual);
+        checker.checkEmpty(manager.getLabels(7.0f));
     }
 
     @Test
@@ -116,10 +124,11 @@ public class AssignmentITCase {
         Assertions.assertEquals(7, item);
         Object[] actual = manager.getLabels(item);
         checker.check(expected, actual);
+        checker.checkEmpty(manager.getLabels(7.0));
     }
 
     @Test
-    public void duplicateValues(TagManager manager, FlowChecker checker) {
+    public void duplicateIntValues(TagManager manager, FlowChecker checker) {
         Object[] tag1 = new Object[] {"label1"};
         Object[] tag2 = new Object[] {"label2"};
         int x = 5;
