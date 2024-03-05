@@ -21,7 +21,7 @@ public class CollectionITCase {
 
     @Test
     void addGetTaintedElementHashSet(TagManager manager, FlowChecker checker) {
-        addGetTaintedElementCollection(manager, checker, new HashSet<>());
+        addGetTaintedElementCollection(manager, checker, new LinkedHashSet<>());
     }
 
     @Test
