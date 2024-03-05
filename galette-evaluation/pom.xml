@@ -29,7 +29,7 @@
                         </goals>
                         <configuration>
                             <packaging>jar</packaging>
-                            <file>${project.basedir}/lib/mirrorTaint.jar</file>
+                            <file>${project.basedir}/lib/taint-agent-core-1.0.0.jar</file>
                             <groupId>com.shadow.taint</groupId>
                             <artifactId>taint-agent-core</artifactId>
                             <version>1.0.0</version>

@@ -1,7 +1,7 @@
 package edu.neu.ccs.prl.galette.eval;
 
-import com.shadow.taint.agent.model.A;
-import com.shadow.taint.agent.model.C;
+import com.shadow.taint.agent.model.TaintLabel;
+import com.shadow.taint.agent.model.TypedTaint;
 import com.shadow.taint.agent.runtime.TaintCollector;
 import com.shadow.taint.agent.runtime.TaintHeap;
 import com.shadow.taint.agent.runtime.TaintTagger;
@@ -23,7 +23,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public boolean setLabels(boolean value, Object[] labels) {
+    public boolean setLabels(boolean value, Object... labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -38,7 +38,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public byte setLabels(byte value, Object[] labels) {
+    public byte setLabels(byte value, Object... labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -52,7 +52,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public char setLabels(char value, Object[] labels) {
+    public char setLabels(char value, Object... labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -66,7 +66,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public short setLabels(short value, Object[] labels) {
+    public short setLabels(short value, Object... labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -80,7 +80,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public int setLabels(int value, Object[] labels) {
+    public int setLabels(int value, Object... labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -94,7 +94,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public long setLabels(long value, Object[] labels) {
+    public long setLabels(long value, Object... labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -108,7 +108,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public float setLabels(float value, Object[] labels) {
+    public float setLabels(float value, Object... labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -122,7 +122,7 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public double setLabels(double value, Object[] labels) {
+    public double setLabels(double value, Object... labels) {
         // Clear old labels
         clearLabels(TaintCollector.collectManually(value));
         // Add new labels
@@ -136,20 +136,20 @@ public class MirrorTaintTagManager implements TagManager {
     }
 
     @Override
-    public <T> T setLabels(T value, Object[] labels) {
-        Set<C> labelSet = new HashSet<>();
+    public <T> T setLabels(T value, Object... labels) {
+        Set<TaintLabel> labelSet = new HashSet<>();
         for (Object label : labels) {
             if (!(label instanceof String)) {
                 throw new IllegalArgumentException("Only string labels are supported");
             }
-            labelSet.add(new C((String) label, "", new StackTraceElement[0]));
+            labelSet.add(new TaintLabel((String) label, "", new StackTraceElement[0]));
         }
-        A taint = TaintHeap.queryTaint(value);
+        TypedTaint taint = TaintHeap.queryTaint(value);
         if (taint == null) {
-            taint = new A(10);
+            taint = new TypedTaint(10);
             TaintHeap.recordTaint(value, taint);
         }
-        taint.A(labelSet);
+        taint.setLabels(labelSet);
         return value;
     }
 
@@ -198,10 +198,10 @@ public class MirrorTaintTagManager implements TagManager {
         return extractLabels(TaintHeap.queryTaint(value)).toArray();
     }
 
-    private static void clearLabels(Map<String, A> taints) {
+    private static void clearLabels(Map<String, TypedTaint> taints) {
         if (taints != null) {
-            for (A taint : taints.values()) {
-                Set<C> labelSet = taint.A();
+            for (TypedTaint taint : taints.values()) {
+                Set<TaintLabel> labelSet = taint.getLabels();
                 if (labelSet != null) {
                     labelSet.clear();
                 }
@@ -209,25 +209,25 @@ public class MirrorTaintTagManager implements TagManager {
         }
     }
 
-    private static Set<Object> extractLabels(Map<String, A> taints) {
+    private static Set<Object> extractLabels(Map<String, TypedTaint> taints) {
         Set<Object> result = new HashSet<>();
         if (taints != null) {
-            for (A taint : taints.values()) {
+            for (TypedTaint taint : taints.values()) {
                 result.addAll(extractLabels(taint));
             }
         }
         return result;
     }
 
-    private static Set<Object> extractLabels(A taint) {
-        return taint == null ? Collections.emptySet() : extractLabels(taint.A());
+    private static Set<Object> extractLabels(TypedTaint taint) {
+        return taint == null ? Collections.emptySet() : extractLabels(taint.getLabels());
     }
 
-    private static Set<Object> extractLabels(Set<C> labels) {
+    private static Set<Object> extractLabels(Set<TaintLabel> labels) {
         Set<Object> result = new HashSet<>();
         if (labels != null) {
-            for (C label : labels) {
-                String name = label.C();
+            for (TaintLabel label : labels) {
+                String name = label.getName();
                 String original = getOriginalLabel(name);
                 result.add(original);
             }

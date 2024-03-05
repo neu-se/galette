@@ -10,8 +10,11 @@ final class FlowReport {
     FlowReport(File report) throws IOException {
         Files.createDirectories(report.getParentFile().toPath());
         this.report = report;
-        try (PrintWriter out = new PrintWriter(new FileOutputStream(report, false))) {
-            out.println("class,method,tp,fp,fn,status");
+        boolean append = Boolean.getBoolean("flow.report.append");
+        if (!report.isFile() || !append) {
+            try (PrintWriter out = new PrintWriter(new FileOutputStream(report, false))) {
+                out.println("class,method,tp,fp,fn,status");
+            }
         }
     }
 

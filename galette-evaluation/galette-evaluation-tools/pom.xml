@@ -10,35 +10,41 @@
     </parent>
     <artifactId>galette-evaluation-tools</artifactId>
     <properties>
+        <report.dir>${project.build.directory}/flow-reports/</report.dir>
+        <!--suppress UnresolvedMavenProperty -->
+        <mirror-taint.agentJar>${com.shadow.taint:taint-agent-core:jar}</mirror-taint.agentJar>
+        <mirror-taint.report>${report.dir}/mirror-taint.csv</mirror-taint.report>
+        <!--suppress UnresolvedMavenProperty -->
+        <phosphor.agentJar>${edu.gmu.swe.phosphor:Phosphor:jar}</phosphor.agentJar>
+        <phosphor.java>${project.build.directory}/phosphor/java</phosphor.java>
+        <phosphor.cache>${project.build.directory}/phosphor/cache</phosphor.cache>
+        <phosphor.report>${report.dir}/phosphor.csv</phosphor.report>
+        <!--suppress UnresolvedMavenProperty -->
+        <galette.agentJar>${edu.neu.ccs.prl.galette:galette-agent:jar}</galette.agentJar>
         <galette.java>${project.build.directory}/galette/java/</galette.java>
         <galette.cache>${project.build.directory}/galette/cache</galette.cache>
-        <galette.report>${project.build.directory}/galette/flow-report.csv</galette.report>
-        <!--suppress UnresolvedMavenProperty -->
-        <galette.agent.jar>${edu.neu.ccs.prl.galette:galette-agent:jar}</galette.agent.jar>
-        <mirror-taint.report>${project.build.directory}/mirror-taint/flow-report.csv</mirror-taint.report>
-        <!--suppress UnresolvedMavenProperty -->
-        <mirror-taint.agent.jar>${com.shadow.taint:taint-agent-core:jar}</mirror-taint.agent.jar>
+        <galette.report>${report.dir}/galette.csv</galette.report>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>edu.neu.ccs.prl.galette</groupId>
+            <artifactId>galette-agent</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.shadow.taint</groupId>
             <artifactId>taint-agent-core</artifactId>
             <version>1.0.0</version>
         </dependency>
         <dependency>
+            <groupId>edu.gmu.swe.phosphor</groupId>
+            <artifactId>Phosphor</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>edu.neu.ccs.prl.galette</groupId>
             <artifactId>galette-benchmark</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.10.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-launcher</artifactId>
-            <version>1.10.2</version>
         </dependency>
     </dependencies>
     <build>
@@ -54,34 +60,241 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>mirror-taint</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                        <phase>none</phase>
-                        <configuration>
-                            <argLine>
-                                -Dflow.report=${mirror-taint.report}
-                                -Dflow.manager=edu.neu.ccs.prl.galette.eval.MirrorTaintTagManager
-                                -Xbootclasspath/a:${mirror-taint.agent.jar}
-                                -javaagent:${mirror-taint.agent.jar}
-                            </argLine>
-                            <dependenciesToScan>
-                                <scan>edu.neu.ccs.prl.galette:galette-benchmark</scan>
-                            </dependenciesToScan>
-                            <excludes>
-                                <exclude>META-INF/**/*</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>mirror-taint</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>delete-report</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
+                                <configuration>
+                                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                                    <filesets>
+                                        <fileset>
+                                            <directory>${report.dir}</directory>
+                                            <includes>
+                                                <include>**/mirror-taint.csv</include>
+                                            </includes>
+                                        </fileset>
+                                    </filesets>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>mirror-taint</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                                <phase>integration-test</phase>
+                                <configuration>
+                                    <reuseForks>false</reuseForks>
+                                    <argLine>
+                                        -Dflow.report.append=true
+                                        -Dflow.report=${mirror-taint.report}
+                                        -Dflow.manager=edu.neu.ccs.prl.galette.eval.MirrorTaintTagManager
+                                        -Xbootclasspath/a:${mirror-taint.agentJar}
+                                        -javaagent:${mirror-taint.agentJar}
+                                    </argLine>
+                                    <dependenciesToScan>
+                                        <scan>edu.neu.ccs.prl.galette:galette-benchmark</scan>
+                                    </dependenciesToScan>
+                                    <excludes>
+                                        <exclude>META-INF/**/*</exclude>
+                                    </excludes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>phosphor</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>delete-report</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
+                                <configuration>
+                                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                                    <filesets>
+                                        <fileset>
+                                            <directory>${report.dir}</directory>
+                                            <includes>
+                                                <include>**/phosphor.csv</include>
+                                            </includes>
+                                        </fileset>
+                                    </filesets>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>edu.gmu.swe.phosphor</groupId>
+                        <artifactId>phosphor-instrument-maven-plugin</artifactId>
+                        <version>0.1.0-SNAPSHOT</version>
+                        <executions>
+                            <execution>
+                                <id>instrument</id>
+                                <goals>
+                                    <goal>instrument</goal>
+                                </goals>
+                                <phase>process-test-resources</phase>
+                                <configuration>
+                                    <outputDirectory>${phosphor.java}</outputDirectory>
+                                    <linkedCaches>
+                                        <linkedCache>${phosphor.cache}</linkedCache>
+                                    </linkedCaches>
+                                    <options>
+                                        <forceUnboxAcmpEq>true</forceUnboxAcmpEq>
+                                        <withEnumsByValue>true</withEnumsByValue>
+                                        <quiet>true</quiet>
+                                        <serialization>true</serialization>
+                                        <jvmModules>ALL-MODULE-PATH</jvmModules>
+                                    </options>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>phosphor</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                                <phase>integration-test</phase>
+                                <configuration>
+                                    <jvm>${phosphor.java}/bin/java</jvm>
+                                    <reuseForks>false</reuseForks>
+                                    <argLine>
+                                        -Dflow.report.append=true
+                                        -Dflow.report=${phosphor.report}
+                                        -Dflow.manager=edu.neu.ccs.prl.galette.eval.PhosphorTagManager
+                                        -DphosphorCacheDirectory=${phosphor.cache}
+                                        -Xbootclasspath/a:${phosphor.agentJar}
+                                        -javaagent:${phosphor.agentJar}=enum,acmpeq
+                                    </argLine>
+                                    <dependenciesToScan>
+                                        <scan>edu.neu.ccs.prl.galette:galette-benchmark</scan>
+                                    </dependenciesToScan>
+                                    <excludes>
+                                        <exclude>META-INF/**/*</exclude>
+                                    </excludes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>galette</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>delete-report</id>
+                                <phase>process-test-resources</phase>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
+                                <configuration>
+                                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                                    <filesets>
+                                        <fileset>
+                                            <directory>${report.dir}</directory>
+                                            <includes>
+                                                <include>**/galette.csv</include>
+                                            </includes>
+                                        </fileset>
+                                    </filesets>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>edu.neu.ccs.prl.galette</groupId>
+                        <artifactId>galette-maven-plugin</artifactId>
+                        <version>${project.version}</version>
+                        <executions>
+                            <execution>
+                                <id>instrument</id>
+                                <goals>
+                                    <goal>instrument</goal>
+                                </goals>
+                                <phase>process-test-resources</phase>
+                                <configuration>
+                                    <outputDirectory>${galette.java}</outputDirectory>
+                                    <linkedCaches>
+                                        <linkedCache>${galette.cache}</linkedCache>
+                                    </linkedCaches>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>galette</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                                <phase>integration-test</phase>
+                                <configuration>
+                                    <jvm>${galette.java}/bin/java</jvm>
+                                    <argLine>
+                                        -Dflow.report.append=true
+                                        -Dflow.report=${galette.report}
+                                        -Dflow.manager=edu.neu.ccs.prl.galette.bench.extension.GaletteTagManager
+                                        -Dgalette.cache=${galette.cache}
+                                        -Xbootclasspath/a:${galette.agentJar}
+                                        -javaagent:${galette.agentJar}
+                                    </argLine>
+                                    <dependenciesToScan>
+                                        <scan>edu.neu.ccs.prl.galette:galette-benchmark</scan>
+                                    </dependenciesToScan>
+                                    <excludes>
+                                        <exclude>META-INF/**/*</exclude>
+                                    </excludes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

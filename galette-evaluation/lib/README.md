@@ -1,4 +1,4 @@
 ## Sources
 
-The file `mirrorTaint.jar` in this directory was obtained from the [MirrorTaint repository](https://github.com/MirrorTaint/MirrorTaint)
-(commit 54fcbfc5bb3a0d7cd30309098355d999553a861b).
+The file `taint-agent-core-1.0.0.jar` in this directory was built using the source repository shared by the MirrorTaint
+developers after various bugs were corrected.

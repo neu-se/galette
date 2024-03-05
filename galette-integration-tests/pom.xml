@@ -12,11 +12,11 @@
     <description>Integration tests for Galette</description>
     <packaging>pom</packaging>
     <properties>
+        <!--suppress UnresolvedMavenProperty -->
+        <galette.agentJar>${edu.neu.ccs.prl.galette:galette-agent:jar}</galette.agentJar>
         <galette.java>${project.build.directory}/galette/java/</galette.java>
         <galette.cache>${project.build.directory}/galette/cache</galette.cache>
         <galette.report>${project.build.directory}/galette/flow-report.csv</galette.report>
-        <!--suppress UnresolvedMavenProperty -->
-        <galette.agent.jar>${edu.neu.ccs.prl.galette:galette-agent:jar}</galette.agent.jar>
     </properties>
     <dependencies>
         <dependency>
@@ -115,8 +115,8 @@
                                         -Dflow.report=${galette.report}
                                         -Dflow.manager=edu.neu.ccs.prl.galette.bench.extension.GaletteTagManager
                                         -Dgalette.cache=${galette.cache}
-                                        -Xbootclasspath/a:${galette.agent.jar}
-                                        -javaagent:${galette.agent.jar}
+                                        -Xbootclasspath/a:${galette.agentJar}
+                                        -javaagent:${galette.agentJar}
                                     </argLine>
                                     <dependenciesToScan>
                                         <scan>edu.neu.ccs.prl.galette:galette-benchmark</scan>
