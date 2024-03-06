@@ -5,11 +5,14 @@ import edu.neu.ccs.prl.galette.internal.runtime.collection.ObjectIntMap;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.WeakIdentityHashMap;
 import java.lang.reflect.Array;
 
+/**
+ * Maintains a "mirror-space" for storing the taint tags associated with array lengths and elements.
+ */
 public final class ArrayTagStore {
     /**
      * Delay initialization to prevent circular class initialization
      */
-    private static volatile WeakIdentityHashMap<Object, ArrayShadow> shadows;
+    private static volatile WeakIdentityHashMap<Object, ArrayWrapper> wrappers;
 
     private ArrayTagStore() {
         throw new AssertionError();
@@ -17,32 +20,32 @@ public final class ArrayTagStore {
 
     @InvokedViaHandle(handle = Handle.ARRAY_TAG_STORE_GET_LENGTH_TAG)
     public static synchronized Tag getLengthTag(Object array, Tag arrayTag) {
-        if (shadows == null || array == null) {
+        if (wrappers == null || array == null) {
             return Tag.getEmptyTag();
         }
-        ArrayShadow shadow = shadows.get(array);
-        return shadow == null ? Tag.getEmptyTag() : shadow.getLength();
+        ArrayWrapper wrapper = wrappers.get(array);
+        return wrapper == null ? Tag.getEmptyTag() : wrapper.getLength();
     }
 
     @InvokedViaHandle(handle = Handle.ARRAY_TAG_STORE_SET_LENGTH_TAG)
     public static synchronized void setLengthTag(Object array, Tag lengthTag) {
-        if (shadows == null || array == null) {
+        if (wrappers == null || array == null) {
             return;
         }
-        ArrayShadow shadow = shadows.get(array);
-        if (shadow == null) {
+        ArrayWrapper wrapper = wrappers.get(array);
+        if (wrapper == null) {
             if (Tag.isEmpty(lengthTag)) {
                 return;
             }
-            shadow = new ArrayShadow(array);
-            shadows.put(array, shadow);
+            wrapper = new ArrayWrapper(array);
+            wrappers.put(array, wrapper);
         }
-        shadow.setLength(lengthTag);
+        wrapper.setLength(lengthTag);
     }
 
     @InvokedViaHandle(handle = Handle.ARRAY_TAG_STORE_SET_LENGTH_TAGS)
     public static synchronized void setLengthTags(Object array, Tag[] lengthTags) {
-        if (shadows == null || array == null || lengthTags.length == 0) {
+        if (wrappers == null || array == null || lengthTags.length == 0) {
             return;
         }
         setLengthTagsInternal(array, lengthTags, 0);
@@ -62,58 +65,58 @@ public final class ArrayTagStore {
 
     @InvokedViaHandle(handle = Handle.ARRAY_TAG_STORE_GET_TAG)
     public static synchronized Tag getTag(Object array, int index, Tag arrayTag, Tag indexTag) {
-        if (shadows == null || array == null) {
+        if (wrappers == null || array == null) {
             return Tag.getEmptyTag();
         }
-        ArrayShadow shadow = shadows.get(array);
+        ArrayWrapper wrapper = wrappers.get(array);
         // Propagate the array index's tag
-        return shadow == null ? indexTag : Tag.union(indexTag, shadow.getElement(index));
+        return wrapper == null ? indexTag : Tag.union(indexTag, wrapper.getElement(index));
     }
 
     @InvokedViaHandle(handle = Handle.ARRAY_TAG_STORE_SET_TAG)
     public static synchronized void setTag(Object array, int index, Tag arrayTag, Tag indexTag, Tag valueTag) {
-        if (shadows == null || array == null) {
+        if (wrappers == null || array == null) {
             return;
         }
         // Propagate the array index's tag
         Tag tag = Tag.union(indexTag, valueTag);
-        ArrayShadow shadow = shadows.get(array);
-        if (shadow == null) {
+        ArrayWrapper wrapper = wrappers.get(array);
+        if (wrapper == null) {
             if (Tag.isEmpty(tag)) {
                 return;
             }
-            shadow = new ArrayShadow(array);
-            shadows.put(array, shadow);
+            wrapper = new ArrayWrapper(array);
+            wrappers.put(array, wrapper);
         }
-        shadow.setElement(tag, index);
+        wrapper.setElement(tag, index);
     }
 
     public static synchronized void arraycopyTags(Object src, int srcPos, Object dest, int destPos, int length) {
-        if (shadows == null || src == null || dest == null) {
+        if (wrappers == null || src == null || dest == null) {
             return;
         }
-        ArrayShadow sourceShadow = shadows.get(src);
-        ArrayShadow destShadow = shadows.get(dest);
-        if (sourceShadow != null || destShadow != null) {
-            if (destShadow == null) {
-                destShadow = new ArrayShadow(dest);
-                shadows.put(dest, destShadow);
+        ArrayWrapper sourceWrapper = wrappers.get(src);
+        ArrayWrapper destWrapper = wrappers.get(dest);
+        if (sourceWrapper != null || destWrapper != null) {
+            if (destWrapper == null) {
+                destWrapper = new ArrayWrapper(dest);
+                wrappers.put(dest, destWrapper);
             }
-            if (sourceShadow == null) {
-                sourceShadow = new ArrayShadow(src);
+            if (sourceWrapper == null) {
+                sourceWrapper = new ArrayWrapper(src);
             }
-            System.arraycopy(sourceShadow.elements, srcPos, destShadow.elements, destPos, length);
+            System.arraycopy(sourceWrapper.elements, srcPos, destWrapper.elements, destPos, length);
         }
     }
 
     public static synchronized void clear() {
-        if (shadows != null) {
-            shadows.clear();
+        if (wrappers != null) {
+            wrappers.clear();
         }
     }
 
     public static synchronized void initialize() {
-        if (shadows == null) {
+        if (wrappers == null) {
             // Ensure that needed classes are initialized to prevent circular class initialization
             Object[] dependencies = new Object[] {
                 WeakIdentityHashMap.class,
@@ -121,19 +124,19 @@ public final class ArrayTagStore {
                 System.class,
                 HashMap.class,
                 HashMap.Entry.class,
-                ArrayShadow.class
+                ArrayWrapper.class
             };
             // Create a temporary map and add an element to force IdentityWeakReference to be initialized
             new WeakIdentityHashMap<>().put(dependencies, dependencies);
-            shadows = new WeakIdentityHashMap<>();
+            wrappers = new WeakIdentityHashMap<>();
         }
     }
 
-    private static final class ArrayShadow {
+    private static final class ArrayWrapper {
         private Tag length = Tag.getEmptyTag();
         private final Tag[] elements;
 
-        ArrayShadow(Object array) {
+        ArrayWrapper(Object array) {
             int length = Array.getLength(array);
             elements = new Tag[length];
         }

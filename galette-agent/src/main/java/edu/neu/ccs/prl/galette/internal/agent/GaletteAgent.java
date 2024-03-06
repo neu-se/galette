@@ -1,8 +1,8 @@
 package edu.neu.ccs.prl.galette.internal.agent;
 
 import edu.neu.ccs.prl.galette.internal.runtime.ArrayTagStore;
+import edu.neu.ccs.prl.galette.internal.runtime.FieldTagStore;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
-import edu.neu.ccs.prl.galette.internal.runtime.TagStore;
 import edu.neu.ccs.prl.galette.internal.transform.GaletteLog;
 import edu.neu.ccs.prl.galette.internal.transform.GaletteTransformer;
 import edu.neu.ccs.prl.galette.internal.transform.TransformationCache;
@@ -14,9 +14,9 @@ import java.security.ProtectionDomain;
 
 public final class GaletteAgent {
     static {
-        // Allow values to be tainted
-        TagStore.initialize();
+        // Enable mirrored tag stores
         ArrayTagStore.initialize();
+        FieldTagStore.initialize();
     }
 
     private GaletteAgent() {

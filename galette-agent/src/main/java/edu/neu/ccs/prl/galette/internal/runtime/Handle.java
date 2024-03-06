@@ -23,8 +23,10 @@ public enum Handle {
     ARRAY_TAG_STORE_GET_TAG(ArrayTagStore.class),
     ARRAY_TAG_STORE_SET_TAG(ArrayTagStore.class),
     ARRAY_TAG_STORE_SET_LENGTH_TAGS(ArrayTagStore.class),
-    TAG_STORE_GET_TAG(TagStore.class),
-    TAG_STORE_SET_TAG(TagStore.class);
+    FIELD_TAG_STORE_PUT_STATIC(FieldTagStore.class),
+    FIELD_TAG_STORE_GET_STATIC(FieldTagStore.class),
+    FIELD_TAG_STORE_PUT_FIELD(FieldTagStore.class),
+    FIELD_TAG_STORE_GET_FIELD(FieldTagStore.class);
 
     private final Class<?> owner;
 

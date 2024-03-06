@@ -160,7 +160,8 @@ public final class Tainter {
     }
 
     public static void clearTags() {
-        TagStore.clear();
+        // Clear mirrored tag stores
+        FieldTagStore.clear();
         ArrayTagStore.clear();
     }
 

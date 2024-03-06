@@ -15,7 +15,7 @@ class ShadowFieldAdder {
     public void process(ClassNode cn) {
         // Add the shadow fields at the end after all other fields have been visited.
         // This will minimize changes to offsets for certain critical classes.
-        if (!HardCoded.hasHardCodedStaticOffset(cn.name)) {
+        if (hasShadowFields(cn.name)) {
             for (FieldNode fn : cn.fields.toArray(new FieldNode[0])) {
                 cn.fields.add(createShadowField(cn.access, fn.access, fn.name));
             }
@@ -48,7 +48,26 @@ class ShadowFieldAdder {
         return fieldName.startsWith(GaletteTransformer.ADDED_MEMBER_PREFIX);
     }
 
-    public static boolean hasShadowFields(String owner) {
-        return !HardCoded.hasHardCodedStaticOffset(owner);
+    /**
+     * Returns {@code false} if fields should not be added to the class with specified internal name because the JVM
+     * may use a hard-coded offset to access a field of the class.
+     * Only classes that are part of the Java Class Library (JCL) have hard-coded offsets.
+     * These classes were identified based on the classes indicated as having hard-coded offsets in the source code file
+     * "src/hotspot/share/classfile/classFileParser.cpp" from Eclipse Temurin JDK (version 11.0.21+9) and manual
+     * experimentation.
+     *
+     * @param className internal name of a class
+     * @throws NullPointerException if the specified class name is {@code null}
+     */
+    public static boolean hasShadowFields(String className) {
+        switch (className) {
+            case "java/lang/ref/SoftReference":
+            case "java/lang/Integer":
+            case "java/lang/Long":
+            case "java/lang/StackTraceElement":
+                return false;
+            default:
+                return true;
+        }
     }
 }
