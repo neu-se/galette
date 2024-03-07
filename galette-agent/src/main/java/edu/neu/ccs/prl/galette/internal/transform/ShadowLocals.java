@@ -69,8 +69,8 @@ class ShadowLocals extends MethodVisitor {
      */
     private final int shadowVariablesStart;
     /**
-     * Index of the first local variable used to the {@link Tag} for an element of the runtime stack.
-     * This will always be the index of the local variable used to store the {@link Tag} for the bottom of the stack.
+     * Index of the first (the lowest value) local variable used to the {@link Tag} for an element of the runtime stack.
+     * The {@link Tag} for the bottom element of the stack is stored in the local variable slot at this index.
      */
     private final int shadowStackStart;
     /**

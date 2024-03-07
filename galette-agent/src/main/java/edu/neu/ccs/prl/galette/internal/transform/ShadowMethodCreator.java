@@ -49,6 +49,7 @@ public final class ShadowMethodCreator {
             }
         }
         if ((classNode.superName == null || classNode.superName.equals("java/lang/Object"))) {
+            // If java/lang/Object is the immediate superclass of this class
             SimpleList<ObjectMethod> missing = findMissingObjectShadows();
             for (int i = 0; i < missing.size(); i++) {
                 shadows.add(createObjectShadow(missing.get(i)));
