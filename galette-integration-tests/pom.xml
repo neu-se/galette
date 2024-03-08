@@ -12,6 +12,7 @@
     <description>Integration tests for Galette</description>
     <packaging>pom</packaging>
     <properties>
+        <java.args></java.args>
         <!--suppress UnresolvedMavenProperty -->
         <galette.agentJar>${edu.neu.ccs.prl.galette:galette-agent:jar}</galette.agentJar>
         <galette.java>${project.build.directory}/galette/java/</galette.java>
@@ -70,6 +71,15 @@
     </build>
     <profiles>
         <profile>
+            <id>java</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <properties>
+                <java.args>--add-exports java.base/jdk.internal.misc=ALL-UNNAMED</java.args>
+            </properties>
+        </profile>
+        <profile>
             <id>test</id>
             <activation>
                 <property>
@@ -117,6 +127,7 @@
                                         -Dgalette.cache=${galette.cache}
                                         -Xbootclasspath/a:${galette.agentJar}
                                         -javaagent:${galette.agentJar}
+                                        ${java.args}
                                     </argLine>
                                     <dependenciesToScan>
                                         <scan>edu.neu.ccs.prl.galette:galette-benchmark</scan>

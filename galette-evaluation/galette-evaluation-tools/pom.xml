@@ -10,6 +10,7 @@
     </parent>
     <artifactId>galette-evaluation-tools</artifactId>
     <properties>
+        <java.args> </java.args>
         <report.dir>${project.build.directory}/flow-reports/</report.dir>
         <!--suppress UnresolvedMavenProperty -->
         <mirror-taint.agentJar>${com.shadow.taint:taint-agent-core:jar}</mirror-taint.agentJar>
@@ -64,6 +65,15 @@
     </build>
     <profiles>
         <profile>
+            <id>java</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <properties>
+                <java.args>--add-exports java.base/jdk.internal.misc=ALL-UNNAMED</java.args>
+            </properties>
+        </profile>
+        <profile>
             <id>mirror-taint</id>
             <build>
                 <plugins>
@@ -110,6 +120,7 @@
                                         -Dflow.manager=edu.neu.ccs.prl.galette.eval.MirrorTaintTagManager
                                         -Xbootclasspath/a:${mirror-taint.agentJar}
                                         -javaagent:${mirror-taint.agentJar}
+                                        ${java.args}
                                     </argLine>
                                     <dependenciesToScan>
                                         <scan>edu.neu.ccs.prl.galette:galette-benchmark</scan>
@@ -200,6 +211,7 @@
                                         -DphosphorCacheDirectory=${phosphor.cache}
                                         -Xbootclasspath/a:${phosphor.agentJar}
                                         -javaagent:${phosphor.agentJar}=enum,acmpeq
+                                        ${java.args}
                                     </argLine>
                                     <dependenciesToScan>
                                         <scan>edu.neu.ccs.prl.galette:galette-benchmark</scan>
@@ -282,6 +294,7 @@
                                         -Dgalette.cache=${galette.cache}
                                         -Xbootclasspath/a:${galette.agentJar}
                                         -javaagent:${galette.agentJar}
+                                        ${java.args}
                                     </argLine>
                                     <dependenciesToScan>
                                         <scan>edu.neu.ccs.prl.galette:galette-benchmark</scan>

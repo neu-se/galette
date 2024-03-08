@@ -31,17 +31,22 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>compile-java-9</id>
+                        <id>default-compile</id>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>compile-unsafe</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>
                         <configuration>
-                            <release>9</release>
-                            <compileSourceRoots>
-                                <compileSourceRoot>${project.basedir}/src/main/java9</compileSourceRoot>
-                            </compileSourceRoots>
-                            <multiReleaseOutput>true</multiReleaseOutput>
+                            <source>8</source>
+                            <target>8</target>
+                            <compilerArgs>
+                                <arg>-XDignore.symbol.file</arg>
+                            </compilerArgs>
+                            <fork>true</fork>
                         </configuration>
                     </execution>
                 </executions>
