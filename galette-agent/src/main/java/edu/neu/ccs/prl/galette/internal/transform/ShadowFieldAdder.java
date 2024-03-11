@@ -64,7 +64,7 @@ class ShadowFieldAdder {
         switch (className) {
             case "java/lang/ref/Reference":
             case "java/lang/ref/SoftReference":
-            // The following types are all final, so it is safe to not shadow their fields
+                // The following types are all final, so it is safe to not shadow their fields
             case "java/lang/Boolean":
             case "java/lang/Character":
             case "java/lang/Float":

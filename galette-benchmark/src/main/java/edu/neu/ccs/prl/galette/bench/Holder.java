@@ -68,15 +68,15 @@ public final class Holder implements Serializable {
     public Holder(TagManager manager, boolean taint) {
         if (taint) {
             // Static fields
-            is = manager.setLabels(7, new Object[] {"i"});
-            js = manager.setLabels(7L, new Object[] {"j"});
-            zs = manager.setLabels(true, new Object[] {"z"});
-            ss = manager.setLabels((short) 7, new Object[] {"s"});
-            ds = manager.setLabels(7.0, new Object[] {"d"});
-            bs = manager.setLabels((byte) 7, new Object[] {"b"});
-            cs = manager.setLabels((char) 7, new Object[] {"c"});
-            fs = manager.setLabels(7.0f, new Object[] {"f"});
-            ls = manager.setLabels(new Object(), new Object[] {"l"});
+            is = manager.setLabels(7, new Object[] {"is"});
+            js = manager.setLabels(7L, new Object[] {"js"});
+            zs = manager.setLabels(true, new Object[] {"zs"});
+            ss = manager.setLabels((short) 7, new Object[] {"ss"});
+            ds = manager.setLabels(7.0, new Object[] {"ds"});
+            bs = manager.setLabels((byte) 7, new Object[] {"bs"});
+            cs = manager.setLabels((char) 7, new Object[] {"cs"});
+            fs = manager.setLabels(7.0f, new Object[] {"fs"});
+            ls = manager.setLabels(new Object(), new Object[] {"ls"});
             // Basic values
             this.i = manager.setLabels(7, new Object[] {"i"});
             this.j = manager.setLabels(7L, new Object[] {"j"});

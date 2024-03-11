@@ -26,7 +26,7 @@ public final class BenchUtil {
         }
         List<List<T>> tails = cartesianProduct(index + 1, lists);
         List<List<T>> result = new LinkedList<>();
-        for (T element : lists[0]) {
+        for (T element : lists[index]) {
             for (List<T> tail : tails) {
                 LinkedList<T> list = new LinkedList<>();
                 list.add(element);
