@@ -13,18 +13,19 @@ final class FlowReport {
         boolean append = Boolean.getBoolean("flow.report.append");
         if (!report.isFile() || !append) {
             try (PrintWriter out = new PrintWriter(new FileOutputStream(report, false))) {
-                out.println("class,method,tp,fp,fn,status");
+                out.println("class,method,name,tp,fp,fn,status");
             }
         }
     }
 
-    void recordEntry(Class<?> testClass, Method testMethod, FlowChecker checker, String status)
+    void recordEntry(Class<?> testClass, Method testMethod, String displayName, FlowChecker checker, String status)
             throws FileNotFoundException {
         try (PrintWriter out = new PrintWriter(new FileOutputStream(report, true))) {
             out.printf(
-                    "%s,%s,%d,%d,%d,%s%n",
+                    "\"%s\",\"%s\",\"%s\",%d,%d,%d,%s%n",
                     testClass.getName(),
                     testMethod.getName(),
+                    displayName.replace('"', '\''),
                     checker.getTruePositives(),
                     checker.getFalsePositives(),
                     checker.getFalseNegatives(),

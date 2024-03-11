@@ -60,8 +60,17 @@ class ShadowFieldAdder {
      * @throws NullPointerException if the specified class name is {@code null}
      */
     public static boolean hasShadowFields(String className) {
+        // TODO: Fix mirroring of SoftReference#referent (and other fields inherited from supertype)
         switch (className) {
+            case "java/lang/ref/Reference":
             case "java/lang/ref/SoftReference":
+            // The following types are all final, so it is safe to not shadow their fields
+            case "java/lang/Boolean":
+            case "java/lang/Character":
+            case "java/lang/Float":
+            case "java/lang/Double":
+            case "java/lang/Byte":
+            case "java/lang/Short":
             case "java/lang/Integer":
             case "java/lang/Long":
             case "java/lang/StackTraceElement":

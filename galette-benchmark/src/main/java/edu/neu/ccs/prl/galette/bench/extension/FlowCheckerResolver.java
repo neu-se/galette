@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.extension.*;
 import org.opentest4j.MultipleFailuresError;
 
-class FlowCheckerResolver implements ParameterResolver, TestWatcher, AfterTestExecutionCallback {
+class FlowCheckerResolver implements ParameterResolver, TestWatcher, AfterTestExecutionCallback, BeforeEachCallback {
     private static final FlowReport report;
 
     static {
@@ -29,6 +29,11 @@ class FlowCheckerResolver implements ParameterResolver, TestWatcher, AfterTestEx
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
             throws ParameterResolutionException {
         return getFlowChecker(extensionContext);
+    }
+
+    @Override
+    public void beforeEach(ExtensionContext context) {
+        TagManagerResolver.initializeInstanceFields(context, FlowChecker.class, getFlowChecker(context));
     }
 
     @Override
@@ -60,7 +65,12 @@ class FlowCheckerResolver implements ParameterResolver, TestWatcher, AfterTestEx
         try {
             if (report != null) {
                 FlowChecker checker = getFlowChecker(context);
-                report.recordEntry(context.getRequiredTestClass(), context.getRequiredTestMethod(), checker, status);
+                report.recordEntry(
+                        context.getRequiredTestClass(),
+                        context.getRequiredTestMethod(),
+                        context.getDisplayName(),
+                        checker,
+                        status);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

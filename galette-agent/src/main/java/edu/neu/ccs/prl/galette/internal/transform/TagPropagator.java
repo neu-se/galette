@@ -735,6 +735,7 @@ class TagPropagator extends MethodVisitor {
     }
 
     private static boolean isMirroredField(String owner, String name, boolean isStatic) {
-        return !ShadowFieldAdder.hasShadowFields(owner);
+        // TODO: figure out how to track tags for fields in Reference
+        return !ShadowFieldAdder.hasShadowFields(owner) && !owner.equals("java/lang/ref/Reference");
     }
 }

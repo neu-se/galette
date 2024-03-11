@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 
 @SuppressWarnings("unused")
 public final class ReflectionMasks {
-
     @Mask(
             owner = "java/lang/Class",
             name = "getFields",

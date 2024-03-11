@@ -1,6 +1,11 @@
 package edu.neu.ccs.prl.galette.bench.extension;
 
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.function.Predicate;
 import org.junit.jupiter.api.extension.*;
+import org.junit.platform.commons.support.ModifierSupport;
+import org.junit.platform.commons.util.ReflectionUtils;
 
 class TagManagerResolver implements ParameterResolver, AfterEachCallback, BeforeEachCallback {
     @Override
@@ -22,7 +27,9 @@ class TagManagerResolver implements ParameterResolver, AfterEachCallback, Before
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        getTagManager(context).setUp();
+        TagManager manager = getTagManager(context);
+        manager.setUp();
+        initializeInstanceFields(context, TagManager.class, manager);
     }
 
     private TagManager getTagManager(ExtensionContext context) {
@@ -42,5 +49,20 @@ class TagManagerResolver implements ParameterResolver, AfterEachCallback, Before
         } catch (ReflectiveOperationException e) {
             throw new ParameterResolutionException(e.getMessage());
         }
+    }
+
+    static <T> void initializeInstanceFields(ExtensionContext context, Class<T> clazz, T value) {
+        Predicate<Field> predicate = ModifierSupport::isNotStatic;
+        predicate = predicate.and(field -> field.getType().equals(clazz));
+        List<Field> fields = ReflectionUtils.findFields(
+                context.getRequiredTestClass(), predicate, ReflectionUtils.HierarchyTraversalMode.TOP_DOWN);
+        fields.forEach(field -> {
+            try {
+                field.setAccessible(true);
+                field.set(context.getRequiredTestInstance(), value);
+            } catch (ReflectiveOperationException e) {
+                throw new ParameterResolutionException(e.getMessage());
+            }
+        });
     }
 }
