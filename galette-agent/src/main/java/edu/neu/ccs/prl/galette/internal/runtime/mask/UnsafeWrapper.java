@@ -1,6 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
-import edu.neu.ccs.prl.galette.internal.runtime.Configuration;
+import edu.neu.ccs.prl.galette.internal.transform.Configuration;
 import java.lang.reflect.Field;
 import java.security.ProtectionDomain;
 
@@ -111,6 +111,6 @@ public interface UnsafeWrapper {
     Object compareAndExchangeObject(Object o, long offset, Object expected, Object x);
 
     static UnsafeWrapper createInstance() {
-        return Configuration.IS_JAVA_8 ? new JdkUnsafeWrapper() : new SunUnsafeWrapper();
+        return Configuration.isJava8() ? new SunUnsafeWrapper() : new JdkUnsafeWrapper();
     }
 }

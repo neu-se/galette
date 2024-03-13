@@ -6,14 +6,14 @@ import java.lang.reflect.Field;
 enum UnsafeLocation {
     STATIC_FIELD {
         @Override
-        long getOffset(UnsafeWrapper unsafe, Class<?> type) throws NoSuchFieldException {
+        long getOffset(UnsafeAdapter unsafe, Class<?> type) throws NoSuchFieldException {
             String name = Holder.getBasicName(type) + "s";
             Field f = Holder.class.getDeclaredField(name);
             return unsafe.staticFieldOffset(f);
         }
 
         @Override
-        Object getBase(UnsafeWrapper unsafe, Holder holder, Class<?> type) throws NoSuchFieldException {
+        Object getBase(UnsafeAdapter unsafe, Holder holder, Class<?> type) throws NoSuchFieldException {
             return unsafe.staticFieldBase(Holder.class.getDeclaredField(getFieldName(type)));
         }
 
@@ -69,12 +69,12 @@ enum UnsafeLocation {
     },
     INSTANCE_FIELD {
         @Override
-        long getOffset(UnsafeWrapper unsafe, Class<?> type) throws NoSuchFieldException {
+        long getOffset(UnsafeAdapter unsafe, Class<?> type) throws NoSuchFieldException {
             return unsafe.objectFieldOffset(Holder.class.getDeclaredField(getFieldName(type)));
         }
 
         @Override
-        Object getBase(UnsafeWrapper unsafe, Holder holder, Class<?> type) {
+        Object getBase(UnsafeAdapter unsafe, Holder holder, Class<?> type) {
             return holder;
         }
 
@@ -130,13 +130,13 @@ enum UnsafeLocation {
     },
     ARRAY_ELEMENT {
         @Override
-        long getOffset(UnsafeWrapper unsafe, Class<?> type) {
+        long getOffset(UnsafeAdapter unsafe, Class<?> type) {
             Class<?> arrayType = Array.newInstance(type, 0).getClass();
             return unsafe.arrayBaseOffset(arrayType);
         }
 
         @Override
-        Object getBase(UnsafeWrapper unsafe, Holder holder, Class<?> type) {
+        Object getBase(UnsafeAdapter unsafe, Holder holder, Class<?> type) {
             if (type == Integer.TYPE) {
                 return holder.ia;
             } else if (type == Boolean.TYPE) {
@@ -211,9 +211,9 @@ enum UnsafeLocation {
         }
     };
 
-    abstract long getOffset(UnsafeWrapper unsafe, Class<?> type) throws ReflectiveOperationException;
+    abstract long getOffset(UnsafeAdapter unsafe, Class<?> type) throws ReflectiveOperationException;
 
-    abstract Object getBase(UnsafeWrapper unsafe, Holder holder, Class<?> type) throws NoSuchFieldException;
+    abstract Object getBase(UnsafeAdapter unsafe, Holder holder, Class<?> type) throws NoSuchFieldException;
 
     abstract boolean getBoolean(Holder holder);
 

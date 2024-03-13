@@ -15,8 +15,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 @FlowBench
 @Disabled("Unimplemented")
 public class UnsafeITCase {
-    private final UnsafeWrapper unsafe =
-            JRE.currentVersion() == JRE.JAVA_8 ? new SunUnsafeWrapper() : new JdkUnsafeWrapper();
+    private final UnsafeAdapter unsafe =
+            JRE.currentVersion() == JRE.JAVA_8 ? new SunUnsafeAdapter() : new JdkUnsafeAdapter();
 
     @SuppressWarnings("unused")
     private TagManager manager;

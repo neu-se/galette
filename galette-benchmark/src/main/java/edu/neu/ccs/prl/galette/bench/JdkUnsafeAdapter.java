@@ -3,7 +3,7 @@ package edu.neu.ccs.prl.galette.bench;
 import java.lang.reflect.Field;
 import jdk.internal.misc.Unsafe;
 
-public class JdkUnsafeWrapper implements UnsafeWrapper {
+public class JdkUnsafeAdapter implements UnsafeAdapter {
     private static final Unsafe UNSAFE = Unsafe.getUnsafe();
 
     @Override

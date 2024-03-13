@@ -2,7 +2,7 @@ package edu.neu.ccs.prl.galette.bench;
 
 import java.lang.reflect.Field;
 
-public interface UnsafeWrapper {
+public interface UnsafeAdapter {
     long objectFieldOffset(Field f);
 
     long staticFieldOffset(Field f);

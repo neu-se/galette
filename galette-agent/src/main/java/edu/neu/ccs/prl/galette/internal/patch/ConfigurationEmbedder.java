@@ -19,9 +19,8 @@ public class ConfigurationEmbedder extends ClassVisitor {
     public MethodVisitor visitMethod(
             int access, String name, String descriptor, String signature, String[] exceptions) {
         MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
-        return !name.equals(TARGET_METHOD_NAME)
-                ? mv
-                : new MethodVisitor(api, mv) {
+        return name.equals(TARGET_METHOD_NAME)
+                ? new MethodVisitor(api, mv) {
                     @Override
                     public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
                         if (name.equals("IS_JAVA_8")) {
@@ -30,7 +29,8 @@ public class ConfigurationEmbedder extends ClassVisitor {
                         }
                         super.visitFieldInsn(opcode, owner, name, descriptor);
                     }
-                };
+                }
+                : mv;
     }
 
     public static boolean isApplicable(String className) {
