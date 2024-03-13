@@ -1,15 +1,11 @@
 package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
+import edu.neu.ccs.prl.galette.internal.runtime.Configuration;
 import java.lang.reflect.Field;
 import java.security.ProtectionDomain;
 
 public interface UnsafeWrapper {
     int getInvalidFieldOffset();
-
-    Class<?> defineAnonymousClass(Class<?> hostClass, byte[] data, Object[] cpPatches);
-
-    Class<?> defineClass(
-            String name, byte[] b, int off, int len, ClassLoader loader, ProtectionDomain protectionDomain);
 
     long objectFieldOffset(Field f);
 
@@ -18,6 +14,11 @@ public interface UnsafeWrapper {
     Object staticFieldBase(Field f);
 
     int arrayBaseOffset(Class<?> arrayClass);
+
+    Class<?> defineAnonymousClass(Class<?> hostClass, byte[] data, Object[] cpPatches);
+
+    Class<?> defineClass(
+            String name, byte[] b, int off, int len, ClassLoader loader, ProtectionDomain protectionDomain);
 
     void putBoolean(Object o, long offset, boolean x);
 
@@ -110,10 +111,6 @@ public interface UnsafeWrapper {
     Object compareAndExchangeObject(Object o, long offset, Object expected, Object x);
 
     static UnsafeWrapper createInstance() {
-        try {
-            return new JdkUnsafeWrapper();
-        } catch (Throwable t) {
-            return new SunUnsafeWrapper();
-        }
+        return Configuration.IS_JAVA_8 ? new JdkUnsafeWrapper() : new SunUnsafeWrapper();
     }
 }

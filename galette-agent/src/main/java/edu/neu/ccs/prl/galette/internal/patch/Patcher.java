@@ -35,6 +35,9 @@ public final class Patcher {
         if (entryLocator != null && JdkUnsafeWrapperPatcher.isApplicable(className)) {
             cv = new JdkUnsafeWrapperPatcher(cv, entryLocator);
         }
+        if (entryLocator != null && ConfigurationEmbedder.isApplicable(className)) {
+            cv = new ConfigurationEmbedder(cv);
+        }
         if (entryLocator == null) {
             cv = new MemberAccessGenerator(className, cv);
         }

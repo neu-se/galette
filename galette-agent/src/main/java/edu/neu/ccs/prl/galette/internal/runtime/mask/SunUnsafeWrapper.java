@@ -24,6 +24,26 @@ public final class SunUnsafeWrapper implements UnsafeWrapper {
     }
 
     @Override
+    public long objectFieldOffset(Field f) {
+        return UNSAFE.objectFieldOffset(f);
+    }
+
+    @Override
+    public long staticFieldOffset(Field f) {
+        return UNSAFE.staticFieldOffset(f);
+    }
+
+    @Override
+    public Object staticFieldBase(Field f) {
+        return UNSAFE.staticFieldBase(f);
+    }
+
+    @Override
+    public int arrayBaseOffset(Class<?> arrayClass) {
+        return UNSAFE.arrayBaseOffset(arrayClass);
+    }
+
+    @Override
     public Class<?> defineAnonymousClass(Class<?> hostClass, byte[] data, Object[] cpPatches) {
         return UNSAFE.defineAnonymousClass(hostClass, data, cpPatches);
     }
@@ -45,26 +65,6 @@ public final class SunUnsafeWrapper implements UnsafeWrapper {
     public Class<?> defineClass(
             String name, byte[] b, int off, int len, ClassLoader loader, ProtectionDomain protectionDomain) {
         return defineClass(UNSAFE, name, b, off, len, loader, protectionDomain);
-    }
-
-    @Override
-    public long objectFieldOffset(Field f) {
-        return UNSAFE.objectFieldOffset(f);
-    }
-
-    @Override
-    public long staticFieldOffset(Field f) {
-        return UNSAFE.staticFieldOffset(f);
-    }
-
-    @Override
-    public Object staticFieldBase(Field f) {
-        return UNSAFE.staticFieldBase(f);
-    }
-
-    @Override
-    public int arrayBaseOffset(Class<?> arrayClass) {
-        return UNSAFE.arrayBaseOffset(arrayClass);
     }
 
     @Override

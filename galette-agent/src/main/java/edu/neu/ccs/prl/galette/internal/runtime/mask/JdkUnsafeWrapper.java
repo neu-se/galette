@@ -13,23 +13,6 @@ public final class JdkUnsafeWrapper implements UnsafeWrapper {
         return Unsafe.INVALID_FIELD_OFFSET;
     }
 
-    @SuppressWarnings({"unused", "SameParameterValue"})
-    @MemberAccess(owner = "jdk/internal/misc/Unsafe", name = "defineAnonymousClass0", opcode = Opcodes.INVOKEVIRTUAL)
-    private static Class<?> defineAnonymousClass0(Unsafe unsafe, Class<?> hostClass, byte[] data, Object[] cpPatches) {
-        throw new AssertionError("Placeholder method was called");
-    }
-
-    @Override
-    public Class<?> defineAnonymousClass(Class<?> hostClass, byte[] data, Object[] cpPatches) {
-        return defineAnonymousClass0(UNSAFE, hostClass, data, cpPatches);
-    }
-
-    @Override
-    public Class<?> defineClass(
-            String name, byte[] b, int off, int len, ClassLoader loader, ProtectionDomain protectionDomain) {
-        return UNSAFE.defineClass0(name, b, off, len, loader, protectionDomain);
-    }
-
     @Override
     public long objectFieldOffset(Field f) {
         return UNSAFE.objectFieldOffset(f);
@@ -48,6 +31,23 @@ public final class JdkUnsafeWrapper implements UnsafeWrapper {
     @Override
     public int arrayBaseOffset(Class<?> arrayClass) {
         return UNSAFE.arrayBaseOffset(arrayClass);
+    }
+
+    @SuppressWarnings({"unused", "SameParameterValue"})
+    @MemberAccess(owner = "jdk/internal/misc/Unsafe", name = "defineAnonymousClass0", opcode = Opcodes.INVOKEVIRTUAL)
+    private static Class<?> defineAnonymousClass0(Unsafe unsafe, Class<?> hostClass, byte[] data, Object[] cpPatches) {
+        throw new AssertionError("Placeholder method was called");
+    }
+
+    @Override
+    public Class<?> defineAnonymousClass(Class<?> hostClass, byte[] data, Object[] cpPatches) {
+        return defineAnonymousClass0(UNSAFE, hostClass, data, cpPatches);
+    }
+
+    @Override
+    public Class<?> defineClass(
+            String name, byte[] b, int off, int len, ClassLoader loader, ProtectionDomain protectionDomain) {
+        return UNSAFE.defineClass0(name, b, off, len, loader, protectionDomain);
     }
 
     @Override
