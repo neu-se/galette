@@ -98,7 +98,7 @@ public class MemberAccessGenerator extends ClassVisitor {
                     patchMap.put(method.getName() + Type.getMethodDescriptor(method), member);
                 }
             }
-        } catch (ReflectiveOperationException | ExceptionInInitializerError e) {
+        } catch (ReflectiveOperationException e) {
             //
         }
         return patchMap;
