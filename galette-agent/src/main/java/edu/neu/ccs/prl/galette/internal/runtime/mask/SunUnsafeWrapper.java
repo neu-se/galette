@@ -6,13 +6,14 @@ import org.objectweb.asm.Opcodes;
 import sun.misc.Unsafe;
 
 public final class SunUnsafeWrapper implements UnsafeWrapper {
-    private static final Unsafe UNSAFE;
+    private static final Unsafe UNSAFE = getUnsafe();
 
-    static {
+    @MemberAccess(owner = "sun/misc/Unsafe", name = "getUnsafe", opcode = Opcodes.INVOKESTATIC)
+    public static Unsafe getUnsafe() {
         try {
             Field f = Unsafe.class.getDeclaredField("theUnsafe");
             f.setAccessible(true);
-            UNSAFE = (Unsafe) f.get(null);
+            return (Unsafe) f.get(null);
         } catch (ReflectiveOperationException e) {
             throw new IllegalStateException(e);
         }
