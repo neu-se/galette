@@ -32,8 +32,8 @@ public final class Patcher {
         if (entryLocator == null && RegistryPatcher.isApplicable(className)) {
             cv = new RegistryPatcher(cv, className);
         }
-        if (UnsafeAccessorPatcher.isApplicable(className)) {
-            cv = new UnsafeAccessorPatcher(cv, entryLocator);
+        if (entryLocator != null && JdkUnsafeWrapperPatcher.isApplicable(className)) {
+            cv = new JdkUnsafeWrapperPatcher(cv, entryLocator);
         }
         if (entryLocator == null) {
             cv = new MemberAccessGenerator(className, cv);
