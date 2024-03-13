@@ -32,8 +32,8 @@ public final class Patcher {
         if (entryLocator == null && RegistryPatcher.isApplicable(className)) {
             cv = new RegistryPatcher(cv, className);
         }
-        if (UnsafeAdapterPatcher.isApplicable(className)) {
-            cv = new UnsafeAdapterPatcher(cv, entryLocator);
+        if (UnsafeAccessorPatcher.isApplicable(className)) {
+            cv = new UnsafeAccessorPatcher(cv, entryLocator);
         }
         if (entryLocator == null) {
             cv = new MemberAccessGenerator(className, cv);
