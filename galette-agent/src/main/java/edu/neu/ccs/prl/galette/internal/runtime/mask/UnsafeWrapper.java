@@ -13,6 +13,8 @@ public interface UnsafeWrapper {
 
     Object staticFieldBase(Field f);
 
+    long arrayIndexScale(Class<?> clazz);
+
     int arrayBaseOffset(Class<?> arrayClass);
 
     Class<?> defineAnonymousClass(Class<?> hostClass, byte[] data, Object[] cpPatches);

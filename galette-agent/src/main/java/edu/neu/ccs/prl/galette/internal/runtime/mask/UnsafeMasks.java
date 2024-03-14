@@ -35,7 +35,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putBoolean(o, offset, x);
-        putTag(o, offset, xTag);
+        UnsafeTagLocator.putTag(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putByte")
@@ -45,7 +45,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putByte(o, offset, x);
-        putTag(o, offset, xTag);
+        UnsafeTagLocator.putTag(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putChar")
@@ -55,7 +55,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putChar(o, offset, x);
-        putTag(o, offset, xTag);
+        UnsafeTagLocator.putTag(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putDouble")
@@ -65,7 +65,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putDouble(o, offset, x);
-        putTag(o, offset, xTag);
+        UnsafeTagLocator.putTag(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putFloat")
@@ -75,7 +75,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putFloat(o, offset, x);
-        putTag(o, offset, xTag);
+        UnsafeTagLocator.putTag(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putInt")
@@ -85,7 +85,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putInt(o, offset, x);
-        putTag(o, offset, xTag);
+        UnsafeTagLocator.putTag(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putLong")
@@ -95,7 +95,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putLong(o, offset, x);
-        putTag(o, offset, xTag);
+        UnsafeTagLocator.putTag(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putShort")
@@ -105,7 +105,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putShort(o, offset, x);
-        putTag(o, offset, xTag);
+        UnsafeTagLocator.putTag(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putObject")
@@ -116,7 +116,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putObject(o, offset, x);
-        putTag(o, offset, xTag);
+        UnsafeTagLocator.putTag(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putBooleanVolatile")
@@ -126,7 +126,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putBooleanVolatile(o, offset, x);
-        putTagVolatile(o, offset, xTag);
+        UnsafeTagLocator.putTagVolatile(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putByteVolatile")
@@ -136,7 +136,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putByteVolatile(o, offset, x);
-        putTagVolatile(o, offset, xTag);
+        UnsafeTagLocator.putTagVolatile(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putCharVolatile")
@@ -146,7 +146,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putCharVolatile(o, offset, x);
-        putTagVolatile(o, offset, xTag);
+        UnsafeTagLocator.putTagVolatile(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putDoubleVolatile")
@@ -156,7 +156,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putDoubleVolatile(o, offset, x);
-        putTagVolatile(o, offset, xTag);
+        UnsafeTagLocator.putTagVolatile(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putFloatVolatile")
@@ -166,7 +166,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putFloatVolatile(o, offset, x);
-        putTagVolatile(o, offset, xTag);
+        UnsafeTagLocator.putTagVolatile(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putIntVolatile")
@@ -176,7 +176,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putIntVolatile(o, offset, x);
-        putTagVolatile(o, offset, xTag);
+        UnsafeTagLocator.putTagVolatile(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putLongVolatile")
@@ -186,7 +186,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putLongVolatile(o, offset, x);
-        putTagVolatile(o, offset, xTag);
+        UnsafeTagLocator.putTagVolatile(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putShortVolatile")
@@ -196,7 +196,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putShortVolatile(o, offset, x);
-        putTagVolatile(o, offset, xTag);
+        UnsafeTagLocator.putTagVolatile(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "putObjectVolatile")
@@ -207,7 +207,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putObjectVolatile(o, offset, x);
-        putTagVolatile(o, offset, xTag);
+        UnsafeTagLocator.putTagVolatile(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "getBoolean")
@@ -216,7 +216,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         boolean result = UNSAFE.getBoolean(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset));
         return result;
     }
 
@@ -226,7 +226,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         byte result = UNSAFE.getByte(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset));
         return result;
     }
 
@@ -236,7 +236,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         char result = UNSAFE.getChar(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset));
         return result;
     }
 
@@ -246,7 +246,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         double result = UNSAFE.getDouble(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset));
         return result;
     }
 
@@ -256,7 +256,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         float result = UNSAFE.getFloat(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset));
         return result;
     }
 
@@ -266,7 +266,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         int result = UNSAFE.getInt(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset));
         return result;
     }
 
@@ -276,7 +276,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         long result = UNSAFE.getLong(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset));
         return result;
     }
 
@@ -286,7 +286,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         short result = UNSAFE.getShort(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset));
         return result;
     }
 
@@ -297,7 +297,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         Object result = UNSAFE.getObject(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset));
         return result;
     }
 
@@ -307,7 +307,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         boolean result = UNSAFE.getBooleanVolatile(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset));
         return result;
     }
 
@@ -317,7 +317,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         byte result = UNSAFE.getByteVolatile(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset));
         return result;
     }
 
@@ -327,7 +327,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         char result = UNSAFE.getCharVolatile(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset));
         return result;
     }
 
@@ -337,7 +337,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         double result = UNSAFE.getDoubleVolatile(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset));
         return result;
     }
 
@@ -347,7 +347,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         float result = UNSAFE.getFloatVolatile(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset));
         return result;
     }
 
@@ -357,7 +357,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         int result = UNSAFE.getIntVolatile(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset));
         return result;
     }
 
@@ -367,7 +367,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         long result = UNSAFE.getLongVolatile(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset));
         return result;
     }
 
@@ -377,7 +377,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         short result = UNSAFE.getShortVolatile(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset));
         return result;
     }
 
@@ -388,7 +388,7 @@ public final class UnsafeMasks {
         Tag oTag = frame.pop();
         Tag offsetTag = frame.pop();
         Object result = UNSAFE.getObjectVolatile(o, offset);
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset));
         return result;
     }
 
@@ -398,7 +398,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putOrderedInt(o, offset, x);
-        putTagVolatile(o, offset, xTag);
+        UnsafeTagLocator.putTagVolatile(o, offset, xTag);
     }
 
     @Mask(owner = "sun/misc/Unsafe", name = "putOrderedLong")
@@ -407,7 +407,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putOrderedLong(o, offset, x);
-        putTagVolatile(o, offset, xTag);
+        UnsafeTagLocator.putTagVolatile(o, offset, xTag);
     }
 
     @Mask(owner = "sun/misc/Unsafe", name = "putOrderedObject")
@@ -416,7 +416,7 @@ public final class UnsafeMasks {
         Tag offsetTag = frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putOrderedObject(o, offset, x);
-        putTagVolatile(o, offset, xTag);
+        UnsafeTagLocator.putTagVolatile(o, offset, xTag);
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndSetInt")
@@ -432,7 +432,7 @@ public final class UnsafeMasks {
         if (result) {
             // Swap succeeded, update the tag
             // There is no way to swap both the tag and the value atomically
-            putTagVolatile(o, offset, xTag);
+            UnsafeTagLocator.putTagVolatile(o, offset, xTag);
         }
         return result;
     }
@@ -450,7 +450,7 @@ public final class UnsafeMasks {
         if (result) {
             // Swap succeeded, update the tag
             // There is no way to swap both the tag and the value atomically
-            putTagVolatile(o, offset, xTag);
+            UnsafeTagLocator.putTagVolatile(o, offset, xTag);
         }
         return result;
     }
@@ -469,7 +469,7 @@ public final class UnsafeMasks {
         if (result) {
             // Swap succeeded, update the tag
             // There is no way to swap both the tag and the value atomically
-            putTagVolatile(o, offset, xTag);
+            UnsafeTagLocator.putTagVolatile(o, offset, xTag);
         }
         return result;
     }
@@ -482,12 +482,12 @@ public final class UnsafeMasks {
         Tag expectedTag = frame.pop();
         Tag xTag = frame.pop();
         // Set the return tag to be the current value
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset));
         int result = UNSAFE.compareAndExchangeInt(o, offset, expected, x);
         if (result == expected) {
             // Exchange succeeded, update the tag
             // There is no way to exchange both the tag and the value atomically
-            putTagVolatile(o, offset, xTag);
+            UnsafeTagLocator.putTagVolatile(o, offset, xTag);
         }
         return result;
     }
@@ -500,12 +500,12 @@ public final class UnsafeMasks {
         Tag expectedTag = frame.pop();
         Tag xTag = frame.pop();
         // Set the return tag to be the current value
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset));
         long result = UNSAFE.compareAndExchangeLong(o, offset, expected, x);
         if (result == expected) {
             // Exchange succeeded, update the tag
             // There is no way to exchange both the tag and the value atomically
-            putTagVolatile(o, offset, xTag);
+            UnsafeTagLocator.putTagVolatile(o, offset, xTag);
         }
         return result;
     }
@@ -518,12 +518,12 @@ public final class UnsafeMasks {
         Tag expectedTag = frame.pop();
         Tag xTag = frame.pop();
         // Set the return tag to be the current value
-        frame.setReturnTag(getTag(o, offset));
+        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset));
         Object result = UNSAFE.compareAndExchangeObject(o, offset, expected, x);
         if (result == expected) {
             // Exchange succeeded, update the tag
             // There is no way to exchange both the tag and the value atomically
-            putTagVolatile(o, offset, xTag);
+            UnsafeTagLocator.putTagVolatile(o, offset, xTag);
         }
         return result;
     }
@@ -535,23 +535,5 @@ public final class UnsafeMasks {
             return buffer;
         }
         return null;
-    }
-
-    private static void putTag(Object o, long offset, Tag tag) {
-        // TODO
-    }
-
-    private static void putTagVolatile(Object o, long offset, Tag tag) {
-        // TODO
-    }
-
-    private static Tag getTag(Object o, long offset) {
-        // TODO
-        return Tag.getEmptyTag();
-    }
-
-    private static Tag getTagVolatile(Object o, long offset) {
-        // TODO
-        return Tag.getEmptyTag();
     }
 }

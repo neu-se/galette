@@ -3,6 +3,7 @@ package edu.neu.ccs.prl.galette.internal.agent;
 import edu.neu.ccs.prl.galette.internal.runtime.ArrayTagStore;
 import edu.neu.ccs.prl.galette.internal.runtime.FieldTagStore;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.runtime.mask.UnsafeTagLocator;
 import edu.neu.ccs.prl.galette.internal.transform.GaletteLog;
 import edu.neu.ccs.prl.galette.internal.transform.GaletteTransformer;
 import edu.neu.ccs.prl.galette.internal.transform.TransformationCache;
@@ -17,6 +18,7 @@ public final class GaletteAgent {
         // Enable mirrored tag stores
         ArrayTagStore.initialize();
         FieldTagStore.initialize();
+        UnsafeTagLocator.initialize();
     }
 
     private GaletteAgent() {

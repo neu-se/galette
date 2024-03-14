@@ -122,6 +122,10 @@ public class GaletteTransformer {
         if (AccessModifier.isApplicable(cn.name)) {
             cv = new AccessModifier(cv);
         }
+        // Add a field to java.lang.Class to store offsets used in masking of Unsafe
+        if (OffsetCacheAdder.isApplicable(cn.name)) {
+            cv = new OffsetCacheAdder(cv);
+        }
         cn.accept(cv);
         return cw.toByteArray();
     }

@@ -51,11 +51,31 @@ public class MemberAccessGenerator extends ClassVisitor {
             case Opcodes.INVOKESTATIC:
                 generateMethodCall(access, descriptor, mAccess, mv);
                 break;
+            case Opcodes.GETFIELD:
+                generateGetField(access, descriptor, mAccess, mv);
+                break;
+            case Opcodes.PUTFIELD:
+                generatePutField(access, descriptor, mAccess, mv);
+                break;
             default:
                 throw new IllegalArgumentException("Unsupported opcode: " + mAccess.opcode());
         }
         mv.visitMaxs(-1, -1);
         mv.visitEnd();
+    }
+
+    private void generateGetField(int access, String descriptor, MemberAccess mAccess, MethodVisitor mv) {
+        AsmUtil.loadArguments(mv, access, descriptor);
+        Type ret = Type.getReturnType(descriptor);
+        mv.visitFieldInsn(mAccess.opcode(), mAccess.owner(), mAccess.name(), ret.getDescriptor());
+        mv.visitInsn(Type.getReturnType(descriptor).getOpcode(Opcodes.IRETURN));
+    }
+
+    private void generatePutField(int access, String descriptor, MemberAccess mAccess, MethodVisitor mv) {
+        AsmUtil.loadArguments(mv, access, descriptor);
+        Type[] args = Type.getArgumentTypes(descriptor);
+        mv.visitFieldInsn(mAccess.opcode(), mAccess.owner(), mAccess.name(), args[args.length - 1].getDescriptor());
+        mv.visitInsn(Type.getReturnType(descriptor).getOpcode(Opcodes.IRETURN));
     }
 
     private void generateMethodCall(int access, String descriptor, MemberAccess mAccess, MethodVisitor mv) {

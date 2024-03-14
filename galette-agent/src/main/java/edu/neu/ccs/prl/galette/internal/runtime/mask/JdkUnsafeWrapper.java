@@ -29,6 +29,11 @@ public final class JdkUnsafeWrapper implements UnsafeWrapper {
     }
 
     @Override
+    public long arrayIndexScale(Class<?> clazz) {
+        return UNSAFE.arrayIndexScale(clazz);
+    }
+
+    @Override
     public int arrayBaseOffset(Class<?> arrayClass) {
         return UNSAFE.arrayBaseOffset(arrayClass);
     }

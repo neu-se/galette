@@ -35,10 +35,4 @@ public @interface MemberAccess {
      * @return opcode of the instruction used to access the member.
      */
     int opcode();
-
-    /**
-     * The descriptor of the method to be called or the empty string if the descriptor should be computed from
-     * the descriptor of the annotated method.
-     */
-    String descriptor() default "";
 }
