@@ -18,6 +18,12 @@ public class TagFrame {
         return tags.isEmpty() ? Tag.getEmptyTag() : tags.pop();
     }
 
+    public Tag popWide() {
+        Tag result = pop();
+        pop();
+        return result;
+    }
+
     @InvokedViaHandle(handle = Handle.FRAME_GET_RETURN_TAG)
     public Tag getReturnTag() {
         return returnTag;

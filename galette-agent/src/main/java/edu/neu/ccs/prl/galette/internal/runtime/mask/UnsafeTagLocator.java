@@ -1,5 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
+import edu.neu.ccs.prl.galette.internal.runtime.ArrayTagStore;
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.SimpleList;
 import edu.neu.ccs.prl.galette.internal.transform.ShadowFieldAdder;
@@ -20,10 +21,11 @@ public final class UnsafeTagLocator {
         initialized = true;
     }
 
-    static void putTag(Object o, long offset, Tag tag) {
+    static void putTag(Object o, long offset, Tag offsetTag, Tag tag) {
         if (initialized && o != null) {
             if (o.getClass().isArray()) {
-                // TODO arrays, propagate the offset taint tag to the index
+                int index = computeArrayIndex(o, offset);
+                ArrayTagStore.setTag(o, index, Tag.getEmptyTag(), offsetTag, tag);
             } else {
                 long shadowOffset = getShadowOffset(o, offset);
                 if (shadowOffset != UNSAFE.getInvalidFieldOffset()) {
@@ -33,10 +35,12 @@ public final class UnsafeTagLocator {
         }
     }
 
-    static void putTagVolatile(Object o, long offset, Tag tag) {
+    static void putTagVolatile(Object o, long offset, Tag offsetTag, Tag tag) {
         if (initialized && o != null) {
             if (o.getClass().isArray()) {
-                // TODO arrays, propagate the offset taint tag to the index
+                // TODO make volatile
+                int index = computeArrayIndex(o, offset);
+                ArrayTagStore.setTag(o, index, Tag.getEmptyTag(), offsetTag, tag);
             } else {
                 long shadowOffset = getShadowOffset(o, offset);
                 if (shadowOffset != UNSAFE.getInvalidFieldOffset()) {
@@ -46,10 +50,11 @@ public final class UnsafeTagLocator {
         }
     }
 
-    static Tag getTag(Object o, long offset) {
+    static Tag getTag(Object o, long offset, Tag offsetTag) {
         if (initialized && o != null) {
             if (o.getClass().isArray()) {
-                // TODO arrays, propagate the offset taint tag to the index
+                int index = computeArrayIndex(o, offset);
+                return ArrayTagStore.getTag(o, index, Tag.getEmptyTag(), offsetTag);
             } else {
                 long shadowOffset = getShadowOffset(o, offset);
                 if (shadowOffset != UNSAFE.getInvalidFieldOffset()) {
@@ -63,10 +68,12 @@ public final class UnsafeTagLocator {
         return Tag.getEmptyTag();
     }
 
-    static Tag getTagVolatile(Object o, long offset) {
+    static Tag getTagVolatile(Object o, long offset, Tag offsetTag) {
         if (initialized && o != null) {
             if (o.getClass().isArray()) {
-                // TODO arrays, propagate the offset taint tag to the index
+                // TODO make volatile
+                int index = computeArrayIndex(o, offset);
+                return ArrayTagStore.getTag(o, index, Tag.getEmptyTag(), offsetTag);
             } else {
                 long shadowOffset = getShadowOffset(o, offset);
                 if (shadowOffset != UNSAFE.getInvalidFieldOffset()) {

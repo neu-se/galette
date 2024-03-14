@@ -5,7 +5,6 @@ import edu.neu.ccs.prl.galette.bench.extension.FlowChecker;
 import edu.neu.ccs.prl.galette.bench.extension.TagManager;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,7 +12,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @FlowBench
-@Disabled("Unimplemented")
 public class UnsafeITCase {
     private final UnsafeAdapter unsafe =
             JRE.currentVersion() == JRE.JAVA_8 ? new SunUnsafeAdapter() : new JdkUnsafeAdapter();
@@ -105,7 +103,7 @@ public class UnsafeITCase {
         long witness = unsafe.compareAndExchangeLong(
                 location.getBase(unsafe, holder, long.class), location.getOffset(unsafe, long.class), expected, update);
         Assertions.assertEquals(compareSucceeds, expected == witness);
-        long actual = location.getInt(holder);
+        long actual = location.getLong(holder);
         checkCompareAndSwapLabels(compareSucceeds, taintedValue, location, long.class, manager.getLabels(actual));
     }
 
@@ -125,7 +123,7 @@ public class UnsafeITCase {
                 expected,
                 update);
         Assertions.assertEquals(compareSucceeds, expected == witness);
-        Object actual = location.getInt(holder);
+        Object actual = location.getObject(holder);
         checkCompareAndSwapLabels(compareSucceeds, taintedValue, location, Object.class, manager.getLabels(actual));
     }
 
