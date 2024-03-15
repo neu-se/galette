@@ -82,10 +82,10 @@ public class UnsafeITCase {
         int original = location.getInt(holder);
         int expected = compareSucceeds ? original : original + 50;
         int update = taintedValue ? manager.setLabels(9, new Object[] {"update"}) : 9;
-        // TODO check witness' labels
         int witness = unsafe.compareAndExchangeInt(
                 location.getBase(unsafe, holder, int.class), location.getOffset(unsafe, int.class), expected, update);
         Assertions.assertEquals(compareSucceeds, expected == witness);
+        checkWitnessLabels(taintedValue, location, int.class, manager.getLabels(witness));
         int actual = location.getInt(holder);
         checkCompareAndSwapLabels(compareSucceeds, taintedValue, location, int.class, manager.getLabels(actual));
     }
@@ -99,10 +99,10 @@ public class UnsafeITCase {
         long original = location.getLong(holder);
         long expected = compareSucceeds ? original : original + 50;
         long update = taintedValue ? manager.setLabels(9L, new Object[] {"update"}) : 9L;
-        // TODO check witness' labels
         long witness = unsafe.compareAndExchangeLong(
                 location.getBase(unsafe, holder, long.class), location.getOffset(unsafe, long.class), expected, update);
         Assertions.assertEquals(compareSucceeds, expected == witness);
+        checkWitnessLabels(taintedValue, location, long.class, manager.getLabels(witness));
         long actual = location.getLong(holder);
         checkCompareAndSwapLabels(compareSucceeds, taintedValue, location, long.class, manager.getLabels(actual));
     }
@@ -116,13 +116,13 @@ public class UnsafeITCase {
         Object original = location.getObject(holder);
         Object expected = compareSucceeds ? original : new Object();
         Object update = taintedValue ? manager.setLabels("hello", new Object[] {"update"}) : "hello";
-        // TODO check witness' labels
         Object witness = unsafe.compareAndExchangeObject(
                 location.getBase(unsafe, holder, Object.class),
                 location.getOffset(unsafe, Object.class),
                 expected,
                 update);
         Assertions.assertEquals(compareSucceeds, expected == witness);
+        checkWitnessLabels(taintedValue, location, Object.class, manager.getLabels(witness));
         Object actual = location.getObject(holder);
         checkCompareAndSwapLabels(compareSucceeds, taintedValue, location, Object.class, manager.getLabels(actual));
     }
@@ -260,6 +260,14 @@ public class UnsafeITCase {
         Object[] actualLabels = manager.getLabels(actual);
         Assertions.assertEquals(expected, actual);
         checker.check(expectedLabels, actualLabels);
+    }
+
+    private void checkWitnessLabels(boolean taintedValue, UnsafeLocation location, Class<?> type, Object[] actual) {
+        if (taintedValue) {
+            checker.checkEmpty(actual);
+        } else {
+            checker.check(location.getExpectedLabels(true, type), actual);
+        }
     }
 
     private void checkCompareAndSwapLabels(
