@@ -38,9 +38,9 @@ public final class UnsafeTagLocator {
     static void putTagVolatile(Object o, long offset, Tag offsetTag, Tag tag) {
         if (initialized && o != null) {
             if (o.getClass().isArray()) {
-                // TODO make volatile
                 int index = computeArrayIndex(o, offset);
-                ArrayTagStore.setTag(o, index, Tag.getEmptyTag(), offsetTag, tag);
+                long shadowOffset = UNSAFE.arrayBaseOffset(Tag[].class) + UNSAFE.arrayIndexScale(Tag[].class) * index;
+                ArrayTagStore.setTagVolatile(UNSAFE, o, offsetTag, tag, shadowOffset);
             } else {
                 long shadowOffset = getShadowOffset(o, offset);
                 if (shadowOffset != UNSAFE.getInvalidFieldOffset()) {
@@ -71,9 +71,9 @@ public final class UnsafeTagLocator {
     static Tag getTagVolatile(Object o, long offset, Tag offsetTag) {
         if (initialized && o != null) {
             if (o.getClass().isArray()) {
-                // TODO make volatile
                 int index = computeArrayIndex(o, offset);
-                return ArrayTagStore.getTag(o, index, Tag.getEmptyTag(), offsetTag);
+                long shadowOffset = UNSAFE.arrayBaseOffset(Tag[].class) + UNSAFE.arrayIndexScale(Tag[].class) * index;
+                return ArrayTagStore.getTagVolatile(UNSAFE, o, offsetTag, shadowOffset);
             } else {
                 long shadowOffset = getShadowOffset(o, offset);
                 if (shadowOffset != UNSAFE.getInvalidFieldOffset()) {

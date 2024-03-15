@@ -24,11 +24,6 @@ public final class JdkUnsafeWrapper implements UnsafeWrapper {
     }
 
     @Override
-    public Object staticFieldBase(Field f) {
-        return UNSAFE.staticFieldBase(f);
-    }
-
-    @Override
     public long arrayIndexScale(Class<?> clazz) {
         return UNSAFE.arrayIndexScale(clazz);
     }

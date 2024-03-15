@@ -3,6 +3,7 @@ package edu.neu.ccs.prl.galette.internal.runtime;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.HashMap;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.ObjectIntMap;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.WeakIdentityHashMap;
+import edu.neu.ccs.prl.galette.internal.runtime.mask.UnsafeWrapper;
 import java.lang.reflect.Array;
 
 /**
@@ -73,22 +74,54 @@ public final class ArrayTagStore {
         return wrapper == null ? indexTag : Tag.union(indexTag, wrapper.getElement(index));
     }
 
+    public static synchronized Tag getTagVolatile(UnsafeWrapper unsafe, Object array, Tag indexTag, long offset) {
+        if (wrappers == null || array == null) {
+            return Tag.getEmptyTag();
+        }
+        ArrayWrapper wrapper = wrappers.get(array);
+        // Propagate the array index's tag
+        if (wrapper == null) {
+            return indexTag;
+        } else {
+            Tag elementTag = (Tag) unsafe.getObjectVolatile(wrapper.elements, offset);
+            return Tag.union(indexTag, elementTag);
+        }
+    }
+
     @InvokedViaHandle(handle = Handle.ARRAY_TAG_STORE_SET_TAG)
     public static synchronized void setTag(Object array, int index, Tag arrayTag, Tag indexTag, Tag valueTag) {
-        if (wrappers == null || array == null) {
-            return;
-        }
         // Propagate the array index's tag
         Tag tag = Tag.union(indexTag, valueTag);
+        ArrayWrapper wrapper = getWrapper(array, tag);
+        if (wrapper != null) {
+            wrapper.setElement(tag, index);
+        }
+    }
+
+    public static synchronized void setTagVolatile(
+            UnsafeWrapper unsafe, Object array, Tag indexTag, Tag valueTag, long offset) {
+        // Propagate the array index's tag
+        Tag tag = Tag.union(indexTag, valueTag);
+        ArrayWrapper wrapper = getWrapper(array, tag);
+        if (wrapper != null) {
+            unsafe.putObjectVolatile(wrapper.elements, offset, tag);
+        }
+    }
+
+    private static synchronized ArrayWrapper getWrapper(Object array, Tag tag) {
+        if (wrappers == null || array == null) {
+            return null;
+        }
+        // Propagate the array index's tag
         ArrayWrapper wrapper = wrappers.get(array);
         if (wrapper == null) {
             if (Tag.isEmpty(tag)) {
-                return;
+                return null;
             }
             wrapper = new ArrayWrapper(array);
             wrappers.put(array, wrapper);
         }
-        wrapper.setElement(tag, index);
+        return wrapper;
     }
 
     public static synchronized void arraycopyTags(Object src, int srcPos, Object dest, int destPos, int length) {
