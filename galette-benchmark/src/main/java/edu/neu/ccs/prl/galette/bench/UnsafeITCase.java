@@ -128,7 +128,7 @@ public class UnsafeITCase {
     }
 
     @ParameterizedTest(name = "getBoolean(taintedValue={0}, location={1}, policy={2})")
-    @MethodSource("getArguments")
+    @MethodSource("arguments")
     void getBoolean(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintedValue);
@@ -143,7 +143,7 @@ public class UnsafeITCase {
     }
 
     @ParameterizedTest(name = "getByte(taintedValue={0}, location={1}, policy={2})")
-    @MethodSource("getArguments")
+    @MethodSource("arguments")
     void getByte(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintedValue);
@@ -158,7 +158,7 @@ public class UnsafeITCase {
     }
 
     @ParameterizedTest(name = "getChar(taintedValue={0}, location={1}, policy={2})")
-    @MethodSource("getArguments")
+    @MethodSource("arguments")
     void getChar(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintedValue);
@@ -173,7 +173,7 @@ public class UnsafeITCase {
     }
 
     @ParameterizedTest(name = "getDouble(taintedValue={0}, location={1}, policy={2})")
-    @MethodSource("getArguments")
+    @MethodSource("arguments")
     void getDouble(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintedValue);
@@ -188,7 +188,7 @@ public class UnsafeITCase {
     }
 
     @ParameterizedTest(name = "getFloat(taintedValue={0}, location={1}, policy={2})")
-    @MethodSource("getArguments")
+    @MethodSource("arguments")
     void getFloat(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintedValue);
@@ -203,7 +203,7 @@ public class UnsafeITCase {
     }
 
     @ParameterizedTest(name = "getInt(taintedValue={0}, location={1}, policy={2})")
-    @MethodSource("getArguments")
+    @MethodSource("arguments")
     void getInt(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintedValue);
@@ -218,7 +218,7 @@ public class UnsafeITCase {
     }
 
     @ParameterizedTest(name = "getLong(taintedValue={0}, location={1}, policy={2})")
-    @MethodSource("getArguments")
+    @MethodSource("arguments")
     void getLong(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintedValue);
@@ -233,7 +233,7 @@ public class UnsafeITCase {
     }
 
     @ParameterizedTest(name = "getShort(taintedValue={0}, location={1}, policy={2})")
-    @MethodSource("getArguments")
+    @MethodSource("arguments")
     void getShort(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintedValue);
@@ -248,7 +248,7 @@ public class UnsafeITCase {
     }
 
     @ParameterizedTest(name = "getObject(taintedValue={0}, location={1}, policy={2})")
-    @MethodSource("getArguments")
+    @MethodSource("arguments")
     void getObject(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintedValue);
@@ -260,6 +260,202 @@ public class UnsafeITCase {
         Object[] actualLabels = manager.getLabels(actual);
         Assertions.assertEquals(expected, actual);
         checker.check(expectedLabels, actualLabels);
+    }
+
+    @ParameterizedTest(name = "putBoolean(taintedValue={0}, location={1}, policy={2})")
+    @MethodSource("arguments")
+    void putBoolean(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
+        Holder holder = new Holder(manager, !taintedValue);
+        Object[] labels = new Object[] {"set"};
+        //noinspection SimplifiableConditionalExpression
+        boolean expected = taintedValue ? manager.setLabels(false, labels) : false;
+        Object base = location.getBase(unsafe, holder, boolean.class);
+        long offset = location.getOffset(unsafe, boolean.class);
+        policy.putBoolean(base, offset, expected, unsafe);
+        boolean actual = location.getBoolean(holder);
+        Assertions.assertEquals(expected, actual);
+        if (taintedValue) {
+            checker.check(labels, manager.getLabels(actual));
+        } else {
+            checker.checkEmpty(manager.getLabels(actual));
+        }
+    }
+
+    @ParameterizedTest(name = "putByte(taintedValue={0}, location={1}, policy={2})")
+    @MethodSource("arguments")
+    void putByte(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
+        Holder holder = new Holder(manager, !taintedValue);
+        byte expected = 55;
+        Object[] labels = new Object[] {"set"};
+        if (taintedValue) {
+            expected = manager.setLabels(expected, labels);
+        }
+        Object base = location.getBase(unsafe, holder, byte.class);
+        long offset = location.getOffset(unsafe, byte.class);
+        policy.putByte(base, offset, expected, unsafe);
+        byte actual = location.getByte(holder);
+        Assertions.assertEquals(expected, actual);
+        if (taintedValue) {
+            checker.check(labels, manager.getLabels(actual));
+        } else {
+            checker.checkEmpty(manager.getLabels(actual));
+        }
+    }
+
+    @ParameterizedTest(name = "putChar(taintedValue={0}, location={1}, policy={2})")
+    @MethodSource("arguments")
+    void putChar(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
+        Holder holder = new Holder(manager, !taintedValue);
+        char expected = 55;
+        Object[] labels = new Object[] {"set"};
+        if (taintedValue) {
+            expected = manager.setLabels(expected, labels);
+        }
+        Object base = location.getBase(unsafe, holder, char.class);
+        long offset = location.getOffset(unsafe, char.class);
+        policy.putChar(base, offset, expected, unsafe);
+        char actual = location.getChar(holder);
+        Assertions.assertEquals(expected, actual);
+        if (taintedValue) {
+            checker.check(labels, manager.getLabels(actual));
+        } else {
+            checker.checkEmpty(manager.getLabels(actual));
+        }
+    }
+
+    @ParameterizedTest(name = "putDouble(taintedValue={0}, location={1}, policy={2})")
+    @MethodSource("arguments")
+    void putDouble(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
+        Holder holder = new Holder(manager, !taintedValue);
+        double expected = 55;
+        Object[] labels = new Object[] {"set"};
+        if (taintedValue) {
+            expected = manager.setLabels(expected, labels);
+        }
+        Object base = location.getBase(unsafe, holder, double.class);
+        long offset = location.getOffset(unsafe, double.class);
+        policy.putDouble(base, offset, expected, unsafe);
+        double actual = location.getDouble(holder);
+        Assertions.assertEquals(expected, actual);
+        if (taintedValue) {
+            checker.check(labels, manager.getLabels(actual));
+        } else {
+            checker.checkEmpty(manager.getLabels(actual));
+        }
+    }
+
+    @ParameterizedTest(name = "putFloat(taintedValue={0}, location={1}, policy={2})")
+    @MethodSource("arguments")
+    void putFloat(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
+        Holder holder = new Holder(manager, !taintedValue);
+        float expected = 55.0f;
+        Object[] labels = new Object[] {"set"};
+        if (taintedValue) {
+            expected = manager.setLabels(expected, labels);
+        }
+        Object base = location.getBase(unsafe, holder, float.class);
+        long offset = location.getOffset(unsafe, float.class);
+        policy.putFloat(base, offset, expected, unsafe);
+        float actual = location.getFloat(holder);
+        Assertions.assertEquals(expected, actual);
+        if (taintedValue) {
+            checker.check(labels, manager.getLabels(actual));
+        } else {
+            checker.checkEmpty(manager.getLabels(actual));
+        }
+    }
+
+    @ParameterizedTest(name = "putInt(taintedValue={0}, location={1}, policy={2})")
+    @MethodSource("extendedArguments")
+    void putInt(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
+        Holder holder = new Holder(manager, !taintedValue);
+        int expected = 55;
+        Object[] labels = new Object[] {"set"};
+        if (taintedValue) {
+            expected = manager.setLabels(expected, labels);
+        }
+        Object base = location.getBase(unsafe, holder, int.class);
+        long offset = location.getOffset(unsafe, int.class);
+        policy.putInt(base, offset, expected, unsafe);
+        int actual = location.getInt(holder);
+        Assertions.assertEquals(expected, actual);
+        if (taintedValue) {
+            checker.check(labels, manager.getLabels(actual));
+        } else {
+            checker.checkEmpty(manager.getLabels(actual));
+        }
+    }
+
+    @ParameterizedTest(name = "putLong(taintedValue={0}, location={1}, policy={2})")
+    @MethodSource("extendedArguments")
+    void putLong(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
+        Holder holder = new Holder(manager, !taintedValue);
+        long expected = 55L;
+        Object[] labels = new Object[] {"set"};
+        if (taintedValue) {
+            expected = manager.setLabels(expected, labels);
+        }
+        Object base = location.getBase(unsafe, holder, long.class);
+        long offset = location.getOffset(unsafe, long.class);
+        policy.putLong(base, offset, expected, unsafe);
+        long actual = location.getLong(holder);
+        Assertions.assertEquals(expected, actual);
+        if (taintedValue) {
+            checker.check(labels, manager.getLabels(actual));
+        } else {
+            checker.checkEmpty(manager.getLabels(actual));
+        }
+    }
+
+    @ParameterizedTest(name = "putShort(taintedValue={0}, location={1}, policy={2})")
+    @MethodSource("arguments")
+    void putShort(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
+        Holder holder = new Holder(manager, !taintedValue);
+        short expected = 55;
+        Object[] labels = new Object[] {"set"};
+        if (taintedValue) {
+            expected = manager.setLabels(expected, labels);
+        }
+        Object base = location.getBase(unsafe, holder, short.class);
+        long offset = location.getOffset(unsafe, short.class);
+        policy.putShort(base, offset, expected, unsafe);
+        short actual = location.getShort(holder);
+        Assertions.assertEquals(expected, actual);
+        if (taintedValue) {
+            checker.check(labels, manager.getLabels(actual));
+        } else {
+            checker.checkEmpty(manager.getLabels(actual));
+        }
+    }
+
+    @ParameterizedTest(name = "putObject(taintedValue={0}, location={1}, policy={2})")
+    @MethodSource("extendedArguments")
+    void putObject(boolean taintedValue, UnsafeLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
+        Holder holder = new Holder(manager, !taintedValue);
+        Object expected = "world";
+        Object[] labels = new Object[] {"set"};
+        if (taintedValue) {
+            expected = manager.setLabels(expected, labels);
+        }
+        Object base = location.getBase(unsafe, holder, Object.class);
+        long offset = location.getOffset(unsafe, Object.class);
+        policy.putObject(base, offset, expected, unsafe);
+        Object actual = location.getObject(holder);
+        Assertions.assertEquals(expected, actual);
+        if (taintedValue) {
+            checker.check(labels, manager.getLabels(actual));
+        } else {
+            checker.checkEmpty(manager.getLabels(actual));
+        }
     }
 
     private void checkWitnessLabels(boolean taintedValue, UnsafeLocation location, Class<?> type, Object[] actual) {
@@ -286,9 +482,13 @@ public class UnsafeITCase {
                 new Boolean[] {true, false}, new Boolean[] {true, false}, UnsafeLocation.values());
     }
 
-    static Stream<Arguments> getArguments() {
+    static Stream<Arguments> arguments() {
         return BenchUtil.cartesianProduct(new Boolean[] {true, false}, UnsafeLocation.values(), new AccessPolicy[] {
             AccessPolicy.NORMAL, AccessPolicy.VOLATILE
         });
+    }
+
+    static Stream<Arguments> extendedArguments() {
+        return BenchUtil.cartesianProduct(new Boolean[] {true, false}, UnsafeLocation.values(), AccessPolicy.values());
     }
 }

@@ -34,7 +34,6 @@ public final class UnsafeMasks {
         Tag receiverTag = frame.pop();
         Tag oTag = frame.pop();
         Tag offsetTag = frame.popWide();
-        frame.pop();
         Tag xTag = frame.pop();
         UNSAFE.putBoolean(o, offset, x);
         UnsafeTagLocator.putTag(o, offset, offsetTag, xTag);

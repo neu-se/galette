@@ -19,7 +19,7 @@ enum UnsafeLocation {
 
         @Override
         boolean getBoolean(Holder holder) {
-            return holder.za[0];
+            return Holder.zs;
         }
 
         @Override
