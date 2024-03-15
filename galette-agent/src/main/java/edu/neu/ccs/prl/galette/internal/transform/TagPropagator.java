@@ -139,6 +139,7 @@ class TagPropagator extends MethodVisitor {
             case Opcodes.DUP2:
                 // ..., value1, value2 -> ..., value1, value2, value1, value2
                 shadowLocals.peekAll(2);
+                super.visitInsn(SWAP);
                 shadowLocals.push(2);
                 break;
             case Opcodes.DUP2_X1:
