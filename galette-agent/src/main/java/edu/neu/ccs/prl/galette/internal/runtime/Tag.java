@@ -10,6 +10,11 @@ import edu.neu.ccs.prl.galette.internal.runtime.collection.SimpleList;
 public final class Tag {
     private final ObjectIntMap<Object> backingMap;
 
+    private Tag(Object label) {
+        this.backingMap = new ObjectIntMap<>();
+        backingMap.put(label, 1);
+    }
+
     private Tag(ObjectIntMap<Object> backingMap) {
         if (backingMap == null) {
             throw new NullPointerException();
@@ -85,6 +90,10 @@ public final class Tag {
             }
             return new Tag(labels);
         }
+    }
+
+    public static Tag of(Object label) {
+        return new Tag(label);
     }
 
     public static Tag of(Object... labels) {

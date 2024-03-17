@@ -1,10 +1,10 @@
 package edu.neu.ccs.prl.galette.internal.transform;
 
-import edu.neu.ccs.prl.galette.example.FieldExamples;
-import edu.neu.ccs.prl.galette.example.InstructionExamples;
-import edu.neu.ccs.prl.galette.example.MethodCallExamples;
-import edu.neu.ccs.prl.galette.example.NodeInstructionExamples;
+import static org.objectweb.asm.Opcodes.*;
+
+import edu.neu.ccs.prl.galette.example.*;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.transform.TagCheckingMethodBuilder.TagRecorder;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
@@ -20,11 +21,11 @@ import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.BasicVerifier;
 
 class GaletteTransformerTest {
-    @ParameterizedTest(name = "returnUnaffected: {0}")
+    @ParameterizedTest(name = "returnValueUnaffected: {0}")
     @MethodSource("executionArguments")
-    void returnUnaffected(String name) throws ReflectiveOperationException {
+    void returnValueUnaffected(String name) throws ReflectiveOperationException {
         Class<?> original = InstructionExamples.class;
-        Class<?> instrumented = AsmTestUtil.instrument(original, name, GaletteTransformerTest::instrument);
+        Class<?> instrumented = AsmTestUtil.instrumentAndLoad(original, name, GaletteTransformerTest::instrument);
         Object expected = original.getDeclaredMethod(name).invoke(null);
         Object actual = instrumented.getDeclaredMethod(name, TagFrame.class).invoke(null, new TagFrame());
         Assertions.assertEquals(expected, actual);
@@ -46,7 +47,7 @@ class GaletteTransformerTest {
 
     @Test
     void getStaticInt() throws ReflectiveOperationException {
-        Class<?> instrumented = AsmTestUtil.instrument(FieldExamples.class, GaletteTransformerTest::instrument);
+        Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
                 instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
         Object result =
@@ -56,7 +57,7 @@ class GaletteTransformerTest {
 
     @Test
     void getFieldInt() throws ReflectiveOperationException {
-        Class<?> instrumented = AsmTestUtil.instrument(FieldExamples.class, GaletteTransformerTest::instrument);
+        Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
                 instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
         Object result =
@@ -66,7 +67,7 @@ class GaletteTransformerTest {
 
     @Test
     void putFieldInt() throws ReflectiveOperationException {
-        Class<?> instrumented = AsmTestUtil.instrument(FieldExamples.class, GaletteTransformerTest::instrument);
+        Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
                 instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
         instrumented.getDeclaredMethod("putFieldInt", int.class, TagFrame.class).invoke(instance, 22, new TagFrame());
@@ -74,7 +75,7 @@ class GaletteTransformerTest {
 
     @Test
     void putStaticInt() throws ReflectiveOperationException {
-        Class<?> instrumented = AsmTestUtil.instrument(FieldExamples.class, GaletteTransformerTest::instrument);
+        Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
                 instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
         instrumented
@@ -84,7 +85,7 @@ class GaletteTransformerTest {
 
     @Test
     void getStaticLong() throws ReflectiveOperationException {
-        Class<?> instrumented = AsmTestUtil.instrument(FieldExamples.class, GaletteTransformerTest::instrument);
+        Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
                 instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
         Object result =
@@ -94,7 +95,7 @@ class GaletteTransformerTest {
 
     @Test
     void getFieldLong() throws ReflectiveOperationException {
-        Class<?> instrumented = AsmTestUtil.instrument(FieldExamples.class, GaletteTransformerTest::instrument);
+        Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
                 instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
         Object result =
@@ -104,7 +105,7 @@ class GaletteTransformerTest {
 
     @Test
     void putFieldLong() throws ReflectiveOperationException {
-        Class<?> instrumented = AsmTestUtil.instrument(FieldExamples.class, GaletteTransformerTest::instrument);
+        Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
                 instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
         instrumented
@@ -114,7 +115,7 @@ class GaletteTransformerTest {
 
     @Test
     void putStaticLong() throws ReflectiveOperationException {
-        Class<?> instrumented = AsmTestUtil.instrument(FieldExamples.class, GaletteTransformerTest::instrument);
+        Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
                 instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
         instrumented
@@ -124,7 +125,8 @@ class GaletteTransformerTest {
 
     @Test
     void invokeVirtualIntReturn() throws ReflectiveOperationException {
-        Class<?> instrumented = AsmTestUtil.instrument(MethodCallExamples.class, GaletteTransformerTest::instrument);
+        Class<?> instrumented =
+                AsmTestUtil.instrumentAndLoad(MethodCallExamples.class, GaletteTransformerTest::instrument);
         Object instance =
                 instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
         Object result = instrumented
@@ -135,7 +137,8 @@ class GaletteTransformerTest {
 
     @Test
     void invokeVirtualLongReturn() throws ReflectiveOperationException {
-        Class<?> instrumented = AsmTestUtil.instrument(MethodCallExamples.class, GaletteTransformerTest::instrument);
+        Class<?> instrumented =
+                AsmTestUtil.instrumentAndLoad(MethodCallExamples.class, GaletteTransformerTest::instrument);
         Object instance =
                 instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
         Object result = instrumented
@@ -146,13 +149,199 @@ class GaletteTransformerTest {
 
     @Test
     void invokeVirtualMixedParameterTypes() throws ReflectiveOperationException {
-        Class<?> instrumented = AsmTestUtil.instrument(MethodCallExamples.class, GaletteTransformerTest::instrument);
+        Class<?> instrumented =
+                AsmTestUtil.instrumentAndLoad(MethodCallExamples.class, GaletteTransformerTest::instrument);
         Object instance =
                 instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
         Object result = instrumented
                 .getDeclaredMethod("invokeVirtualMixedParameterTypes", int.class, long.class, int.class, TagFrame.class)
                 .invoke(instance, -1, 9L, 2, new TagFrame());
         Assertions.assertEquals(-1 + 9L + 2, result);
+    }
+
+    @Test
+    void dupCheckTags() throws ReflectiveOperationException {
+        // ..., value -> ..., value, value
+        TagCheckingMethodBuilder builder = new TagCheckingMethodBuilder();
+        builder.loadAndTag(Type.INT_TYPE, 10);
+        builder.getMethodNode().visitInsn(DUP);
+        builder.recordTags(Type.INT_TYPE, Type.INT_TYPE);
+        TagRecorder recorder = new TagRecorder();
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        Assertions.assertEquals(Arrays.asList("10", "10"), recorder.getFirstLabels());
+    }
+
+    @Test
+    void dup_x1CheckTags() throws ReflectiveOperationException {
+        // ..., value1, value2 -> ..., value2, value1, value2
+        TagCheckingMethodBuilder builder = new TagCheckingMethodBuilder();
+        builder.loadAndTag(Type.INT_TYPE, 10);
+        builder.loadAndTag(Type.INT_TYPE, 20);
+        builder.getMethodNode().visitInsn(DUP_X1);
+        builder.recordTags(Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE);
+        TagRecorder recorder = new TagRecorder();
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        // Order is from top of stack down
+        Assertions.assertEquals(Arrays.asList("20", "10", "20"), recorder.getFirstLabels());
+    }
+
+    @Test
+    void dup_x2CheckTags() throws ReflectiveOperationException {
+        // ..., value1, value2, value3 -> ..., value3, value1, value2, value3
+        TagCheckingMethodBuilder builder = new TagCheckingMethodBuilder();
+        builder.loadAndTag(Type.INT_TYPE, 10);
+        builder.loadAndTag(Type.INT_TYPE, 20);
+        builder.loadAndTag(Type.INT_TYPE, 30);
+        builder.getMethodNode().visitInsn(DUP_X2);
+        builder.recordTags(Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE);
+        TagRecorder recorder = new TagRecorder();
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        // Order is from top of stack down
+        Assertions.assertEquals(Arrays.asList("30", "20", "10", "30"), recorder.getFirstLabels());
+    }
+
+    @Test
+    void dup_x2WideCheckTags() throws ReflectiveOperationException {
+        // ..., [value1, value2], value3 -> ..., value3, [value1, value2], value3
+        TagCheckingMethodBuilder builder = new TagCheckingMethodBuilder();
+        builder.loadAndTag(Type.LONG_TYPE, 10L);
+        builder.loadAndTag(Type.INT_TYPE, 20);
+        builder.getMethodNode().visitInsn(DUP_X2);
+        builder.recordTags(Type.INT_TYPE, Type.LONG_TYPE, Type.INT_TYPE);
+        TagRecorder recorder = new TagRecorder();
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        // Order is from top of stack down
+        Assertions.assertEquals(Arrays.asList("20", "10", "20"), recorder.getFirstLabels());
+    }
+
+    @Test
+    void dup2CheckTags() throws ReflectiveOperationException {
+        // ..., value1, value2 -> ..., value1, value2, value1, value2
+        TagCheckingMethodBuilder builder = new TagCheckingMethodBuilder();
+        builder.loadAndTag(Type.INT_TYPE, 10);
+        builder.loadAndTag(Type.INT_TYPE, 20);
+        builder.getMethodNode().visitInsn(DUP2);
+        builder.recordTags(Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE);
+        TagRecorder recorder = new TagRecorder();
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        // Order is from top of stack down
+        Assertions.assertEquals(Arrays.asList("20", "10", "20", "10"), recorder.getFirstLabels());
+    }
+
+    @Test
+    void dup2WideCheckTags() throws ReflectiveOperationException {
+        // ..., [value1, value2] -> ..., [value1, value2], [value1, value2]
+        TagCheckingMethodBuilder builder = new TagCheckingMethodBuilder();
+        builder.loadAndTag(Type.LONG_TYPE, 10L);
+        builder.getMethodNode().visitInsn(DUP2);
+        builder.recordTags(Type.LONG_TYPE, Type.LONG_TYPE);
+        TagRecorder recorder = new TagRecorder();
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        // Order is from top of stack down
+        Assertions.assertEquals(Arrays.asList("10", "10"), recorder.getFirstLabels());
+    }
+
+    @Test
+    void dup2_x1CheckTags() throws ReflectiveOperationException {
+        // ..., value1, value2, value3 -> ..., value2, value3, value1, value2, value3
+        TagCheckingMethodBuilder builder = new TagCheckingMethodBuilder();
+        builder.loadAndTag(Type.INT_TYPE, 10);
+        builder.loadAndTag(Type.INT_TYPE, 20);
+        builder.loadAndTag(Type.INT_TYPE, 30);
+        builder.getMethodNode().visitInsn(DUP2_X1);
+        builder.recordTags(Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE);
+        TagRecorder recorder = new TagRecorder();
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        // Order is from top of stack down
+        Assertions.assertEquals(Arrays.asList("30", "20", "10", "30", "20"), recorder.getFirstLabels());
+    }
+
+    @Test
+    void dup2_x1WideCheckTags() throws ReflectiveOperationException {
+        // ..., value1, [value2, value3] -> ..., [value2, value3], value1, [value2, value3]
+        TagCheckingMethodBuilder builder = new TagCheckingMethodBuilder();
+        builder.loadAndTag(Type.INT_TYPE, 10);
+        builder.loadAndTag(Type.LONG_TYPE, 20L);
+        builder.getMethodNode().visitInsn(DUP2_X1);
+        builder.recordTags(Type.LONG_TYPE, Type.INT_TYPE, Type.LONG_TYPE);
+        TagRecorder recorder = new TagRecorder();
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        // Order is from top of stack down
+        Assertions.assertEquals(Arrays.asList("20", "10", "20"), recorder.getFirstLabels());
+    }
+
+    @Test
+    void dup2_x2CheckTags() throws ReflectiveOperationException {
+        // ..., value1, value2, value3, value4 -> ..., value3, value4, value1, value2, value3, value4
+        TagCheckingMethodBuilder builder = new TagCheckingMethodBuilder();
+        builder.loadAndTag(Type.INT_TYPE, 10);
+        builder.loadAndTag(Type.INT_TYPE, 20);
+        builder.loadAndTag(Type.INT_TYPE, 30);
+        builder.loadAndTag(Type.INT_TYPE, 40);
+        builder.getMethodNode().visitInsn(DUP2_X2);
+        builder.recordTags(Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE);
+        TagRecorder recorder = new TagRecorder();
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        // Order is from top of stack down
+        Assertions.assertEquals(Arrays.asList("40", "30", "20", "10", "40", "30"), recorder.getFirstLabels());
+    }
+
+    @Test
+    void dup2_x2WideTopCheckTags() throws ReflectiveOperationException {
+        // ..., value1, value2, [value3, value4] -> ..., [value3, value4], value1, value2, [value3, value4]
+        TagCheckingMethodBuilder builder = new TagCheckingMethodBuilder();
+        builder.loadAndTag(Type.INT_TYPE, 10);
+        builder.loadAndTag(Type.INT_TYPE, 20);
+        builder.loadAndTag(Type.LONG_TYPE, 30L);
+        builder.getMethodNode().visitInsn(DUP2_X2);
+        builder.recordTags(Type.LONG_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.LONG_TYPE);
+        TagRecorder recorder = new TagRecorder();
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        // Order is from top of stack down
+        Assertions.assertEquals(Arrays.asList("30", "20", "10", "30"), recorder.getFirstLabels());
+    }
+
+    @Test
+    void dup2_x2WideBottomCheckTags() throws ReflectiveOperationException {
+        // ..., [value1, value2], value3, value4 -> ..., value3, value4, [value1, value2], value3, value4
+        TagCheckingMethodBuilder builder = new TagCheckingMethodBuilder();
+        builder.loadAndTag(Type.LONG_TYPE, 10L);
+        builder.loadAndTag(Type.INT_TYPE, 20);
+        builder.loadAndTag(Type.INT_TYPE, 30);
+        builder.getMethodNode().visitInsn(DUP2_X2);
+        builder.recordTags(Type.INT_TYPE, Type.INT_TYPE, Type.LONG_TYPE, Type.INT_TYPE, Type.INT_TYPE);
+        TagRecorder recorder = new TagRecorder();
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        // Order is from top of stack down
+        Assertions.assertEquals(Arrays.asList("30", "20", "10", "30", "20"), recorder.getFirstLabels());
+    }
+
+    @Test
+    void dup2_x2WideBothCheckTags() throws ReflectiveOperationException {
+        // ..., [value1, value2], [value3, value4] -> ..., [value3, value4], [value1, value2], [value3, value4]
+        TagCheckingMethodBuilder builder = new TagCheckingMethodBuilder();
+        builder.loadAndTag(Type.LONG_TYPE, 10L);
+        builder.loadAndTag(Type.LONG_TYPE, 20L);
+        builder.getMethodNode().visitInsn(DUP2_X2);
+        builder.recordTags(Type.LONG_TYPE, Type.LONG_TYPE, Type.LONG_TYPE);
+        TagRecorder recorder = new TagRecorder();
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        // Order is from top of stack down
+        Assertions.assertEquals(Arrays.asList("20", "10", "20"), recorder.getFirstLabels());
+    }
+
+    @Test
+    void swapCheckTags() throws ReflectiveOperationException {
+        // ..., value1, value2 -> ...,  value2, value1
+        TagCheckingMethodBuilder builder = new TagCheckingMethodBuilder();
+        builder.loadAndTag(Type.INT_TYPE, 10);
+        builder.loadAndTag(Type.INT_TYPE, 20);
+        builder.getMethodNode().visitInsn(SWAP);
+        builder.recordTags(Type.INT_TYPE, Type.INT_TYPE);
+        TagRecorder recorder = new TagRecorder();
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        // Order is from top of stack down
+        Assertions.assertEquals(Arrays.asList("10", "20"), recorder.getFirstLabels());
     }
 
     private static Stream<String> executionArguments() {

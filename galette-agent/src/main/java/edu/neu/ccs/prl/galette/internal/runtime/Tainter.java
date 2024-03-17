@@ -88,39 +88,39 @@ public final class Tainter {
     }
 
     public static Tag getTag(boolean value, TagFrame frame) {
-        return frame.pop();
+        return frame.dequeue();
     }
 
     public static Tag getTag(byte value, TagFrame frame) {
-        return frame.pop();
+        return frame.dequeue();
     }
 
     public static Tag getTag(char value, TagFrame frame) {
-        return frame.pop();
+        return frame.dequeue();
     }
 
     public static Tag getTag(short value, TagFrame frame) {
-        return frame.pop();
+        return frame.dequeue();
     }
 
     public static Tag getTag(int value, TagFrame frame) {
-        return frame.pop();
+        return frame.dequeue();
     }
 
     public static Tag getTag(long value, TagFrame frame) {
-        return frame.pop();
+        return frame.dequeue();
     }
 
     public static Tag getTag(float value, TagFrame frame) {
-        return frame.pop();
+        return frame.dequeue();
     }
 
     public static Tag getTag(double value, TagFrame frame) {
-        return frame.pop();
+        return frame.dequeue();
     }
 
     public static Tag getTag(Object value, TagFrame frame) {
-        return frame.pop();
+        return frame.dequeue();
     }
 
     public static Tag getTag(boolean value) {

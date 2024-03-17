@@ -138,19 +138,6 @@ class ShadowLocals extends MethodVisitor {
         super.visitVarInsn(Opcodes.ASTORE, childFrameIndex);
     }
 
-    private int initializeArgumentTags() {
-        int varIndex = shadowVariablesStart;
-        loadTagFrame();
-        int slots = countSlots(AsmUtil.isSet(original.access, Opcodes.ACC_STATIC), original.desc);
-        for (int i = 0; i < slots; i++) {
-            mv.visitInsn(Opcodes.DUP);
-            Handle.FRAME_POP.accept(mv);
-            super.visitVarInsn(Opcodes.ASTORE, varIndex++);
-        }
-        mv.visitInsn(Opcodes.POP);
-        return varIndex;
-    }
-
     @Override
     public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
         super.visitTryCatchBlock(start, end, handler, type);
@@ -191,7 +178,7 @@ class ShadowLocals extends MethodVisitor {
         if (startingHandler) {
             // Add a tag for the exception
             Handle.TAG_GET_EMPTY.accept(mv);
-            push(1);
+            push();
             startingHandler = false;
         }
     }
@@ -239,23 +226,21 @@ class ShadowLocals extends MethodVisitor {
     }
 
     /**
-     * Pushes the top {@code n} element of the runtime stack onto the shadow stack.
+     * Pushes the top element of the runtime stack onto the top slot of the shadow stack.
      */
-    public void push(int count) {
-        for (int i = 0; i < count; i++) {
-            shadowStackSize++;
-            super.visitVarInsn(Opcodes.ASTORE, getShadowStackIndex(0));
-        }
+    public void push() {
+        shadowStackSize++;
+        super.visitVarInsn(Opcodes.ASTORE, getShadowStackIndex(0));
     }
 
     /**
      * Pushes the top element of the runtime stack onto the top two slots of shadow stack.
-     * This is used to match against elements of the runtime stack that consume two slots (doubles and longs)
+     * This is used to match against elements of the runtime stack that consume two slots (doubles and longs).
      */
     public void pushWide() {
-        push(1);
+        push();
         super.visitInsn(Opcodes.ACONST_NULL);
-        push(1);
+        push();
     }
 
     /**
@@ -275,9 +260,6 @@ class ShadowLocals extends MethodVisitor {
      * When {@code n == 0}, the index for the top element of the shadow stack is returned.
      */
     private int getShadowStackIndex(int n) {
-        if (n >= shadowStackSize) {
-            throw new NoSuchElementException();
-        }
         return shadowStackStart + shadowStackSize - 1 - n;
     }
 
@@ -304,13 +286,41 @@ class ShadowLocals extends MethodVisitor {
      * When {@code n == 0}, the top element of the shadow stack is loaded.
      */
     public void peek(int n) {
+        if (n >= shadowStackSize) {
+            throw new NoSuchElementException();
+        }
         super.visitVarInsn(Opcodes.ALOAD, getShadowStackIndex(n));
     }
 
-    public void peekAll(int count) {
-        for (int i = count - 1; i >= 0; i--) {
-            peek(i);
+    private int initializeArgumentTags() {
+        int varIndex = shadowVariablesStart;
+        loadTagFrame();
+        // frame
+        boolean isStatic = AsmUtil.isSet(original.access, Opcodes.ACC_STATIC);
+        if (!isStatic) {
+            // Initialize local variable for receiver
+            mv.visitInsn(Opcodes.DUP);
+            // frame, frame
+            Handle.FRAME_DEQUEUE.accept(mv);
+            // frame, frame, tag
+            super.visitVarInsn(Opcodes.ASTORE, varIndex++);
         }
+        for (Type argument : Type.getArgumentTypes(original.desc)) {
+            mv.visitInsn(Opcodes.DUP);
+            // frame, frame
+            Handle.FRAME_DEQUEUE.accept(mv);
+            // frame, frame, tag
+            super.visitVarInsn(Opcodes.ASTORE, varIndex++);
+            // frame
+            // Add extra slot used for wide types (double/long)
+            if (argument.getSize() == 2) {
+                super.visitInsn(Opcodes.ACONST_NULL);
+                super.visitVarInsn(Opcodes.ASTORE, varIndex++);
+            }
+        }
+        // frame
+        mv.visitInsn(Opcodes.POP);
+        return varIndex;
     }
 
     public void createFrameForCall(boolean isStatic, String descriptor) {
@@ -318,11 +328,21 @@ class ShadowLocals extends MethodVisitor {
         loadTagFrame();
         // frame
         Handle.FRAME_CREATE_FOR_CALL.accept(mv);
-        for (int i = 0; i < slots; i++) {
-            peek(i);
+        // frame (child)
+        int current = slots - 1;
+        if (!isStatic) {
+            peek(current--);
             // frame, tag
-            Handle.FRAME_PUSH.accept(mv);
+            Handle.FRAME_ENQUEUE.accept(mv);
             // frame
+        }
+        for (Type argument : Type.getArgumentTypes(descriptor)) {
+            peek(current);
+            // frame, tag
+            Handle.FRAME_ENQUEUE.accept(mv);
+            // frame
+            // Skip over the extra slot used for wide types (double/long)
+            current -= argument.getSize();
         }
         super.visitInsn(Opcodes.DUP);
         // frame, frame
@@ -340,7 +360,7 @@ class ShadowLocals extends MethodVisitor {
             if (returnType.getSize() == 2) {
                 pushWide();
             } else {
-                push(1);
+                push();
             }
         }
     }
@@ -351,5 +371,20 @@ class ShadowLocals extends MethodVisitor {
             count += argument.getSize();
         }
         return isStatic ? count : count + 1;
+    }
+
+    public void performOperation(int opcode, int consumes, int produces) {
+        if (consumes > shadowStackSize) {
+            throw new NoSuchElementException();
+        }
+        for (int i = consumes - 1; i >= 0; i--) {
+            super.visitVarInsn(Opcodes.ALOAD, getShadowStackIndex(i));
+        }
+        // n-1, n-2, ..., 0
+        super.visitInsn(opcode);
+        shadowStackSize += (produces - consumes);
+        for (int i = 0; i < produces; i++) {
+            super.visitVarInsn(Opcodes.ASTORE, getShadowStackIndex(i));
+        }
     }
 }

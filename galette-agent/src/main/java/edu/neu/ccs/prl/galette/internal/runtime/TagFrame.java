@@ -1,27 +1,21 @@
 package edu.neu.ccs.prl.galette.internal.runtime;
 
-import edu.neu.ccs.prl.galette.internal.runtime.collection.Stack;
+import edu.neu.ccs.prl.galette.internal.runtime.collection.Queue;
 
 public class TagFrame {
     private Class<?> caller;
-    private final Stack<Tag> tags = new Stack<>();
     private Tag returnTag = Tag.getEmptyTag();
+    private final Queue<Tag> tags = new Queue<>();
 
-    @InvokedViaHandle(handle = Handle.FRAME_PUSH)
-    public TagFrame push(Tag tag) {
-        tags.push(tag);
+    @InvokedViaHandle(handle = Handle.FRAME_DEQUEUE)
+    public Tag dequeue() {
+        return tags.isEmpty() ? Tag.getEmptyTag() : tags.dequeue();
+    }
+
+    @InvokedViaHandle(handle = Handle.FRAME_ENQUEUE)
+    public TagFrame enqueue(Tag tag) {
+        tags.enqueue(tag);
         return this;
-    }
-
-    @InvokedViaHandle(handle = Handle.FRAME_POP)
-    public Tag pop() {
-        return tags.isEmpty() ? Tag.getEmptyTag() : tags.pop();
-    }
-
-    public Tag popWide() {
-        Tag result = pop();
-        pop();
-        return result;
     }
 
     @InvokedViaHandle(handle = Handle.FRAME_GET_RETURN_TAG)

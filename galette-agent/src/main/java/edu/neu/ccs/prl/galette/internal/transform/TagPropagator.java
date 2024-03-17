@@ -43,7 +43,7 @@ class TagPropagator extends MethodVisitor {
             case FCONST_2:
                 // ... -> ..., value
                 Handle.TAG_GET_EMPTY.accept(mv);
-                shadowLocals.push(1);
+                shadowLocals.push();
                 break;
             case LCONST_0:
             case LCONST_1:
@@ -62,19 +62,21 @@ class TagPropagator extends MethodVisitor {
                 // ..., arrayref, index -> ..., value
                 super.visitInsn(Opcodes.DUP2);
                 // arrayref, index, arrayref, index
-                shadowLocals.peekAll(2);
+                shadowLocals.peek(1);
+                shadowLocals.peek(0);
                 // arrayref, index, arrayref, index, arrayref-tag, index-tag
                 Handle.ARRAY_TAG_STORE_GET_TAG.accept(mv);
                 // arrayref, index, value-tag
                 shadowLocals.pop(2);
-                shadowLocals.push(1);
+                shadowLocals.push();
                 break;
             case LALOAD:
             case DALOAD:
                 // ..., arrayref, index -> ..., value, top
                 super.visitInsn(Opcodes.DUP2);
                 // arrayref, index, arrayref, index
-                shadowLocals.peekAll(2);
+                shadowLocals.peek(1);
+                shadowLocals.peek(0);
                 // arrayref, index, arrayref, index, arrayref-tag, index-tag
                 Handle.ARRAY_TAG_STORE_GET_TAG.accept(mv);
                 // arrayref, index, value-tag
@@ -94,7 +96,9 @@ class TagPropagator extends MethodVisitor {
                 // value, arrayref, index
                 super.visitInsn(Opcodes.DUP2_X1);
                 // arrayref, index, value, arrayref, index
-                shadowLocals.peekAll(3);
+                shadowLocals.peek(2);
+                shadowLocals.peek(1);
+                shadowLocals.peek(0);
                 // arrayref, index, value, arrayref, index, arrayref-tag, index-tag, value-tag
                 Handle.ARRAY_TAG_STORE_SET_TAG.accept(mv);
                 // arrayref, index, value
@@ -128,28 +132,30 @@ class TagPropagator extends MethodVisitor {
             case Opcodes.DUP:
                 // ..., value -> ..., value, value
                 shadowLocals.peek(0);
-                shadowLocals.push(1);
+                shadowLocals.push();
                 break;
             case Opcodes.DUP_X1:
-                manipulateStack(opcode, 2, 3);
+                // ..., value1, value2 -> ..., value2, value1, value2
+                shadowLocals.performOperation(opcode, 2, 3);
                 break;
             case Opcodes.DUP_X2:
-                manipulateStack(opcode, 3, 4);
+                // ..., value1, value2, value3 -> ..., value3, value1, value2, value3
+                shadowLocals.performOperation(opcode, 3, 4);
                 break;
             case Opcodes.DUP2:
                 // ..., value1, value2 -> ..., value1, value2, value1, value2
-                shadowLocals.peekAll(2);
-                super.visitInsn(SWAP);
-                shadowLocals.push(2);
+                shadowLocals.performOperation(opcode, 2, 4);
                 break;
             case Opcodes.DUP2_X1:
-                manipulateStack(opcode, 3, 5);
+                // ..., value1, value2, value3 -> ..., value2, value3, value1, value2, value3
+                shadowLocals.performOperation(opcode, 3, 5);
                 break;
             case Opcodes.DUP2_X2:
-                manipulateStack(opcode, 4, 6);
+                // ..., value1, value2, value3, value4 -> ..., value3, value4, value1, value2, value3, value4
+                shadowLocals.performOperation(opcode, 4, 6);
                 break;
             case Opcodes.SWAP:
-                manipulateStack(opcode, 2, 2);
+                shadowLocals.performOperation(opcode, 2, 2);
                 break;
             case IADD:
             case FADD:
@@ -170,10 +176,12 @@ class TagPropagator extends MethodVisitor {
             case FCMPL:
             case FCMPG:
                 // ..., value1, value2 -> ..., result
-                shadowLocals.peekAll(2);
+                shadowLocals.peek(1);
+                shadowLocals.peek(0);
+                // ..., value1, value2, tag1, tag2
                 Handle.TAG_UNION.accept(mv);
                 shadowLocals.pop(2);
-                shadowLocals.push(1);
+                shadowLocals.push();
                 break;
             case LADD:
             case DADD:
@@ -213,7 +221,7 @@ class TagPropagator extends MethodVisitor {
                 shadowLocals.peek(1);
                 Handle.TAG_UNION.accept(mv);
                 shadowLocals.pop(4);
-                shadowLocals.push(1);
+                shadowLocals.push();
                 break;
             case Opcodes.INEG:
             case Opcodes.FNEG:
@@ -276,7 +284,7 @@ class TagPropagator extends MethodVisitor {
                 Handle.ARRAY_TAG_STORE_GET_LENGTH_TAG.accept(mv);
                 // arrayref
                 shadowLocals.pop(1);
-                shadowLocals.push(1);
+                shadowLocals.push();
                 break;
             case Opcodes.ATHROW:
                 // ..., objectref -> []
@@ -300,13 +308,6 @@ class TagPropagator extends MethodVisitor {
         super.visitInsn(opcode);
     }
 
-    private void manipulateStack(int opcode, int consumes, int produces) {
-        shadowLocals.peekAll(consumes);
-        super.visitInsn(opcode);
-        shadowLocals.pop(consumes);
-        shadowLocals.push(produces);
-    }
-
     @Override
     public void visitIntInsn(int opcode, int operand) {
         switch (opcode) {
@@ -314,7 +315,7 @@ class TagPropagator extends MethodVisitor {
             case SIPUSH:
                 // ... -> ..., value
                 Handle.TAG_GET_EMPTY.accept(mv);
-                shadowLocals.push(1);
+                shadowLocals.push();
                 super.visitIntInsn(opcode, operand);
                 break;
             case NEWARRAY:
@@ -328,7 +329,7 @@ class TagPropagator extends MethodVisitor {
                 // arrayref
                 Handle.TAG_GET_EMPTY.accept(mv);
                 shadowLocals.pop(1);
-                shadowLocals.push(1);
+                shadowLocals.push();
                 break;
             default:
                 throw new IllegalArgumentException();
@@ -343,7 +344,7 @@ class TagPropagator extends MethodVisitor {
             case ALOAD:
                 // ... -> ..., value
                 shadowLocals.loadShadowVar(varIndex);
-                shadowLocals.push(1);
+                shadowLocals.push();
                 break;
             case DLOAD:
             case LLOAD:
@@ -417,7 +418,7 @@ class TagPropagator extends MethodVisitor {
         // arrayref
         Handle.TAG_GET_EMPTY.accept(mv);
         shadowLocals.pop(1);
-        shadowLocals.push(1);
+        shadowLocals.push();
     }
 
     private void visitNew(String type) {
@@ -426,7 +427,7 @@ class TagPropagator extends MethodVisitor {
         // it in stack frames
         super.visitTypeInsn(NEW, type);
         Handle.TAG_GET_EMPTY.accept(mv);
-        shadowLocals.push(1);
+        shadowLocals.push();
     }
 
     @Override
@@ -510,7 +511,7 @@ class TagPropagator extends MethodVisitor {
         if (Type.getType(descriptor).getSize() == 2) {
             shadowLocals.pushWide();
         } else {
-            shadowLocals.push(1);
+            shadowLocals.push();
         }
         super.visitFieldInsn(GETFIELD, owner, name, descriptor);
     }
@@ -548,7 +549,7 @@ class TagPropagator extends MethodVisitor {
         if (Type.getType(descriptor).getSize() == 2) {
             shadowLocals.pushWide();
         } else {
-            shadowLocals.push(1);
+            shadowLocals.push();
         }
         super.visitFieldInsn(GETSTATIC, owner, name, descriptor);
     }
@@ -598,7 +599,7 @@ class TagPropagator extends MethodVisitor {
             case JSR:
                 // ... -> ..., address
                 Handle.TAG_GET_EMPTY.accept(mv);
-                shadowLocals.push(1);
+                shadowLocals.push();
                 break;
             default:
                 throw new IllegalArgumentException();
@@ -614,7 +615,7 @@ class TagPropagator extends MethodVisitor {
             shadowLocals.pushWide();
         } else {
             // ... -> ..., value
-            shadowLocals.push(1);
+            shadowLocals.push();
         }
         super.visitLdcInsn(value);
     }
@@ -664,7 +665,7 @@ class TagPropagator extends MethodVisitor {
         // Set the tag for the newly created array in the shadow stack
         Handle.TAG_GET_EMPTY.accept(mv);
         shadowLocals.pop(numDimensions);
-        shadowLocals.push(1);
+        shadowLocals.push();
     }
 
     @Override

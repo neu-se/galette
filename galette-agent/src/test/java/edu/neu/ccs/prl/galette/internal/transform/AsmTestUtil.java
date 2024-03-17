@@ -1,5 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.transform;
 
+import edu.neu.ccs.prl.galette.example.NodeInstructionExamples;
 import java.io.IOException;
 import java.util.function.Function;
 import org.objectweb.asm.ClassReader;
@@ -22,7 +23,17 @@ public final class AsmTestUtil {
         }
     }
 
-    public static Class<?> instrument(Class<?> original, String methodName, Function<byte[], byte[]> f) {
+    public static Class<?> instrumentAndLoad(MethodNode target, Function<byte[], byte[]> f) {
+        ClassNode cn = AsmTestUtil.getClassNode(NodeInstructionExamples.class);
+        cn.methods.clear();
+        cn.methods.add(target);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        cn.accept(cw);
+        byte[] buffer = f.apply(cw.toByteArray());
+        return new ByteClassLoader().createClass(buffer);
+    }
+
+    public static Class<?> instrumentAndLoad(Class<?> original, String methodName, Function<byte[], byte[]> f) {
         ClassNode cn = getClassNode(original);
         MethodNode match = cn.methods.stream()
                 .filter(mn -> mn.name.equals(methodName))
@@ -36,7 +47,7 @@ public final class AsmTestUtil {
         return new ByteClassLoader().createClass(buffer);
     }
 
-    public static Class<?> instrument(Class<?> original, Function<byte[], byte[]> f) {
+    public static Class<?> instrumentAndLoad(Class<?> original, Function<byte[], byte[]> f) {
         ClassNode cn = getClassNode(original);
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         cn.accept(cw);
