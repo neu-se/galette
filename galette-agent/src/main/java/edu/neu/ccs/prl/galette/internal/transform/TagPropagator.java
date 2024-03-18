@@ -561,11 +561,9 @@ class TagPropagator extends MethodVisitor {
             org.objectweb.asm.Handle bootstrapMethodHandle,
             Object... bootstrapMethodArguments) {
         // ..., [arg1, [arg2 ...]] -> ...
-        shadowLocals.createFrameForCall(true, descriptor);
-        // Remove the created frame from the runtime stack
-        super.visitInsn(POP);
+        shadowLocals.prepareForCall(true, descriptor, false);
         super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
-        shadowLocals.restoreFromFrame(descriptor);
+        shadowLocals.restoreFromCall(descriptor, false);
     }
 
     @Override
@@ -670,12 +668,21 @@ class TagPropagator extends MethodVisitor {
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
-        shadowLocals.createFrameForCall(opcode == INVOKESTATIC, descriptor);
+        boolean createFrame = !isGetCallerClass(owner, name, descriptor) && !isIgnoredMethod(owner, name);
+        // Consume tags from the shadow stack for the arguments of the call
+        shadowLocals.prepareForCall(opcode == INVOKESTATIC, descriptor, createFrame);
+        if (createFrame) {
+            if (isSignaturePolymorphic(owner, name)) {
+                // TODO: Indirectly pass the frame
+                super.visitInsn(Opcodes.POP);
+            } else {
+                // Directly pass the frame as shadow argument
+                descriptor = ShadowMethodCreator.getShadowMethodDescriptor(descriptor);
+            }
+        }
+        super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
         if (isGetCallerClass(owner, name, descriptor)) {
-            // Pop the frame
-            super.visitInsn(POP);
-            // Call the original method
-            super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+            // Check for a stored caller class
             // [Class]
             shadowLocals.loadTagFrame();
             // [Class Frame]
@@ -683,15 +690,9 @@ class TagPropagator extends MethodVisitor {
             // [Frame Class]
             Handle.FRAME_GET_CALLER.accept(mv);
             // [Class]
-        } else if (!isIgnoredMethod(owner, name)) {
-            super.visitMethodInsn(
-                    opcode, owner, name, ShadowMethodCreator.getShadowMethodDescriptor(descriptor), isInterface);
-        } else {
-            // Pop the frame
-            super.visitInsn(POP);
-            super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
         }
-        shadowLocals.restoreFromFrame(descriptor);
+        // Set the tag for the return value
+        shadowLocals.restoreFromCall(descriptor, createFrame);
     }
 
     private static boolean isGetCallerClass(String owner, String name, String descriptor) {
@@ -723,14 +724,56 @@ class TagPropagator extends MethodVisitor {
     }
 
     private static boolean isIgnoredMethod(String owner, String name) {
-        return isIgnoredClass(owner) || isSignaturePolymorphic(owner, name) || !ShadowMethodCreator.shouldShadow(name);
+        return isIgnoredClass(owner) || !ShadowMethodCreator.shouldShadow(name);
     }
 
     private static boolean isSignaturePolymorphic(String owner, String name) {
-        // TODO find all signature polymorphic methods
-        return owner.equals("java/lang/invoke/MethodHandle")
-                || owner.startsWith("java/lang/invoke/BoundMethodHandle")
-                || owner.equals("java/lang/invoke/VarHandle");
+        switch (name) {
+            case "invokeBasic":
+            case "invoke":
+            case "invokeExact":
+            case "linkToInterface":
+            case "linkToNative":
+            case "linkToSpecial":
+            case "linkToStatic":
+            case "linkToVirtual":
+                return owner.equals("java/lang/invoke/MethodHandle")
+                        || owner.startsWith("java/lang/invoke/BoundMethodHandle");
+            case "compareAndSet":
+            case "weakCompareAndSet":
+            case "weakCompareAndSetAcquire":
+            case "weakCompareAndSetPlain":
+            case "weakCompareAndSetRelease":
+            case "compareAndExchange":
+            case "compareAndExchangeAcquire":
+            case "compareAndExchangeRelease":
+            case "get":
+            case "getAcquire":
+            case "getAndAdd":
+            case "getAndAddAcquire":
+            case "getAndAddRelease":
+            case "getAndBitwiseAnd":
+            case "getAndBitwiseAndAcquire":
+            case "getAndBitwiseAndRelease":
+            case "getAndBitwiseOr":
+            case "getAndBitwiseOrAcquire":
+            case "getAndBitwiseOrRelease":
+            case "getAndBitwiseXor":
+            case "getAndBitwiseXorAcquire":
+            case "getAndBitwiseXorRelease":
+            case "getAndSet":
+            case "getAndSetAcquire":
+            case "getAndSetRelease":
+            case "getOpaque":
+            case "getVolatile":
+            case "set":
+            case "setOpaque":
+            case "setRelease":
+            case "setVolatile":
+                return owner.equals("java/lang/invoke/VarHandle");
+            default:
+                return false;
+        }
     }
 
     private static boolean isMirroredField(String owner, String name, boolean isStatic) {
