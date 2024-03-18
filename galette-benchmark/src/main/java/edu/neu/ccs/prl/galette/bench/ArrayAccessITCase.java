@@ -125,9 +125,7 @@ public class ArrayAccessITCase {
     @Test
     public void sortedIntArray(TagManager manager, FlowChecker checker) {
         int[] a = new int[] {44, 7, 26, 30, 51, 39, 34, 34, 19, 47};
-        for (int i = 0; i < a.length; i++) {
-            a[i] = manager.setLabels(a[i], new String[] {String.valueOf(i)});
-        }
+        BenchUtil.taintWithIndices(manager, a);
         Arrays.sort(a);
         int[] expectedValues = new int[] {7, 19, 26, 30, 34, 34, 39, 44, 47, 51};
         for (int i = 0; i < expectedValues.length; i++) {

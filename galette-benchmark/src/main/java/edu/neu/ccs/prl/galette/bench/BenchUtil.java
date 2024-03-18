@@ -1,5 +1,6 @@
 package edu.neu.ccs.prl.galette.bench;
 
+import edu.neu.ccs.prl.galette.bench.extension.TagManager;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -35,5 +36,23 @@ public final class BenchUtil {
             }
         }
         return result;
+    }
+
+    public static void taintWithIndices(TagManager manager, int[] a) {
+        for (int i = 0; i < a.length; i++) {
+            a[i] = manager.setLabels(a[i], new String[] {String.valueOf(i)});
+        }
+    }
+
+    public static void taintWithIndices(TagManager manager, char[] c) {
+        for (int i = 0; i < c.length; i++) {
+            c[i] = manager.setLabels(c[i], new Object[] {String.valueOf(i)});
+        }
+    }
+
+    public static String taintWithIndices(TagManager manager, String s) {
+        char[] c = s.toCharArray();
+        taintWithIndices(manager, s.toCharArray());
+        return new String(c);
     }
 }
