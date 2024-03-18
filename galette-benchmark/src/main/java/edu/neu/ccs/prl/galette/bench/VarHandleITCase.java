@@ -15,6 +15,12 @@ public class VarHandleITCase {
 
     @Test
     void getAndAdd() throws Throwable {
+        // MethodHandles#arrayElementVarHandle
+        // MethodHandles#byteArrayViewVarHandle
+        // MethodHandles#byteBufferViewVarHandle
+        // Lookup#findVarHandle
+        // Lookup#findStaticVarHandle
+        // Lookup#unreflectVarHandle
         MethodHandles.Lookup lookup = MethodHandles.lookup();
         VarHandle vh = lookup.findStaticVarHandle(VarHandleITCase.class, "f", float.class);
         float old = (float) vh.getAndAdd(5.0f);

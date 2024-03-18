@@ -723,17 +723,14 @@ class TagPropagator extends MethodVisitor {
     }
 
     private static boolean isIgnoredMethod(String owner, String name) {
-        if (isIgnoredClass(owner)) {
-            return true;
-        }
+        return isIgnoredClass(owner) || isSignaturePolymorphic(owner, name) || !ShadowMethodCreator.shouldShadow(name);
+    }
+
+    private static boolean isSignaturePolymorphic(String owner, String name) {
         // TODO find all signature polymorphic methods
-        if (owner.equals("java/lang/invoke/MethodHandle")
+        return owner.equals("java/lang/invoke/MethodHandle")
                 || owner.startsWith("java/lang/invoke/BoundMethodHandle")
-                || owner.equals("java/lang/invoke/VarHandle")) {
-            return true;
-        }
-        // A shadow was not created for the original method
-        return !ShadowMethodCreator.shouldShadow(name);
+                || owner.equals("java/lang/invoke/VarHandle");
     }
 
     private static boolean isMirroredField(String owner, String name, boolean isStatic) {
