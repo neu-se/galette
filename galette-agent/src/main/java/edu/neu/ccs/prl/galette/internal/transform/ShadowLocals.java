@@ -124,7 +124,7 @@ class ShadowLocals extends MethodVisitor {
             int varIndex = countSlots(AsmUtil.isSet(original.access, Opcodes.ACC_STATIC), original.desc);
             super.visitVarInsn(Opcodes.ALOAD, varIndex);
         } else {
-            Handle.FRAME_GET_INSTANCE.accept(mv);
+            Handle.FRAME_LOAD.accept(mv);
         }
         super.visitVarInsn(Opcodes.ASTORE, frameIndex);
     }

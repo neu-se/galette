@@ -194,6 +194,7 @@ public class GaletteTransformer {
                 }
             }
         }
-        return false;
+        // Stack map frames are required in Java 7+
+        return (cn.version & 0xFFFF) >= Opcodes.V1_7;
     }
 }

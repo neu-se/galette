@@ -13,10 +13,6 @@ import org.objectweb.asm.tree.MethodNode;
 class TagPropagator extends MethodVisitor {
     private final ShadowLocals shadowLocals;
 
-    TagPropagator(MethodVisitor mv, MethodNode original, boolean isShadow) {
-        this(new ShadowLocals(mv, original, isShadow));
-    }
-
     private TagPropagator(ShadowLocals shadowLocals) {
         super(GaletteTransformer.ASM_VERSION, shadowLocals);
         if (shadowLocals == null) {
@@ -668,31 +664,42 @@ class TagPropagator extends MethodVisitor {
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
-        boolean createFrame = !isGetCallerClass(owner, name, descriptor) && !isIgnoredMethod(owner, name);
-        // Consume tags from the shadow stack for the arguments of the call
-        shadowLocals.prepareForCall(opcode == INVOKESTATIC, descriptor, createFrame);
-        if (createFrame) {
-            if (isSignaturePolymorphic(owner, name)) {
-                // TODO: Indirectly pass the frame
-                super.visitInsn(Opcodes.POP);
-            } else {
-                // Directly pass the frame as shadow argument
+        if (isSignaturePolymorphic(owner, name)) {
+            visitSignaturePolymorphicMethodInsn(opcode, owner, name, descriptor, isInterface);
+        } else {
+            boolean createFrame = !isGetCallerClass(owner, name, descriptor) && !isIgnoredMethod(owner, name);
+            // Consume tags from the shadow stack for the arguments of the call
+            shadowLocals.prepareForCall(opcode == INVOKESTATIC, descriptor, createFrame);
+            if (createFrame) {
+                // Directly pass the frame as a shadow argument
                 descriptor = ShadowMethodCreator.getShadowMethodDescriptor(descriptor);
             }
+            super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+            if (isGetCallerClass(owner, name, descriptor)) {
+                // Check for a stored caller class
+                // [Class]
+                shadowLocals.loadTagFrame();
+                // [Class Frame]
+                super.visitInsn(Opcodes.SWAP);
+                // [Frame Class]
+                Handle.FRAME_GET_CALLER.accept(mv);
+                // [Class]
+            }
+            // Set the tag for the return value
+            shadowLocals.restoreFromCall(descriptor, createFrame);
         }
+    }
+
+    private void visitSignaturePolymorphicMethodInsn(
+            int opcode, String owner, String name, String descriptor, boolean isInterface) {
+        // Consume tags from the shadow stack for the arguments of the call and create a frame
+        shadowLocals.prepareForCall(opcode == INVOKESTATIC, descriptor, true);
+        // Attempt to indirectly pass the frame by storing it to a thread local
+        Handle.FRAME_STORE.accept(mv);
+        // Call the signature polymorphic method
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
-        if (isGetCallerClass(owner, name, descriptor)) {
-            // Check for a stored caller class
-            // [Class]
-            shadowLocals.loadTagFrame();
-            // [Class Frame]
-            super.visitInsn(Opcodes.SWAP);
-            // [Frame Class]
-            Handle.FRAME_GET_CALLER.accept(mv);
-            // [Class]
-        }
         // Set the tag for the return value
-        shadowLocals.restoreFromCall(descriptor, createFrame);
+        shadowLocals.restoreFromCall(descriptor, true);
     }
 
     private static boolean isGetCallerClass(String owner, String name, String descriptor) {
@@ -727,7 +734,7 @@ class TagPropagator extends MethodVisitor {
         return isIgnoredClass(owner) || !ShadowMethodCreator.shouldShadow(name);
     }
 
-    private static boolean isSignaturePolymorphic(String owner, String name) {
+    static boolean isSignaturePolymorphic(String owner, String name) {
         switch (name) {
             case "invokeBasic":
             case "invoke":
@@ -779,5 +786,11 @@ class TagPropagator extends MethodVisitor {
     private static boolean isMirroredField(String owner, String name, boolean isStatic) {
         // TODO: figure out how to track tags for fields in Reference
         return !ShadowFieldAdder.hasShadowFields(owner) && !owner.equals("java/lang/ref/Reference");
+    }
+
+    static MethodVisitor create(MethodVisitor mv, MethodNode original, boolean isShadow, String owner) {
+        ShadowLocals shadowLocals = new ShadowLocals(mv, original, isShadow);
+        TagPropagator propagator = new TagPropagator(shadowLocals);
+        return new FrameClearer(owner, original.access, original.name, original.desc, propagator);
     }
 }

@@ -72,7 +72,7 @@ public final class ShadowMethodCreator {
         if (AsmUtil.isSet(mn.access, Opcodes.ACC_NATIVE)) {
             mv = new WrapperCreator(classNode.name, isInterface, mv, shadow, isHostedAnonymous);
         } else if (propagate) {
-            mv = new TagPropagator(mv, mn, true);
+            mv = TagPropagator.create(mv, mn, true, classNode.name);
         }
         mn.accept(mv);
         return shadow;

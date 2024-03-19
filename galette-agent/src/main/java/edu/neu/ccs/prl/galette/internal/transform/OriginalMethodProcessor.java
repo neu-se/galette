@@ -52,7 +52,7 @@ class OriginalMethodProcessor {
                 mv = new WrapperCreator(classNode.name, isInterface, mv, processed, isHostedAnonymous);
             } else if (propagate) {
                 // If there is no shadow, add the propagation logic directly to the original method
-                mv = new TagPropagator(mv, mn, false);
+                mv = TagPropagator.create(mv, mn, false, classNode.name);
             }
         }
         mn.accept(mv);

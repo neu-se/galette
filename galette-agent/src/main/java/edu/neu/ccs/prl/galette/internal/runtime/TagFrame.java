@@ -50,8 +50,20 @@ public class TagFrame {
         return new TagFrame();
     }
 
-    @InvokedViaHandle(handle = Handle.FRAME_GET_INSTANCE)
-    public static TagFrame getInstance() {
+    @InvokedViaHandle(handle = Handle.FRAME_LOAD)
+    public static TagFrame load() {
+        // TODO
+        // Check for stored frame
         return new TagFrame();
+    }
+
+    @InvokedViaHandle(handle = Handle.FRAME_STORE)
+    public static void store(TagFrame frame) {
+        // TODO
+    }
+
+    @InvokedViaHandle(handle = Handle.FRAME_CLEAR_STORED)
+    public static void clearStored() {
+        // TODO
     }
 }

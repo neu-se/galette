@@ -27,9 +27,7 @@ public final class AsmTestUtil {
         ClassNode cn = AsmTestUtil.getClassNode(NodeInstructionExamples.class);
         cn.methods.clear();
         cn.methods.add(target);
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cn.accept(cw);
-        byte[] buffer = f.apply(cw.toByteArray());
+        byte[] buffer = f.apply(getBytes(cn));
         return new ByteClassLoader().createClass(buffer);
     }
 
@@ -41,17 +39,13 @@ public final class AsmTestUtil {
                 .orElseThrow(AssertionError::new);
         cn.methods.clear();
         cn.methods.add(match);
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cn.accept(cw);
-        byte[] buffer = f.apply(cw.toByteArray());
+        byte[] buffer = f.apply(getBytes(cn));
         return new ByteClassLoader().createClass(buffer);
     }
 
     public static Class<?> instrumentAndLoad(Class<?> original, Function<byte[], byte[]> f) {
         ClassNode cn = getClassNode(original);
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cn.accept(cw);
-        byte[] buffer = f.apply(cw.toByteArray());
+        byte[] buffer = f.apply(getBytes(cn));
         return new ByteClassLoader().createClass(buffer);
     }
 
@@ -60,13 +54,17 @@ public final class AsmTestUtil {
     }
 
     public static ClassNode instrument(ClassNode cn, Function<byte[], byte[]> f) {
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cn.accept(cw);
-        byte[] buffer = f.apply(cw.toByteArray());
+        byte[] buffer = f.apply(getBytes(cn));
         ClassReader cr = new ClassReader(buffer);
         ClassNode result = new ClassNode();
         cr.accept(result, ClassReader.EXPAND_FRAMES);
         return result;
+    }
+
+    public static byte[] getBytes(ClassNode cn) {
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        cn.accept(cw);
+        return cw.toByteArray();
     }
 
     private static class ByteClassLoader extends ClassLoader {
