@@ -3,7 +3,7 @@ package edu.neu.ccs.prl.galette.internal.transform;
 import static org.objectweb.asm.Opcodes.*;
 
 import edu.neu.ccs.prl.galette.internal.runtime.Handle;
-import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.runtime.TagFrameStack;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.SimpleList;
 import java.util.Iterator;
 import java.util.List;
@@ -12,16 +12,16 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 
 /**
- * Ensures that {@link TagFrame#clearStored()} is called after signature polymorphic method calls.
+ * Ensures that {@link TagFrameStack#pop()} is called after signature polymorphic method calls.
  */
-class FrameClearer extends MethodVisitor {
+class FramePopper extends MethodVisitor {
     private final AnalyzerAdapter analyzer;
 
-    FrameClearer(String owner, int access, String name, String descriptor, MethodVisitor mv) {
+    FramePopper(String owner, int access, String name, String descriptor, MethodVisitor mv) {
         this(new AnalyzerAdapter(owner, access, name, descriptor, mv));
     }
 
-    private FrameClearer(AnalyzerAdapter analyzer) {
+    private FramePopper(AnalyzerAdapter analyzer) {
         super(GaletteTransformer.ASM_VERSION, analyzer);
         this.analyzer = analyzer;
     }
@@ -37,7 +37,7 @@ class FrameClearer extends MethodVisitor {
 
     private void visitSignaturePolymorphicMethodInsn(
             int opcode, String owner, String name, String descriptor, boolean isInterface) {
-        // Add an exception handler to ensure that the stored frame is cleared
+        // Add an exception handler to ensure that the pushed frame is popped.
         Label start = new Label();
         Label end = new Label();
         Label handler = new Label();
@@ -50,8 +50,8 @@ class FrameClearer extends MethodVisitor {
         super.visitLabel(end);
         // Record the locals for the handle we will later add
         Object[] handleLocals = getFrameElements(analyzer.locals);
-        // Clear the stored frame
-        Handle.FRAME_CLEAR_STORED.accept(mv);
+        // Pop the stored frame
+        Handle.FRAME_STACK_POP.accept(mv);
         // Record the current frame
         Object[] locals = getFrameElements(analyzer.locals);
         Object[] stack = getFrameElements(analyzer.stack);
@@ -63,15 +63,15 @@ class FrameClearer extends MethodVisitor {
         // Add the jump target and its frame
         super.visitLabel(target);
         super.visitFrame(F_NEW, locals.length, locals, stack.length, stack);
-        // Insert a real instruction in case to ensure there is a real instruction between this frame and the next frame
+        // Insert a NOP to ensure there is an instruction between the added frame and the next frame
         super.visitInsn(NOP);
     }
 
     private void visitFrameClearHandler(Label handler, Object[] locals) {
         super.visitLabel(handler);
         super.visitFrame(F_NEW, locals.length, locals, 1, new Object[] {"java/lang/Throwable"});
-        // Clear the stored frame
-        Handle.FRAME_CLEAR_STORED.accept(mv);
+        // Pop the stored frame
+        Handle.FRAME_STACK_POP.accept(mv);
         // Rethrow the exception
         super.visitInsn(ATHROW);
     }

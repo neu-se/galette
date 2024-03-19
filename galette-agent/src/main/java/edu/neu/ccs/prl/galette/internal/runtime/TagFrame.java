@@ -6,6 +6,7 @@ public class TagFrame {
     private Class<?> caller;
     private Tag returnTag = Tag.getEmptyTag();
     private final Queue<Tag> tags = new Queue<>();
+    private String callerDescriptor = null;
 
     @InvokedViaHandle(handle = Handle.FRAME_DEQUEUE)
     public Tag dequeue() {
@@ -44,26 +45,24 @@ public class TagFrame {
         // TODO
     }
 
+    @InvokedViaHandle(handle = Handle.FRAME_SET_DESCRIPTOR)
+    public TagFrame setCallerDescriptor(String callerDescriptor) {
+        this.callerDescriptor = callerDescriptor;
+        return this;
+    }
+
+    public String getCallerDescriptor() {
+        return callerDescriptor;
+    }
+
     @InvokedViaHandle(handle = Handle.FRAME_CREATE_FOR_CALL)
     public static TagFrame createForCall(TagFrame callerFrame) {
         // TODO
         return new TagFrame();
     }
 
-    @InvokedViaHandle(handle = Handle.FRAME_LOAD)
-    public static TagFrame load() {
-        // TODO
-        // Check for stored frame
+    @InvokedViaHandle(handle = Handle.FRAME_CREATE_EMPTY)
+    public static TagFrame createEmpty() {
         return new TagFrame();
-    }
-
-    @InvokedViaHandle(handle = Handle.FRAME_STORE)
-    public static void store(TagFrame frame) {
-        // TODO
-    }
-
-    @InvokedViaHandle(handle = Handle.FRAME_CLEAR_STORED)
-    public static void clearStored() {
-        // TODO
     }
 }

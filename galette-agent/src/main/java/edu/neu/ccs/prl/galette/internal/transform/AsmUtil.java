@@ -53,7 +53,7 @@ public final class AsmUtil {
         if (mv == null) {
             return;
         }
-        if (!AsmUtil.isSet(access, Opcodes.ACC_STATIC)) {
+        if (!isSet(access, Opcodes.ACC_STATIC)) {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
         }
         loadArguments(mv, access, descriptor);
@@ -64,7 +64,7 @@ public final class AsmUtil {
             return;
         }
         // Skip "this" for virtual methods
-        int varIndex = AsmUtil.isSet(access, Opcodes.ACC_STATIC) ? 0 : 1;
+        int varIndex = isSet(access, Opcodes.ACC_STATIC) ? 0 : 1;
         for (Type argument : Type.getArgumentTypes(descriptor)) {
             mv.visitVarInsn(argument.getOpcode(Opcodes.ILOAD), varIndex);
             varIndex += argument.getSize();
@@ -76,6 +76,33 @@ public final class AsmUtil {
     }
 
     public static boolean hasMethodBody(int access) {
-        return !AsmUtil.isSet(access, Opcodes.ACC_NATIVE) && !AsmUtil.isSet(access, Opcodes.ACC_ABSTRACT);
+        return !isSet(access, Opcodes.ACC_NATIVE) && !isSet(access, Opcodes.ACC_ABSTRACT);
+    }
+
+    /**
+     * Returns the number of local variables used for a method's receiver (if non-static) and arguments.
+     */
+    public static int countLocalVariables(boolean isStatic, String descriptor) {
+        int count = 0;
+        for (Type argument : Type.getArgumentTypes(descriptor)) {
+            count += argument.getSize();
+        }
+        return isStatic ? count : count + 1;
+    }
+
+    /**
+     * Returns the number of local variables used for a method's receiver (if non-static) and arguments.
+     */
+    public static int countLocalVariables(int access, String descriptor) {
+        return countLocalVariables(isSet(access, Opcodes.ACC_STATIC), descriptor);
+    }
+
+    @SuppressWarnings("ExplicitArrayFilling")
+    public static Object[] createTopArray(int length) {
+        Object[] array = new Object[length];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = Opcodes.TOP;
+        }
+        return array;
     }
 }

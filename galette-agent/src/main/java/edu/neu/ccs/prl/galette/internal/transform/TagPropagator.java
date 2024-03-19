@@ -694,8 +694,10 @@ class TagPropagator extends MethodVisitor {
             int opcode, String owner, String name, String descriptor, boolean isInterface) {
         // Consume tags from the shadow stack for the arguments of the call and create a frame
         shadowLocals.prepareForCall(opcode == INVOKESTATIC, descriptor, true);
-        // Attempt to indirectly pass the frame by storing it to a thread local
-        Handle.FRAME_STORE.accept(mv);
+        // Attempt to indirectly pass the frame by storing it to a thread local stack
+        mv.visitLdcInsn(descriptor);
+        Handle.FRAME_SET_DESCRIPTOR.accept(mv);
+        Handle.FRAME_STACK_PUSH.accept(mv);
         // Call the signature polymorphic method
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
         // Set the tag for the return value
@@ -791,6 +793,6 @@ class TagPropagator extends MethodVisitor {
     static MethodVisitor create(MethodVisitor mv, MethodNode original, boolean isShadow, String owner) {
         ShadowLocals shadowLocals = new ShadowLocals(mv, original, isShadow);
         TagPropagator propagator = new TagPropagator(shadowLocals);
-        return new FrameClearer(owner, original.access, original.name, original.desc, propagator);
+        return new FramePopper(owner, original.access, original.name, original.desc, propagator);
     }
 }

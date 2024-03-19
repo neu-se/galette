@@ -18,25 +18,25 @@ class ShadowLocals extends MethodVisitor {
      * <p>
      * Non-null.
      */
-    private static final String FRAME_INTERNAL_NAME = Type.getInternalName(TagFrame.class);
+    static final String FRAME_INTERNAL_NAME = Type.getInternalName(TagFrame.class);
     /**
      * Descriptor for {@link TagFrame}.
      * <p>
      * Non-null.
      */
-    private static final String FRAME_DESCRIPTOR = Type.getDescriptor(TagFrame.class);
+    static final String FRAME_DESCRIPTOR = Type.getDescriptor(TagFrame.class);
     /**
      * Internal name for {@link Tag}.
      * <p>
      * Non-null.
      */
-    private static final String TAG_INTERNAL_NAME = Type.getInternalName(Tag.class);
+    static final String TAG_INTERNAL_NAME = Type.getInternalName(Tag.class);
     /**
      * Descriptor for {@link Tag}.
      * <p>
      * Non-null.
      */
-    private static final String TAG_DESCRIPTOR = Type.getDescriptor(Tag.class);
+    static final String TAG_DESCRIPTOR = Type.getDescriptor(Tag.class);
     /**
      * {@code true} if the method being visited was passed a
      * {@link TagFrame} as an argument.
@@ -121,10 +121,17 @@ class ShadowLocals extends MethodVisitor {
         super.visitLocalVariable(
                 getShadowVariableName("frame"), FRAME_DESCRIPTOR, null, frameStart, frameEnd, frameIndex);
         if (isShadow) {
-            int varIndex = countSlots(AsmUtil.isSet(original.access, Opcodes.ACC_STATIC), original.desc);
+            int varIndex = AsmUtil.countLocalVariables(original.access, original.desc);
             super.visitVarInsn(Opcodes.ALOAD, varIndex);
+        } else if (original.name.equals("<clinit>")) {
+            Handle.FRAME_CREATE_EMPTY.accept(mv);
+        } else if (original.name.equals("<init>")) {
+            mv.visitLdcInsn(original.desc);
+            Handle.FRAME_STACK_PEEK.accept(mv);
         } else {
-            Handle.FRAME_LOAD.accept(mv);
+            // TODO Pop the frame and restore before return
+            mv.visitLdcInsn(original.desc);
+            Handle.FRAME_STACK_PEEK.accept(mv);
         }
         super.visitVarInsn(Opcodes.ASTORE, frameIndex);
     }
@@ -277,7 +284,7 @@ class ShadowLocals extends MethodVisitor {
         super.visitVarInsn(Opcodes.ALOAD, frameIndex);
     }
 
-    private static String getShadowVariableName(String name) {
+    static String getShadowVariableName(String name) {
         return name + "$$GALETTE";
     }
 
@@ -324,7 +331,7 @@ class ShadowLocals extends MethodVisitor {
     }
 
     public void prepareForCall(boolean isStatic, String descriptor, boolean createFrame) {
-        int slots = countSlots(isStatic, descriptor);
+        int slots = AsmUtil.countLocalVariables(isStatic, descriptor);
         if (createFrame) {
             loadTagFrame();
             // frame
@@ -369,14 +376,6 @@ class ShadowLocals extends MethodVisitor {
                 push();
             }
         }
-    }
-
-    private static int countSlots(boolean isStatic, String descriptor) {
-        int count = 0;
-        for (Type argument : Type.getArgumentTypes(descriptor)) {
-            count += argument.getSize();
-        }
-        return isStatic ? count : count + 1;
     }
 
     public void performOperation(int opcode, int consumes, int produces) {

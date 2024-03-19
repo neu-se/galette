@@ -1,6 +1,10 @@
 package edu.neu.ccs.prl.galette.internal.transform;
 
+import static org.objectweb.asm.Opcodes.ATHROW;
+import static org.objectweb.asm.Opcodes.F_NEW;
+
 import edu.neu.ccs.prl.galette.internal.runtime.Handle;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -66,26 +70,98 @@ class WrapperCreator extends MethodVisitor {
         mv = delegate;
         // Create a replacement method body
         super.visitCode();
-        String calleeDesc;
         if (ShadowMethodCreator.isShadowMethod(methodDescriptor)) {
-            // Wrapping a native method; pop the frame
-            AsmUtil.loadThisAndArguments(mv, methodAccess, methodDescriptor);
-            super.visitInsn(Opcodes.POP);
-            calleeDesc = ShadowMethodCreator.getOriginalMethodDescriptor(methodDescriptor);
+            generateNativeWrapper();
+        } else if (methodName.equals("<init>")) {
+            generateShadowWrapper();
         } else {
-            // Wrapping a shadow; load all arguments and add a frame
-            AsmUtil.loadThisAndArguments(mv, methodAccess, methodDescriptor);
-            Handle.FRAME_LOAD.accept(mv);
-            // If the original method called getCallerClass, compute the caller class now and push to the frame
-            fixer.fix(mv);
-            calleeDesc = ShadowMethodCreator.getShadowMethodDescriptor(methodDescriptor);
+            generatePoppingShadowWrapper();
         }
-        int opcode = computeOpcode();
-        // Add the call to the wrapped method
-        super.visitMethodInsn(opcode, owner, methodName, calleeDesc, isInterface);
-        super.visitInsn(Type.getReturnType(methodDescriptor).getOpcode(Opcodes.IRETURN));
         super.visitMaxs(-1, -1);
         super.visitEnd();
+    }
+
+    private void generateNativeWrapper() {
+        // Wrapping a native method; pop the frame
+        AsmUtil.loadThisAndArguments(mv, methodAccess, methodDescriptor);
+        super.visitInsn(Opcodes.POP);
+        String calleeDesc = ShadowMethodCreator.getOriginalMethodDescriptor(methodDescriptor);
+        // Add the call to the wrapped method
+        super.visitMethodInsn(computeOpcode(), owner, methodName, calleeDesc, isInterface);
+        super.visitInsn(Type.getReturnType(methodDescriptor).getOpcode(Opcodes.IRETURN));
+    }
+
+    private void generateShadowWrapper() {
+        // Wrapping a shadow; load all arguments
+        AsmUtil.loadThisAndArguments(mv, methodAccess, methodDescriptor);
+        // Fetch the frame
+        super.visitLdcInsn(methodDescriptor);
+        Handle.FRAME_STACK_PEEK.accept(mv);
+        // If the original method called getCallerClass, compute the caller class now and push to the frame
+        fixer.fix(mv);
+        String calleeDesc = ShadowMethodCreator.getShadowMethodDescriptor(methodDescriptor);
+        // Add the call to the wrapped method
+        super.visitMethodInsn(computeOpcode(), owner, methodName, calleeDesc, isInterface);
+        super.visitInsn(Type.getReturnType(methodDescriptor).getOpcode(Opcodes.IRETURN));
+    }
+
+    private void generatePoppingShadowWrapper() {
+        Label frameEnd = new Label();
+        Label scopeStart = new Label();
+        Label scopeEnd = new Label();
+        Label handler = new Label();
+        super.visitTryCatchBlock(scopeStart, scopeEnd, handler, null);
+        // Wrapping a shadow; load all arguments
+        AsmUtil.loadThisAndArguments(mv, methodAccess, methodDescriptor);
+        // Fetch the frame
+        super.visitLdcInsn(methodDescriptor);
+        Handle.FRAME_STACK_PEEK.accept(mv);
+        // Store the frame to a local variable
+        int frameVar = storeFrame(frameEnd);
+        // Pop the frame from the frame stack to prevent the callee from accessing it
+        Handle.FRAME_STACK_POP.accept(mv);
+        // Start the scope of the exception handler
+        super.visitLabel(scopeStart);
+        // If the original method called getCallerClass, compute the caller class now and push to the frame
+        fixer.fix(mv);
+        String calleeDesc = ShadowMethodCreator.getShadowMethodDescriptor(methodDescriptor);
+        // Add the call to the wrapped method
+        super.visitMethodInsn(computeOpcode(), owner, methodName, calleeDesc, isInterface);
+        // End the scope of the exception handler
+        super.visitLabel(scopeEnd);
+        // Restore the frame stack
+        super.visitVarInsn(Opcodes.ALOAD, frameVar);
+        Handle.FRAME_STACK_PUSH.accept(mv);
+        // Return
+        super.visitInsn(Type.getReturnType(methodDescriptor).getOpcode(Opcodes.IRETURN));
+        // Visit the exception handler
+        super.visitLabel(handler);
+        Object[] locals = AsmUtil.createTopArray(frameVar + 1);
+        locals[frameVar] = ShadowLocals.FRAME_INTERNAL_NAME;
+        super.visitFrame(F_NEW, locals.length, locals, 1, new Object[] {"java/lang/Throwable"});
+        // Restore the frame stack
+        super.visitVarInsn(Opcodes.ALOAD, frameVar);
+        Handle.FRAME_STACK_PUSH.accept(mv);
+        // Rethrow the exception
+        super.visitInsn(ATHROW);
+        super.visitLabel(frameEnd);
+    }
+
+    private int storeFrame(Label frameEnd) {
+        // frame
+        Label frameStart = new Label();
+        int frameVar = AsmUtil.countLocalVariables(methodAccess, methodDescriptor);
+        mv.visitLocalVariable(
+                ShadowLocals.getShadowVariableName("frame"),
+                ShadowLocals.FRAME_DESCRIPTOR,
+                null,
+                frameStart,
+                frameEnd,
+                frameVar);
+        super.visitLabel(frameStart);
+        super.visitInsn(Opcodes.DUP);
+        super.visitVarInsn(Opcodes.ASTORE, frameVar);
+        return frameVar;
     }
 
     private int computeOpcode() {
@@ -110,7 +186,6 @@ class WrapperCreator extends MethodVisitor {
     private static final class CallerSensitiveFixer {
         private static final String JDK_REFLECTION_INTERNAL_NAME = "jdk/internal/reflect/Reflection";
         private static final String SUN_REFLECTION_INTERNAL_NAME = "sun/reflect/Reflection";
-
         private static final String TARGET_METHOD_NAME = "getCallerClass";
         private static final String TARGET_METHOD_DESCRIPTOR = "()Ljava/lang/Class;";
         private boolean foundJdkCall = false;
