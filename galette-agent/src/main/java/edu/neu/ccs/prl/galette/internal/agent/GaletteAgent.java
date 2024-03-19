@@ -21,7 +21,7 @@ public final class GaletteAgent {
         FieldTagStore.initialize();
         // Enable propagation through Unsafe accesses
         UnsafeTagLocator.initialize();
-        // Enable indirectly frame passing
+        // Enable indirect frame passing
         TagFrameStack.initialize();
     }
 
