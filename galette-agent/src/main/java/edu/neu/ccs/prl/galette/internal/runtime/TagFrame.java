@@ -18,6 +18,10 @@ public class TagFrame {
         return this;
     }
 
+    public boolean isEmpty() {
+        return tags.isEmpty();
+    }
+
     @InvokedViaHandle(handle = Handle.FRAME_GET_RETURN_TAG)
     public Tag getReturnTag() {
         return returnTag;

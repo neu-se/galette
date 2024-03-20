@@ -1,15 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.runtime.frame;
 
-import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
-
-class IndirectFrameAdjuster implements FrameAdjuster {
-    private final TagFrame original;
-    private final int index = 0;
-
-    public IndirectFrameAdjuster(TagFrame original) {
-        this.original = original;
-    }
-
+abstract class AbstractFrameAdjuster implements FrameAdjuster {
     @Override
     public FrameAdjuster process(boolean value) {
         processInternal(value);
@@ -64,12 +55,5 @@ class IndirectFrameAdjuster implements FrameAdjuster {
         return this;
     }
 
-    private void processInternal(Object value) {
-        // TODO
-    }
-
-    @Override
-    public TagFrame createFrame() {
-        return new AdjustedTagFrame(original);
-    }
+    protected abstract void processInternal(Object value);
 }

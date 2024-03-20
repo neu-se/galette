@@ -2,6 +2,7 @@ package edu.neu.ccs.prl.galette.internal.transform;
 
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.runtime.frame.IndirectTagFrame;
 import org.objectweb.asm.Type;
 
 public final class GaletteNames {
@@ -29,6 +30,12 @@ public final class GaletteNames {
      * Non-null.
      */
     public static final String TAG_DESCRIPTOR = Type.getDescriptor(Tag.class);
+    /**
+     * Internal name for {@link IndirectTagFrame}.
+     * <p>
+     * Non-null.
+     */
+    public static final String INDIRECT_FRAME_INTERNAL_NAME = Type.getInternalName(IndirectTagFrame.class);
 
     private GaletteNames() {
         throw new AssertionError(getClass() + " is a static utility class");

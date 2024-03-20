@@ -290,34 +290,40 @@ class ShadowLocals extends MethodVisitor {
         return varIndex;
     }
 
-    public void prepareForCall(boolean isStatic, String descriptor, boolean createFrame) {
+    public void prepareForCall(boolean isStatic, String descriptor, Handle frameFactory) {
         int slots = AsmUtil.countLocalVariables(isStatic, descriptor);
-        if (createFrame) {
-            loadTagFrame();
-            // frame
-            Handle.FRAME_CREATE_FOR_CALL.accept(mv);
-            // frame (child)
-            int current = slots - 1;
-            if (!isStatic) {
-                peek(current--);
-                // frame, tag
-                Handle.FRAME_ENQUEUE.accept(mv);
-                // frame
-            }
-            for (Type argument : Type.getArgumentTypes(descriptor)) {
-                peek(current);
-                // frame, tag
-                Handle.FRAME_ENQUEUE.accept(mv);
-                // frame
-                // Skip over the extra slot used for wide types (double/long)
-                current -= argument.getSize();
-            }
-            super.visitInsn(Opcodes.DUP);
-            // frame, frame
-            super.visitVarInsn(Opcodes.ASTORE, childFrameIndex);
+        loadTagFrame();
+        // frame
+        frameFactory.accept(mv);
+        // frame (child)
+        int current = slots - 1;
+        if (!isStatic) {
+            peek(current--);
+            // frame, tag
+            Handle.FRAME_ENQUEUE.accept(mv);
             // frame
         }
+        for (Type argument : Type.getArgumentTypes(descriptor)) {
+            peek(current);
+            // frame, tag
+            Handle.FRAME_ENQUEUE.accept(mv);
+            // frame
+            // Skip over the extra slot used for wide types (double/long)
+            current -= argument.getSize();
+        }
+        super.visitInsn(Opcodes.DUP);
+        // frame, frame
+        super.visitVarInsn(Opcodes.ASTORE, childFrameIndex);
+        // frame
         pop(slots);
+    }
+
+    public void prepareForCall(boolean isStatic, String descriptor, boolean createFrame) {
+        if (createFrame) {
+            prepareForCall(isStatic, descriptor, Handle.FRAME_CREATE_FOR_CALL);
+        } else {
+            pop(AsmUtil.countLocalVariables(isStatic, descriptor));
+        }
     }
 
     public void restoreFromCall(String descriptor, boolean hasFrame) {
