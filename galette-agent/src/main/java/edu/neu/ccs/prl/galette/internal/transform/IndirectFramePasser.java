@@ -60,6 +60,8 @@ class IndirectFramePasser extends MethodVisitor {
         // Store the frame and arguments in the indirect frame store
         Handle.INDIRECT_FRAME_SET.accept(shadowLocals);
         // TODO: Restore the arguments from the argument array
+        // TODO: may be unable to box arguments before JVM is initialized
+        // TODO: use FrameAdjuster to box and delay creation of arguments
         // AsmUtil.unpackArgumentArray(shadowLocals, owner, opcode == INVOKESTATIC, descriptor);
         // Call the signature polymorphic method
         // The analyzer must see this call delegate to mv (analyzer)
