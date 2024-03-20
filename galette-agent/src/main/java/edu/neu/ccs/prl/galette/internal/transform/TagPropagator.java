@@ -668,28 +668,28 @@ class TagPropagator extends MethodVisitor {
         if (IndirectFramePasser.isSignaturePolymorphic(owner, name)) {
             // Handled by IndirectFramePasser
             super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
-            return;
+        } else {
+            boolean createFrame = !isGetCallerClass(owner, name, descriptor) && !isIgnoredMethod(owner, name);
+            // Consume tags from the shadow stack for the arguments of the call
+            shadowLocals.prepareForCall(opcode == INVOKESTATIC, descriptor, createFrame);
+            if (createFrame) {
+                // Directly pass the frame as a shadow argument
+                descriptor = ShadowMethodCreator.getShadowMethodDescriptor(descriptor);
+            }
+            super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+            if (isGetCallerClass(owner, name, descriptor)) {
+                // Check for a stored caller class
+                // [Class]
+                shadowLocals.loadTagFrame();
+                // [Class Frame]
+                super.visitInsn(Opcodes.SWAP);
+                // [Frame Class]
+                Handle.FRAME_GET_CALLER.accept(mv);
+                // [Class]
+            }
+            // Set the tag for the return value
+            shadowLocals.restoreFromCall(descriptor, createFrame);
         }
-        boolean createFrame = !isGetCallerClass(owner, name, descriptor) && !isIgnoredMethod(owner, name);
-        // Consume tags from the shadow stack for the arguments of the call
-        shadowLocals.prepareForCall(opcode == INVOKESTATIC, descriptor, createFrame);
-        if (createFrame) {
-            // Directly pass the frame as a shadow argument
-            descriptor = ShadowMethodCreator.getShadowMethodDescriptor(descriptor);
-        }
-        super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
-        if (isGetCallerClass(owner, name, descriptor)) {
-            // Check for a stored caller class
-            // [Class]
-            shadowLocals.loadTagFrame();
-            // [Class Frame]
-            super.visitInsn(Opcodes.SWAP);
-            // [Frame Class]
-            Handle.FRAME_GET_CALLER.accept(mv);
-            // [Class]
-        }
-        // Set the tag for the return value
-        shadowLocals.restoreFromCall(descriptor, createFrame);
     }
 
     private static boolean isGetCallerClass(String owner, String name, String descriptor) {
