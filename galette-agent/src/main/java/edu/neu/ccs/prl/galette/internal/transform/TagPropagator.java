@@ -8,13 +8,14 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.AnalyzerAdapter;
 import org.objectweb.asm.tree.MethodNode;
 
 class TagPropagator extends MethodVisitor {
     private final ShadowLocals shadowLocals;
 
-    private TagPropagator(ShadowLocals shadowLocals) {
-        super(GaletteTransformer.ASM_VERSION, shadowLocals);
+    private TagPropagator(ShadowLocals shadowLocals, MethodVisitor mv) {
+        super(GaletteTransformer.ASM_VERSION, mv);
         if (shadowLocals == null) {
             throw new NullPointerException();
         }
@@ -664,44 +665,31 @@ class TagPropagator extends MethodVisitor {
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
-        if (isSignaturePolymorphic(owner, name)) {
-            visitSignaturePolymorphicMethodInsn(opcode, owner, name, descriptor, isInterface);
-        } else {
-            boolean createFrame = !isGetCallerClass(owner, name, descriptor) && !isIgnoredMethod(owner, name);
-            // Consume tags from the shadow stack for the arguments of the call
-            shadowLocals.prepareForCall(opcode == INVOKESTATIC, descriptor, createFrame);
-            if (createFrame) {
-                // Directly pass the frame as a shadow argument
-                descriptor = ShadowMethodCreator.getShadowMethodDescriptor(descriptor);
-            }
+        if (IndirectFramePasser.isSignaturePolymorphic(owner, name)) {
+            // Handled by IndirectFramePasser
             super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
-            if (isGetCallerClass(owner, name, descriptor)) {
-                // Check for a stored caller class
-                // [Class]
-                shadowLocals.loadTagFrame();
-                // [Class Frame]
-                super.visitInsn(Opcodes.SWAP);
-                // [Frame Class]
-                Handle.FRAME_GET_CALLER.accept(mv);
-                // [Class]
-            }
-            // Set the tag for the return value
-            shadowLocals.restoreFromCall(descriptor, createFrame);
+            return;
         }
-    }
-
-    private void visitSignaturePolymorphicMethodInsn(
-            int opcode, String owner, String name, String descriptor, boolean isInterface) {
-        // Consume tags from the shadow stack for the arguments of the call and create a frame
-        shadowLocals.prepareForCall(opcode == INVOKESTATIC, descriptor, true);
-        // Attempt to indirectly pass the frame by storing it to a thread local stack
-        mv.visitLdcInsn(descriptor);
-        Handle.FRAME_SET_DESCRIPTOR.accept(mv);
-        Handle.FRAME_STACK_PUSH.accept(mv);
-        // Call the signature polymorphic method
+        boolean createFrame = !isGetCallerClass(owner, name, descriptor) && !isIgnoredMethod(owner, name);
+        // Consume tags from the shadow stack for the arguments of the call
+        shadowLocals.prepareForCall(opcode == INVOKESTATIC, descriptor, createFrame);
+        if (createFrame) {
+            // Directly pass the frame as a shadow argument
+            descriptor = ShadowMethodCreator.getShadowMethodDescriptor(descriptor);
+        }
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+        if (isGetCallerClass(owner, name, descriptor)) {
+            // Check for a stored caller class
+            // [Class]
+            shadowLocals.loadTagFrame();
+            // [Class Frame]
+            super.visitInsn(Opcodes.SWAP);
+            // [Frame Class]
+            Handle.FRAME_GET_CALLER.accept(mv);
+            // [Class]
+        }
         // Set the tag for the return value
-        shadowLocals.restoreFromCall(descriptor, true);
+        shadowLocals.restoreFromCall(descriptor, createFrame);
     }
 
     private static boolean isGetCallerClass(String owner, String name, String descriptor) {
@@ -736,63 +724,16 @@ class TagPropagator extends MethodVisitor {
         return isIgnoredClass(owner) || !ShadowMethodCreator.shouldShadow(name);
     }
 
-    static boolean isSignaturePolymorphic(String owner, String name) {
-        switch (name) {
-            case "invokeBasic":
-            case "invoke":
-            case "invokeExact":
-            case "linkToInterface":
-            case "linkToNative":
-            case "linkToSpecial":
-            case "linkToStatic":
-            case "linkToVirtual":
-                return owner.equals("java/lang/invoke/MethodHandle")
-                        || owner.startsWith("java/lang/invoke/BoundMethodHandle");
-            case "compareAndSet":
-            case "weakCompareAndSet":
-            case "weakCompareAndSetAcquire":
-            case "weakCompareAndSetPlain":
-            case "weakCompareAndSetRelease":
-            case "compareAndExchange":
-            case "compareAndExchangeAcquire":
-            case "compareAndExchangeRelease":
-            case "get":
-            case "getAcquire":
-            case "getAndAdd":
-            case "getAndAddAcquire":
-            case "getAndAddRelease":
-            case "getAndBitwiseAnd":
-            case "getAndBitwiseAndAcquire":
-            case "getAndBitwiseAndRelease":
-            case "getAndBitwiseOr":
-            case "getAndBitwiseOrAcquire":
-            case "getAndBitwiseOrRelease":
-            case "getAndBitwiseXor":
-            case "getAndBitwiseXorAcquire":
-            case "getAndBitwiseXorRelease":
-            case "getAndSet":
-            case "getAndSetAcquire":
-            case "getAndSetRelease":
-            case "getOpaque":
-            case "getVolatile":
-            case "set":
-            case "setOpaque":
-            case "setRelease":
-            case "setVolatile":
-                return owner.equals("java/lang/invoke/VarHandle");
-            default:
-                return false;
-        }
-    }
-
     private static boolean isMirroredField(String owner, String name, boolean isStatic) {
         // TODO: figure out how to track tags for fields in Reference
         return !ShadowFieldAdder.hasShadowFields(owner) && !owner.equals("java/lang/ref/Reference");
     }
 
-    static MethodVisitor create(MethodVisitor mv, MethodNode original, boolean isShadow, String owner) {
-        ShadowLocals shadowLocals = new ShadowLocals(mv, original, isShadow);
-        TagPropagator propagator = new TagPropagator(shadowLocals);
-        return new FramePopper(owner, original.access, original.name, original.desc, propagator);
+    static MethodVisitor newInstance(MethodVisitor mv, MethodNode original, boolean isShadow, String owner) {
+        ShadowLocals shadowLocals = ShadowLocals.newInstance(mv, original, isShadow);
+        TagPropagator propagator = new TagPropagator(shadowLocals, shadowLocals);
+        AnalyzerAdapter analyzer =
+                new AnalyzerAdapter(owner, original.access, original.name, original.desc, propagator);
+        return new IndirectFramePasser(shadowLocals, analyzer, analyzer);
     }
 }

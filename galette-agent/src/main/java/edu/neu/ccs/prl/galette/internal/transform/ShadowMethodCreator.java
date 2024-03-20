@@ -70,9 +70,9 @@ public final class ShadowMethodCreator {
         MethodVisitor mv = new MaskApplier(shadow);
         mv = new HotSpotAnnotationRemover(mv);
         if (AsmUtil.isSet(mn.access, Opcodes.ACC_NATIVE)) {
-            mv = new WrapperCreator(classNode.name, isInterface, mv, shadow, isHostedAnonymous);
+            mv = NativeWrapperCreator.newInstance(classNode.name, isInterface, mv, shadow, isHostedAnonymous);
         } else if (propagate) {
-            mv = TagPropagator.create(mv, mn, true, classNode.name);
+            mv = TagPropagator.newInstance(mv, mn, true, classNode.name);
         }
         mn.accept(mv);
         return shadow;
@@ -93,7 +93,7 @@ public final class ShadowMethodCreator {
                 null);
         if (!isInterface) {
             MethodVisitor mv = new MaskApplier(shadow);
-            mv = new WrapperCreator(classNode.name, false, mv, shadow, isHostedAnonymous);
+            mv = NativeWrapperCreator.newInstance(classNode.name, false, mv, shadow, isHostedAnonymous);
             mv.visitEnd();
         }
         return shadow;

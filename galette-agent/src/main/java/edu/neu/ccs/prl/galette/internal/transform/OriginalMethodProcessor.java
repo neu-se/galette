@@ -49,10 +49,10 @@ class OriginalMethodProcessor {
             // Process non-native, non-abstract methods
             if (!isGeneratedProxy(classNode.name) && ShadowMethodCreator.shouldShadow(mn.name)) {
                 // Convert original methods to wrappers around the corresponding shadow
-                mv = new WrapperCreator(classNode.name, isInterface, mv, processed, isHostedAnonymous);
+                mv = ShadowWrapperCreator.newInstance(classNode.name, isInterface, mv, processed, isHostedAnonymous);
             } else if (propagate) {
                 // If there is no shadow, add the propagation logic directly to the original method
-                mv = TagPropagator.create(mv, mn, false, classNode.name);
+                mv = TagPropagator.newInstance(mv, mn, false, classNode.name);
             }
         }
         mn.accept(mv);

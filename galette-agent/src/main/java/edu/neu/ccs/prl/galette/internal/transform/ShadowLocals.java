@@ -14,30 +14,6 @@ import org.objectweb.asm.tree.MethodNode;
 
 class ShadowLocals extends MethodVisitor {
     /**
-     * Internal name for {@link TagFrame}.
-     * <p>
-     * Non-null.
-     */
-    static final String FRAME_INTERNAL_NAME = Type.getInternalName(TagFrame.class);
-    /**
-     * Descriptor for {@link TagFrame}.
-     * <p>
-     * Non-null.
-     */
-    static final String FRAME_DESCRIPTOR = Type.getDescriptor(TagFrame.class);
-    /**
-     * Internal name for {@link Tag}.
-     * <p>
-     * Non-null.
-     */
-    static final String TAG_INTERNAL_NAME = Type.getInternalName(Tag.class);
-    /**
-     * Descriptor for {@link Tag}.
-     * <p>
-     * Non-null.
-     */
-    static final String TAG_DESCRIPTOR = Type.getDescriptor(Tag.class);
-    /**
      * {@code true} if the method being visited was passed a
      * {@link TagFrame} as an argument.
      */
@@ -105,7 +81,6 @@ class ShadowLocals extends MethodVisitor {
     @Override
     public void visitCode() {
         super.visitCode();
-        findAndStoreTagFrame();
         initializeChildFrameSlot();
         int varIndex = isShadow ? initializeArgumentTags() : shadowVariablesStart;
         // Initialize remaining shadow variables
@@ -115,32 +90,16 @@ class ShadowLocals extends MethodVisitor {
         }
     }
 
-    private void findAndStoreTagFrame() {
-        Label frameStart = new Label();
-        super.visitLabel(frameStart);
-        super.visitLocalVariable(
-                getShadowVariableName("frame"), FRAME_DESCRIPTOR, null, frameStart, frameEnd, frameIndex);
-        if (isShadow) {
-            int varIndex = AsmUtil.countLocalVariables(original.access, original.desc);
-            super.visitVarInsn(Opcodes.ALOAD, varIndex);
-        } else if (original.name.equals("<clinit>")) {
-            Handle.FRAME_CREATE_EMPTY.accept(mv);
-        } else if (original.name.equals("<init>")) {
-            mv.visitLdcInsn(original.desc);
-            Handle.FRAME_STACK_PEEK.accept(mv);
-        } else {
-            // TODO Pop the frame and restore before return
-            mv.visitLdcInsn(original.desc);
-            Handle.FRAME_STACK_PEEK.accept(mv);
-        }
-        super.visitVarInsn(Opcodes.ASTORE, frameIndex);
-    }
-
     private void initializeChildFrameSlot() {
         Label frameStart = new Label();
         super.visitLabel(frameStart);
         super.visitLocalVariable(
-                getShadowVariableName("childFrame"), FRAME_DESCRIPTOR, null, frameStart, frameEnd, childFrameIndex);
+                GaletteNames.getShadowVariableName("childFrame"),
+                GaletteNames.FRAME_DESCRIPTOR,
+                null,
+                frameStart,
+                frameEnd,
+                childFrameIndex);
         super.visitInsn(Opcodes.ACONST_NULL);
         super.visitVarInsn(Opcodes.ASTORE, childFrameIndex);
     }
@@ -172,14 +131,14 @@ class ShadowLocals extends MethodVisitor {
             newLocal.add(Opcodes.TOP);
         }
         // Add the frame and child frame slots
-        newLocal.add(FRAME_INTERNAL_NAME);
-        newLocal.add(FRAME_INTERNAL_NAME);
+        newLocal.add(GaletteNames.FRAME_INTERNAL_NAME);
+        newLocal.add(GaletteNames.FRAME_INTERNAL_NAME);
         varIndex += 2;
         // Recompute the shadow stack size
         shadowStackSize = startingHandler ? 0 : computeNumberOfSlots(numStack, stack);
         // Add tags for the shadow local variables and shadow runtime stack
         for (; varIndex < shadowStackStart + shadowStackSize; varIndex++) {
-            newLocal.add(TAG_INTERNAL_NAME);
+            newLocal.add(GaletteNames.TAG_INTERNAL_NAME);
         }
         super.visitFrame(type, newLocal.size(), newLocal.toArray(new Object[newLocal.size()]), numStack, stack);
         if (startingHandler) {
@@ -213,7 +172,12 @@ class ShadowLocals extends MethodVisitor {
             name = "$this";
         }
         super.visitLocalVariable(
-                getShadowVariableName(name), TAG_DESCRIPTOR, null, start, end, getShadowVariableIndex(index));
+                GaletteNames.getShadowVariableName(name),
+                GaletteNames.TAG_DESCRIPTOR,
+                null,
+                start,
+                end,
+                getShadowVariableIndex(index));
     }
 
     @Override
@@ -282,10 +246,6 @@ class ShadowLocals extends MethodVisitor {
 
     public void loadTagFrame() {
         super.visitVarInsn(Opcodes.ALOAD, frameIndex);
-    }
-
-    static String getShadowVariableName(String name) {
-        return name + "$$GALETTE";
     }
 
     /**
@@ -390,5 +350,16 @@ class ShadowLocals extends MethodVisitor {
         for (int i = 0; i < produces; i++) {
             super.visitVarInsn(Opcodes.ASTORE, getShadowStackIndex(i));
         }
+    }
+
+    static ShadowLocals newInstance(MethodVisitor mv, MethodNode original, boolean isShadow) {
+        int frameIndex = original.maxLocals;
+        if (!isShadow) {
+            int handlers = original.tryCatchBlocks == null ? 0 : original.tryCatchBlocks.size();
+            mv = new IndirectFrameInitializer(mv, original.name.equals("<init>"), frameIndex, handlers, original.desc);
+        } else {
+            mv = new DirectFrameInitializer(mv, frameIndex, original.access, original.desc);
+        }
+        return new ShadowLocals(mv, original, isShadow);
     }
 }

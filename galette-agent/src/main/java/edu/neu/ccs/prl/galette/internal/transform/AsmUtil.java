@@ -1,10 +1,11 @@
 package edu.neu.ccs.prl.galette.internal.transform;
 
-import org.objectweb.asm.ClassWriter;
+import static org.objectweb.asm.Opcodes.IRETURN;
+import static org.objectweb.asm.Opcodes.RETURN;
+
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 public final class AsmUtil {
@@ -20,12 +21,6 @@ public final class AsmUtil {
         access &= ~Opcodes.ACC_PRIVATE;
         access &= ~Opcodes.ACC_PROTECTED;
         return access | Opcodes.ACC_PUBLIC;
-    }
-
-    public static byte[] toBytes(ClassNode cn) {
-        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        cn.accept(cw);
-        return cw.toByteArray();
     }
 
     /**
@@ -50,21 +45,29 @@ public final class AsmUtil {
     }
 
     public static void loadThisAndArguments(MethodVisitor mv, int access, String descriptor) {
+        loadThisAndArguments(mv, isSet(access, Opcodes.ACC_STATIC), descriptor);
+    }
+
+    public static void loadThisAndArguments(MethodVisitor mv, boolean isStatic, String descriptor) {
         if (mv == null) {
             return;
         }
-        if (!isSet(access, Opcodes.ACC_STATIC)) {
+        if (!isStatic) {
             mv.visitVarInsn(Opcodes.ALOAD, 0);
         }
-        loadArguments(mv, access, descriptor);
+        loadArguments(mv, isStatic, descriptor);
     }
 
     public static void loadArguments(MethodVisitor mv, int access, String descriptor) {
+        loadArguments(mv, isSet(access, Opcodes.ACC_STATIC), descriptor);
+    }
+
+    public static void loadArguments(MethodVisitor mv, boolean isStatic, String descriptor) {
         if (mv == null) {
             return;
         }
         // Skip "this" for virtual methods
-        int varIndex = isSet(access, Opcodes.ACC_STATIC) ? 0 : 1;
+        int varIndex = isStatic ? 0 : 1;
         for (Type argument : Type.getArgumentTypes(descriptor)) {
             mv.visitVarInsn(argument.getOpcode(Opcodes.ILOAD), varIndex);
             varIndex += argument.getSize();
@@ -82,19 +85,19 @@ public final class AsmUtil {
     /**
      * Returns the number of local variables used for a method's receiver (if non-static) and arguments.
      */
+    public static int countLocalVariables(int access, String descriptor) {
+        return countLocalVariables(isSet(access, Opcodes.ACC_STATIC), descriptor);
+    }
+
+    /**
+     * Returns the number of local variables used for a method's receiver (if non-static) and arguments.
+     */
     public static int countLocalVariables(boolean isStatic, String descriptor) {
         int count = 0;
         for (Type argument : Type.getArgumentTypes(descriptor)) {
             count += argument.getSize();
         }
         return isStatic ? count : count + 1;
-    }
-
-    /**
-     * Returns the number of local variables used for a method's receiver (if non-static) and arguments.
-     */
-    public static int countLocalVariables(int access, String descriptor) {
-        return countLocalVariables(isSet(access, Opcodes.ACC_STATIC), descriptor);
     }
 
     @SuppressWarnings("ExplicitArrayFilling")
@@ -104,5 +107,9 @@ public final class AsmUtil {
             array[i] = Opcodes.TOP;
         }
         return array;
+    }
+
+    public static boolean isReturn(int opcode) {
+        return IRETURN <= opcode && opcode <= RETURN;
     }
 }

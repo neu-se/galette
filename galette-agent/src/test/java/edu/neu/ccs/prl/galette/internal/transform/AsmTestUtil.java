@@ -27,7 +27,7 @@ public final class AsmTestUtil {
         ClassNode cn = AsmTestUtil.getClassNode(NodeInstructionExamples.class);
         cn.methods.clear();
         cn.methods.add(target);
-        byte[] buffer = f.apply(getBytes(cn));
+        byte[] buffer = f.apply(toBytes(cn));
         return new ByteClassLoader().createClass(buffer);
     }
 
@@ -39,29 +39,29 @@ public final class AsmTestUtil {
                 .orElseThrow(AssertionError::new);
         cn.methods.clear();
         cn.methods.add(match);
-        byte[] buffer = f.apply(getBytes(cn));
+        byte[] buffer = f.apply(toBytes(cn));
         return new ByteClassLoader().createClass(buffer);
     }
 
     public static Class<?> instrumentAndLoad(Class<?> original, Function<byte[], byte[]> f) {
         ClassNode cn = getClassNode(original);
-        byte[] buffer = f.apply(getBytes(cn));
+        byte[] buffer = f.apply(toBytes(cn));
         return new ByteClassLoader().createClass(buffer);
     }
 
     public static Class<?> load(ClassNode cn) {
-        return new ByteClassLoader().createClass(AsmUtil.toBytes(cn));
+        return new ByteClassLoader().createClass(toBytes(cn));
     }
 
     public static ClassNode instrument(ClassNode cn, Function<byte[], byte[]> f) {
-        byte[] buffer = f.apply(getBytes(cn));
+        byte[] buffer = f.apply(toBytes(cn));
         ClassReader cr = new ClassReader(buffer);
         ClassNode result = new ClassNode();
         cr.accept(result, ClassReader.EXPAND_FRAMES);
         return result;
     }
 
-    public static byte[] getBytes(ClassNode cn) {
+    public static byte[] toBytes(ClassNode cn) {
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         cn.accept(cw);
         return cw.toByteArray();
