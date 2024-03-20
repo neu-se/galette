@@ -17,7 +17,7 @@ import org.objectweb.asm.commons.AnalyzerAdapter;
  * <p>
  * Due to the invocation semantics of signature polymorphic methods, a tag frame cannot be directly passed to
  * a signature polymorphic method call as an extra argument.
- * Instead, Galette will indirectly pass the frame by temporarily storing on the {@link Thread} instance
+ * Instead, Galette will indirectly pass the frame by temporarily storing it on the {@link Thread} instance
  * representing the calling thread of execution.
  * This storage location is added by {@link ThreadLocalFrameAdder}.
  *
@@ -52,12 +52,15 @@ class IndirectFramePasser extends MethodVisitor {
             startHandlerScope(scopeEnd, handler);
         }
         // Consume tags from the shadow stack for the arguments of the call and create a frame
-        shadowLocals.prepareForCall(opcode == INVOKESTATIC, descriptor, Handle.INDIRECT_FRAME_CREATE_FOR_CALL);
-        mv.visitTypeInsn(CHECKCAST, GaletteNames.INDIRECT_FRAME_INTERNAL_NAME);
-        // Record argument values
-        // TODO using IndirectTagFrameAnnotater and then restore the runtime stack
-        // Store the frame in the indirect frame store
+        shadowLocals.prepareForCall(opcode == INVOKESTATIC, descriptor, true);
+        // TODO: Create an array of argument value
+        // AsmUtil.createArgumentArray(shadowLocals, opcode == INVOKESTATIC, descriptor);
+        // shadowLocals.visitInsn(DUP_X1);
+        shadowLocals.visitInsn(ACONST_NULL);
+        // Store the frame and arguments in the indirect frame store
         Handle.INDIRECT_FRAME_SET.accept(shadowLocals);
+        // TODO: Restore the arguments from the argument array
+        // AsmUtil.unpackArgumentArray(shadowLocals, owner, opcode == INVOKESTATIC, descriptor);
         // Call the signature polymorphic method
         // The analyzer must see this call delegate to mv (analyzer)
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);

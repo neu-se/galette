@@ -3,32 +3,37 @@ package edu.neu.ccs.prl.galette.internal.runtime.frame;
 import edu.neu.ccs.prl.galette.internal.runtime.Handle;
 import edu.neu.ccs.prl.galette.internal.runtime.InvokedViaHandle;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.runtime.collection.Pair;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.MemberAccess;
 import org.objectweb.asm.Opcodes;
 
 public final class IndirectFrameStore extends TagFrame {
     private static volatile boolean INITIALIZED = false;
 
+    private IndirectFrameStore() {
+        throw new AssertionError(getClass() + " is a static utility class");
+    }
+
     @SuppressWarnings("unused")
     @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_frame", opcode = Opcodes.GETFIELD)
-    private static IndirectTagFrame getFrame(Thread thread) {
+    private static Pair<TagFrame, Object[]> getFrame(Thread thread) {
         throw new AssertionError("Placeholder method was called");
     }
 
     @SuppressWarnings("unused")
     @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_frame", opcode = Opcodes.PUTFIELD)
-    private static void setFrame(Thread thread, IndirectTagFrame frame) {
+    private static void setFrame(Thread thread, Pair<TagFrame, Object[]> value) {
         throw new AssertionError("Placeholder method was called");
     }
 
     @InvokedViaHandle(handle = Handle.INDIRECT_FRAME_GET_ADJUSTER)
     public static FrameAdjuster getAdjuster() {
         if (INITIALIZED) {
-            IndirectTagFrame frame = getFrame(Thread.currentThread());
-            if (frame != null) {
+            Pair<TagFrame, Object[]> pair = getFrame(Thread.currentThread());
+            if (pair != null) {
                 // Consume the frame
                 setFrame(Thread.currentThread(), null);
-                return new MatchingFrameAdjuster(frame);
+                return new MatchingFrameAdjuster(pair.getFirst(), pair.getSecond());
             }
         }
         return new EmptyFrameAdjuster();
@@ -41,15 +46,18 @@ public final class IndirectFrameStore extends TagFrame {
         }
     }
 
+    @InvokedViaHandle(handle = Handle.INDIRECT_FRAME_RESTORE)
+    public static void restore(TagFrame frame) {
+        if (INITIALIZED && frame instanceof AdjustedTagFrame) {
+            AdjustedTagFrame aFrame = (AdjustedTagFrame) frame;
+            setFrame(Thread.currentThread(), new Pair<>(aFrame.getOriginal(), aFrame.getArguments()));
+        }
+    }
+
     @InvokedViaHandle(handle = Handle.INDIRECT_FRAME_SET)
-    public static void set(TagFrame frame) {
+    public static void set(TagFrame frame, Object[] arguments) {
         if (INITIALIZED) {
-            if (frame instanceof AdjustedTagFrame) {
-                // If this frame is an adjusted frame, use the original frame
-                setFrame(Thread.currentThread(), ((AdjustedTagFrame) frame).getOriginal());
-            } else if (frame instanceof IndirectTagFrame) {
-                setFrame(Thread.currentThread(), (IndirectTagFrame) frame);
-            }
+            setFrame(Thread.currentThread(), new Pair<>(frame, arguments));
         }
     }
 

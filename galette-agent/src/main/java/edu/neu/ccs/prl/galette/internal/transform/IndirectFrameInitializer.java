@@ -70,7 +70,7 @@ class IndirectFrameInitializer extends FrameInitializer {
             // Note: ATHROW instructions are handled by the added exception handler for non instance
             // initialization methods
             super.visitVarInsn(Opcodes.ALOAD, getFrameIndex());
-            Handle.INDIRECT_FRAME_SET.accept(mv);
+            Handle.INDIRECT_FRAME_RESTORE.accept(mv);
         }
         super.visitInsn(opcode);
     }
@@ -100,7 +100,7 @@ class IndirectFrameInitializer extends FrameInitializer {
             super.visitFrame(F_NEW, locals.length, locals, 1, new Object[] {"java/lang/Throwable"});
             // Restore the frame stack
             super.visitVarInsn(Opcodes.ALOAD, getFrameIndex());
-            Handle.INDIRECT_FRAME_SET.accept(mv);
+            Handle.INDIRECT_FRAME_RESTORE.accept(mv);
             // Rethrow the exception
             super.visitInsn(ATHROW);
         }

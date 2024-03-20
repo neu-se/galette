@@ -1,7 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.transform;
 
-import static org.objectweb.asm.Opcodes.IRETURN;
-import static org.objectweb.asm.Opcodes.RETURN;
+import static org.objectweb.asm.Opcodes.*;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -10,7 +9,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 public final class AsmUtil {
     private AsmUtil() {
-        throw new AssertionError();
+        throw new AssertionError(getClass() + " is a static utility class");
     }
 
     public static boolean isSet(int access, int flag) {
@@ -44,32 +43,28 @@ public final class AsmUtil {
         }
     }
 
-    public static void loadThisAndArguments(MethodVisitor mv, int access, String descriptor) {
-        loadThisAndArguments(mv, isSet(access, Opcodes.ACC_STATIC), descriptor);
-    }
-
-    public static void loadThisAndArguments(MethodVisitor mv, boolean isStatic, String descriptor) {
-        if (mv == null) {
+    public static void loadThisAndArguments(MethodVisitor delegate, boolean isStatic, String descriptor) {
+        if (delegate == null) {
             return;
         }
         if (!isStatic) {
-            mv.visitVarInsn(Opcodes.ALOAD, 0);
+            delegate.visitVarInsn(Opcodes.ALOAD, 0);
         }
-        loadArguments(mv, isStatic, descriptor);
+        loadArguments(delegate, isStatic, descriptor);
     }
 
-    public static void loadArguments(MethodVisitor mv, int access, String descriptor) {
-        loadArguments(mv, isSet(access, Opcodes.ACC_STATIC), descriptor);
+    public static void loadArguments(MethodVisitor delegate, int access, String descriptor) {
+        loadArguments(delegate, isSet(access, Opcodes.ACC_STATIC), descriptor);
     }
 
-    public static void loadArguments(MethodVisitor mv, boolean isStatic, String descriptor) {
-        if (mv == null) {
+    public static void loadArguments(MethodVisitor delegate, boolean isStatic, String descriptor) {
+        if (delegate == null) {
             return;
         }
         // Skip "this" for virtual methods
         int varIndex = isStatic ? 0 : 1;
         for (Type argument : Type.getArgumentTypes(descriptor)) {
-            mv.visitVarInsn(argument.getOpcode(Opcodes.ILOAD), varIndex);
+            delegate.visitVarInsn(argument.getOpcode(Opcodes.ILOAD), varIndex);
             varIndex += argument.getSize();
         }
     }
@@ -111,5 +106,87 @@ public final class AsmUtil {
 
     public static boolean isReturn(int opcode) {
         return IRETURN <= opcode && opcode <= RETURN;
+    }
+
+    public static void createArgumentArray(MethodVisitor delegate, boolean isStatic, String descriptor) {
+        // stack: receiver?, arg_0, arg_1, ..., arg_n
+        if (delegate == null) {
+            return;
+        }
+        Type[] arguments = Type.getArgumentTypes(descriptor);
+        int length = arguments.length + (isStatic ? 0 : 1);
+        pushInt(delegate, length);
+        delegate.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Object");
+        // stack: receiver?, arg_0, arg_1, ..., arg_n, arrayref
+        int index = length - 1;
+        for (int i = arguments.length - 1; i >= 0; i--) {
+            // ..., value, arrayref
+            Type argument = arguments[i];
+            if (argument.getSize() == 1) {
+                delegate.visitInsn(DUP_X1);
+                delegate.visitInsn(SWAP);
+                // ..., arrayref, arrayref, value
+            } else {
+                delegate.visitInsn(DUP_X2);
+                delegate.visitInsn(DUP_X2);
+                delegate.visitInsn(POP);
+                // ..., arrayref, arrayref, value
+            }
+            PrimitiveBoxer.box(delegate, argument);
+            pushInt(delegate, index--);
+            delegate.visitInsn(SWAP);
+            // ..., arrayref, arrayref, index, value
+            delegate.visitInsn(ASTORE);
+            // ..., arrayref
+        }
+        if (index != 0) {
+            // receiver, arrayref
+            delegate.visitInsn(DUP_X1);
+            delegate.visitInsn(SWAP);
+            // arrayref, arrayref, receiver
+            pushInt(delegate, index);
+            delegate.visitInsn(SWAP);
+            // ..., arrayref, arrayref, index, value
+            delegate.visitInsn(ASTORE);
+        }
+        // stack: Object[]
+    }
+
+    public static void unpackArgumentArray(MethodVisitor delegate, String owner, boolean isStatic, String descriptor) {
+        // stack: ..., arrayref
+        if (delegate == null) {
+            return;
+        }
+        int index = 0;
+        if (!isStatic) {
+            // ..., arrayref
+            delegate.visitInsn(DUP);
+            pushInt(delegate, index++);
+            // ..., arrayref, arrayref, index
+            delegate.visitInsn(ALOAD);
+            // ..., arrayref, value
+            delegate.visitTypeInsn(CHECKCAST, owner);
+            delegate.visitInsn(SWAP);
+            // ..., value, arrayref
+        }
+        Type[] arguments = Type.getArgumentTypes(descriptor);
+        for (Type argument : arguments) {
+            // ..., arrayref
+            delegate.visitInsn(DUP);
+            pushInt(delegate, index++);
+            // ..., arrayref, arrayref, index
+            delegate.visitInsn(ALOAD);
+            // ..., arrayref, value
+            PrimitiveBoxer.unbox(delegate, argument);
+            // ..., arrayref, value
+            if (argument.getSize() == 1) {
+                delegate.visitInsn(SWAP);
+            } else {
+                delegate.visitInsn(DUP2_X1);
+                delegate.visitInsn(POP2);
+            }
+        }
+        delegate.visitInsn(POP);
+        // stack: ..., receiver?, arg_0, arg_1, ..., arg_n
     }
 }
