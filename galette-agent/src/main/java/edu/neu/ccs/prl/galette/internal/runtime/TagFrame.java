@@ -6,7 +6,6 @@ public class TagFrame {
     private Class<?> caller;
     private Tag returnTag = Tag.getEmptyTag();
     private final Queue<Tag> tags = new Queue<>();
-    private String callerDescriptor = null;
 
     @InvokedViaHandle(handle = Handle.FRAME_DEQUEUE)
     public Tag dequeue() {
@@ -43,16 +42,6 @@ public class TagFrame {
     @InvokedViaHandle(handle = Handle.FRAME_SET_THROWN_TAG)
     public void setThrownTag(Throwable t, Tag tag) {
         // TODO
-    }
-
-    @InvokedViaHandle(handle = Handle.FRAME_SET_DESCRIPTOR)
-    public TagFrame setCallerDescriptor(String callerDescriptor) {
-        this.callerDescriptor = callerDescriptor;
-        return this;
-    }
-
-    public String getCallerDescriptor() {
-        return callerDescriptor;
     }
 
     @InvokedViaHandle(handle = Handle.FRAME_CREATE_FOR_CALL)

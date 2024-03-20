@@ -62,7 +62,7 @@ class ShadowWrapperCreator extends MethodVisitor {
         int frameIndex = AsmUtil.countLocalVariables(mn.access, mn.desc);
         MethodRecord callee = new MethodRecord(opcode, owner, mn.name, calleeDesc, isInterface);
         FrameInitializer initializer =
-                new IndirectFrameInitializer(mv, mn.name.equals("<init>"), frameIndex, 0, mn.desc);
+                new IndirectFrameInitializer(mv, mn.name.equals("<init>"), frameIndex, 0, mn.desc, mn.access);
         return new ShadowWrapperCreator(initializer, callee);
     }
 

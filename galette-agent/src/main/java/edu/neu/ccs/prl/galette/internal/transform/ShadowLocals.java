@@ -356,7 +356,8 @@ class ShadowLocals extends MethodVisitor {
         int frameIndex = original.maxLocals;
         if (!isShadow) {
             int handlers = original.tryCatchBlocks == null ? 0 : original.tryCatchBlocks.size();
-            mv = new IndirectFrameInitializer(mv, original.name.equals("<init>"), frameIndex, handlers, original.desc);
+            mv = new IndirectFrameInitializer(
+                    mv, original.name.equals("<init>"), frameIndex, handlers, original.desc, original.access);
         } else {
             mv = new DirectFrameInitializer(mv, frameIndex, original.access, original.desc);
         }

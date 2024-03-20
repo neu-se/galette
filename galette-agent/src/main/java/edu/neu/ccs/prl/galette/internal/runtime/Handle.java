@@ -1,5 +1,7 @@
 package edu.neu.ccs.prl.galette.internal.runtime;
 
+import edu.neu.ccs.prl.galette.internal.runtime.frame.FrameAdjuster;
+import edu.neu.ccs.prl.galette.internal.runtime.frame.IndirectFrameStore;
 import edu.neu.ccs.prl.galette.internal.transform.HandleRegistry;
 import edu.neu.ccs.prl.galette.internal.transform.MaskRegistry;
 import org.objectweb.asm.MethodVisitor;
@@ -18,9 +20,8 @@ public enum Handle {
     FRAME_SET_RETURN_TAG(TagFrame.class),
     FRAME_SET_THROWN_TAG(TagFrame.class),
     FRAME_CREATE_EMPTY(TagFrame.class),
-    FRAME_SET_DESCRIPTOR(TagFrame.class),
     INDIRECT_FRAME_SET(IndirectFrameStore.class),
-    INDIRECT_FRAME_GET_AND_CLEAR(IndirectFrameStore.class),
+    INDIRECT_FRAME_GET_ADJUSTER(IndirectFrameStore.class),
     INDIRECT_FRAME_CLEAR(IndirectFrameStore.class),
     ARRAY_TAG_STORE_GET_LENGTH_TAG(ArrayTagStore.class),
     ARRAY_TAG_STORE_SET_LENGTH_TAG(ArrayTagStore.class),
@@ -30,7 +31,17 @@ public enum Handle {
     FIELD_TAG_STORE_PUT_STATIC(FieldTagStore.class),
     FIELD_TAG_STORE_GET_STATIC(FieldTagStore.class),
     FIELD_TAG_STORE_PUT_FIELD(FieldTagStore.class),
-    FIELD_TAG_STORE_GET_FIELD(FieldTagStore.class);
+    FIELD_TAG_STORE_GET_FIELD(FieldTagStore.class),
+    FRAME_ADJUSTER_CREATE_FRAME(FrameAdjuster.class),
+    FRAME_ADJUSTER_PROCESS_BOOLEAN(FrameAdjuster.class),
+    FRAME_ADJUSTER_PROCESS_BYTE(FrameAdjuster.class),
+    FRAME_ADJUSTER_PROCESS_CHAR(FrameAdjuster.class),
+    FRAME_ADJUSTER_PROCESS_SHORT(FrameAdjuster.class),
+    FRAME_ADJUSTER_PROCESS_INT(FrameAdjuster.class),
+    FRAME_ADJUSTER_PROCESS_LONG(FrameAdjuster.class),
+    FRAME_ADJUSTER_PROCESS_FLOAT(FrameAdjuster.class),
+    FRAME_ADJUSTER_PROCESS_DOUBLE(FrameAdjuster.class),
+    FRAME_ADJUSTER_PROCESS_OBJECT(FrameAdjuster.class);
 
     private final Class<?> owner;
 

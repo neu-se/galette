@@ -1,5 +1,8 @@
-package edu.neu.ccs.prl.galette.internal.runtime;
+package edu.neu.ccs.prl.galette.internal.runtime.frame;
 
+import edu.neu.ccs.prl.galette.internal.runtime.Handle;
+import edu.neu.ccs.prl.galette.internal.runtime.InvokedViaHandle;
+import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.MemberAccess;
 import org.objectweb.asm.Opcodes;
 
@@ -18,18 +21,17 @@ public final class IndirectFrameStore {
         throw new AssertionError("Placeholder method was called");
     }
 
-    @InvokedViaHandle(handle = Handle.INDIRECT_FRAME_GET_AND_CLEAR)
-    public static TagFrame getAndClear(String descriptor) {
+    @InvokedViaHandle(handle = Handle.INDIRECT_FRAME_GET_ADJUSTER)
+    public static FrameAdjuster getAdjuster() {
         if (INITIALIZED) {
             TagFrame frame = getFrame(Thread.currentThread());
             if (frame != null) {
+                // Consume the frame
                 setFrame(Thread.currentThread(), null);
-                String callerDescriptor = frame.getCallerDescriptor();
-                // TODO attempt to match using descriptor
-                // if matches fails need way to ensure original is set back not the empty frame
+                return new IndirectFrameAdjuster(frame);
             }
         }
-        return new TagFrame();
+        return new EmptyFrameAdjuster();
     }
 
     @InvokedViaHandle(handle = Handle.INDIRECT_FRAME_CLEAR)
@@ -42,6 +44,10 @@ public final class IndirectFrameStore {
     @InvokedViaHandle(handle = Handle.INDIRECT_FRAME_SET)
     public static void set(TagFrame frame) {
         if (INITIALIZED) {
+            if (frame instanceof AdjustedTagFrame) {
+                // If this frame is an adjusted frame, use the original frame
+                frame = ((AdjustedTagFrame) frame).getOriginal();
+            }
             setFrame(Thread.currentThread(), frame);
         }
     }

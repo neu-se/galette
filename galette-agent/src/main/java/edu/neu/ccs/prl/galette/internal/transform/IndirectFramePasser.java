@@ -54,8 +54,7 @@ class IndirectFramePasser extends MethodVisitor {
         // Consume tags from the shadow stack for the arguments of the call and create a frame
         shadowLocals.prepareForCall(opcode == INVOKESTATIC, descriptor, true);
         // Store the frame in the indirect frame store
-        shadowLocals.visitLdcInsn(descriptor);
-        Handle.FRAME_SET_DESCRIPTOR.accept(shadowLocals);
+        // TODO record argument value
         Handle.INDIRECT_FRAME_SET.accept(shadowLocals);
         // Call the signature polymorphic method
         // The analyzer must see this call delegate to mv (analyzer)
