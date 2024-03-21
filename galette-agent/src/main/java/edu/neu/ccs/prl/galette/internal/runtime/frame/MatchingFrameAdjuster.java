@@ -106,8 +106,9 @@ class MatchingFrameAdjuster implements FrameAdjuster {
             // Possible added trailing suffix
             return this;
         } else {
-            Object actual = arguments[index++];
-            if (actual == value) {
+            Object expected = arguments[index++];
+            if (expected == value || index == 1 && value == IndirectTagFrameStore.getUninitializedThisMarker()) {
+                // Since an uninitialized value cannot be passed as an argument, a placeholder is used instead
                 return this;
             }
             return new MismatchedFrameAdjuster(original, arguments);

@@ -9,6 +9,7 @@ import org.objectweb.asm.Opcodes;
 
 public final class IndirectTagFrameStore extends TagFrame {
     private static volatile boolean INITIALIZED = false;
+    private static final Object UNINITIALIZED_THIS = new Object();
 
     private IndirectTagFrameStore() {
         throw new AssertionError(getClass() + " is a static utility class");
@@ -63,5 +64,10 @@ public final class IndirectTagFrameStore extends TagFrame {
 
     public static void initialize() {
         INITIALIZED = true;
+    }
+
+    @InvokedViaHandle(handle = Handle.INDIRECT_FRAME_GET_UNINITIALIZED_THIS)
+    public static Object getUninitializedThisMarker() {
+        return UNINITIALIZED_THIS;
     }
 }

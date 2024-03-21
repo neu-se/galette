@@ -113,12 +113,14 @@ class IndirectFrameInitializer extends FrameInitializer {
         Handle.INDIRECT_FRAME_GET_ADJUSTER.accept(mv);
         int varIndex = 0;
         if (!AsmUtil.isSet(Opcodes.ACC_STATIC, access)) {
-            if (!isInstanceInitializer) {
-                // Skip uninitialized this
-                super.visitInsn(Opcodes.DUP);
+            super.visitInsn(Opcodes.DUP);
+            if (isInstanceInitializer) {
+                // Use placeholder for uninitialized this
+                Handle.INDIRECT_FRAME_GET_UNINITIALIZED_THIS.accept(mv);
+            } else {
                 super.visitVarInsn(Opcodes.ALOAD, varIndex);
-                Handle.FRAME_ADJUSTER_PROCESS_OBJECT.accept(mv);
             }
+            Handle.FRAME_ADJUSTER_PROCESS_OBJECT.accept(mv);
             varIndex++;
         }
         for (Type argument : Type.getArgumentTypes(descriptor)) {
