@@ -1,7 +1,6 @@
 package edu.neu.ccs.prl.galette.bench;
 
 import static java.lang.invoke.MethodHandles.lookup;
-import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 
 import edu.neu.ccs.prl.galette.bench.extension.FlowBench;
@@ -12,6 +11,9 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.IntToLongFunction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +24,7 @@ public class MethodHandleITCase {
     @Test
     void lookupFindStatic(TagManager manager, FlowChecker checker) throws Throwable {
         MethodType mt = methodType(int.class, int.class, int.class);
-        MethodHandle mh = lookup.findStatic(Parent.class, "max", mt);
+        MethodHandle mh = lookup.findStatic(Math.class, "max", mt);
         int a = manager.setLabels(5, new Object[] {"a"});
         int b = manager.setLabels(90, new Object[] {"b"});
         int actual = (int) mh.invokeExact(a, b);
@@ -171,42 +173,92 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandleInvokeExact(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandleInvokeExact(TagManager manager, FlowChecker checker) throws Throwable {
+        MethodType mt = methodType(long.class, long.class, long.class);
+        MethodHandle mh = lookup.findStatic(Math.class, "max", mt);
+        long a = manager.setLabels(5L, new Object[] {"a"});
+        long b = manager.setLabels(90L, new Object[] {"b"});
+        long actual = (long) mh.invokeExact(a, b);
+        Assertions.assertEquals(90, actual);
+        checker.check(new Object[] {"b"}, manager.getLabels(actual));
+    }
 
     @Test
-    void methodHandleInvoke(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandleInvoke(TagManager manager, FlowChecker checker) throws Throwable {
+        MethodType mt = methodType(long.class, long.class, long.class);
+        MethodHandle mh = lookup.findStatic(Math.class, "max", mt);
+        int a = manager.setLabels(5, new Object[] {"a"});
+        int b = manager.setLabels(90, new Object[] {"b"});
+        long actual = (long) mh.invoke(a, b);
+        Assertions.assertEquals(90, actual);
+        checker.check(new Object[] {"b"}, manager.getLabels(actual));
+    }
 
     @Test
-    void methodHandleInvokeWithArguments(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandleInvokeWithArguments(TagManager manager, FlowChecker checker) throws Throwable {
+        MethodType mt = methodType(long.class, long.class, long.class);
+        MethodHandle mh = lookup.findStatic(Math.class, "max", mt);
+        int a = manager.setLabels(5, new Object[] {"a"});
+        int b = manager.setLabels(90, new Object[] {"b"});
+        List<Object> arguments = Arrays.asList(a, b);
+        long actual = (long) mh.invokeWithArguments(arguments);
+        Assertions.assertEquals(90, actual);
+        checker.check(new Object[] {"b"}, manager.getLabels(actual));
+    }
 
     @Test
-    void methodHandleAsType(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandleAsType(TagManager manager, FlowChecker checker) throws Throwable {
+        MethodType mt = methodType(long.class, long.class, long.class);
+        MethodHandle mh = lookup.findStatic(Math.class, "max", mt).asType(methodType(long.class, int.class, int.class));
+        int a = manager.setLabels(5, new Object[] {"a"});
+        int b = manager.setLabels(90, new Object[] {"b"});
+        long actual = (long) mh.invokeExact(a, b);
+        Assertions.assertEquals(90, actual);
+        checker.check(new Object[] {"b"}, manager.getLabels(actual));
+    }
 
     @Test
-    void methodHandleAsSpreader(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandleAsSpreader(TagManager manager, FlowChecker checker) throws Throwable {
+        MethodType mt = methodType(double.class, double.class, double.class);
+        MethodHandle mh = lookup.findStatic(Double.class, "sum", mt).asSpreader(double[].class, 2);
+        double a = manager.setLabels(5.0, new Object[] {"a"});
+        double b = manager.setLabels(90, new Object[] {"b"});
+        double actual = (double) mh.invokeExact(new double[] {a, b});
+        Assertions.assertEquals(95.0, actual);
+        checker.check(new Object[] {"a", "b"}, manager.getLabels(actual));
+    }
 
     @Test
-    void methodHandleWithVarArgs(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandleAsCollector(TagManager manager, FlowChecker checker) throws Throwable {
+        MethodType mt = methodType(int.class, int[].class);
+        MethodHandle mh = lookup.findStatic(MethodHandleITCase.class, "sum", mt).asCollector(int[].class, 2);
+        int x = manager.setLabels(75, new Object[] {"x"});
+        int y = manager.setLabels(25, new Object[] {"y"});
+        int actual = (int) mh.invokeExact(x, y);
+        Assertions.assertEquals(100, actual);
+        checker.check(new Object[] {"x", "y"}, manager.getLabels(actual));
+    }
 
     @Test
-    void methodHandleAsCollector(TagManager manager, FlowChecker checker) throws Throwable {}
-
-    @Test
-    void methodHandleAsVarargsCollector(TagManager manager, FlowChecker checker) throws Throwable {}
-
-    @Test
-    void methodHandleAsFixedArity(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandleAsVarargsCollector(TagManager manager, FlowChecker checker) throws Throwable {
+        MethodType mt = methodType(int.class, int[].class);
+        MethodHandle mh = lookup.findStatic(MethodHandleITCase.class, "sum", mt).asVarargsCollector(int[].class);
+        int x = manager.setLabels(75, new Object[] {"x"});
+        int y = manager.setLabels(25, new Object[] {"y"});
+        int actual = (int) mh.invoke(x, y);
+        Assertions.assertEquals(100, actual);
+        checker.check(new Object[] {"x", "y"}, manager.getLabels(actual));
+    }
 
     @Test
     void methodHandleBindTo(TagManager manager, FlowChecker checker) throws Throwable {
-        MethodHandle mh = lookup.findVirtual(Example.class, "apply", genericMethodType(2));
-        Object a1 = "hello";
-        Object a2 = "world";
-        Example val = (x1, x2) -> "present";
+        MethodHandle mh = lookup.findVirtual(IntToLongFunction.class, "applyAsLong", methodType(long.class, int.class));
+        int x = manager.setLabels(75, new Object[] {"x"});
+        IntToLongFunction val = (i) -> i;
         MethodHandle bmh = mh.bindTo(val);
-        Object result1 = bmh.invokeExact(a1, a2);
-        Object result2 = mh.invokeExact(val, a1, a2);
-        Assertions.assertEquals(result1, result2);
+        long actual = (long) bmh.invokeExact(x);
+        Assertions.assertEquals(75, actual);
+        checker.check(new Object[] {"x"}, manager.getLabels(actual));
     }
 
     @Test
@@ -325,6 +377,14 @@ public class MethodHandleITCase {
     @Test
     void varHandleToMethodHandle(TagManager manager, FlowChecker checker) throws Throwable {}
 
+    static int sum(int[] values) {
+        int sum = 0;
+        for (int value : values) {
+            sum += value;
+        }
+        return sum;
+    }
+
     private static class GuardWithHelper {
         private final boolean flag;
 
@@ -345,10 +405,6 @@ public class MethodHandleITCase {
         }
     }
 
-    interface Example {
-        Object apply(Object a1, Object a2);
-    }
-
     private static class Parent {
         public int x;
         public static long j;
@@ -367,10 +423,6 @@ public class MethodHandleITCase {
 
         public void setX(int x) {
             this.x = x;
-        }
-
-        public static int max(int a, int b) {
-            return Math.max(a, b);
         }
 
         public int getXPlus(int y) {
