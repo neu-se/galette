@@ -24,10 +24,10 @@ public class MethodHandleITCase {
     @Test
     void lookupFindStatic(TagManager manager, FlowChecker checker) throws Throwable {
         MethodType mt = methodType(int.class, int.class, int.class);
-        MethodHandle mn = lookup.findStatic(Parent.class, "max", mt);
+        MethodHandle mh = lookup.findStatic(Parent.class, "max", mt);
         int a = manager.setLabels(5, new Object[] {"a"});
         int b = manager.setLabels(90, new Object[] {"b"});
-        int actual = (int) mn.invokeExact(a, b);
+        int actual = (int) mh.invokeExact(a, b);
         Assertions.assertEquals(90, actual);
         checker.check(new Object[] {"b"}, manager.getLabels(actual));
     }

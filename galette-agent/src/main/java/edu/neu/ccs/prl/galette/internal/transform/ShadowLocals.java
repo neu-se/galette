@@ -352,6 +352,11 @@ class ShadowLocals extends MethodVisitor {
         }
     }
 
+    public int getNextFreeVariable() {
+        // Place the local variable after the top of the shadow stack
+        return getShadowStackIndex(0) + 1;
+    }
+
     static ShadowLocals newInstance(MethodVisitor mv, MethodNode original, boolean isShadow) {
         int frameIndex = original.maxLocals;
         if (!isShadow) {

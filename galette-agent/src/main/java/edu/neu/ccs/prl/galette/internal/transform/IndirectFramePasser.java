@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 
@@ -46,31 +47,90 @@ class IndirectFramePasser extends MethodVisitor {
 
     private void visitSignaturePolymorphicMethodInsn(
             int opcode, String owner, String name, String descriptor, boolean isInterface) {
+        boolean isStatic = opcode == INVOKESTATIC;
         Label scopeEnd = new Label();
         Label handler = new Label();
         if (analyzer.locals != null) {
             startHandlerScope(scopeEnd, handler);
         }
+        // Store the arguments to the local variables
+        int argumentsIndex = storeArgumentsToVariable(isStatic, descriptor);
         // Consume tags from the shadow stack for the arguments of the call and create a frame
-        shadowLocals.prepareForCall(opcode == INVOKESTATIC, descriptor, true);
-        // TODO: Create an array of argument value
-        // AsmUtil.createArgumentArray(shadowLocals, opcode == INVOKESTATIC, descriptor);
-        // shadowLocals.visitInsn(DUP_X1);
-        shadowLocals.visitInsn(ACONST_NULL);
+        shadowLocals.prepareForCall(isStatic, descriptor, true);
+        // Create an array of argument values
+        createArgumentArray(isStatic, descriptor, argumentsIndex);
         // Store the frame and arguments in the indirect frame store
         Handle.INDIRECT_FRAME_SET.accept(shadowLocals);
-        // TODO: Restore the arguments from the argument array
-        // TODO: may be unable to box arguments before JVM is initialized
-        // TODO: use FrameAdjuster to box and delay creation of arguments
-        // AsmUtil.unpackArgumentArray(shadowLocals, owner, opcode == INVOKESTATIC, descriptor);
+        // Store the arguments from the local variables
+        loadArgumentsFromVariables(isStatic, descriptor, argumentsIndex);
         // Call the signature polymorphic method
-        // The analyzer must see this call delegate to mv (analyzer)
+        // The analyzer must see this call; therefore, delegate to mv (analyzer)
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
         // Set the tag for the return value
         shadowLocals.restoreFromCall(descriptor, true);
         if (analyzer.locals != null) {
             endHandlerScope(scopeEnd, handler);
         }
+    }
+
+    private void createArgumentArray(boolean isStatic, String descriptor, int argumentsIndex) {
+        // stack: ...
+        Type[] arguments = Type.getArgumentTypes(descriptor);
+        int length = arguments.length + (isStatic ? 0 : 1);
+        AsmUtil.pushInt(shadowLocals, length);
+        shadowLocals.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Object");
+        int index = 0;
+        if (!isStatic) {
+            shadowLocals.visitInsn(DUP);
+            AsmUtil.pushInt(shadowLocals, index++);
+            shadowLocals.visitVarInsn(ALOAD, argumentsIndex++);
+            // stack: ..., arrayref, arrayref, index, value
+            shadowLocals.visitInsn(AASTORE);
+            // stack: ..., arrayref
+        }
+        for (Type argument : arguments) {
+            shadowLocals.visitInsn(DUP);
+            AsmUtil.pushInt(shadowLocals, index++);
+            shadowLocals.visitVarInsn(argument.getOpcode(ILOAD), argumentsIndex);
+            argumentsIndex += argument.getSize();
+            PrimitiveBoxer.box(shadowLocals, argument);
+            // stack: ..., arrayref, arrayref, index, value
+            shadowLocals.visitInsn(AASTORE);
+            // stack: ..., arrayref
+        }
+        // stack: ..., arrayref
+    }
+
+    private int storeArgumentsToVariable(boolean isStatic, String descriptor) {
+        // stack: ..., receiver?, arg_0, arg_1, ..., arg_{n-1}
+        int firstIndex = shadowLocals.getNextFreeVariable();
+        int index = firstIndex + AsmUtil.countLocalVariables(isStatic, descriptor);
+        Type[] arguments = Type.getArgumentTypes(descriptor);
+        // Last argument is on the top of the stack; visit types in reverse order
+        for (int i = arguments.length - 1; i >= 0; i--) {
+            // stack: receiver?, arg_0, arg_1, ..., arg_i
+            Type argument = arguments[i];
+            index -= argument.getSize();
+            shadowLocals.visitVarInsn(argument.getOpcode(ISTORE), index);
+        }
+        if (!isStatic) {
+            shadowLocals.visitVarInsn(ASTORE, --index);
+        }
+        assert index == firstIndex;
+        // stack: ...
+        return firstIndex;
+    }
+
+    private void loadArgumentsFromVariables(boolean isStatic, String descriptor, int index) {
+        // stack: ...
+        if (!isStatic) {
+            shadowLocals.visitVarInsn(ALOAD, index++);
+        }
+        for (Type argument : Type.getArgumentTypes(descriptor)) {
+            shadowLocals.visitVarInsn(argument.getOpcode(ILOAD), index);
+            index += argument.getSize();
+        }
+        // stack: ..., receiver?, arg_0, arg_1, ..., arg_{n-1}
     }
 
     private void startHandlerScope(Label scopeEnd, Label handler) {

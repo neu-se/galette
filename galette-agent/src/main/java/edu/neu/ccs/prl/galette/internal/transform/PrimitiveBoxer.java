@@ -48,29 +48,6 @@ public final class PrimitiveBoxer {
         }
     }
 
-    public static String getUnboxMethodName(Type type) {
-        switch (type.getSort()) {
-            case Type.BYTE:
-                return "byteValue";
-            case Type.BOOLEAN:
-                return "booleanValue";
-            case Type.SHORT:
-                return "shortValue";
-            case Type.CHAR:
-                return "charValue";
-            case Type.INT:
-                return "intValue";
-            case Type.FLOAT:
-                return "floatValue";
-            case Type.LONG:
-                return "longValue";
-            case Type.DOUBLE:
-                return "doubleValue";
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
-
     public static void box(MethodVisitor delegate, Type type) {
         if (type == Type.VOID_TYPE) {
             throw new IllegalArgumentException();
@@ -87,16 +64,6 @@ public final class PrimitiveBoxer {
             }
             String descriptor = Type.getMethodDescriptor(Type.VOID_TYPE, type);
             delegate.visitMethodInsn(Opcodes.INVOKESPECIAL, boxedType.getInternalName(), "<init>", descriptor, false);
-        }
-    }
-
-    public static void unbox(MethodVisitor delegate, Type type) {
-        Type boxedType = getBoxedType(type);
-        delegate.visitTypeInsn(Opcodes.CHECKCAST, boxedType.getInternalName());
-        if (!boxedType.equals(type)) {
-            String descriptor = Type.getMethodDescriptor(type);
-            delegate.visitMethodInsn(
-                    Opcodes.INVOKEVIRTUAL, boxedType.getInternalName(), getUnboxMethodName(type), descriptor, false);
         }
     }
 }
