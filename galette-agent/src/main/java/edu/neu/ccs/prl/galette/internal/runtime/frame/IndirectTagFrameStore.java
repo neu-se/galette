@@ -7,10 +7,10 @@ import edu.neu.ccs.prl.galette.internal.runtime.collection.Pair;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.MemberAccess;
 import org.objectweb.asm.Opcodes;
 
-public final class IndirectFrameStore extends TagFrame {
+public final class IndirectTagFrameStore extends TagFrame {
     private static volatile boolean INITIALIZED = false;
 
-    private IndirectFrameStore() {
+    private IndirectTagFrameStore() {
         throw new AssertionError(getClass() + " is a static utility class");
     }
 

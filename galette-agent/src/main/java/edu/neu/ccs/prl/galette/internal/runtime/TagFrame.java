@@ -5,7 +5,15 @@ import edu.neu.ccs.prl.galette.internal.runtime.collection.Queue;
 public class TagFrame {
     private Class<?> caller;
     private Tag returnTag = Tag.getEmptyTag();
-    private final Queue<Tag> tags = new Queue<>();
+    private final Queue<Tag> tags;
+
+    public TagFrame() {
+        this.tags = new Queue<>();
+    }
+
+    public TagFrame(Queue<Tag> tags) {
+        this.tags = new Queue<>(tags);
+    }
 
     @InvokedViaHandle(handle = Handle.FRAME_DEQUEUE)
     public Tag dequeue() {
@@ -46,6 +54,10 @@ public class TagFrame {
     @InvokedViaHandle(handle = Handle.FRAME_SET_THROWN_TAG)
     public void setThrownTag(Throwable t, Tag tag) {
         // TODO
+    }
+
+    public Queue<Tag> copyTags() {
+        return new Queue<>(tags);
     }
 
     @InvokedViaHandle(handle = Handle.FRAME_CREATE_FOR_CALL)

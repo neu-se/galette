@@ -13,11 +13,9 @@ import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 @FlowBench
-@Disabled("Unimplemented")
 public class MethodHandleITCase {
     private final Lookup lookup = lookup();
 

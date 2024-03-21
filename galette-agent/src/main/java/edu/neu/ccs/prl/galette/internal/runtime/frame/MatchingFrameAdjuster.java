@@ -14,64 +14,108 @@ class MatchingFrameAdjuster implements FrameAdjuster {
 
     @Override
     public FrameAdjuster process(boolean value) {
-        processInternal(value);
-        return this;
+        if (index < arguments.length) {
+            Object actual = arguments[index++];
+            if (actual instanceof Boolean && (Boolean) actual == value) {
+                return this;
+            }
+        }
+        return new MismatchedFrameAdjuster(original, arguments);
     }
 
     @Override
     public FrameAdjuster process(byte value) {
-        processInternal(value);
-        return this;
+        if (index < arguments.length) {
+            Object actual = arguments[index++];
+            if (actual instanceof Byte && (Byte) actual == value) {
+                return this;
+            }
+        }
+        return new MismatchedFrameAdjuster(original, arguments);
     }
 
     @Override
     public FrameAdjuster process(char value) {
-        processInternal(value);
-        return this;
+        if (index < arguments.length) {
+            Object actual = arguments[index++];
+            if (actual instanceof Character && (Character) actual == value) {
+                return this;
+            }
+        }
+        return new MismatchedFrameAdjuster(original, arguments);
     }
 
     @Override
     public FrameAdjuster process(short value) {
-        processInternal(value);
-        return this;
+        if (index < arguments.length) {
+            Object actual = arguments[index++];
+            if (actual instanceof Short && (Short) actual == value) {
+                return this;
+            }
+        }
+        return new MismatchedFrameAdjuster(original, arguments);
     }
 
     @Override
     public FrameAdjuster process(int value) {
-        processInternal(value);
-        return this;
+        if (index < arguments.length) {
+            Object actual = arguments[index++];
+            if (actual instanceof Integer && (Integer) actual == value) {
+                return this;
+            }
+        }
+        return new MismatchedFrameAdjuster(original, arguments);
     }
 
     @Override
     public FrameAdjuster process(long value) {
-        processInternal(value);
-        return this;
+        if (index < arguments.length) {
+            Object actual = arguments[index++];
+            if (actual instanceof Long && (Long) actual == value) {
+                return this;
+            }
+        }
+        return new MismatchedFrameAdjuster(original, arguments);
     }
 
     @Override
     public FrameAdjuster process(float value) {
-        processInternal(value);
-        return this;
+        if (index < arguments.length) {
+            Object actual = arguments[index++];
+            if (actual instanceof Float && (Float) actual == value) {
+                return this;
+            }
+        }
+        return new MismatchedFrameAdjuster(original, arguments);
     }
 
     @Override
     public FrameAdjuster process(double value) {
-        processInternal(value);
-        return this;
+        if (index < arguments.length) {
+            Object actual = arguments[index++];
+            if (actual instanceof Double && (Double) actual == value) {
+                return this;
+            }
+        }
+        return new MismatchedFrameAdjuster(original, arguments);
     }
 
     @Override
     public FrameAdjuster process(Object value) {
-        processInternal(value);
-        return this;
-    }
-
-    private void processInternal(Object value) {
-        // TODO
+        if (index >= arguments.length) {
+            // Possible added trailing suffix
+            return this;
+        } else {
+            Object actual = arguments[index++];
+            if (actual == value) {
+                return this;
+            }
+            return new MismatchedFrameAdjuster(original, arguments);
+        }
     }
 
     @Override
     public TagFrame createFrame() {
-        return new AdjustedTagFrame(original, arguments);
+        return new AdjustedTagFrame(original, arguments, original.copyTags());
     }
 }

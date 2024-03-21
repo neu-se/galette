@@ -7,6 +7,14 @@ public class Queue<E> {
     private Node<E> tail = null;
     private int size = 0;
 
+    public Queue() {}
+
+    public Queue(Queue<? extends E> other) {
+        for (Node<? extends E> current = other.head; current != null; current = current.next) {
+            enqueue(current.value);
+        }
+    }
+
     public int size() {
         return size;
     }
