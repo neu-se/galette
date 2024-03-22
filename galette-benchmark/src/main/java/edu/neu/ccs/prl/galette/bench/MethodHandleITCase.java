@@ -12,9 +12,12 @@ import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.VarHandle;
 import java.lang.reflect.Method;
+import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.IntToLongFunction;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
@@ -223,7 +226,6 @@ public class MethodHandleITCase {
 
     @Test
     void methodHandleAsType() throws Throwable {
-        MethodType mt = methodType(long.class, long.class, long.class);
         MethodHandle mh = getMaxLongHandle().asType(methodType(long.class, int.class, int.class));
         int a = manager.setLabel(5, "a");
         int b = manager.setLabel(90, "b");
@@ -527,8 +529,8 @@ public class MethodHandleITCase {
     void methodHandlesGuardWithTest() throws Throwable {
         int a = manager.setLabel(10, "a");
         int b = manager.setLabel(3, "b");
-        GuardWithHelper helper = new GuardWithHelper(true);
-        MethodHandle test = lookup.findVirtual(GuardWithHelper.class, "getFlag", methodType(boolean.class))
+        Guard helper = new Guard(true);
+        MethodHandle test = lookup.findVirtual(Guard.class, "getFlag", methodType(boolean.class))
                 .bindTo(helper);
         MethodHandle guarded = MethodHandles.guardWithTest(test, getIntegerSumHandle(), getMaxIntHandle());
         int actual = (int) guarded.invoke(a, b);
@@ -537,31 +539,139 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandlesCatchException() throws Throwable {}
+    void methodHandlesCatchException() throws Throwable {
+        int a = manager.setLabel(5, "a");
+        MethodHandle target = MethodHandles.arrayElementGetter(int[].class).bindTo(new int[0]);
+        MethodHandle handler = lookup.findStatic(
+                getClass(), "handler", methodType(int.class, ArrayIndexOutOfBoundsException.class, int.class));
+        MethodHandle mh = MethodHandles.catchException(target, ArrayIndexOutOfBoundsException.class, handler);
+        int actual = (int) mh.invokeExact(a);
+        Assertions.assertEquals(5, actual);
+        checker.check(new Object[] {"a"}, manager.getLabels(actual));
+    }
+
+    @SuppressWarnings("unused")
+    private static int handler(ArrayIndexOutOfBoundsException e, int i) {
+        return i;
+    }
 
     @Test
-    void methodHandlesThrowException() throws Throwable {}
+    void methodHandlesThrowException() {
+        RemoteException e = new RemoteException();
+        MethodHandle mh = MethodHandles.throwException(Object.class, e.getClass());
+        Assertions.assertThrows(RemoteException.class, () -> mh.invokeExact(e));
+    }
 
     @Test
-    void methodHandlesLoop() throws Throwable {}
+    @SuppressWarnings("Since15")
+    @EnabledForJreRange(min = JRE.JAVA_9)
+    void methodHandlesWhileLoop() throws Throwable {
+        MethodHandle init = lookup.findStatic(getClass(), "loopInit", methodType(int[].class, int[].class));
+        MethodHandle pred =
+                lookup.findStatic(getClass(), "loopPredicate", methodType(boolean.class, int[].class, int[].class));
+        MethodHandle body =
+                lookup.findStatic(getClass(), "loopBody", methodType(int[].class, int[].class, int[].class));
+        MethodHandle mh = MethodHandles.whileLoop(init, pred, body);
+        MethodHandle accessor = MethodHandles.insertArguments(MethodHandles.arrayElementGetter(int[].class), 1, 1);
+        mh = MethodHandles.filterReturnValue(mh, accessor);
+        checkArraySum(mh);
+    }
 
     @Test
-    void methodHandlesWhileLoop() throws Throwable {}
+    @SuppressWarnings("Since15")
+    @EnabledForJreRange(min = JRE.JAVA_9)
+    void methodHandlesDoWhileLoop() throws Throwable {
+        MethodHandle init = lookup.findStatic(getClass(), "loopInit", methodType(int[].class, int[].class));
+        MethodHandle pred =
+                lookup.findStatic(getClass(), "loopPredicate", methodType(boolean.class, int[].class, int[].class));
+        MethodHandle body =
+                lookup.findStatic(getClass(), "loopBody", methodType(int[].class, int[].class, int[].class));
+        MethodHandle mh = MethodHandles.doWhileLoop(init, body, pred);
+        MethodHandle accessor = MethodHandles.insertArguments(MethodHandles.arrayElementGetter(int[].class), 1, 1);
+        mh = MethodHandles.filterReturnValue(mh, accessor);
+        checkArraySum(mh);
+    }
 
     @Test
-    void methodHandlesDoWhileLoop() throws Throwable {}
+    @SuppressWarnings("Since15")
+    @EnabledForJreRange(min = JRE.JAVA_9)
+    void methodHandlesCountedLoop() throws Throwable {
+        MethodHandle start = MethodHandles.dropArguments(MethodHandles.zero(int.class), 0, int[].class);
+        MethodHandle end = MethodHandles.arrayLength(int[].class);
+        MethodHandle body =
+                lookup.findStatic(getClass(), "loopBody", methodType(int.class, int.class, int.class, int[].class));
+        MethodHandle mh = MethodHandles.countedLoop(start, end, null, body);
+        checkArraySum(mh);
+    }
 
     @Test
-    void methodHandlesCountedLoop() throws Throwable {}
+    @SuppressWarnings("Since15")
+    @EnabledForJreRange(min = JRE.JAVA_9)
+    void methodHandlesIteratedLoop() throws Throwable {
+        List<Integer> list = IntStream.range(0, 9).boxed().collect(Collectors.toList());
+        MethodHandle body =
+                lookup.findStatic(getClass(), "loopBody", methodType(int.class, int.class, int.class, int[].class));
+        body = MethodHandles.dropArguments(body, 2, Iterable.class);
+        MethodHandle mh = MethodHandles.iteratedLoop(null, MethodHandles.zero(int.class), body);
+        checkArraySum(mh.bindTo(list));
+    }
+
+    private void checkArraySum(MethodHandle mh) throws Throwable {
+        int[] a = new int[] {8, 10, 16, 32, -9, 14, 0, 1, 6};
+        BenchUtil.taintWithIndices(manager, a);
+        int sum = (int) mh.invokeExact(a);
+        Assertions.assertEquals(78, sum);
+        Object[] labels = {"0", "1", "2", "3", "4", "5", "6", "7", "8"};
+        checker.check(labels, manager.getLabels(sum));
+    }
+
+    private static int[] loopInit(@SuppressWarnings("unused") int[] array) {
+        return new int[2];
+    }
+
+    private static int[] loopBody(int[] state, int[] array) {
+        state[1] += array[state[0]++];
+        return state;
+    }
+
+    private static int loopBody(int sum, int index, int[] array) {
+        sum += array[index];
+        return sum;
+    }
+
+    private static boolean loopPredicate(int[] state, int[] array) {
+        return state[0] < array.length;
+    }
 
     @Test
-    void methodHandlesIteratedLoop() throws Throwable {}
+    @SuppressWarnings("Since15")
+    @EnabledForJreRange(min = JRE.JAVA_9)
+    void methodHandlesTryFinally() throws Throwable {
+        int a = manager.setLabel(5, "a");
+        MethodHandle handler =
+                lookup.findStatic(getClass(), "cleanUp", methodType(int.class, Throwable.class, int.class, int.class));
+        MethodHandle mh = MethodHandles.tryFinally(MethodHandles.identity(int.class), handler);
+        int actual = (int) mh.invokeExact(a);
+        Assertions.assertEquals(5, actual);
+        checker.check(new Object[] {"a"}, manager.getLabels(actual));
+    }
+
+    @SuppressWarnings("unused")
+    private static int cleanUp(Throwable t, int originalResult, int originalValue) {
+        return originalValue;
+    }
 
     @Test
-    void methodHandlesTryFinally() throws Throwable {}
-
-    @Test
-    void varHandleToMethodHandle() throws Throwable {}
+    @SuppressWarnings("Since15")
+    @EnabledForJreRange(min = JRE.JAVA_9)
+    void varHandleToMethodHandle() throws Throwable {
+        VarHandle vh = lookup.findStaticVarHandle(Parent.class, "j", long.class);
+        MethodHandle mh = vh.toMethodHandle(VarHandle.AccessMode.GET);
+        Parent.j = manager.setLabel(8L, "j");
+        long actual = (long) mh.invokeExact();
+        Assertions.assertEquals(8, actual);
+        checker.check(new Object[] {"j"}, manager.getLabels(actual));
+    }
 
     static int sum(int[] values) {
         int sum = 0;
@@ -571,19 +681,11 @@ public class MethodHandleITCase {
         return sum;
     }
 
-    private static class GuardWithHelper {
+    private static class Guard {
         private final boolean flag;
 
-        private GuardWithHelper(boolean flag) {
+        private Guard(boolean flag) {
             this.flag = flag;
-        }
-
-        public int max(int a, int b) {
-            return Math.max(a, b);
-        }
-
-        public int sum(int a, int b) {
-            return a + b;
         }
 
         public boolean getFlag() {
