@@ -4,7 +4,6 @@ import edu.neu.ccs.prl.galette.internal.transform.GaletteTransformer;
 import java.nio.ByteBuffer;
 import java.security.ProtectionDomain;
 
-@SuppressWarnings("unused")
 public final class ClassLoaderMasks {
     @Mask(owner = "java/lang/ClassLoader", name = "defineClass0", isStatic = true)
     public static Class<?> defineClass0(

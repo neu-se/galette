@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings("MismatchedReadAndWriteOfArray")
 public class ArrayLengthITCase {
     @Test
-    public void primitiveArrayLength(TagManager manager, FlowChecker checker) {
+    void primitiveArrayLength(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
         int i = manager.setLabels(5, expected);
         int[] a = new int[i];
@@ -22,7 +22,7 @@ public class ArrayLengthITCase {
     }
 
     @Test
-    public void referenceArrayLength(TagManager manager, FlowChecker checker) {
+    void referenceArrayLength(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
         int i = manager.setLabels(5, expected);
         String[] a = new String[i];
@@ -34,7 +34,7 @@ public class ArrayLengthITCase {
     }
 
     @Test
-    public void multiDimensionalPrimitiveArrayLength(TagManager manager, FlowChecker checker) {
+    void multiDimensionalPrimitiveArrayLength(TagManager manager, FlowChecker checker) {
         Object[] tag1 = new Object[] {"label1"};
         Object[] tag3 = new Object[] {"label3"};
         int[][][] a = new int[manager.setLabels(2, tag1)][3][manager.setLabels(1, tag3)];
@@ -53,7 +53,7 @@ public class ArrayLengthITCase {
     }
 
     @Test
-    public void multiDimensionalPrimitiveArrayLengthJagged(TagManager manager, FlowChecker checker) {
+    void multiDimensionalPrimitiveArrayLengthJagged(TagManager manager, FlowChecker checker) {
         Object[] tag1 = new Object[] {"label1"};
         Object[] tag2 = new Object[] {"label2"};
         int[][][] a = new int[manager.setLabels(5, tag1)][manager.setLabels(6, tag2)][];
@@ -68,7 +68,7 @@ public class ArrayLengthITCase {
     }
 
     @Test
-    public void multiDimensionReferenceArrayLength(TagManager manager, FlowChecker checker) {
+    void multiDimensionReferenceArrayLength(TagManager manager, FlowChecker checker) {
         Object[] tag1 = new Object[] {"label1"};
         Object[] tag2 = new Object[] {"label2"};
         String[][] a = new String[manager.setLabels(5, tag1)][manager.setLabels(6, tag2)];

@@ -40,4 +40,40 @@ public interface TagManager {
     Object[] getLabels(double value);
 
     Object[] getLabels(Object value);
+
+    default boolean setLabel(boolean value, String label) {
+        return setLabels(value, new Object[] {label});
+    }
+
+    default byte setLabel(byte value, String label) {
+        return setLabels(value, new Object[] {label});
+    }
+
+    default char setLabel(char value, String label) {
+        return setLabels(value, new Object[] {label});
+    }
+
+    default short setLabel(short value, String label) {
+        return setLabels(value, new Object[] {label});
+    }
+
+    default int setLabel(int value, String label) {
+        return setLabels(value, new Object[] {label});
+    }
+
+    default long setLabel(long value, String label) {
+        return setLabels(value, new Object[] {label});
+    }
+
+    default float setLabel(float value, String label) {
+        return setLabels(value, new Object[] {label});
+    }
+
+    default double setLabel(double value, String label) {
+        return setLabels(value, new Object[] {label});
+    }
+
+    default <T> T setLabel(T value, String label) {
+        return setLabels(value, new Object[] {label});
+    }
 }

@@ -52,6 +52,16 @@ public final class ArrayTagStore {
         setLengthTagsInternal(array, lengthTags, 0);
     }
 
+    public static synchronized void setLengthTags(Object array, int[] dimensions) {
+        if (wrappers == null || array == null || dimensions.length == 0) {
+            return;
+        }
+        ArrayWrapper wrapper = wrappers.get(array);
+        if (wrapper != null) {
+            setLengthTagsInternal(array, wrapper.elements, 0);
+        }
+    }
+
     private static synchronized void setLengthTagsInternal(Object array, Tag[] lengthTags, int dimension) {
         setLengthTag(array, lengthTags[dimension]);
         if (dimension < lengthTags.length - 1) {

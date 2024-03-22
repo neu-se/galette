@@ -8,6 +8,7 @@ import edu.neu.ccs.prl.galette.internal.runtime.collection.SimpleList;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.SimpleMap;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.*;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import org.objectweb.asm.Type;
 
 public final class MaskRegistry {
@@ -17,7 +18,8 @@ public final class MaskRegistry {
         ClassLoaderMasks.class,
         BoxTypeMasks.class,
         SystemMasks.class,
-        EnumMasks.class
+        EnumMasks.class,
+        ArrayMasks.class
     };
     private static final SimpleMap<String, MaskInfo> masks = new SimpleMap<>();
 
@@ -52,6 +54,11 @@ public final class MaskRegistry {
     private static void initialize() {
         for (Class<?> clazz : SOURCES) {
             for (Method method : clazz.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(Mask.class) || method.isAnnotationPresent(Masks.class)) {
+                    if (!Modifier.isStatic(method.getModifiers()) || !Modifier.isPublic(method.getModifiers())) {
+                        throw new IllegalStateException("Mask methods must be public and static");
+                    }
+                }
                 for (Mask mask : method.getAnnotationsByType(Mask.class)) {
                     String key = createKey(method, mask);
                     MethodRecord record = MethodRecord.createRecord(clazz, method);

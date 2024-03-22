@@ -10,6 +10,7 @@ import org.junit.jupiter.api.condition.JRE;
 
 @FlowBench
 @EnabledForJreRange(min = JRE.JAVA_9)
+@SuppressWarnings("Since15")
 public class VarHandleITCase {
     public static float f = 7.0f;
 

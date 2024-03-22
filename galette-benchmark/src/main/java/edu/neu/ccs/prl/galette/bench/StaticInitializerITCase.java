@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 @FlowBench
 public class StaticInitializerITCase {
     @Test
-    public void staticInitializer(TagManager manager, FlowChecker checker) {
+    void staticInitializer(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
         int i = manager.setLabels(5, expected);
         int j = Example.addX(i);

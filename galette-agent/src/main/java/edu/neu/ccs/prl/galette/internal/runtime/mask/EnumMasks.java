@@ -3,7 +3,6 @@ package edu.neu.ccs.prl.galette.internal.runtime.mask;
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 
-@SuppressWarnings("unused")
 public class EnumMasks {
     @Mask(owner = "java/lang/Enum", name = "valueOf", isStatic = true)
     public static <T extends Enum<T>> T valueOf(Class<T> enumType, String name, TagFrame frame) {

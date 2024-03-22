@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings("ConstantValue")
 public class AssignmentITCase {
     @Test
-    public void taintedReference(TagManager manager, FlowChecker checker) {
+    void taintedReference(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
         Map<Object, Object> item = new HashMap<>();
         item = manager.setLabels(item, expected);
@@ -22,7 +22,7 @@ public class AssignmentITCase {
     }
 
     @Test
-    public void taintedArray(TagManager manager, FlowChecker checker) {
+    void taintedArray(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
         int[] item = new int[2];
         item = manager.setLabels(item, expected);
@@ -32,7 +32,7 @@ public class AssignmentITCase {
     }
 
     @Test
-    public void taintedNull(TagManager manager, FlowChecker checker) {
+    void taintedNull(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
         Object item = manager.setLabels(null, expected);
         Assertions.assertNull(item);
@@ -41,7 +41,7 @@ public class AssignmentITCase {
     }
 
     @Test
-    public void taintedBoolean(TagManager manager, FlowChecker checker) {
+    void taintedBoolean(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
         boolean item = manager.setLabels(true, expected);
         Assertions.assertTrue(item);
@@ -51,7 +51,7 @@ public class AssignmentITCase {
     }
 
     @Test
-    public void taintedByte(TagManager manager, FlowChecker checker) {
+    void taintedByte(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
         byte item = 7;
         item = manager.setLabels(item, expected);
@@ -62,7 +62,7 @@ public class AssignmentITCase {
     }
 
     @Test
-    public void taintedChar(TagManager manager, FlowChecker checker) {
+    void taintedChar(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
         char item = 7;
         item = manager.setLabels(item, expected);
@@ -73,7 +73,7 @@ public class AssignmentITCase {
     }
 
     @Test
-    public void taintedShort(TagManager manager, FlowChecker checker) {
+    void taintedShort(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
         short item = 7;
         item = manager.setLabels(item, expected);
@@ -84,7 +84,7 @@ public class AssignmentITCase {
     }
 
     @Test
-    public void taintedInt(TagManager manager, FlowChecker checker) {
+    void taintedInt(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
         int item = 7;
         item = manager.setLabels(item, expected);
@@ -95,7 +95,7 @@ public class AssignmentITCase {
     }
 
     @Test
-    public void taintedLong(TagManager manager, FlowChecker checker) {
+    void taintedLong(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
         long item = 7;
         item = manager.setLabels(item, expected);
@@ -106,7 +106,7 @@ public class AssignmentITCase {
     }
 
     @Test
-    public void taintedFloat(TagManager manager, FlowChecker checker) {
+    void taintedFloat(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
         float item = 7;
         item = manager.setLabels(item, expected);
@@ -117,7 +117,7 @@ public class AssignmentITCase {
     }
 
     @Test
-    public void taintedDouble(TagManager manager, FlowChecker checker) {
+    void taintedDouble(TagManager manager, FlowChecker checker) {
         Object[] expected = new Object[] {"label"};
         double item = 7;
         item = manager.setLabels(item, expected);
@@ -128,7 +128,7 @@ public class AssignmentITCase {
     }
 
     @Test
-    public void duplicateIntValues(TagManager manager, FlowChecker checker) {
+    void duplicateIntValues(TagManager manager, FlowChecker checker) {
         Object[] tag1 = new Object[] {"label1"};
         Object[] tag2 = new Object[] {"label2"};
         int x = 5;

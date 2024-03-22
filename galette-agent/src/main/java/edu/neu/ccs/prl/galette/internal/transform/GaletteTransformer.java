@@ -118,7 +118,7 @@ public class GaletteTransformer {
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
         // Remove computed frames
         ClassVisitor cv = hasFrames ? cw : new FrameRemover(cw);
-        // Make the members of Unsafe publicly accessible
+        // Make the members of certain classes publicly accessible
         if (AccessModifier.isApplicable(cn.name)) {
             cv = new AccessModifier(cv);
         }

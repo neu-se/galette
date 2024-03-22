@@ -3,7 +3,6 @@ package edu.neu.ccs.prl.galette.internal.runtime.mask;
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 
-@SuppressWarnings("unused")
 public final class BoxTypeMasks {
     @Mask(owner = "java/lang/Boolean", name = "valueOf", isStatic = true)
     public static Boolean valueOf(boolean value, TagFrame frame) {

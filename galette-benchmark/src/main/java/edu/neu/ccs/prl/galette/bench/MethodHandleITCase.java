@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.function.IntToLongFunction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 
 @FlowBench
 public class MethodHandleITCase {
@@ -262,16 +264,48 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandlesArrayConstructor(TagManager manager, FlowChecker checker) throws Throwable {}
+    @EnabledForJreRange(min = JRE.JAVA_9)
+    @SuppressWarnings("Since15")
+    void methodHandlesArrayConstructor(TagManager manager, FlowChecker checker) throws Throwable {
+        MethodHandle mh = MethodHandles.arrayConstructor(int[].class);
+        int x = manager.setLabels(5, new Object[] {"x"});
+        int[] array = (int[]) mh.invokeExact(x);
+        Assertions.assertEquals(5, array.length);
+        checker.check(new Object[] {"x"}, manager.getLabels(array.length));
+    }
 
     @Test
-    void methodHandlesArrayLength(TagManager manager, FlowChecker checker) throws Throwable {}
+    @EnabledForJreRange(min = JRE.JAVA_9)
+    @SuppressWarnings("Since15")
+    void methodHandlesArrayLength(TagManager manager, FlowChecker checker) throws Throwable {
+        MethodHandle mh = MethodHandles.arrayLength(long[].class);
+        int x = manager.setLabels(5, new Object[] {"x"});
+        long[] array = new long[x];
+        int length = (int) mh.invokeExact(array);
+        Assertions.assertEquals(5, length);
+        checker.check(new Object[] {"x"}, manager.getLabels(length));
+    }
 
     @Test
-    void methodHandlesArrayElementGetter(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesArrayElementGetter(TagManager manager, FlowChecker checker) throws Throwable {
+        MethodHandle mh = MethodHandles.arrayElementGetter(int[].class);
+        int x = manager.setLabels(5, new Object[] {"x"});
+        int[] array = new int[] {0, x};
+        int element = (int) mh.invokeExact(array, 1);
+        Assertions.assertEquals(5, element);
+        checker.check(new Object[] {"x"}, manager.getLabels(element));
+    }
 
     @Test
-    void methodHandlesArrayElementSetter(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesArrayElementSetter(TagManager manager, FlowChecker checker) throws Throwable {
+        MethodHandle mh = MethodHandles.arrayElementSetter(int[].class);
+        int x = manager.setLabels(5, new Object[] {"x"});
+        int[] array = new int[2];
+        mh.invokeExact(array, 1, x);
+        int element = array[1];
+        Assertions.assertEquals(5, element);
+        checker.check(new Object[] {"x"}, manager.getLabels(element));
+    }
 
     @Test
     void methodHandlesSpreadInvoker(TagManager manager, FlowChecker checker) throws Throwable {}

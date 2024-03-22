@@ -3,7 +3,6 @@ package edu.neu.ccs.prl.galette.internal.runtime.mask;
 import edu.neu.ccs.prl.galette.internal.runtime.ArrayTagStore;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 
-@SuppressWarnings("unused")
 public class SystemMasks {
     @SuppressWarnings("SuspiciousSystemArraycopy")
     @Mask(owner = "java/lang/System", name = "arraycopy", isStatic = true)
