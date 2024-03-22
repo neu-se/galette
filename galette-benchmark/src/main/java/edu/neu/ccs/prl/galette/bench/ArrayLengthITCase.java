@@ -11,24 +11,22 @@ import org.junit.jupiter.api.Test;
 public class ArrayLengthITCase {
     @Test
     void primitiveArrayLength(TagManager manager, FlowChecker checker) {
-        Object[] expected = new Object[] {"label"};
-        int i = manager.setLabels(5, expected);
+        int i = manager.setLabel(5, "label");
         int[] a = new int[i];
         Assertions.assertEquals(5, a.length);
         Object[] actual = manager.getLabels(a.length);
-        checker.check(expected, actual);
+        checker.check(new Object[] {"label"}, actual);
         a = new int[5];
         checker.checkEmpty(manager.getLabels(a.length));
     }
 
     @Test
     void referenceArrayLength(TagManager manager, FlowChecker checker) {
-        Object[] expected = new Object[] {"label"};
-        int i = manager.setLabels(5, expected);
+        int i = manager.setLabel(5, "label");
         String[] a = new String[i];
         Assertions.assertEquals(5, a.length);
         Object[] actual = manager.getLabels(a.length);
-        checker.check(expected, actual);
+        checker.check(new Object[] {"label"}, actual);
         a = new String[5];
         checker.checkEmpty(manager.getLabels(a.length));
     }

@@ -11,7 +11,7 @@ public class ArrayAccessITCase extends ArrayBaseITCase {
     void taintedMultiDimensionalArrayElement() {
         Object[] expected = new Object[] {"label"};
         int[][][] a = new int[3][5][7];
-        a[2][3][4] = manager.setLabels(5, expected);
+        a[2][3][4] = manager.setLabel(5, "label");
         int value = a[2][3][4];
         Assertions.assertEquals(5, value);
         checker.check(expected, manager.getLabels(value));
