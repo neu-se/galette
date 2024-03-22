@@ -23,7 +23,7 @@ public class ArrayReflectionITCase extends ArrayBaseITCase {
         int length1 = manager.setLabels(3, tag1);
         int[] dimensions = new int[] {length1, 2, manager.setLabels(1, tag2)};
         int[][][] a = (int[][][]) Array.newInstance(int.class, dimensions);
-        Assertions.assertEquals(2, a.length);
+        Assertions.assertEquals(3, a.length);
         Object[] actual = manager.getLabels(a.length);
         checker.check(tag1, actual);
         for (int[][] x : a) {
