@@ -21,18 +21,17 @@ public class ArrayReflectionITCase extends ArrayBaseITCase {
         Object[] tag1 = new Object[] {"label1"};
         Object[] tag2 = new Object[] {"label2"};
         int length1 = manager.setLabels(3, tag1);
-        int[] dimensions = new int[] {length1, 2, manager.setLabels(1, tag2)};
+        int length3 = manager.setLabels(1, tag2);
+        int[] dimensions = new int[] {length1, 2, length3};
         int[][][] a = (int[][][]) Array.newInstance(int.class, dimensions);
         Assertions.assertEquals(3, a.length);
-        Object[] actual = manager.getLabels(a.length);
-        checker.check(tag1, actual);
+        checker.check(tag1, manager.getLabels(a.length));
         for (int[][] x : a) {
             Assertions.assertEquals(2, x.length);
             checker.checkEmpty(manager.getLabels(x.length));
             for (int[] y : x) {
                 Assertions.assertEquals(1, y.length);
-                actual = manager.getLabels(y.length);
-                checker.check(tag2, actual);
+                checker.check(tag2, manager.getLabels(y.length));
             }
         }
     }

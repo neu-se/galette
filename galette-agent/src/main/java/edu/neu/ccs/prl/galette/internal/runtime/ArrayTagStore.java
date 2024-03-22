@@ -56,7 +56,7 @@ public final class ArrayTagStore {
         if (wrappers == null || array == null || dimensions.length == 0) {
             return;
         }
-        ArrayWrapper wrapper = wrappers.get(array);
+        ArrayWrapper wrapper = wrappers.get(dimensions);
         if (wrapper != null) {
             setLengthTagsInternal(array, wrapper.elements, 0);
         }
