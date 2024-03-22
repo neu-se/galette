@@ -5,22 +5,17 @@ import edu.neu.ccs.prl.galette.bench.extension.FlowChecker;
 import edu.neu.ccs.prl.galette.bench.extension.TagManager;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.condition.EnabledForJreRange;
-import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @FlowBench
-public class UnsafeITCase {
-    private final UnsafeAdapter unsafe =
-            JRE.currentVersion() == JRE.JAVA_8 ? new SunUnsafeAdapter() : new JdkUnsafeAdapter();
+public abstract class UnsafeBaseITCase {
+    @SuppressWarnings("unused")
+    TagManager manager;
 
     @SuppressWarnings("unused")
-    private TagManager manager;
-
-    @SuppressWarnings("unused")
-    private FlowChecker checker;
+    FlowChecker checker;
 
     @ParameterizedTest(name = "compareAndSwapInt(compareSucceeds={0}, taintValue={1}, location={2})")
     @MethodSource("compareAndSwapArguments")
@@ -30,8 +25,12 @@ public class UnsafeITCase {
         int original = location.getInt(holder);
         int expected = compareSucceeds ? original : original + 50;
         int update = taintValue ? manager.setLabels(9, new Object[] {"update"}) : 9;
-        boolean result = unsafe.compareAndSwapInt(
-                location.getBase(unsafe, holder, int.class), location.getOffset(unsafe, int.class), expected, update);
+        boolean result = getUnsafe()
+                .compareAndSwapInt(
+                        location.getBase(getUnsafe(), holder, int.class),
+                        location.getOffset(getUnsafe(), int.class),
+                        expected,
+                        update);
         Assertions.assertEquals(compareSucceeds, result);
         int actual = location.getInt(holder);
         Assertions.assertEquals(compareSucceeds ? update : original, actual);
@@ -46,8 +45,12 @@ public class UnsafeITCase {
         long original = location.getLong(holder);
         long expected = compareSucceeds ? original : original + 50;
         long update = taintValue ? manager.setLabels(9, new Object[] {"update"}) : 9;
-        boolean result = unsafe.compareAndSwapLong(
-                location.getBase(unsafe, holder, long.class), location.getOffset(unsafe, long.class), expected, update);
+        boolean result = getUnsafe()
+                .compareAndSwapLong(
+                        location.getBase(getUnsafe(), holder, long.class),
+                        location.getOffset(getUnsafe(), long.class),
+                        expected,
+                        update);
         Assertions.assertEquals(compareSucceeds, result);
         long actual = location.getLong(holder);
         Assertions.assertEquals(compareSucceeds ? update : original, actual);
@@ -62,68 +65,15 @@ public class UnsafeITCase {
         Object original = location.getObject(holder);
         Object expected = compareSucceeds ? original : new Object();
         Object update = taintValue ? manager.setLabels("hello", new Object[] {"update"}) : "hello";
-        boolean result = unsafe.compareAndSwapObject(
-                location.getBase(unsafe, holder, Object.class),
-                location.getOffset(unsafe, Object.class),
-                expected,
-                update);
+        boolean result = getUnsafe()
+                .compareAndSwapObject(
+                        location.getBase(getUnsafe(), holder, Object.class),
+                        location.getOffset(getUnsafe(), Object.class),
+                        expected,
+                        update);
         Assertions.assertEquals(compareSucceeds, result);
         Object actual = location.getObject(holder);
         Assertions.assertEquals(compareSucceeds ? update : original, actual);
-        checkCompareAndSwapLabels(compareSucceeds, taintValue, location, Object.class, manager.getLabels(actual));
-    }
-
-    @EnabledForJreRange(min = JRE.JAVA_9)
-    @ParameterizedTest(name = "compareAndExchangeInt(compareSucceeds={0}, taintValue={1}, location={2})")
-    @MethodSource("compareAndSwapArguments")
-    void compareAndExchangeInt(boolean compareSucceeds, boolean taintValue, UnsafeLocation location)
-            throws ReflectiveOperationException {
-        Holder holder = new Holder(manager, !taintValue);
-        int original = location.getInt(holder);
-        int expected = compareSucceeds ? original : original + 50;
-        int update = taintValue ? manager.setLabels(9, new Object[] {"update"}) : 9;
-        int witness = unsafe.compareAndExchangeInt(
-                location.getBase(unsafe, holder, int.class), location.getOffset(unsafe, int.class), expected, update);
-        Assertions.assertEquals(compareSucceeds, expected == witness);
-        checkWitnessLabels(taintValue, location, int.class, manager.getLabels(witness));
-        int actual = location.getInt(holder);
-        checkCompareAndSwapLabels(compareSucceeds, taintValue, location, int.class, manager.getLabels(actual));
-    }
-
-    @EnabledForJreRange(min = JRE.JAVA_9)
-    @ParameterizedTest(name = "compareAndExchangeLong(compareSucceeds={0}, taintValue={1}, location={2})")
-    @MethodSource("compareAndSwapArguments")
-    void compareAndExchangeLong(boolean compareSucceeds, boolean taintValue, UnsafeLocation location)
-            throws ReflectiveOperationException {
-        Holder holder = new Holder(manager, !taintValue);
-        long original = location.getLong(holder);
-        long expected = compareSucceeds ? original : original + 50;
-        long update = taintValue ? manager.setLabels(9L, new Object[] {"update"}) : 9L;
-        long witness = unsafe.compareAndExchangeLong(
-                location.getBase(unsafe, holder, long.class), location.getOffset(unsafe, long.class), expected, update);
-        Assertions.assertEquals(compareSucceeds, expected == witness);
-        checkWitnessLabels(taintValue, location, long.class, manager.getLabels(witness));
-        long actual = location.getLong(holder);
-        checkCompareAndSwapLabels(compareSucceeds, taintValue, location, long.class, manager.getLabels(actual));
-    }
-
-    @EnabledForJreRange(min = JRE.JAVA_9)
-    @ParameterizedTest(name = "compareAndExchangeObject(compareSucceeds={0}, taintValue={1}, location={2})")
-    @MethodSource("compareAndSwapArguments")
-    void compareAndExchangeObject(boolean compareSucceeds, boolean taintValue, UnsafeLocation location)
-            throws ReflectiveOperationException {
-        Holder holder = new Holder(manager, !taintValue);
-        Object original = location.getObject(holder);
-        Object expected = compareSucceeds ? original : new Object();
-        Object update = taintValue ? manager.setLabels("hello", new Object[] {"update"}) : "hello";
-        Object witness = unsafe.compareAndExchangeObject(
-                location.getBase(unsafe, holder, Object.class),
-                location.getOffset(unsafe, Object.class),
-                expected,
-                update);
-        Assertions.assertEquals(compareSucceeds, expected == witness);
-        checkWitnessLabels(taintValue, location, Object.class, manager.getLabels(witness));
-        Object actual = location.getObject(holder);
         checkCompareAndSwapLabels(compareSucceeds, taintValue, location, Object.class, manager.getLabels(actual));
     }
 
@@ -134,9 +84,9 @@ public class UnsafeITCase {
         Holder holder = new Holder(manager, taintValue);
         boolean expected = location.getBoolean(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, boolean.class);
-        Object base = location.getBase(unsafe, holder, boolean.class);
-        long offset = location.getOffset(unsafe, boolean.class);
-        boolean actual = policy.getBoolean(base, offset, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, boolean.class);
+        long offset = location.getOffset(getUnsafe(), boolean.class);
+        boolean actual = policy.getBoolean(base, offset, getUnsafe());
         Object[] actualLabels = manager.getLabels(actual);
         Assertions.assertEquals(expected, actual);
         checker.check(expectedLabels, actualLabels);
@@ -148,9 +98,9 @@ public class UnsafeITCase {
         Holder holder = new Holder(manager, taintValue);
         byte expected = location.getByte(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, byte.class);
-        Object base = location.getBase(unsafe, holder, byte.class);
-        long offset = location.getOffset(unsafe, byte.class);
-        byte actual = policy.getByte(base, offset, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, byte.class);
+        long offset = location.getOffset(getUnsafe(), byte.class);
+        byte actual = policy.getByte(base, offset, getUnsafe());
         Object[] actualLabels = manager.getLabels(actual);
         Assertions.assertEquals(expected, actual);
         checker.check(expectedLabels, actualLabels);
@@ -162,9 +112,9 @@ public class UnsafeITCase {
         Holder holder = new Holder(manager, taintValue);
         char expected = location.getChar(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, char.class);
-        Object base = location.getBase(unsafe, holder, char.class);
-        long offset = location.getOffset(unsafe, char.class);
-        char actual = policy.getChar(base, offset, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, char.class);
+        long offset = location.getOffset(getUnsafe(), char.class);
+        char actual = policy.getChar(base, offset, getUnsafe());
         Object[] actualLabels = manager.getLabels(actual);
         Assertions.assertEquals(expected, actual);
         checker.check(expectedLabels, actualLabels);
@@ -177,9 +127,9 @@ public class UnsafeITCase {
         Holder holder = new Holder(manager, taintValue);
         double expected = location.getDouble(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, double.class);
-        Object base = location.getBase(unsafe, holder, double.class);
-        long offset = location.getOffset(unsafe, double.class);
-        double actual = policy.getDouble(base, offset, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, double.class);
+        long offset = location.getOffset(getUnsafe(), double.class);
+        double actual = policy.getDouble(base, offset, getUnsafe());
         Object[] actualLabels = manager.getLabels(actual);
         Assertions.assertEquals(expected, actual);
         checker.check(expectedLabels, actualLabels);
@@ -192,9 +142,9 @@ public class UnsafeITCase {
         Holder holder = new Holder(manager, taintValue);
         float expected = location.getFloat(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, float.class);
-        Object base = location.getBase(unsafe, holder, float.class);
-        long offset = location.getOffset(unsafe, float.class);
-        float actual = policy.getFloat(base, offset, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, float.class);
+        long offset = location.getOffset(getUnsafe(), float.class);
+        float actual = policy.getFloat(base, offset, getUnsafe());
         Object[] actualLabels = manager.getLabels(actual);
         Assertions.assertEquals(expected, actual);
         checker.check(expectedLabels, actualLabels);
@@ -206,9 +156,9 @@ public class UnsafeITCase {
         Holder holder = new Holder(manager, taintValue);
         int expected = location.getInt(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, int.class);
-        Object base = location.getBase(unsafe, holder, int.class);
-        long offset = location.getOffset(unsafe, int.class);
-        int actual = policy.getInt(base, offset, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, int.class);
+        long offset = location.getOffset(getUnsafe(), int.class);
+        int actual = policy.getInt(base, offset, getUnsafe());
         Object[] actualLabels = manager.getLabels(actual);
         Assertions.assertEquals(expected, actual);
         checker.check(expectedLabels, actualLabels);
@@ -220,9 +170,9 @@ public class UnsafeITCase {
         Holder holder = new Holder(manager, taintValue);
         long expected = location.getLong(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, long.class);
-        Object base = location.getBase(unsafe, holder, long.class);
-        long offset = location.getOffset(unsafe, long.class);
-        long actual = policy.getLong(base, offset, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, long.class);
+        long offset = location.getOffset(getUnsafe(), long.class);
+        long actual = policy.getLong(base, offset, getUnsafe());
         Object[] actualLabels = manager.getLabels(actual);
         Assertions.assertEquals(expected, actual);
         checker.check(expectedLabels, actualLabels);
@@ -235,9 +185,9 @@ public class UnsafeITCase {
         Holder holder = new Holder(manager, taintValue);
         short expected = location.getShort(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, short.class);
-        Object base = location.getBase(unsafe, holder, short.class);
-        long offset = location.getOffset(unsafe, short.class);
-        short actual = policy.getShort(base, offset, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, short.class);
+        long offset = location.getOffset(getUnsafe(), short.class);
+        short actual = policy.getShort(base, offset, getUnsafe());
         Object[] actualLabels = manager.getLabels(actual);
         Assertions.assertEquals(expected, actual);
         checker.check(expectedLabels, actualLabels);
@@ -250,9 +200,9 @@ public class UnsafeITCase {
         Holder holder = new Holder(manager, taintValue);
         Object expected = location.getObject(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, Object.class);
-        Object base = location.getBase(unsafe, holder, Object.class);
-        long offset = location.getOffset(unsafe, Object.class);
-        Object actual = policy.getObject(base, offset, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, Object.class);
+        long offset = location.getOffset(getUnsafe(), Object.class);
+        Object actual = policy.getObject(base, offset, getUnsafe());
         Object[] actualLabels = manager.getLabels(actual);
         Assertions.assertEquals(expected, actual);
         checker.check(expectedLabels, actualLabels);
@@ -266,9 +216,9 @@ public class UnsafeITCase {
         Object[] labels = new Object[] {"set"};
         //noinspection SimplifiableConditionalExpression
         boolean expected = taintValue ? manager.setLabels(false, labels) : false;
-        Object base = location.getBase(unsafe, holder, boolean.class);
-        long offset = location.getOffset(unsafe, boolean.class);
-        policy.putBoolean(base, offset, expected, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, boolean.class);
+        long offset = location.getOffset(getUnsafe(), boolean.class);
+        policy.putBoolean(base, offset, expected, getUnsafe());
         boolean actual = location.getBoolean(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
@@ -287,9 +237,9 @@ public class UnsafeITCase {
         if (taintValue) {
             expected = manager.setLabels(expected, labels);
         }
-        Object base = location.getBase(unsafe, holder, byte.class);
-        long offset = location.getOffset(unsafe, byte.class);
-        policy.putByte(base, offset, expected, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, byte.class);
+        long offset = location.getOffset(getUnsafe(), byte.class);
+        policy.putByte(base, offset, expected, getUnsafe());
         byte actual = location.getByte(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
@@ -308,9 +258,9 @@ public class UnsafeITCase {
         if (taintValue) {
             expected = manager.setLabels(expected, labels);
         }
-        Object base = location.getBase(unsafe, holder, char.class);
-        long offset = location.getOffset(unsafe, char.class);
-        policy.putChar(base, offset, expected, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, char.class);
+        long offset = location.getOffset(getUnsafe(), char.class);
+        policy.putChar(base, offset, expected, getUnsafe());
         char actual = location.getChar(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
@@ -330,9 +280,9 @@ public class UnsafeITCase {
         if (taintValue) {
             expected = manager.setLabels(expected, labels);
         }
-        Object base = location.getBase(unsafe, holder, double.class);
-        long offset = location.getOffset(unsafe, double.class);
-        policy.putDouble(base, offset, expected, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, double.class);
+        long offset = location.getOffset(getUnsafe(), double.class);
+        policy.putDouble(base, offset, expected, getUnsafe());
         double actual = location.getDouble(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
@@ -352,9 +302,9 @@ public class UnsafeITCase {
         if (taintValue) {
             expected = manager.setLabels(expected, labels);
         }
-        Object base = location.getBase(unsafe, holder, float.class);
-        long offset = location.getOffset(unsafe, float.class);
-        policy.putFloat(base, offset, expected, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, float.class);
+        long offset = location.getOffset(getUnsafe(), float.class);
+        policy.putFloat(base, offset, expected, getUnsafe());
         float actual = location.getFloat(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
@@ -373,9 +323,9 @@ public class UnsafeITCase {
         if (taintValue) {
             expected = manager.setLabels(expected, labels);
         }
-        Object base = location.getBase(unsafe, holder, int.class);
-        long offset = location.getOffset(unsafe, int.class);
-        policy.putInt(base, offset, expected, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, int.class);
+        long offset = location.getOffset(getUnsafe(), int.class);
+        policy.putInt(base, offset, expected, getUnsafe());
         int actual = location.getInt(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
@@ -394,9 +344,9 @@ public class UnsafeITCase {
         if (taintValue) {
             expected = manager.setLabels(expected, labels);
         }
-        Object base = location.getBase(unsafe, holder, long.class);
-        long offset = location.getOffset(unsafe, long.class);
-        policy.putLong(base, offset, expected, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, long.class);
+        long offset = location.getOffset(getUnsafe(), long.class);
+        policy.putLong(base, offset, expected, getUnsafe());
         long actual = location.getLong(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
@@ -416,9 +366,9 @@ public class UnsafeITCase {
         if (taintValue) {
             expected = manager.setLabels(expected, labels);
         }
-        Object base = location.getBase(unsafe, holder, short.class);
-        long offset = location.getOffset(unsafe, short.class);
-        policy.putShort(base, offset, expected, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, short.class);
+        long offset = location.getOffset(getUnsafe(), short.class);
+        policy.putShort(base, offset, expected, getUnsafe());
         short actual = location.getShort(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
@@ -438,9 +388,9 @@ public class UnsafeITCase {
         if (taintValue) {
             expected = manager.setLabels(expected, labels);
         }
-        Object base = location.getBase(unsafe, holder, Object.class);
-        long offset = location.getOffset(unsafe, Object.class);
-        policy.putObject(base, offset, expected, unsafe);
+        Object base = location.getBase(getUnsafe(), holder, Object.class);
+        long offset = location.getOffset(getUnsafe(), Object.class);
+        policy.putObject(base, offset, expected, getUnsafe());
         Object actual = location.getObject(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
@@ -450,7 +400,7 @@ public class UnsafeITCase {
         }
     }
 
-    private void checkWitnessLabels(boolean taintValue, UnsafeLocation location, Class<?> type, Object[] actual) {
+    void checkWitnessLabels(boolean taintValue, UnsafeLocation location, Class<?> type, Object[] actual) {
         if (taintValue) {
             checker.checkEmpty(actual);
         } else {
@@ -458,7 +408,7 @@ public class UnsafeITCase {
         }
     }
 
-    private void checkCompareAndSwapLabels(
+    void checkCompareAndSwapLabels(
             boolean compareSucceeds, boolean taintValue, UnsafeLocation location, Class<?> type, Object[] actual) {
         if (taintValue && compareSucceeds) {
             checker.check(new Object[] {"update"}, actual);
@@ -468,6 +418,8 @@ public class UnsafeITCase {
             checker.checkEmpty(actual);
         }
     }
+
+    abstract UnsafeAdapter getUnsafe();
 
     static Stream<Arguments> compareAndSwapArguments() {
         return BenchUtil.cartesianProduct(
