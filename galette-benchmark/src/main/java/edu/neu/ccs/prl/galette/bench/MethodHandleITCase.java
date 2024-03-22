@@ -10,6 +10,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodType;
+import java.lang.invoke.VarHandle;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -23,8 +24,14 @@ import org.junit.jupiter.api.condition.JRE;
 public class MethodHandleITCase {
     private final Lookup lookup = lookup();
 
+    @SuppressWarnings("unused")
+    TagManager manager;
+
+    @SuppressWarnings("unused")
+    FlowChecker checker;
+
     @Test
-    void lookupFindStatic(TagManager manager, FlowChecker checker) throws Throwable {
+    void lookupFindStatic() throws Throwable {
         MethodType mt = methodType(int.class, int.class, int.class);
         MethodHandle mh = lookup.findStatic(Math.class, "max", mt);
         int a = manager.setLabels(5, new Object[] {"a"});
@@ -35,7 +42,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void lookupFindVirtual(TagManager manager, FlowChecker checker) throws Throwable {
+    void lookupFindVirtual() throws Throwable {
         Parent p = new Parent(manager.setLabels(9, new Object[] {"x"}));
         MethodType mt = methodType(int.class);
         MethodHandle mh = lookup.findVirtual(Parent.class, "getX", mt);
@@ -45,7 +52,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void lookupFindConstructor(TagManager manager, FlowChecker checker) throws Throwable {
+    void lookupFindConstructor() throws Throwable {
         int x = manager.setLabels(22, new Object[] {"x"});
         MethodType mt = methodType(void.class, int.class);
         MethodHandle mh = lookup.findConstructor(Parent.class, mt);
@@ -56,7 +63,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void lookupFindSpecial(TagManager manager, FlowChecker checker) throws Throwable {
+    void lookupFindSpecial() throws Throwable {
         int x = manager.setLabels(75, new Object[] {"x"});
         int y = manager.setLabels(25, new Object[] {"y"});
         MethodType mt = methodType(int.class, int.class);
@@ -69,7 +76,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void lookupFindGetter(TagManager manager, FlowChecker checker) throws Throwable {
+    void lookupFindGetter() throws Throwable {
         int x = manager.setLabels(75, new Object[] {"x"});
         MethodHandle mh = lookup.findGetter(Parent.class, "x", int.class);
         Parent p = new Parent(x);
@@ -79,7 +86,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void lookupFindSetter(TagManager manager, FlowChecker checker) throws Throwable {
+    void lookupFindSetter() throws Throwable {
         int x = manager.setLabels(75, new Object[] {"x"});
         MethodHandle mh = lookup.findSetter(Parent.class, "x", int.class);
         Parent p = new Parent();
@@ -90,7 +97,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void lookupFindStaticGetter(TagManager manager, FlowChecker checker) throws Throwable {
+    void lookupFindStaticGetter() throws Throwable {
         long j = manager.setLabels(8L, new Object[] {"j"});
         MethodHandle mh = lookup.findStaticGetter(Parent.class, "j", long.class);
         Parent.j = j;
@@ -100,7 +107,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void lookupFindStaticSetter(TagManager manager, FlowChecker checker) throws Throwable {
+    void lookupFindStaticSetter() throws Throwable {
         long j = manager.setLabels(8L, new Object[] {"j"});
         MethodHandle mh = lookup.findStaticSetter(Parent.class, "j", long.class);
         mh.invokeExact(j);
@@ -110,7 +117,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void lookupBind(TagManager manager, FlowChecker checker) throws Throwable {
+    void lookupBind() throws Throwable {
         Parent p = new Parent(manager.setLabels(9, new Object[] {"x"}));
         MethodType mt = methodType(int.class);
         MethodHandle mh = lookup.bind(p, "getX", mt);
@@ -120,7 +127,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void lookupUnreflect(TagManager manager, FlowChecker checker) throws Throwable {
+    void lookupUnreflect() throws Throwable {
         int x = manager.setLabels(75, new Object[] {"x"});
         int y = manager.setLabels(25, new Object[] {"y"});
         Method m = Parent.class.getDeclaredMethod("getXPlus", int.class);
@@ -132,7 +139,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void lookupUnreflectSpecial(TagManager manager, FlowChecker checker) throws Throwable {
+    void lookupUnreflectSpecial() throws Throwable {
         int x = manager.setLabels(75, new Object[] {"x"});
         int y = manager.setLabels(25, new Object[] {"y"});
         Method m = Parent.class.getDeclaredMethod("getXPlus", int.class);
@@ -145,7 +152,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void lookupUnreflectConstructor(TagManager manager, FlowChecker checker) throws Throwable {
+    void lookupUnreflectConstructor() throws Throwable {
         MethodHandle mh = lookup.unreflectConstructor(Parent.class.getDeclaredConstructor(int.class));
         int x = manager.setLabels(22, new Object[] {"x"});
         Parent p = (Parent) mh.invokeExact(x);
@@ -155,7 +162,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void lookupUnreflectGetter(TagManager manager, FlowChecker checker) throws Throwable {
+    void lookupUnreflectGetter() throws Throwable {
         long j = manager.setLabels(8L, new Object[] {"j"});
         MethodHandle mh = lookup.unreflectGetter(Parent.class.getDeclaredField("j"));
         Parent.j = j;
@@ -165,7 +172,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void lookupUnreflectSetter(TagManager manager, FlowChecker checker) throws Throwable {
+    void lookupUnreflectSetter() throws Throwable {
         long j = manager.setLabels(8L, new Object[] {"j"});
         MethodHandle mh = lookup.unreflectSetter(Parent.class.getDeclaredField("j"));
         mh.invokeExact(j);
@@ -175,7 +182,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandleInvokeExact(TagManager manager, FlowChecker checker) throws Throwable {
+    void methodHandleInvokeExact() throws Throwable {
         MethodType mt = methodType(long.class, long.class, long.class);
         MethodHandle mh = lookup.findStatic(Math.class, "max", mt);
         long a = manager.setLabels(5L, new Object[] {"a"});
@@ -186,7 +193,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandleInvoke(TagManager manager, FlowChecker checker) throws Throwable {
+    void methodHandleInvoke() throws Throwable {
         MethodType mt = methodType(long.class, long.class, long.class);
         MethodHandle mh = lookup.findStatic(Math.class, "max", mt);
         int a = manager.setLabels(5, new Object[] {"a"});
@@ -197,7 +204,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandleInvokeWithArguments(TagManager manager, FlowChecker checker) throws Throwable {
+    void methodHandleInvokeWithArguments() throws Throwable {
         MethodType mt = methodType(long.class, long.class, long.class);
         MethodHandle mh = lookup.findStatic(Math.class, "max", mt);
         int a = manager.setLabels(5, new Object[] {"a"});
@@ -209,7 +216,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandleAsType(TagManager manager, FlowChecker checker) throws Throwable {
+    void methodHandleAsType() throws Throwable {
         MethodType mt = methodType(long.class, long.class, long.class);
         MethodHandle mh = lookup.findStatic(Math.class, "max", mt).asType(methodType(long.class, int.class, int.class));
         int a = manager.setLabels(5, new Object[] {"a"});
@@ -220,7 +227,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandleAsSpreader(TagManager manager, FlowChecker checker) throws Throwable {
+    void methodHandleAsSpreader() throws Throwable {
         MethodType mt = methodType(double.class, double.class, double.class);
         MethodHandle mh = lookup.findStatic(Double.class, "sum", mt).asSpreader(double[].class, 2);
         double a = manager.setLabels(5.0, new Object[] {"a"});
@@ -231,7 +238,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandleAsCollector(TagManager manager, FlowChecker checker) throws Throwable {
+    void methodHandleAsCollector() throws Throwable {
         MethodType mt = methodType(int.class, int[].class);
         MethodHandle mh = lookup.findStatic(MethodHandleITCase.class, "sum", mt).asCollector(int[].class, 2);
         int x = manager.setLabels(75, new Object[] {"x"});
@@ -242,7 +249,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandleAsVarargsCollector(TagManager manager, FlowChecker checker) throws Throwable {
+    void methodHandleAsVarargsCollector() throws Throwable {
         MethodType mt = methodType(int.class, int[].class);
         MethodHandle mh = lookup.findStatic(MethodHandleITCase.class, "sum", mt).asVarargsCollector(int[].class);
         int x = manager.setLabels(75, new Object[] {"x"});
@@ -253,7 +260,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandleBindTo(TagManager manager, FlowChecker checker) throws Throwable {
+    void methodHandleBindTo() throws Throwable {
         MethodHandle mh = lookup.findVirtual(IntToLongFunction.class, "applyAsLong", methodType(long.class, int.class));
         int x = manager.setLabels(75, new Object[] {"x"});
         IntToLongFunction val = (i) -> i;
@@ -266,7 +273,7 @@ public class MethodHandleITCase {
     @Test
     @EnabledForJreRange(min = JRE.JAVA_9)
     @SuppressWarnings("Since15")
-    void methodHandlesArrayConstructor(TagManager manager, FlowChecker checker) throws Throwable {
+    void methodHandlesArrayConstructor() throws Throwable {
         MethodHandle mh = MethodHandles.arrayConstructor(int[].class);
         int x = manager.setLabels(5, new Object[] {"x"});
         int[] array = (int[]) mh.invokeExact(x);
@@ -277,7 +284,7 @@ public class MethodHandleITCase {
     @Test
     @EnabledForJreRange(min = JRE.JAVA_9)
     @SuppressWarnings("Since15")
-    void methodHandlesArrayLength(TagManager manager, FlowChecker checker) throws Throwable {
+    void methodHandlesArrayLength() throws Throwable {
         MethodHandle mh = MethodHandles.arrayLength(long[].class);
         int x = manager.setLabels(5, new Object[] {"x"});
         long[] array = new long[x];
@@ -287,7 +294,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandlesArrayElementGetter(TagManager manager, FlowChecker checker) throws Throwable {
+    void methodHandlesArrayElementGetter() throws Throwable {
         MethodHandle mh = MethodHandles.arrayElementGetter(int[].class);
         int x = manager.setLabels(5, new Object[] {"x"});
         int[] array = new int[] {0, x};
@@ -297,7 +304,7 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandlesArrayElementSetter(TagManager manager, FlowChecker checker) throws Throwable {
+    void methodHandlesArrayElementSetter() throws Throwable {
         MethodHandle mh = MethodHandles.arrayElementSetter(int[].class);
         int x = manager.setLabels(5, new Object[] {"x"});
         int[] array = new int[2];
@@ -308,52 +315,90 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandlesSpreadInvoker(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesSpreadInvoker() throws Throwable {
+        checkMethodHandlesInvoker(MethodHandles.spreadInvoker(methodType(int.class, int.class, int.class), 1), true);
+    }
 
     @Test
-    void methodHandlesExactInvoker(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesExactInvoker() throws Throwable {
+        checkMethodHandlesInvoker(MethodHandles.exactInvoker(methodType(int.class, int.class, int.class)), false);
+    }
 
     @Test
-    void methodHandlesInvoker(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesInvoker() throws Throwable {
+        checkMethodHandlesInvoker(MethodHandles.invoker(methodType(int.class, int.class, int.class)), false);
+    }
+
+    private void checkMethodHandlesInvoker(MethodHandle invoker, boolean spread) throws Throwable {
+        MethodType mt = methodType(int.class, int.class, int.class);
+        MethodHandle mh = lookup.findStatic(Integer.class, "sum", mt);
+        int a = manager.setLabels(5, new Object[] {"a"});
+        int b = manager.setLabels(90, new Object[] {"b"});
+        int actual;
+        if (spread) {
+            actual = (int) invoker.invokeExact(mh, a, new Object[] {b});
+        } else {
+            actual = (int) invoker.invokeExact(mh, a, b);
+        }
+        Assertions.assertEquals(95, actual);
+        checker.check(new Object[] {"a", "b"}, manager.getLabels(actual));
+    }
 
     @Test
-    void methodHandlesVarHandleExactInvoker(TagManager manager, FlowChecker checker) throws Throwable {}
+    @SuppressWarnings("Since15")
+    @EnabledForJreRange(min = JRE.JAVA_9)
+    void methodHandlesVarHandleExactInvoker() throws Throwable {
+        checkVarHandleInvoker(MethodHandles.varHandleExactInvoker(VarHandle.AccessMode.GET, methodType(long.class)));
+    }
 
     @Test
-    void methodHandlesVarHandleInvoker(TagManager manager, FlowChecker checker) throws Throwable {}
+    @SuppressWarnings("Since15")
+    @EnabledForJreRange(min = JRE.JAVA_9)
+    void methodHandlesVarHandleInvoker() throws Throwable {
+        checkVarHandleInvoker(MethodHandles.varHandleInvoker(VarHandle.AccessMode.GET, methodType(long.class)));
+    }
+
+    @SuppressWarnings("Since15")
+    private void checkVarHandleInvoker(MethodHandle mh) throws Throwable {
+        VarHandle vh = lookup.findStaticVarHandle(Parent.class, "j", long.class);
+        Parent.j = manager.setLabels(8L, new Object[] {"j"});
+        long actual = (long) mh.invokeExact(vh);
+        Assertions.assertEquals(8, actual);
+        checker.check(new Object[] {"j"}, manager.getLabels(actual));
+    }
 
     @Test
-    void methodHandlesExplicitCastArguments(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesExplicitCastArguments() throws Throwable {}
 
     @Test
-    void methodHandlesPermuteArguments(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesPermuteArguments() throws Throwable {}
 
     @Test
-    void methodHandlesConstant(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesConstant() throws Throwable {}
 
     @Test
-    void methodHandlesIdentity(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesIdentity() throws Throwable {}
 
     @Test
-    void methodHandlesZero(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesZero() throws Throwable {}
 
     @Test
-    void methodHandlesEmpty(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesEmpty() throws Throwable {}
 
     @Test
-    void methodHandlesInsertArguments(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesInsertArguments() throws Throwable {}
 
     @Test
-    void methodHandlesDropArguments(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesDropArguments() throws Throwable {}
 
     @Test
-    void methodHandlesDropArgumentsToMatch(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesDropArgumentsToMatch() throws Throwable {}
 
     @Test
-    void methodHandlesFilterArguments(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesFilterArguments() throws Throwable {}
 
     @Test
-    void methodHandlesCollectArguments(TagManager manager, FlowChecker checker) throws Throwable {
+    void methodHandlesCollectArguments() throws Throwable {
         MethodHandle toString = lookup.findVirtual(String.class, "toString", methodType(String.class));
         Parent p = new Parent();
         MethodHandle setX = lookup.findVirtual(Parent.class, "setX", methodType(void.class, int.class))
@@ -364,13 +409,13 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandlesFilterReturnValue(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesFilterReturnValue() throws Throwable {}
 
     @Test
-    void methodHandlesFoldArguments(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesFoldArguments() throws Throwable {}
 
     @Test
-    void methodHandlesGuardWithTest(TagManager manager, FlowChecker checker) throws Throwable {
+    void methodHandlesGuardWithTest() throws Throwable {
         int a = manager.setLabels(10, new Object[] {"a"});
         int b = manager.setLabels(3, new Object[] {"b"});
         MethodType mt = methodType(int.class, int.class, int.class);
@@ -385,31 +430,31 @@ public class MethodHandleITCase {
     }
 
     @Test
-    void methodHandlesCatchException(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesCatchException() throws Throwable {}
 
     @Test
-    void methodHandlesThrowException(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesThrowException() throws Throwable {}
 
     @Test
-    void methodHandlesLoop(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesLoop() throws Throwable {}
 
     @Test
-    void methodHandlesWhileLoop(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesWhileLoop() throws Throwable {}
 
     @Test
-    void methodHandlesDoWhileLoop(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesDoWhileLoop() throws Throwable {}
 
     @Test
-    void methodHandlesCountedLoop(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesCountedLoop() throws Throwable {}
 
     @Test
-    void methodHandlesIteratedLoop(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesIteratedLoop() throws Throwable {}
 
     @Test
-    void methodHandlesTryFinally(TagManager manager, FlowChecker checker) throws Throwable {}
+    void methodHandlesTryFinally() throws Throwable {}
 
     @Test
-    void varHandleToMethodHandle(TagManager manager, FlowChecker checker) throws Throwable {}
+    void varHandleToMethodHandle() throws Throwable {}
 
     static int sum(int[] values) {
         int sum = 0;
