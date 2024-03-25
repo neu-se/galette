@@ -30,6 +30,13 @@ public final class ReflectionMasks {
                     + "Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)Ljava/lang/Object;",
             isStatic = true,
             type = MaskType.FIX_ARGUMENTS)
+    @Mask(
+            owner = "jdk/internal/reflect/DirectMethodHandleAccessor$NativeAccessor",
+            name = "invoke0",
+            descriptor = "(Ljava/lang/reflect/Method;Ljava/lang/Object;[Ljava/lang/Object;"
+                    + "Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)Ljava/lang/Object;",
+            isStatic = true,
+            type = MaskType.FIX_ARGUMENTS)
     public static Object[] invoke0(Method m, Object obj, Object[] args, TagFrame frame) {
         if (hasShadow(m, obj)) {
             Method shadow = getShadowMethod(m);
@@ -56,6 +63,13 @@ public final class ReflectionMasks {
             type = MaskType.FIX_ARGUMENTS)
     @Mask(
             owner = "jdk/internal/reflect/NativeConstructorAccessorImpl",
+            name = "newInstance0",
+            descriptor = "(Ljava/lang/reflect/Constructor;[Ljava/lang/Object;"
+                    + "Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)Ljava/lang/Object;",
+            isStatic = true,
+            type = MaskType.FIX_ARGUMENTS)
+    @Mask(
+            owner = "jdk/internal/reflect/DirectConstructorHandleAccessor$NativeAccessor",
             name = "newInstance0",
             descriptor = "(Ljava/lang/reflect/Constructor;[Ljava/lang/Object;"
                     + "Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)Ljava/lang/Object;",
