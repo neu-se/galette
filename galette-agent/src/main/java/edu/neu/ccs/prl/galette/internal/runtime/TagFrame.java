@@ -60,6 +60,10 @@ public class TagFrame {
         return new Queue<>(tags);
     }
 
+    public void clearTags() {
+        tags.clear();
+    }
+
     @InvokedViaHandle(handle = Handle.FRAME_CREATE_FOR_CALL)
     public static TagFrame createForCall(TagFrame callerFrame) {
         // TODO

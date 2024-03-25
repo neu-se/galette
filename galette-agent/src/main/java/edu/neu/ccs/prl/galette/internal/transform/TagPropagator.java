@@ -503,6 +503,11 @@ class TagPropagator extends MethodVisitor {
         } else {
             Handle.TAG_GET_EMPTY.accept(mv);
         }
+        if (ShadowFieldAdder.isBoxedType(owner) && "value".equals(name)) {
+            // Propagate from boxed type to its value
+            shadowLocals.peek(0);
+            Handle.TAG_UNION.accept(mv);
+        }
         // Remove the tags on the shadow stack for the slot consumed by this instruction
         shadowLocals.pop(1);
         if (Type.getType(descriptor).getSize() == 2) {

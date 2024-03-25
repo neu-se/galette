@@ -19,7 +19,8 @@ public final class MaskRegistry {
         BoxTypeMasks.class,
         SystemMasks.class,
         EnumMasks.class,
-        ArrayMasks.class
+        ArrayMasks.class,
+        ReflectionMasks.class
     };
     private static final SimpleMap<String, MaskInfo> masks = new SimpleMap<>();
 

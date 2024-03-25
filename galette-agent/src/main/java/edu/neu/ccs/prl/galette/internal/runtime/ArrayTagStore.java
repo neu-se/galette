@@ -152,6 +152,18 @@ public final class ArrayTagStore {
         }
     }
 
+    public static synchronized void enqueueTags(TagFrame frame, Object[] arguments) {
+        if (wrappers == null || arguments == null) {
+            return;
+        }
+        ArrayWrapper wrapper = wrappers.get(arguments);
+        if (wrapper != null) {
+            for (int i = 0; i < arguments.length; i++) {
+                frame.enqueue(wrapper.getElement(i));
+            }
+        }
+    }
+
     public static synchronized void clear() {
         if (wrappers != null) {
             wrappers.clear();

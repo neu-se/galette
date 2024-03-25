@@ -49,6 +49,11 @@ public class Queue<E> {
         tail = node;
     }
 
+    public void clear() {
+        head = tail = null;
+        size = 0;
+    }
+
     private static final class Node<E> {
         private final E value;
         private Node<E> next;

@@ -65,6 +65,15 @@ public class ShadowFieldAdder {
             case "java/lang/ref/Reference":
             case "java/lang/ref/SoftReference":
                 // The following types are all final, so it is safe to not shadow their fields
+            case "java/lang/StackTraceElement":
+                return false;
+            default:
+                return !isBoxedType(className);
+        }
+    }
+
+    public static boolean isBoxedType(String className) {
+        switch (className) {
             case "java/lang/Boolean":
             case "java/lang/Character":
             case "java/lang/Float":
@@ -73,10 +82,9 @@ public class ShadowFieldAdder {
             case "java/lang/Short":
             case "java/lang/Integer":
             case "java/lang/Long":
-            case "java/lang/StackTraceElement":
-                return false;
-            default:
                 return true;
+            default:
+                return false;
         }
     }
 }
