@@ -1,17 +1,18 @@
 package edu.neu.ccs.prl.galette.internal.transform;
 
+import edu.neu.ccs.prl.galette.internal.runtime.TaggedObject;
 import org.objectweb.asm.Opcodes;
 
 /**
- *   Methods that can be accessed from instrumented code for which a corresponding shadow method may not exist.
+ *   Represents a method call that can be made from instrumented code for which a corresponding shadow method may or
+ *   may not exist.
  *   We cannot guarantee that a shadow is created for these methods because they are declared in {@link Object}
  *   which cannot be instrumented.
- *   Some of these methods are final and cannot be overriden by subclasses.
- *   Others are not final and may be overriden by subclasses, in which case a corresponding shadow method will exist in
- *   the overriding subclass.
- *   Regardless, because of the potential for dynamic dispatching on the subtype, classes directly extending
+ *   Because of the potential for dynamic dispatching on the subtype, classes directly extending
  *   {@link Object} should have native wrappers added for these methods if they do not provide their own definition of
  *   the method.
+ *   If the method represented by an {@link ObjectMethod} is non-final, then calls to it should be remapped to the
+ *   corresponding shadow if dispatched on a {@link TaggedObject} instance.
  */
 public enum ObjectMethod {
     OBJECT_GET_CLASS(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "getClass", "()Ljava/lang/Class;", false, true),
@@ -43,8 +44,12 @@ public enum ObjectMethod {
     }
 
     public static ObjectMethod findMatch(String name, String descriptor) {
+        return findMatch("java/lang/Object", name, descriptor);
+    }
+
+    public static ObjectMethod findMatch(String owner, String name, String descriptor) {
         for (ObjectMethod method : values()) {
-            if (method.getRecord().matches("java/lang/Object", name, descriptor)) {
+            if (method.getRecord().matches(owner, name, descriptor)) {
                 return method;
             }
         }

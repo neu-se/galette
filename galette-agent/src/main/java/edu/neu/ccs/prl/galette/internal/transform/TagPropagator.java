@@ -734,6 +734,7 @@ class TagPropagator extends MethodVisitor {
         TagPropagator propagator = new TagPropagator(shadowLocals, shadowLocals);
         AnalyzerAdapter analyzer =
                 new AnalyzerAdapter(owner, original.access, original.name, original.desc, propagator);
-        return new IndirectFramePasser(shadowLocals, analyzer, analyzer);
+        IndirectFramePasser iPasser = new IndirectFramePasser(shadowLocals, analyzer, analyzer);
+        return new ObjectShadowCaller(owner, original.access, original.name, original.desc, iPasser);
     }
 }

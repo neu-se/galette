@@ -14,7 +14,7 @@ import org.objectweb.asm.Type;
 public final class MaskRegistry {
     private static final Class<?>[] SOURCES = new Class[] {
         UnsafeMasks.class,
-        ReflectionMasks.class,
+        ClassMasks.class,
         ClassLoaderMasks.class,
         BoxTypeMasks.class,
         SystemMasks.class,

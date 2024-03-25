@@ -9,6 +9,49 @@ import org.junit.jupiter.api.Test;
 @FlowBench
 public class MethodCallITCase {
     @Test
+    void objectEquals(TagManager manager, FlowChecker checker) {
+        Object o = new Object() {
+            @Override
+            public boolean equals(Object other) {
+                checker.check(new Object[] {"this"}, manager.getLabels(this));
+                checker.check(new Object[] {"other"}, manager.getLabels(other));
+                return manager.setLabel(super.equals(other), "result");
+            }
+        };
+        o = manager.setLabel(o, "this");
+        Object other = manager.setLabel(new Object(), "other");
+        boolean actual = o.equals(other);
+        Assertions.assertFalse(actual);
+        //noinspection ConstantValue
+        checker.check(new Object[] {"result"}, manager.getLabels(actual));
+    }
+
+    @Test
+    void objectHashCode(TagManager manager, FlowChecker checker) {
+        int a = manager.setLabels(7, new Object[] {"labels1"});
+        Object o = new Object() {
+            private final int j = a;
+
+            @Override
+            public int hashCode() {
+                return j;
+            }
+        };
+        int actual = o.hashCode();
+        Assertions.assertEquals(7, actual);
+        checker.check(new Object[] {"labels1"}, manager.getLabels(actual));
+    }
+
+    @Test
+    void objectToString(TagManager manager, FlowChecker checker) {
+        String s = "hello";
+        Object o = manager.setLabels(s, new Object[] {"labels1"});
+        String actual = o.toString();
+        Assertions.assertEquals("hello", actual);
+        checker.check(new Object[] {"labels1"}, manager.getLabels(actual));
+    }
+
+    @Test
     void invokeStatic(TagManager manager, FlowChecker checker) {
         int a = manager.setLabels(7, new Object[] {"labels1"});
         int b = manager.setLabels(20, new Object[] {"labels2"});
@@ -126,6 +169,7 @@ public class MethodCallITCase {
 
         int interfaceMethod(int a, int b);
 
+        @SuppressWarnings("unused")
         default int common(int a, int b) {
             return a;
         }

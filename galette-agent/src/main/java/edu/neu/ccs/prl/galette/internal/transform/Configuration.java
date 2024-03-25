@@ -14,13 +14,12 @@ public final class Configuration {
         throw new AssertionError();
     }
 
-    private static final String TAINTER_INTERNAL_NAME = "edu/neu/ccs/prl/galette/internal/runtime/Tainter";
-
     public static boolean isJava8() {
         return IS_JAVA_8;
     }
 
     public static boolean isInternalTaintingClass(String className) {
-        return TAINTER_INTERNAL_NAME.equals(className);
+        return GaletteNames.TAINTER_INTERNAL_NAME.equals(className)
+                || GaletteNames.TAGGED_OBJECT_INTERNAL_NAME.equals(className);
     }
 }

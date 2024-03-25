@@ -54,6 +54,7 @@ public final class ShadowMethodCreator {
             for (int i = 0; i < missing.size(); i++) {
                 shadows.add(createObjectShadow(missing.get(i)));
             }
+            classNode.interfaces.add(GaletteNames.TAGGED_OBJECT_INTERNAL_NAME);
         }
         return shadows;
     }

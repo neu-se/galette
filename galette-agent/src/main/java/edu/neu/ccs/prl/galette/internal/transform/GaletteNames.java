@@ -2,6 +2,8 @@ package edu.neu.ccs.prl.galette.internal.transform;
 
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.runtime.TaggedObject;
+import edu.neu.ccs.prl.galette.internal.runtime.Tainter;
 import org.objectweb.asm.Type;
 
 public final class GaletteNames {
@@ -29,6 +31,18 @@ public final class GaletteNames {
      * Non-null.
      */
     public static final String TAG_DESCRIPTOR = Type.getDescriptor(Tag.class);
+    /**
+     * Internal name for {@link TaggedObject}.
+     * <p>
+     * Non-null.
+     */
+    public static final String TAGGED_OBJECT_INTERNAL_NAME = Type.getInternalName(TaggedObject.class);
+    /**
+     * Internal name for {@link Tainter}.
+     * <p>
+     * Non-null.
+     */
+    public static final String TAINTER_INTERNAL_NAME = "edu/neu/ccs/prl/galette/internal/runtime/Tainter";
 
     private GaletteNames() {
         throw new AssertionError(getClass() + " is a static utility class");

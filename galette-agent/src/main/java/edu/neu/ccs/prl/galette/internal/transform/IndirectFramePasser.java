@@ -21,7 +21,6 @@ import org.objectweb.asm.commons.AnalyzerAdapter;
  * Instead, Galette will indirectly pass the frame by temporarily storing it on the {@link Thread} instance
  * representing the calling thread of execution.
  * This storage location is added by {@link ThreadLocalFrameAdder}.
- *
  */
 class IndirectFramePasser extends MethodVisitor {
     private final ShadowLocals shadowLocals;
@@ -54,15 +53,15 @@ class IndirectFramePasser extends MethodVisitor {
             startHandlerScope(scopeEnd, handler);
         }
         // Store the arguments to the local variables
-        int argumentsIndex = storeArgumentsToVariable(isStatic, descriptor);
+        int argumentsIndex = shadowLocals.storeArgumentsToVariables(isStatic, descriptor);
         // Consume tags from the shadow stack for the arguments of the call and create a frame
         shadowLocals.prepareForCall(isStatic, descriptor, true);
         // Create an array of argument values
         createArgumentArray(isStatic, descriptor, argumentsIndex);
         // Store the frame and arguments in the indirect frame store
         Handle.INDIRECT_FRAME_SET.accept(shadowLocals);
-        // Store the arguments from the local variables
-        loadArgumentsFromVariables(isStatic, descriptor, argumentsIndex);
+        // Load the arguments from the local variables
+        shadowLocals.loadArgumentsFromVariables(isStatic, descriptor, argumentsIndex);
         // Call the signature polymorphic method
         // The analyzer must see this call; therefore, delegate to mv (analyzer)
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
@@ -101,38 +100,6 @@ class IndirectFramePasser extends MethodVisitor {
         // stack: ..., arrayref
     }
 
-    private int storeArgumentsToVariable(boolean isStatic, String descriptor) {
-        // stack: ..., receiver?, arg_0, arg_1, ..., arg_{n-1}
-        int firstIndex = shadowLocals.getNextFreeVariable();
-        int index = firstIndex + AsmUtil.countLocalVariables(isStatic, descriptor);
-        Type[] arguments = Type.getArgumentTypes(descriptor);
-        // Last argument is on the top of the stack; visit types in reverse order
-        for (int i = arguments.length - 1; i >= 0; i--) {
-            // stack: receiver?, arg_0, arg_1, ..., arg_i
-            Type argument = arguments[i];
-            index -= argument.getSize();
-            shadowLocals.visitVarInsn(argument.getOpcode(ISTORE), index);
-        }
-        if (!isStatic) {
-            shadowLocals.visitVarInsn(ASTORE, --index);
-        }
-        assert index == firstIndex;
-        // stack: ...
-        return firstIndex;
-    }
-
-    private void loadArgumentsFromVariables(boolean isStatic, String descriptor, int index) {
-        // stack: ...
-        if (!isStatic) {
-            shadowLocals.visitVarInsn(ALOAD, index++);
-        }
-        for (Type argument : Type.getArgumentTypes(descriptor)) {
-            shadowLocals.visitVarInsn(argument.getOpcode(ILOAD), index);
-            index += argument.getSize();
-        }
-        // stack: ..., receiver?, arg_0, arg_1, ..., arg_{n-1}
-    }
-
     private void startHandlerScope(Label scopeEnd, Label handler) {
         // Add an exception handler to ensure that the pushed frame is popped.
         Label scopeStart = new Label();
@@ -168,7 +135,7 @@ class IndirectFramePasser extends MethodVisitor {
         mv.visitInsn(NOP);
     }
 
-    private Object[] getFrameElements(List<Object> raw) {
+    static Object[] getFrameElements(List<Object> raw) {
         SimpleList<Object> locals = new SimpleList<>();
         for (Iterator<Object> itr = raw.iterator(); itr.hasNext(); ) {
             Object local = itr.next();
