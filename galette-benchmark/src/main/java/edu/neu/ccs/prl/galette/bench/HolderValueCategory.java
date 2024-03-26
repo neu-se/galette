@@ -4,6 +4,7 @@ import edu.neu.ccs.prl.galette.bench.extension.TagManager;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 enum HolderValueCategory {
@@ -565,5 +566,9 @@ enum HolderValueCategory {
         } else {
             throw new AssertionError();
         }
+    }
+
+    public Field getField(Class<?> baseType) throws NoSuchFieldException {
+        return Holder.class.getDeclaredField(Holder.getBasicName(baseType) + suffix());
     }
 }
