@@ -58,7 +58,7 @@ public final class ArrayTagStore {
         }
         ArrayWrapper wrapper = wrappers.get(dimensions);
         if (wrapper != null) {
-            setLengthTagsInternal(array, wrapper.elements, 0);
+            setLengthTagsInternal(array, wrapper.getElements(), 0);
         }
     }
 
@@ -93,7 +93,7 @@ public final class ArrayTagStore {
         if (wrapper == null) {
             return indexTag;
         } else {
-            Tag elementTag = (Tag) unsafe.getObjectVolatile(wrapper.elements, offset);
+            Tag elementTag = (Tag) unsafe.getObjectVolatile(wrapper.getElements(), offset);
             return Tag.union(indexTag, elementTag);
         }
     }
@@ -114,7 +114,7 @@ public final class ArrayTagStore {
         Tag tag = Tag.union(indexTag, valueTag);
         ArrayWrapper wrapper = getWrapper(array, tag);
         if (wrapper != null) {
-            unsafe.putObjectVolatile(wrapper.elements, offset, tag);
+            unsafe.putObjectVolatile(wrapper.getElements(), offset, tag);
         }
     }
 
@@ -148,7 +148,7 @@ public final class ArrayTagStore {
             if (sourceWrapper == null) {
                 sourceWrapper = new ArrayWrapper(src);
             }
-            System.arraycopy(sourceWrapper.elements, srcPos, destWrapper.elements, destPos, length);
+            System.arraycopy(sourceWrapper.getElements(), srcPos, destWrapper.getElements(), destPos, length);
         }
     }
 
@@ -157,7 +157,7 @@ public final class ArrayTagStore {
             return null;
         }
         ArrayWrapper wrapper = wrappers.get(array);
-        return wrapper == null ? null : wrapper.elements;
+        return wrapper == null ? null : wrapper.getElements();
     }
 
     public static synchronized void clear() {
@@ -183,29 +183,17 @@ public final class ArrayTagStore {
         }
     }
 
-    private static final class ArrayWrapper {
-        private Tag length = Tag.getEmptyTag();
-        private final Tag[] elements;
-
-        ArrayWrapper(Object array) {
-            int length = Array.getLength(array);
-            elements = new Tag[length];
+    public static synchronized ArrayWrapper getWrapper(Object array) {
+        if (wrappers == null || array == null) {
+            return null;
         }
+        return wrappers.get(array);
+    }
 
-        void setElement(Tag element, int index) {
-            elements[index] = element;
+    public static synchronized void setWrapper(Object array, ArrayWrapper wrapper) {
+        if (wrappers == null || array == null) {
+            return;
         }
-
-        Tag getElement(int index) {
-            return elements[index];
-        }
-
-        void setLength(Tag length) {
-            this.length = length;
-        }
-
-        Tag getLength() {
-            return length;
-        }
+        wrappers.put(array, wrapper);
     }
 }

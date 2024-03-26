@@ -44,7 +44,7 @@ class OriginalMethodProcessor {
     private MethodNode process(MethodNode mn) {
         MethodNode processed = new MethodNode(
                 GaletteTransformer.ASM_VERSION, mn.access, mn.name, mn.desc, mn.signature, AsmUtil.copyExceptions(mn));
-        MethodVisitor mv = new MaskApplier(processed);
+        MethodVisitor mv = new MaskApplier(classNode.name, processed);
         if (AsmUtil.hasMethodBody(mn.access)) {
             // Process non-native, non-abstract methods
             if (!isGeneratedProxy(classNode.name) && ShadowMethodCreator.shouldShadow(mn.name)) {

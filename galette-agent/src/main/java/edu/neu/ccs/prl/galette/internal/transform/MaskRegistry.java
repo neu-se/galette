@@ -20,7 +20,8 @@ public final class MaskRegistry {
         SystemMasks.class,
         EnumMasks.class,
         ArrayMasks.class,
-        ReflectionMasks.class
+        ReflectionMasks.class,
+        SerializationMasks.class
     };
     private static final SimpleMap<String, MaskInfo> masks = new SimpleMap<>();
 

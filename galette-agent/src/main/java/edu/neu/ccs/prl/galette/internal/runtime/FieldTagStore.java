@@ -64,6 +64,20 @@ public final class FieldTagStore {
         return tags == null ? Tag.getEmptyTag() : tags.get(fieldReference);
     }
 
+    public static synchronized HashMap<String, Tag> getTags(Object receiver) {
+        if (!isInitialized()) {
+            return null;
+        }
+        HashMap<String, Tag> tags = instanceFieldTags.get(receiver);
+        return tags == null ? null : new HashMap<>(tags);
+    }
+
+    public static synchronized void setTags(Object receiver, HashMap<String, Tag> tags) {
+        if (isInitialized()) {
+            instanceFieldTags.put(receiver, new HashMap<>(tags));
+        }
+    }
+
     public static synchronized void clear() {
         if (isInitialized()) {
             instanceFieldTags.clear();

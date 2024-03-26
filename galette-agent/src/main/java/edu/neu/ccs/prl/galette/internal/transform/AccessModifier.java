@@ -24,6 +24,7 @@ class AccessModifier extends ClassVisitor {
         return "sun/misc/Unsafe".equals(className)
                 || "jdk/internal/misc/Unsafe".equals(className)
                 || "java/lang/ClassLoader".equals(className)
-                || "java/lang/reflect/Array".equals(className);
+                || "java/lang/reflect/Array".equals(className)
+                || "java/io/ObjectInputStream".equals(className);
     }
 }

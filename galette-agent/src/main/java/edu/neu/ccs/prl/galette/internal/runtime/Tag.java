@@ -3,12 +3,14 @@ package edu.neu.ccs.prl.galette.internal.runtime;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.Iterator;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.ObjectIntMap;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.SimpleList;
+import java.io.*;
 
 /**
  * An immutable set of labels.
  */
-public final class Tag {
-    private final ObjectIntMap<Object> backingMap;
+public final class Tag implements Serializable {
+    private static final long serialVersionUID = -1353943194836946961L;
+    private transient ObjectIntMap<Object> backingMap;
 
     private Tag(Object label) {
         this.backingMap = new ObjectIntMap<>();
@@ -110,5 +112,24 @@ public final class Tag {
 
     public static Object[] getLabels(Tag tag) {
         return tag == null ? new Object[0] : tag.getLabels();
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        Object[] labels = getLabels();
+        out.writeInt(getLabels().length);
+        for (Object label : labels) {
+            out.writeObject(label);
+        }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        backingMap = new ObjectIntMap<>();
+        int length = in.readInt();
+        for (int i = 0; i < length; i++) {
+            Object label = in.readObject();
+            backingMap.put(label, 1);
+        }
     }
 }
