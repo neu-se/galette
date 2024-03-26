@@ -3,6 +3,7 @@ package edu.neu.ccs.prl.galette.bench;
 import edu.neu.ccs.prl.galette.bench.extension.TagManager;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 enum HolderValueCategory {
@@ -492,6 +493,11 @@ enum HolderValueCategory {
                 throw new IllegalArgumentException();
             }
         }
+
+        @Override
+        public Constructor<Holder> getConstructor(Class<?> baseType) throws NoSuchMethodException {
+            return Holder.class.getDeclaredConstructor(baseType, Object.class);
+        }
     };
 
     public Method getter(Class<?> baseType) throws NoSuchMethodException {
@@ -527,6 +533,11 @@ enum HolderValueCategory {
     abstract Object getObject(Holder holder);
 
     abstract Object getValue(Class<?> baseType, Holder holder);
+
+    public Constructor<Holder> getConstructor(Class<?> baseType) throws NoSuchMethodException {
+        Class<?> fieldType = getFieldType(baseType);
+        return Holder.class.getDeclaredConstructor(fieldType);
+    }
 
     public Object[] getLabels(Class<?> baseType) {
         return new Object[] {Holder.getBasicName(baseType) + suffix()};

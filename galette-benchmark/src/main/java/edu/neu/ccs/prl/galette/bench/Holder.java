@@ -66,6 +66,182 @@ public final class Holder implements Serializable {
     public Object fao;
     public Object lao;
 
+    public Holder(boolean z) {
+        this.z = z;
+    }
+
+    public Holder(byte b) {
+        this.b = b;
+    }
+
+    public Holder(char c) {
+        this.c = c;
+    }
+
+    public Holder(short s) {
+        this.s = s;
+    }
+
+    public Holder(int i) {
+        this.i = i;
+    }
+
+    public Holder(long j) {
+        this.j = j;
+    }
+
+    public Holder(float f) {
+        this.f = f;
+    }
+
+    public Holder(double d) {
+        this.d = d;
+    }
+
+    public Holder(Object l) {
+        this.l = l;
+    }
+
+    public Holder(Boolean zw) {
+        this.zw = zw;
+    }
+
+    public Holder(Byte bw) {
+        this.bw = bw;
+    }
+
+    public Holder(Character cw) {
+        this.cw = cw;
+    }
+
+    public Holder(Short sw) {
+        this.sw = sw;
+    }
+
+    public Holder(Integer iw) {
+        this.iw = iw;
+    }
+
+    public Holder(Long jw) {
+        this.jw = jw;
+    }
+
+    public Holder(Float fw) {
+        this.fw = fw;
+    }
+
+    public Holder(Double dw) {
+        this.dw = dw;
+    }
+
+    public Holder(boolean[] za) {
+        this.za = za;
+    }
+
+    public Holder(byte[] ba) {
+        this.ba = ba;
+    }
+
+    public Holder(char[] ca) {
+        this.ca = ca;
+    }
+
+    public Holder(short[] sa) {
+        this.sa = sa;
+    }
+
+    public Holder(int[] ia) {
+        this.ia = ia;
+    }
+
+    public Holder(long[] ja) {
+        this.ja = ja;
+    }
+
+    public Holder(float[] fa) {
+        this.fa = fa;
+    }
+
+    public Holder(double[] da) {
+        this.da = da;
+    }
+
+    public Holder(Object[] la) {
+        this.la = la;
+    }
+
+    public Holder(boolean[][] zaa) {
+        this.zaa = zaa;
+    }
+
+    public Holder(byte[][] baa) {
+        this.baa = baa;
+    }
+
+    public Holder(char[][] caa) {
+        this.caa = caa;
+    }
+
+    public Holder(short[][] saa) {
+        this.saa = saa;
+    }
+
+    public Holder(int[][] iaa) {
+        this.iaa = iaa;
+    }
+
+    public Holder(long[][] jaa) {
+        this.jaa = jaa;
+    }
+
+    public Holder(float[][] faa) {
+        this.faa = faa;
+    }
+
+    public Holder(double[][] daa) {
+        this.daa = daa;
+    }
+
+    public Holder(Object[][] laa) {
+        this.laa = laa;
+    }
+
+    public Holder(boolean unused, Object zao) {
+        this.zao = zao;
+    }
+
+    public Holder(byte unused, Object bao) {
+        this.bao = bao;
+    }
+
+    public Holder(char unused, Object cao) {
+        this.cao = cao;
+    }
+
+    public Holder(short unused, Object sao) {
+        this.sao = sao;
+    }
+
+    public Holder(int unused, Object iao) {
+        this.iao = iao;
+    }
+
+    public Holder(long unused, Object jao) {
+        this.jao = jao;
+    }
+
+    public Holder(float unused, Object fao) {
+        this.fao = fao;
+    }
+
+    public Holder(double unused, Object dao) {
+        this.dao = dao;
+    }
+
+    public Holder(Object unused, Object lao) {
+        this.lao = lao;
+    }
+
     public Holder(TagManager manager, boolean taint) {
         this(manager, taint, 7, true, new Object());
     }
