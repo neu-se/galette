@@ -18,6 +18,8 @@ class MatchingFrameAdjuster implements FrameAdjuster {
             Object actual = arguments[index++];
             if (actual instanceof Boolean && (Boolean) actual == value) {
                 return this;
+            } else if (matchIntType(actual, value ? 1 : 0)) {
+                return this;
             }
         }
         return new MismatchedFrameAdjuster(original, arguments);
@@ -28,6 +30,8 @@ class MatchingFrameAdjuster implements FrameAdjuster {
         if (index < arguments.length) {
             Object actual = arguments[index++];
             if (actual instanceof Byte && (Byte) actual == value) {
+                return this;
+            } else if (matchIntType(actual, value)) {
                 return this;
             }
         }
@@ -40,6 +44,8 @@ class MatchingFrameAdjuster implements FrameAdjuster {
             Object actual = arguments[index++];
             if (actual instanceof Character && (Character) actual == value) {
                 return this;
+            } else if (matchIntType(actual, value)) {
+                return this;
             }
         }
         return new MismatchedFrameAdjuster(original, arguments);
@@ -51,6 +57,8 @@ class MatchingFrameAdjuster implements FrameAdjuster {
             Object actual = arguments[index++];
             if (actual instanceof Short && (Short) actual == value) {
                 return this;
+            } else if (matchIntType(actual, value)) {
+                return this;
             }
         }
         return new MismatchedFrameAdjuster(original, arguments);
@@ -60,7 +68,7 @@ class MatchingFrameAdjuster implements FrameAdjuster {
     public FrameAdjuster process(int value) {
         if (index < arguments.length) {
             Object actual = arguments[index++];
-            if (actual instanceof Integer && (Integer) actual == value) {
+            if (matchIntType(actual, value)) {
                 return this;
             }
         }
@@ -118,5 +126,9 @@ class MatchingFrameAdjuster implements FrameAdjuster {
     @Override
     public TagFrame createFrame() {
         return new AdjustedTagFrame(original, arguments, original.copyTags());
+    }
+
+    private boolean matchIntType(Object actual, int value) {
+        return actual instanceof Integer && (Integer) actual == value;
     }
 }
