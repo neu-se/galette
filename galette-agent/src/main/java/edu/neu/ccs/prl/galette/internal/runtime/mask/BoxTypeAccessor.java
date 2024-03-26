@@ -64,4 +64,24 @@ public final class BoxTypeAccessor {
     public static Short newShort(short value, TagFrame frame) {
         throw new AssertionError("Placeholder method was called");
     }
+
+    @MemberAccess(owner = "java/lang/Float", name = "valueOf", opcode = Opcodes.INVOKESTATIC)
+    public static Float valueOf(float value, TagFrame frame) {
+        throw new AssertionError("Placeholder method was called");
+    }
+
+    @MemberAccess(owner = "java/lang/Float", name = "<init>", opcode = Opcodes.INVOKESPECIAL)
+    public static Float newFloat(float value, TagFrame frame) {
+        throw new AssertionError("Placeholder method was called");
+    }
+
+    @MemberAccess(owner = "java/lang/Double", name = "valueOf", opcode = Opcodes.INVOKESTATIC)
+    public static Double valueOf(double value, TagFrame frame) {
+        throw new AssertionError("Placeholder method was called");
+    }
+
+    @MemberAccess(owner = "java/lang/Double", name = "<init>", opcode = Opcodes.INVOKESPECIAL)
+    public static Double newDouble(double value, TagFrame frame) {
+        throw new AssertionError("Placeholder method was called");
+    }
 }

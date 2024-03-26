@@ -4,9 +4,12 @@ import edu.neu.ccs.prl.galette.bench.extension.FlowBench;
 import edu.neu.ccs.prl.galette.bench.extension.FlowChecker;
 import edu.neu.ccs.prl.galette.bench.extension.TagManager;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 @FlowBench
 public class MethodReflectionITCase {
@@ -15,50 +18,6 @@ public class MethodReflectionITCase {
 
     @SuppressWarnings("unused")
     FlowChecker checker;
-
-    @Test
-    void getDeclaredMethods() {
-        Method[] methods = Example.class.getDeclaredMethods();
-        Set<List<Object>> expected = new HashSet<>(Arrays.asList(
-                Arrays.asList("sum", int.class, int.class, int.class),
-                Arrays.asList("getX", int.class),
-                Arrays.asList("getJ", long.class),
-                Arrays.asList("setJ", void.class, long.class)));
-
-        Set<List<Object>> actual = collectMethods(methods);
-        Assertions.assertEquals(expected, actual);
-    }
-
-    @Test
-    void getMethods() {
-        Method[] methods = Example.class.getMethods();
-        Set<List<Object>> expected = new HashSet<>(Arrays.asList(
-                Arrays.asList("sum", int.class, int.class, int.class),
-                Arrays.asList("setJ", void.class, long.class),
-                Arrays.asList("notify", void.class),
-                Arrays.asList("wait", void.class, long.class),
-                Arrays.asList("notifyAll", void.class),
-                Arrays.asList("wait", void.class),
-                Arrays.asList("equals", boolean.class, Object.class),
-                Arrays.asList("hashCode", int.class),
-                Arrays.asList("wait", void.class, long.class, int.class),
-                Arrays.asList("getClass", Class.class),
-                Arrays.asList("toString", String.class)));
-        Set<List<Object>> actual = collectMethods(methods);
-        Assertions.assertEquals(expected, actual);
-    }
-
-    private static Set<List<Object>> collectMethods(Method[] methods) {
-        Set<List<Object>> actual = new HashSet<>();
-        for (Method m : methods) {
-            List<Object> l = new ArrayList<>();
-            l.add(m.getName());
-            l.add(m.getReturnType());
-            l.addAll(Arrays.asList(m.getParameterTypes()));
-            actual.add(l);
-        }
-        return actual;
-    }
 
     @Test
     void objectHashCode() throws ReflectiveOperationException {
@@ -77,58 +36,56 @@ public class MethodReflectionITCase {
         checker.check(new Object[] {"labels1"}, manager.getLabels(actual));
     }
 
-    void intArgument() {
-        // TODO static, virtual, interface, taint receiver, etc.
+    @ParameterizedTest(name = "getValue(baseType={0}, taintValue={1}, category={2})")
+    @MethodSource("arguments")
+    void getValue(Class<?> baseType, boolean taintValue, HolderValueCategory category)
+            throws ReflectiveOperationException {
+        Holder holder = new Holder(manager, taintValue, 120, false, "hello");
+        Object expected = category.getValue(baseType, holder);
+        Object actual = category.getter(baseType).invoke(category == HolderValueCategory.BASIC_STATIC ? null : holder);
+        Assertions.assertEquals(expected, actual);
+        if (taintValue) {
+            checker.check(category.getLabels(baseType), category.getElementLabels(baseType, holder, manager));
+        } else {
+            checker.checkEmpty(category.getElementLabels(baseType, holder, manager));
+        }
     }
 
-    void longArgument() {}
-
-    void objectArgument() {}
-
-    void primitiveArrayArgument() {}
-
-    void multidimensionalArrayArgument() {}
-
-    void boxedTypeArgument() {
-        Integer i = new Integer(7);
+    @ParameterizedTest(name = "setValue(baseType={0}, taintValue={1}, category={2})")
+    @MethodSource("arguments")
+    void setValue(Class<?> baseType, boolean taintValue, HolderValueCategory category)
+            throws ReflectiveOperationException {
+        Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
+        Holder source = new Holder(manager, taintValue, 4, true, new Object());
+        Object expected = category.getValue(baseType, source);
+        category.setter(baseType).invoke(category == HolderValueCategory.BASIC_STATIC ? null : holder, expected);
+        Object actual = category.getValue(baseType, holder);
+        Assertions.assertEquals(expected, actual);
+        if (taintValue) {
+            checker.check(category.getLabels(baseType), category.getElementLabels(baseType, holder, manager));
+        } else {
+            checker.checkEmpty(category.getElementLabels(baseType, holder, manager));
+        }
     }
 
-    void intReturn() {}
-
-    void longReturn() {}
-
-    void objectReturn() {}
-
-    void primitiveArrayReturn() {}
-
-    void multidimensionalArrayReturn() {}
-
-    void boxedTypeReturn() {
-        Integer i = new Integer(7);
+    static boolean isValid(Arguments arguments) {
+        Object[] values = arguments.get();
+        return !(values[0] == Object.class && values[2] == HolderValueCategory.BOXED);
     }
 
-    static class Example {
-        private final int x;
-        private long j;
-
-        Example(int x) {
-            this.x = x;
-        }
-
-        public int sum(int a, int b) {
-            return a + b;
-        }
-
-        int getX() {
-            return x;
-        }
-
-        private long getJ() {
-            return j;
-        }
-
-        public void setJ(long j) {
-            this.j = j;
-        }
+    static Stream<Arguments> arguments() {
+        Class<?>[] types = new Class[] {
+            Integer.TYPE,
+            Boolean.TYPE,
+            Byte.TYPE,
+            Character.TYPE,
+            Short.TYPE,
+            Double.TYPE,
+            Float.TYPE,
+            Long.TYPE,
+            Object.class
+        };
+        return BenchUtil.cartesianProduct(types, new Boolean[] {true, false}, HolderValueCategory.values())
+                .filter(MethodReflectionITCase::isValid);
     }
 }

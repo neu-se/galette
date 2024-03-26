@@ -1,9 +1,7 @@
 package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
-import edu.neu.ccs.prl.galette.internal.runtime.ArrayTagStore;
-import edu.neu.ccs.prl.galette.internal.runtime.Tag;
-import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
-import edu.neu.ccs.prl.galette.internal.runtime.TaggedObject;
+import edu.neu.ccs.prl.galette.internal.runtime.*;
+import edu.neu.ccs.prl.galette.internal.transform.GaletteTransformer;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
@@ -41,13 +39,9 @@ public final class ReflectionMasks {
         if (hasShadow(m, obj)) {
             Method shadow = getShadowMethod(m);
             if (shadow != null) {
+                // Remove the tag for m
                 frame.dequeue();
-                Tag objTag = frame.dequeue();
-                frame.clearTags();
-                if (!Modifier.isStatic(shadow.getModifiers())) {
-                    frame.enqueue(objTag);
-                }
-                ArrayTagStore.enqueueTags(frame, args);
+                fixFrame(m, args, frame, frame.dequeue());
                 return new Object[] {shadow, obj, append(args, frame), frame};
             }
         }
@@ -79,14 +73,58 @@ public final class ReflectionMasks {
         if (hasShadow(c, null)) {
             Constructor<?> shadow = getShadowConstructor(c);
             if (shadow != null) {
-                frame.clearTags();
                 // Add tag for uninitialized this
-                frame.enqueue(Tag.getEmptyTag());
-                ArrayTagStore.enqueueTags(frame, args);
+                fixFrame(c, args, frame, Tag.getEmptyTag());
                 return new Object[] {shadow, append(args, frame), frame};
             }
         }
         return new Object[] {c, args, frame};
+    }
+
+    private static void fixFrame(Executable e, Object[] args, TagFrame frame, Tag receiverTag) {
+        frame.clearTags();
+        if (!Modifier.isStatic(e.getModifiers())) {
+            frame.enqueue(receiverTag);
+        }
+        if (args == null) {
+            // Empty arguments
+            return;
+        }
+        Class<?>[] parameters = e.getParameterTypes();
+        if (parameters.length != args.length) {
+            // Invalid call
+            return;
+        }
+        Tag[] tags = ArrayTagStore.getTags(args);
+        for (int i = 0; i < args.length; i++) {
+            Tag tag = tags == null ? Tag.getEmptyTag() : tags[i];
+            if (parameters[i].isPrimitive()) {
+                tag = Tag.union(tag, getValueTag(args[i]));
+            }
+            frame.enqueue(tag);
+        }
+    }
+
+    private static Tag getValueTag(Object argument) {
+        // Get the value tag for boxed types
+        if (argument instanceof Boolean) {
+            return FieldTagStore.getField(argument, "java/lang/Boolean#value#Z");
+        } else if (argument instanceof Byte) {
+            return FieldTagStore.getField(argument, "java/lang/Byte#value#B");
+        } else if (argument instanceof Short) {
+            return FieldTagStore.getField(argument, "java/lang/Short#value#S");
+        } else if (argument instanceof Character) {
+            return FieldTagStore.getField(argument, "java/lang/Character#value#C");
+        } else if (argument instanceof Integer) {
+            return FieldTagStore.getField(argument, "java/lang/Integer#value#I");
+        } else if (argument instanceof Long) {
+            return FieldTagStore.getField(argument, "java/lang/Long#value#J");
+        } else if (argument instanceof Float) {
+            return FieldTagStore.getField(argument, "java/lang/Float#value#F");
+        } else if (argument instanceof Double) {
+            return FieldTagStore.getField(argument, "java/lang/Double#value#D");
+        }
+        return Tag.getEmptyTag();
     }
 
     private static Constructor<?> getShadowConstructor(Constructor<?> c) {
@@ -122,7 +160,7 @@ public final class ReflectionMasks {
                     && !Modifier.isFinal(exec.getModifiers())
                     && obj instanceof TaggedObject;
         }
-        return true;
+        return !GaletteTransformer.isExcluded(exec.getName().replace('.', '/'));
     }
 
     private static Class<?>[] getShadowParameters(Executable exec) {

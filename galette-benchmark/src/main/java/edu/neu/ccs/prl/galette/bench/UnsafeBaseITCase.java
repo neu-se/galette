@@ -22,7 +22,7 @@ public abstract class UnsafeBaseITCase {
     void compareAndSwapInt(boolean compareSucceeds, boolean taintValue, UnsafeLocation location)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
-        int original = location.getInt(holder);
+        int original = location.getCategory().getInt(holder);
         int expected = compareSucceeds ? original : original + 50;
         int update = taintValue ? manager.setLabels(9, new Object[] {"update"}) : 9;
         boolean result = getUnsafe()
@@ -32,7 +32,7 @@ public abstract class UnsafeBaseITCase {
                         expected,
                         update);
         Assertions.assertEquals(compareSucceeds, result);
-        int actual = location.getInt(holder);
+        int actual = location.getCategory().getInt(holder);
         Assertions.assertEquals(compareSucceeds ? update : original, actual);
         checkCompareAndSwapLabels(compareSucceeds, taintValue, location, int.class, manager.getLabels(actual));
     }
@@ -42,7 +42,7 @@ public abstract class UnsafeBaseITCase {
     void compareAndSwapLong(boolean compareSucceeds, boolean taintValue, UnsafeLocation location)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
-        long original = location.getLong(holder);
+        long original = location.getCategory().getLong(holder);
         long expected = compareSucceeds ? original : original + 50;
         long update = taintValue ? manager.setLabels(9, new Object[] {"update"}) : 9;
         boolean result = getUnsafe()
@@ -52,7 +52,7 @@ public abstract class UnsafeBaseITCase {
                         expected,
                         update);
         Assertions.assertEquals(compareSucceeds, result);
-        long actual = location.getLong(holder);
+        long actual = location.getCategory().getLong(holder);
         Assertions.assertEquals(compareSucceeds ? update : original, actual);
         checkCompareAndSwapLabels(compareSucceeds, taintValue, location, long.class, manager.getLabels(actual));
     }
@@ -62,7 +62,7 @@ public abstract class UnsafeBaseITCase {
     void compareAndSwapObject(boolean compareSucceeds, boolean taintValue, UnsafeLocation location)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
-        Object original = location.getObject(holder);
+        Object original = location.getCategory().getObject(holder);
         Object expected = compareSucceeds ? original : new Object();
         Object update = taintValue ? manager.setLabels("hello", new Object[] {"update"}) : "hello";
         boolean result = getUnsafe()
@@ -72,7 +72,7 @@ public abstract class UnsafeBaseITCase {
                         expected,
                         update);
         Assertions.assertEquals(compareSucceeds, result);
-        Object actual = location.getObject(holder);
+        Object actual = location.getCategory().getObject(holder);
         Assertions.assertEquals(compareSucceeds ? update : original, actual);
         checkCompareAndSwapLabels(compareSucceeds, taintValue, location, Object.class, manager.getLabels(actual));
     }
@@ -82,7 +82,7 @@ public abstract class UnsafeBaseITCase {
     void getBoolean(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        boolean expected = location.getBoolean(holder);
+        boolean expected = location.getCategory().getBoolean(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, boolean.class);
         Object base = location.getBase(getUnsafe(), holder, boolean.class);
         long offset = location.getOffset(getUnsafe(), boolean.class);
@@ -96,7 +96,7 @@ public abstract class UnsafeBaseITCase {
     @MethodSource("arguments")
     void getByte(boolean taintValue, UnsafeLocation location, AccessPolicy policy) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        byte expected = location.getByte(holder);
+        byte expected = location.getCategory().getByte(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, byte.class);
         Object base = location.getBase(getUnsafe(), holder, byte.class);
         long offset = location.getOffset(getUnsafe(), byte.class);
@@ -110,7 +110,7 @@ public abstract class UnsafeBaseITCase {
     @MethodSource("arguments")
     void getChar(boolean taintValue, UnsafeLocation location, AccessPolicy policy) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        char expected = location.getChar(holder);
+        char expected = location.getCategory().getChar(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, char.class);
         Object base = location.getBase(getUnsafe(), holder, char.class);
         long offset = location.getOffset(getUnsafe(), char.class);
@@ -125,7 +125,7 @@ public abstract class UnsafeBaseITCase {
     void getDouble(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        double expected = location.getDouble(holder);
+        double expected = location.getCategory().getDouble(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, double.class);
         Object base = location.getBase(getUnsafe(), holder, double.class);
         long offset = location.getOffset(getUnsafe(), double.class);
@@ -140,7 +140,7 @@ public abstract class UnsafeBaseITCase {
     void getFloat(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        float expected = location.getFloat(holder);
+        float expected = location.getCategory().getFloat(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, float.class);
         Object base = location.getBase(getUnsafe(), holder, float.class);
         long offset = location.getOffset(getUnsafe(), float.class);
@@ -154,7 +154,7 @@ public abstract class UnsafeBaseITCase {
     @MethodSource("arguments")
     void getInt(boolean taintValue, UnsafeLocation location, AccessPolicy policy) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        int expected = location.getInt(holder);
+        int expected = location.getCategory().getInt(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, int.class);
         Object base = location.getBase(getUnsafe(), holder, int.class);
         long offset = location.getOffset(getUnsafe(), int.class);
@@ -168,7 +168,7 @@ public abstract class UnsafeBaseITCase {
     @MethodSource("arguments")
     void getLong(boolean taintValue, UnsafeLocation location, AccessPolicy policy) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        long expected = location.getLong(holder);
+        long expected = location.getCategory().getLong(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, long.class);
         Object base = location.getBase(getUnsafe(), holder, long.class);
         long offset = location.getOffset(getUnsafe(), long.class);
@@ -183,7 +183,7 @@ public abstract class UnsafeBaseITCase {
     void getShort(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        short expected = location.getShort(holder);
+        short expected = location.getCategory().getShort(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, short.class);
         Object base = location.getBase(getUnsafe(), holder, short.class);
         long offset = location.getOffset(getUnsafe(), short.class);
@@ -198,7 +198,7 @@ public abstract class UnsafeBaseITCase {
     void getObject(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        Object expected = location.getObject(holder);
+        Object expected = location.getCategory().getObject(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, Object.class);
         Object base = location.getBase(getUnsafe(), holder, Object.class);
         long offset = location.getOffset(getUnsafe(), Object.class);
@@ -219,7 +219,7 @@ public abstract class UnsafeBaseITCase {
         Object base = location.getBase(getUnsafe(), holder, boolean.class);
         long offset = location.getOffset(getUnsafe(), boolean.class);
         policy.putBoolean(base, offset, expected, getUnsafe());
-        boolean actual = location.getBoolean(holder);
+        boolean actual = location.getCategory().getBoolean(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
             checker.check(labels, manager.getLabels(actual));
@@ -240,7 +240,7 @@ public abstract class UnsafeBaseITCase {
         Object base = location.getBase(getUnsafe(), holder, byte.class);
         long offset = location.getOffset(getUnsafe(), byte.class);
         policy.putByte(base, offset, expected, getUnsafe());
-        byte actual = location.getByte(holder);
+        byte actual = location.getCategory().getByte(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
             checker.check(labels, manager.getLabels(actual));
@@ -261,7 +261,7 @@ public abstract class UnsafeBaseITCase {
         Object base = location.getBase(getUnsafe(), holder, char.class);
         long offset = location.getOffset(getUnsafe(), char.class);
         policy.putChar(base, offset, expected, getUnsafe());
-        char actual = location.getChar(holder);
+        char actual = location.getCategory().getChar(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
             checker.check(labels, manager.getLabels(actual));
@@ -283,7 +283,7 @@ public abstract class UnsafeBaseITCase {
         Object base = location.getBase(getUnsafe(), holder, double.class);
         long offset = location.getOffset(getUnsafe(), double.class);
         policy.putDouble(base, offset, expected, getUnsafe());
-        double actual = location.getDouble(holder);
+        double actual = location.getCategory().getDouble(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
             checker.check(labels, manager.getLabels(actual));
@@ -305,7 +305,7 @@ public abstract class UnsafeBaseITCase {
         Object base = location.getBase(getUnsafe(), holder, float.class);
         long offset = location.getOffset(getUnsafe(), float.class);
         policy.putFloat(base, offset, expected, getUnsafe());
-        float actual = location.getFloat(holder);
+        float actual = location.getCategory().getFloat(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
             checker.check(labels, manager.getLabels(actual));
@@ -326,7 +326,7 @@ public abstract class UnsafeBaseITCase {
         Object base = location.getBase(getUnsafe(), holder, int.class);
         long offset = location.getOffset(getUnsafe(), int.class);
         policy.putInt(base, offset, expected, getUnsafe());
-        int actual = location.getInt(holder);
+        int actual = location.getCategory().getInt(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
             checker.check(labels, manager.getLabels(actual));
@@ -347,7 +347,7 @@ public abstract class UnsafeBaseITCase {
         Object base = location.getBase(getUnsafe(), holder, long.class);
         long offset = location.getOffset(getUnsafe(), long.class);
         policy.putLong(base, offset, expected, getUnsafe());
-        long actual = location.getLong(holder);
+        long actual = location.getCategory().getLong(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
             checker.check(labels, manager.getLabels(actual));
@@ -369,7 +369,7 @@ public abstract class UnsafeBaseITCase {
         Object base = location.getBase(getUnsafe(), holder, short.class);
         long offset = location.getOffset(getUnsafe(), short.class);
         policy.putShort(base, offset, expected, getUnsafe());
-        short actual = location.getShort(holder);
+        short actual = location.getCategory().getShort(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
             checker.check(labels, manager.getLabels(actual));
@@ -391,7 +391,7 @@ public abstract class UnsafeBaseITCase {
         Object base = location.getBase(getUnsafe(), holder, Object.class);
         long offset = location.getOffset(getUnsafe(), Object.class);
         policy.putObject(base, offset, expected, getUnsafe());
-        Object actual = location.getObject(holder);
+        Object actual = location.getCategory().getObject(holder);
         Assertions.assertEquals(expected, actual);
         if (taintValue) {
             checker.check(labels, manager.getLabels(actual));

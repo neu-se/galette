@@ -9,6 +9,7 @@ public final class BoxTypeMasks {
         Tag valueTag = frame.dequeue();
         TagFrame calleeFrame =
                 TagFrame.createForCall(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
+        frame.setReturnTag(valueTag);
         return Tag.isEmpty(valueTag)
                 ? BoxTypeAccessor.valueOf(value, calleeFrame)
                 : BoxTypeAccessor.newBoolean(value, calleeFrame);
@@ -19,6 +20,7 @@ public final class BoxTypeMasks {
         Tag valueTag = frame.dequeue();
         TagFrame calleeFrame =
                 TagFrame.createForCall(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
+        frame.setReturnTag(valueTag);
         return Tag.isEmpty(valueTag)
                 ? BoxTypeAccessor.valueOf(value, calleeFrame)
                 : BoxTypeAccessor.newByte(value, calleeFrame);
@@ -29,6 +31,7 @@ public final class BoxTypeMasks {
         Tag valueTag = frame.dequeue();
         TagFrame calleeFrame =
                 TagFrame.createForCall(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
+        frame.setReturnTag(valueTag);
         return Tag.isEmpty(valueTag)
                 ? BoxTypeAccessor.valueOf(value, calleeFrame)
                 : BoxTypeAccessor.newCharacter(value, calleeFrame);
@@ -39,6 +42,7 @@ public final class BoxTypeMasks {
         Tag valueTag = frame.dequeue();
         TagFrame calleeFrame =
                 TagFrame.createForCall(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
+        frame.setReturnTag(valueTag);
         return Tag.isEmpty(valueTag)
                 ? BoxTypeAccessor.valueOf(value, calleeFrame)
                 : BoxTypeAccessor.newInteger(value, calleeFrame);
@@ -49,6 +53,7 @@ public final class BoxTypeMasks {
         Tag valueTag = frame.dequeue();
         TagFrame calleeFrame =
                 TagFrame.createForCall(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
+        frame.setReturnTag(valueTag);
         return Tag.isEmpty(valueTag)
                 ? BoxTypeAccessor.valueOf(value, calleeFrame)
                 : BoxTypeAccessor.newLong(value, calleeFrame);
@@ -59,8 +64,31 @@ public final class BoxTypeMasks {
         Tag valueTag = frame.dequeue();
         TagFrame calleeFrame =
                 TagFrame.createForCall(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
+        frame.setReturnTag(valueTag);
         return Tag.isEmpty(valueTag)
                 ? BoxTypeAccessor.valueOf(value, calleeFrame)
                 : BoxTypeAccessor.newShort(value, calleeFrame);
+    }
+
+    @Mask(owner = "java/lang/Float", name = "valueOf", isStatic = true)
+    public static Float valueOf(float value, TagFrame frame) {
+        Tag valueTag = frame.dequeue();
+        TagFrame calleeFrame =
+                TagFrame.createForCall(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
+        frame.setReturnTag(valueTag);
+        return Tag.isEmpty(valueTag)
+                ? BoxTypeAccessor.valueOf(value, calleeFrame)
+                : BoxTypeAccessor.newFloat(value, calleeFrame);
+    }
+
+    @Mask(owner = "java/lang/Double", name = "valueOf", isStatic = true)
+    public static Double valueOf(double value, TagFrame frame) {
+        Tag valueTag = frame.dequeue();
+        TagFrame calleeFrame =
+                TagFrame.createForCall(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
+        frame.setReturnTag(valueTag);
+        return Tag.isEmpty(valueTag)
+                ? BoxTypeAccessor.valueOf(value, calleeFrame)
+                : BoxTypeAccessor.newDouble(value, calleeFrame);
     }
 }

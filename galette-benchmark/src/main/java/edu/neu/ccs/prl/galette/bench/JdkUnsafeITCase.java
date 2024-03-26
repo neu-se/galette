@@ -15,7 +15,7 @@ public class JdkUnsafeITCase extends UnsafeBaseITCase {
     void compareAndExchangeInt(boolean compareSucceeds, boolean taintValue, UnsafeLocation location)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
-        int original = location.getInt(holder);
+        int original = location.getCategory().getInt(holder);
         int expected = compareSucceeds ? original : original + 50;
         int update = taintValue ? manager.setLabels(9, new Object[] {"update"}) : 9;
         int witness = getUnsafe()
@@ -26,7 +26,7 @@ public class JdkUnsafeITCase extends UnsafeBaseITCase {
                         update);
         Assertions.assertEquals(compareSucceeds, expected == witness);
         checkWitnessLabels(taintValue, location, int.class, manager.getLabels(witness));
-        int actual = location.getInt(holder);
+        int actual = location.getCategory().getInt(holder);
         checkCompareAndSwapLabels(compareSucceeds, taintValue, location, int.class, manager.getLabels(actual));
     }
 
@@ -35,7 +35,7 @@ public class JdkUnsafeITCase extends UnsafeBaseITCase {
     void compareAndExchangeLong(boolean compareSucceeds, boolean taintValue, UnsafeLocation location)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
-        long original = location.getLong(holder);
+        long original = location.getCategory().getLong(holder);
         long expected = compareSucceeds ? original : original + 50;
         long update = taintValue ? manager.setLabels(9L, new Object[] {"update"}) : 9L;
         long witness = getUnsafe()
@@ -46,7 +46,7 @@ public class JdkUnsafeITCase extends UnsafeBaseITCase {
                         update);
         Assertions.assertEquals(compareSucceeds, expected == witness);
         checkWitnessLabels(taintValue, location, long.class, manager.getLabels(witness));
-        long actual = location.getLong(holder);
+        long actual = location.getCategory().getLong(holder);
         checkCompareAndSwapLabels(compareSucceeds, taintValue, location, long.class, manager.getLabels(actual));
     }
 
@@ -55,7 +55,7 @@ public class JdkUnsafeITCase extends UnsafeBaseITCase {
     void compareAndExchangeObject(boolean compareSucceeds, boolean taintValue, UnsafeLocation location)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
-        Object original = location.getObject(holder);
+        Object original = location.getCategory().getObject(holder);
         Object expected = compareSucceeds ? original : new Object();
         Object update = taintValue ? manager.setLabels("hello", new Object[] {"update"}) : "hello";
         Object witness = getUnsafe()
@@ -66,7 +66,7 @@ public class JdkUnsafeITCase extends UnsafeBaseITCase {
                         update);
         Assertions.assertEquals(compareSucceeds, expected == witness);
         checkWitnessLabels(taintValue, location, Object.class, manager.getLabels(witness));
-        Object actual = location.getObject(holder);
+        Object actual = location.getCategory().getObject(holder);
         checkCompareAndSwapLabels(compareSucceeds, taintValue, location, Object.class, manager.getLabels(actual));
     }
 

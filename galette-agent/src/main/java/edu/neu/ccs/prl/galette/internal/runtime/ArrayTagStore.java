@@ -152,16 +152,12 @@ public final class ArrayTagStore {
         }
     }
 
-    public static synchronized void enqueueTags(TagFrame frame, Object[] arguments) {
-        if (wrappers == null || arguments == null) {
-            return;
+    public static synchronized Tag[] getTags(Object array) {
+        if (wrappers == null || array == null) {
+            return null;
         }
-        ArrayWrapper wrapper = wrappers.get(arguments);
-        if (wrapper != null) {
-            for (int i = 0; i < arguments.length; i++) {
-                frame.enqueue(wrapper.getElement(i));
-            }
-        }
+        ArrayWrapper wrapper = wrappers.get(array);
+        return wrapper == null ? null : wrapper.elements;
     }
 
     public static synchronized void clear() {

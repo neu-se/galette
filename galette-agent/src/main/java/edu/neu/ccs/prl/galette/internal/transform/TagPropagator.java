@@ -456,7 +456,7 @@ class TagPropagator extends MethodVisitor {
                     PUTFIELD, owner, ShadowFieldAdder.getShadowFieldName(name), ShadowFieldAdder.TAG_DESCRIPTOR);
         } else if (isMirroredField(owner, name, false)) {
             prepareForPutField(valueSize);
-            super.visitLdcInsn(owner + '#' + name + descriptor);
+            super.visitLdcInsn(owner + '#' + name + '#' + descriptor);
             Handle.FIELD_TAG_STORE_PUT_FIELD.accept(mv);
         }
         // Remove the tags on the shadow stack for the slots consumed by this instruction
@@ -497,7 +497,7 @@ class TagPropagator extends MethodVisitor {
         } else if (isMirroredField(owner, name, false)) {
             super.visitInsn(DUP);
             // objectref, objectref
-            super.visitLdcInsn(owner + '#' + name + descriptor);
+            super.visitLdcInsn(owner + '#' + name + '#' + descriptor);
             Handle.FIELD_TAG_STORE_GET_FIELD.accept(mv);
             // objectref, value-tag
         } else {
@@ -528,7 +528,7 @@ class TagPropagator extends MethodVisitor {
                     PUTSTATIC, owner, ShadowFieldAdder.getShadowFieldName(name), ShadowFieldAdder.TAG_DESCRIPTOR);
         } else if (isMirroredField(owner, name, true)) {
             shadowLocals.peek(valueSize - 1);
-            super.visitLdcInsn(owner + '#' + name + descriptor);
+            super.visitLdcInsn(owner + '#' + name + '#' + descriptor);
             Handle.FIELD_TAG_STORE_PUT_STATIC.accept(mv);
         }
         // value or value, top
@@ -543,7 +543,7 @@ class TagPropagator extends MethodVisitor {
             super.visitFieldInsn(
                     GETSTATIC, owner, ShadowFieldAdder.getShadowFieldName(name), ShadowFieldAdder.TAG_DESCRIPTOR);
         } else if (isMirroredField(owner, name, true)) {
-            super.visitLdcInsn(owner + '#' + name + descriptor);
+            super.visitLdcInsn(owner + '#' + name + '#' + descriptor);
             Handle.FIELD_TAG_STORE_GET_STATIC.accept(mv);
         } else {
             Handle.TAG_GET_EMPTY.accept(mv);
