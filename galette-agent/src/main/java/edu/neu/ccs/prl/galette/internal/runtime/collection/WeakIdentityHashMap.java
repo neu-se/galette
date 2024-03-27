@@ -45,21 +45,21 @@ public class WeakIdentityHashMap<K, V> {
             hashCode = System.identityHashCode(referent);
         }
 
-        public int hashCode() {
-            return hashCode;
-        }
-
         @Override
         public boolean equals(Object o) {
             if (this == o) {
                 return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
+            } else if (!(o instanceof IdentityWeakReference)) {
                 return false;
             }
-            WeakReference<?> that = (WeakReference<?>) o;
+            IdentityWeakReference<?> that = (IdentityWeakReference<?>) o;
             T referent = this.get();
-            return referent != null && referent == that.get();
+            return (hashCode == that.hashCode) && referent != null && referent == that.get();
+        }
+
+        @Override
+        public int hashCode() {
+            return hashCode;
         }
     }
 }

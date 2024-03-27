@@ -1,7 +1,5 @@
 package edu.neu.ccs.prl.galette.internal.runtime;
 
-import edu.neu.ccs.prl.galette.internal.runtime.collection.HashMap;
-import edu.neu.ccs.prl.galette.internal.runtime.collection.ObjectIntMap;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.WeakIdentityHashMap;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.UnsafeWrapper;
 import java.lang.reflect.Array;
@@ -11,7 +9,7 @@ import java.lang.reflect.Array;
  */
 public final class ArrayTagStore {
     /**
-     * Delay initialization to prevent circular class initialization
+     * Delay initialization to prevent circular class initialization.
      */
     private static volatile WeakIdentityHashMap<Object, ArrayWrapper> wrappers;
 
@@ -20,49 +18,43 @@ public final class ArrayTagStore {
     }
 
     @InvokedViaHandle(handle = Handle.ARRAY_TAG_STORE_GET_LENGTH_TAG)
-    public static synchronized Tag getLengthTag(Object array, Tag arrayTag) {
-        if (wrappers == null || array == null) {
-            return Tag.getEmptyTag();
-        }
-        ArrayWrapper wrapper = wrappers.get(array);
+    public static Tag getLengthTag(Object array, Tag arrayTag) {
+        ArrayWrapper wrapper = getWrapper(array);
         return wrapper == null ? Tag.getEmptyTag() : wrapper.getLength();
     }
 
     @InvokedViaHandle(handle = Handle.ARRAY_TAG_STORE_SET_LENGTH_TAG)
-    public static synchronized void setLengthTag(Object array, Tag lengthTag) {
-        if (wrappers == null || array == null) {
-            return;
+    public static void setLengthTag(Object array, Tag lengthTag) {
+        ArrayWrapper wrapper = getWrapper(array, lengthTag);
+        if (wrapper != null) {
+            wrapper.setLength(lengthTag);
         }
-        ArrayWrapper wrapper = wrappers.get(array);
-        if (wrapper == null) {
-            if (Tag.isEmpty(lengthTag)) {
-                return;
-            }
-            wrapper = new ArrayWrapper(array);
-            wrappers.put(array, wrapper);
-        }
-        wrapper.setLength(lengthTag);
     }
 
     @InvokedViaHandle(handle = Handle.ARRAY_TAG_STORE_SET_LENGTH_TAGS)
-    public static synchronized void setLengthTags(Object array, Tag[] lengthTags) {
-        if (wrappers == null || array == null || lengthTags.length == 0) {
-            return;
+    public static void setLengthTags(Object array, Tag[] lengthTags) {
+        if (containsNonEmpty(lengthTags)) {
+            setLengthTagsInternal(array, lengthTags, 0);
         }
-        setLengthTagsInternal(array, lengthTags, 0);
     }
 
-    public static synchronized void setLengthTags(Object array, int[] dimensions) {
-        if (wrappers == null || array == null || dimensions.length == 0) {
-            return;
+    private static boolean containsNonEmpty(Tag[] tags) {
+        for (Tag tag : tags) {
+            if (!Tag.isEmpty(tag)) {
+                return true;
+            }
         }
-        ArrayWrapper wrapper = wrappers.get(dimensions);
+        return false;
+    }
+
+    public static void setLengthTags(Object array, int[] dimensions) {
+        ArrayWrapper wrapper = getWrapper(dimensions);
         if (wrapper != null) {
-            setLengthTagsInternal(array, wrapper.getElements(), 0);
+            setLengthTags(array, wrapper.getElements());
         }
     }
 
-    private static synchronized void setLengthTagsInternal(Object array, Tag[] lengthTags, int dimension) {
+    private static void setLengthTagsInternal(Object array, Tag[] lengthTags, int dimension) {
         setLengthTag(array, lengthTags[dimension]);
         if (dimension < lengthTags.length - 1) {
             // Not the last dimension
@@ -75,20 +67,14 @@ public final class ArrayTagStore {
     }
 
     @InvokedViaHandle(handle = Handle.ARRAY_TAG_STORE_GET_TAG)
-    public static synchronized Tag getTag(Object array, int index, Tag arrayTag, Tag indexTag) {
-        if (wrappers == null || array == null) {
-            return Tag.getEmptyTag();
-        }
-        ArrayWrapper wrapper = wrappers.get(array);
+    public static Tag getTag(Object array, int index, Tag arrayTag, Tag indexTag) {
+        ArrayWrapper wrapper = getWrapper(array);
         // Propagate the array index's tag
         return wrapper == null ? indexTag : Tag.union(indexTag, wrapper.getElement(index));
     }
 
-    public static synchronized Tag getTagVolatile(UnsafeWrapper unsafe, Object array, Tag indexTag, long offset) {
-        if (wrappers == null || array == null) {
-            return Tag.getEmptyTag();
-        }
-        ArrayWrapper wrapper = wrappers.get(array);
+    public static Tag getTagVolatile(UnsafeWrapper unsafe, Object array, Tag indexTag, long offset) {
+        ArrayWrapper wrapper = getWrapper(array);
         // Propagate the array index's tag
         if (wrapper == null) {
             return indexTag;
@@ -99,7 +85,7 @@ public final class ArrayTagStore {
     }
 
     @InvokedViaHandle(handle = Handle.ARRAY_TAG_STORE_SET_TAG)
-    public static synchronized void setTag(Object array, int index, Tag arrayTag, Tag indexTag, Tag valueTag) {
+    public static void setTag(Object array, int index, Tag arrayTag, Tag indexTag, Tag valueTag) {
         // Propagate the array index's tag
         Tag tag = Tag.union(indexTag, valueTag);
         ArrayWrapper wrapper = getWrapper(array, tag);
@@ -108,8 +94,7 @@ public final class ArrayTagStore {
         }
     }
 
-    public static synchronized void setTagVolatile(
-            UnsafeWrapper unsafe, Object array, Tag indexTag, Tag valueTag, long offset) {
+    public static void setTagVolatile(UnsafeWrapper unsafe, Object array, Tag indexTag, Tag valueTag, long offset) {
         // Propagate the array index's tag
         Tag tag = Tag.union(indexTag, valueTag);
         ArrayWrapper wrapper = getWrapper(array, tag);
@@ -118,82 +103,67 @@ public final class ArrayTagStore {
         }
     }
 
-    private static synchronized ArrayWrapper getWrapper(Object array, Tag tag) {
-        if (wrappers == null || array == null) {
-            return null;
-        }
-        // Propagate the array index's tag
-        ArrayWrapper wrapper = wrappers.get(array);
-        if (wrapper == null) {
-            if (Tag.isEmpty(tag)) {
-                return null;
-            }
-            wrapper = new ArrayWrapper(array);
-            wrappers.put(array, wrapper);
-        }
-        return wrapper;
-    }
-
     public static synchronized void arraycopyTags(Object src, int srcPos, Object dest, int destPos, int length) {
-        if (wrappers == null || src == null || dest == null) {
-            return;
-        }
-        ArrayWrapper sourceWrapper = wrappers.get(src);
-        ArrayWrapper destWrapper = wrappers.get(dest);
+        ArrayWrapper sourceWrapper = getWrapper(src);
+        ArrayWrapper destWrapper = getWrapper(dest);
         if (sourceWrapper != null || destWrapper != null) {
             if (destWrapper == null) {
                 destWrapper = new ArrayWrapper(dest);
-                wrappers.put(dest, destWrapper);
+                setWrapper(dest, destWrapper);
             }
             if (sourceWrapper == null) {
                 sourceWrapper = new ArrayWrapper(src);
+                setWrapper(src, sourceWrapper);
             }
             System.arraycopy(sourceWrapper.getElements(), srcPos, destWrapper.getElements(), destPos, length);
         }
     }
 
-    public static synchronized Tag[] getTags(Object array) {
-        if (wrappers == null || array == null) {
-            return null;
+    private static synchronized ArrayWrapper getWrapper(Object array, Tag tag) {
+        ArrayWrapper wrapper = getWrapper(array);
+        if (wrapper == null) {
+            if (array != null && !Tag.isEmpty(tag)) {
+                wrapper = new ArrayWrapper(array);
+                setWrapper(array, wrapper);
+            }
         }
-        ArrayWrapper wrapper = wrappers.get(array);
-        return wrapper == null ? null : wrapper.getElements();
+        return wrapper;
     }
 
     public static synchronized void clear() {
-        if (wrappers != null) {
-            wrappers.clear();
+        if (wrappers != null && FlagAccessor.reserve()) {
+            try {
+                wrappers.clear();
+            } finally {
+                FlagAccessor.free();
+            }
         }
     }
 
     public static synchronized void initialize() {
         if (wrappers == null) {
-            // Ensure that needed classes are initialized to prevent circular class initialization
-            Object[] dependencies = new Object[] {
-                WeakIdentityHashMap.class,
-                ObjectIntMap.class,
-                System.class,
-                HashMap.class,
-                HashMap.Entry.class,
-                ArrayWrapper.class
-            };
-            // Create a temporary map and add an element to force IdentityWeakReference to be initialized
-            new WeakIdentityHashMap<>().put(dependencies, dependencies);
             wrappers = new WeakIdentityHashMap<>();
         }
     }
 
     public static synchronized ArrayWrapper getWrapper(Object array) {
-        if (wrappers == null || array == null) {
-            return null;
+        if (wrappers != null && array != null && FlagAccessor.reserve()) {
+            try {
+                return wrappers.get(array);
+            } finally {
+                FlagAccessor.free();
+            }
         }
-        return wrappers.get(array);
+        return null;
     }
 
     public static synchronized void setWrapper(Object array, ArrayWrapper wrapper) {
-        if (wrappers == null || array == null) {
-            return;
+        if (wrappers != null && array != null && FlagAccessor.reserve()) {
+            try {
+                wrappers.put(array, wrapper);
+            } finally {
+                FlagAccessor.free();
+            }
         }
-        wrappers.put(array, wrapper);
     }
 }

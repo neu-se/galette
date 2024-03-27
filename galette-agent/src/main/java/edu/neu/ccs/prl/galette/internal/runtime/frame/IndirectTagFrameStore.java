@@ -16,13 +16,13 @@ public final class IndirectTagFrameStore {
     }
 
     @SuppressWarnings("unused")
-    @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_frame", opcode = Opcodes.GETFIELD)
+    @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_$$LOCAL_frame", opcode = Opcodes.GETFIELD)
     private static Pair<TagFrame, Object[]> getFrame(Thread thread) {
         throw new AssertionError("Placeholder method was called");
     }
 
     @SuppressWarnings("unused")
-    @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_frame", opcode = Opcodes.PUTFIELD)
+    @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_$$LOCAL_frame", opcode = Opcodes.PUTFIELD)
     private static void setFrame(Thread thread, Pair<TagFrame, Object[]> value) {
         throw new AssertionError("Placeholder method was called");
     }

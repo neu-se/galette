@@ -1,0 +1,46 @@
+package edu.neu.ccs.prl.galette.internal.runtime;
+
+import edu.neu.ccs.prl.galette.internal.runtime.mask.MemberAccess;
+import org.objectweb.asm.Opcodes;
+
+/**
+ * Before accessing mirrored tags, tag stores must check whether the access was triggered from
+ * within a tag store's handling of a different access.
+ * This "inner" access should be suppressed to prevent the risk of triggering an infinite loop.
+ * This suppression is done using {@link FlagAccessor#reserve()}.
+ */
+@SuppressWarnings("ConstantValue")
+public final class FlagAccessor {
+    private static volatile boolean INITIALIZED = false;
+
+    @SuppressWarnings("unused")
+    @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_$$LOCAL_flag", opcode = Opcodes.GETFIELD)
+    private static boolean getFlag(Thread thread) {
+        throw new AssertionError("Placeholder method was called");
+    }
+
+    @SuppressWarnings("unused")
+    @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_$$LOCAL_flag", opcode = Opcodes.PUTFIELD)
+    private static void setFlag(Thread thread, boolean value) {
+        throw new AssertionError("Placeholder method was called");
+    }
+
+    public static void free() {
+        if (INITIALIZED) {
+            setFlag(Thread.currentThread(), false);
+        }
+    }
+
+    public static boolean reserve() {
+        if (INITIALIZED && !getFlag(Thread.currentThread())) {
+            // Prevent re-entry on the same Thread
+            setFlag(Thread.currentThread(), true);
+            return true;
+        }
+        return false;
+    }
+
+    public static void initialize() {
+        INITIALIZED = true;
+    }
+}

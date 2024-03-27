@@ -16,7 +16,7 @@ public final class SerializationMasks {
                 ArrayWrapper wrapper = ArrayTagStore.getWrapper(obj);
                 out.writeObject(wrapper);
             } else if (isMirroredType(obj)) {
-                out.writeObject(FieldTagStore.getTags(obj));
+                out.writeObject(FieldTagStore.getInstanceTags(obj));
             }
         }
     }
@@ -36,7 +36,7 @@ public final class SerializationMasks {
                 HashMap<String, Tag> tags =
                         (HashMap<String, Tag>) readObject0(in, HashMap.class, unshared, new TagFrame(frame));
                 if (tags != null) {
-                    FieldTagStore.setTags(retValue, tags);
+                    FieldTagStore.setInstanceTags(retValue, tags);
                 }
             }
         }
@@ -50,7 +50,6 @@ public final class SerializationMasks {
     }
 
     private static boolean isMirroredType(Object o) {
-        // TODO Reference?
         return o instanceof Integer
                 || o instanceof Boolean
                 || o instanceof Byte

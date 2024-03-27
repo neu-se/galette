@@ -95,9 +95,9 @@ public final class ReflectionMasks {
             // Invalid call
             return;
         }
-        Tag[] tags = ArrayTagStore.getTags(args);
+        ArrayWrapper wrapper = ArrayTagStore.getWrapper(args);
         for (int i = 0; i < args.length; i++) {
-            Tag tag = tags == null ? Tag.getEmptyTag() : tags[i];
+            Tag tag = wrapper == null ? Tag.getEmptyTag() : wrapper.getElement(i);
             if (parameters[i].isPrimitive()) {
                 tag = Tag.union(tag, getValueTag(args[i]));
             }

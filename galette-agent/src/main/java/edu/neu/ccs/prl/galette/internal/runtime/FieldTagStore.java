@@ -1,7 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.runtime;
 
 import edu.neu.ccs.prl.galette.internal.runtime.collection.HashMap;
-import edu.neu.ccs.prl.galette.internal.runtime.collection.ObjectIntMap;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.WeakIdentityHashMap;
 
 /**
@@ -26,77 +25,85 @@ public final class FieldTagStore {
 
     @InvokedViaHandle(handle = Handle.FIELD_TAG_STORE_PUT_STATIC)
     public static synchronized void putStatic(Tag tag, String fieldReference) {
-        if (!isInitialized()) {
-            return;
+        if (staticFieldTags != null && FlagAccessor.reserve()) {
+            try {
+                staticFieldTags.put(fieldReference, tag);
+            } finally {
+                FlagAccessor.free();
+            }
         }
-        staticFieldTags.put(fieldReference, tag);
     }
 
     @InvokedViaHandle(handle = Handle.FIELD_TAG_STORE_GET_STATIC)
     public static synchronized Tag getStatic(String fieldReference) {
-        if (!isInitialized()) {
-            return Tag.getEmptyTag();
+        if (staticFieldTags != null && FlagAccessor.reserve()) {
+            try {
+                return staticFieldTags.get(fieldReference);
+            } finally {
+                FlagAccessor.free();
+            }
         }
-        return staticFieldTags.get(fieldReference);
+        return Tag.getEmptyTag();
     }
 
     @InvokedViaHandle(handle = Handle.FIELD_TAG_STORE_PUT_FIELD)
     public static synchronized void putField(Object receiver, Tag tag, String fieldReference) {
-        if (!isInitialized()) {
-            return;
-        }
-        HashMap<String, Tag> tags = instanceFieldTags.get(receiver);
-        if (tags != null || !Tag.isEmpty(tag)) {
-            if (tags == null) {
-                tags = new HashMap<>();
-                instanceFieldTags.put(receiver, tags);
-            }
+        HashMap<String, Tag> tags = getInstanceTagsInternal(receiver, tag);
+        if (tags != null) {
             tags.put(fieldReference, tag);
         }
     }
 
     @InvokedViaHandle(handle = Handle.FIELD_TAG_STORE_GET_FIELD)
     public static synchronized Tag getField(Object receiver, String fieldReference) {
-        if (!isInitialized()) {
-            return Tag.getEmptyTag();
-        }
-        HashMap<String, Tag> tags = instanceFieldTags.get(receiver);
+        HashMap<String, Tag> tags = getInstanceTagsInternal(receiver, null);
         return tags == null ? Tag.getEmptyTag() : tags.get(fieldReference);
     }
 
-    public static synchronized HashMap<String, Tag> getTags(Object receiver) {
-        if (!isInitialized()) {
-            return null;
+    private static synchronized HashMap<String, Tag> getInstanceTagsInternal(Object receiver, Tag tag) {
+        if (staticFieldTags != null && FlagAccessor.reserve()) {
+            try {
+                HashMap<String, Tag> tags = instanceFieldTags.get(receiver);
+                if (tags == null && !Tag.isEmpty(tag)) {
+                    tags = new HashMap<>();
+                    instanceFieldTags.put(receiver, tags);
+                }
+                return tags;
+            } finally {
+                FlagAccessor.free();
+            }
         }
-        HashMap<String, Tag> tags = instanceFieldTags.get(receiver);
+        return null;
+    }
+
+    public static synchronized HashMap<String, Tag> getInstanceTags(Object receiver) {
+        HashMap<String, Tag> tags = getInstanceTagsInternal(receiver, null);
         return tags == null ? null : new HashMap<>(tags);
     }
 
-    public static synchronized void setTags(Object receiver, HashMap<String, Tag> tags) {
-        if (isInitialized()) {
-            instanceFieldTags.put(receiver, new HashMap<>(tags));
+    public static synchronized void setInstanceTags(Object receiver, HashMap<String, Tag> tags) {
+        if (staticFieldTags != null && FlagAccessor.reserve()) {
+            try {
+                instanceFieldTags.put(receiver, new HashMap<>(tags));
+            } finally {
+                FlagAccessor.free();
+            }
         }
     }
 
     public static synchronized void clear() {
-        if (isInitialized()) {
-            instanceFieldTags.clear();
-            staticFieldTags.clear();
+        if (staticFieldTags != null && FlagAccessor.reserve()) {
+            try {
+                instanceFieldTags.clear();
+                staticFieldTags.clear();
+            } finally {
+                FlagAccessor.free();
+            }
         }
     }
 
-    public static synchronized boolean isInitialized() {
-        return instanceFieldTags != null;
-    }
-
     public static synchronized void initialize() {
-        if (!isInitialized()) {
-            // Ensure that needed classes are initialized to prevent circular class initialization
-            Object[] dependencies = new Object[] {
-                WeakIdentityHashMap.class, ObjectIntMap.class, System.class, HashMap.class, HashMap.Entry.class,
-            };
-            // Create a temporary map and add an element to force IdentityWeakReference to be initialized
-            new WeakIdentityHashMap<>().put(dependencies, dependencies);
+        if (staticFieldTags == null) {
             instanceFieldTags = new WeakIdentityHashMap<>();
             staticFieldTags = new HashMap<>();
         }

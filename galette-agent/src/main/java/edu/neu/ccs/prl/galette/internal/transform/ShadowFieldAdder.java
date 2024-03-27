@@ -56,15 +56,18 @@ public class ShadowFieldAdder {
      * "src/hotspot/share/classfile/classFileParser.cpp" from Eclipse Temurin JDK (version 11.0.21+9) and manual
      * experimentation.
      *
-     * @param className internal name of a class
+     * @param className the internal name of a class
      * @throws NullPointerException if the specified class name is {@code null}
      */
     public static boolean hasShadowFields(String className) {
-        // TODO: Fix mirroring of SoftReference#referent (and other fields inherited from supertype)
         switch (className) {
+                // All fields declared in Reference are private or package-private.
+                // Package-private fields are not accessed using a subtype reference.
             case "java/lang/ref/Reference":
+                // All fields declared in SoftReference are private
             case "java/lang/ref/SoftReference":
-                // The following types are all final, so it is safe to not shadow their fields
+                // The following types are all final.
+                // It is safe to mirror their fields.
             case "java/lang/StackTraceElement":
                 return false;
             default:
