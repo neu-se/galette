@@ -68,7 +68,21 @@ class MatchingFrameAdjuster implements FrameAdjuster {
     public FrameAdjuster process(int value) {
         if (index < arguments.length) {
             Object actual = arguments[index++];
-            if (matchIntType(actual, value)) {
+            int aValue;
+            if (actual instanceof Boolean) {
+                aValue = (Boolean) actual ? 1 : 0;
+            } else if (actual instanceof Byte) {
+                aValue = (Byte) actual;
+            } else if (actual instanceof Character) {
+                aValue = (Character) actual;
+            } else if (actual instanceof Integer) {
+                aValue = (Integer) actual;
+            } else if (actual instanceof Short) {
+                aValue = (Short) actual;
+            } else {
+                return new MismatchedFrameAdjuster(original, arguments);
+            }
+            if (value == aValue) {
                 return this;
             }
         }
