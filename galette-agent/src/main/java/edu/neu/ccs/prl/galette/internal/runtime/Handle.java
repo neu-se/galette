@@ -11,15 +11,13 @@ public enum Handle {
     TAG_UNION(Tag.class),
     HANDLE_REGISTRY_PUT(HandleRegistry.class),
     MASK_REGISTRY_PUT(MaskRegistry.class),
-    FRAME_CREATE_FOR_CALL(TagFrame.class),
+    FRAME_CREATE(TagFrame.class),
     FRAME_SET_CALLER(TagFrame.class),
     FRAME_GET_CALLER(TagFrame.class),
     FRAME_ENQUEUE(TagFrame.class),
     FRAME_DEQUEUE(TagFrame.class),
     FRAME_GET_RETURN_TAG(TagFrame.class),
     FRAME_SET_RETURN_TAG(TagFrame.class),
-    FRAME_SET_THROWN_TAG(TagFrame.class),
-    FRAME_CREATE_EMPTY(TagFrame.class),
     INDIRECT_FRAME_RESTORE(IndirectTagFrameStore.class),
     INDIRECT_FRAME_GET_ADJUSTER(IndirectTagFrameStore.class),
     INDIRECT_FRAME_CLEAR(IndirectTagFrameStore.class),
@@ -43,7 +41,9 @@ public enum Handle {
     FRAME_ADJUSTER_PROCESS_LONG(FrameAdjuster.class),
     FRAME_ADJUSTER_PROCESS_FLOAT(FrameAdjuster.class),
     FRAME_ADJUSTER_PROCESS_DOUBLE(FrameAdjuster.class),
-    FRAME_ADJUSTER_PROCESS_OBJECT(FrameAdjuster.class);
+    FRAME_ADJUSTER_PROCESS_OBJECT(FrameAdjuster.class),
+    EXCEPTION_STORE_SET(ExceptionStore.class),
+    EXCEPTION_STORE_GET(ExceptionStore.class);
 
     private final Class<?> owner;
 

@@ -1,6 +1,7 @@
 package edu.neu.ccs.prl.galette.internal.agent;
 
 import edu.neu.ccs.prl.galette.internal.runtime.ArrayTagStore;
+import edu.neu.ccs.prl.galette.internal.runtime.ExceptionStore;
 import edu.neu.ccs.prl.galette.internal.runtime.FieldTagStore;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 import edu.neu.ccs.prl.galette.internal.runtime.frame.IndirectTagFrameStore;
@@ -24,8 +25,10 @@ public final class GaletteAgent {
         UnsafeTagLocator.initialize();
         // Enable indirect frame passing
         IndirectTagFrameStore.initialize();
-        // Allow propagation through reflective method and constructor calls
+        // Enable propagation through reflective method and constructor calls
         ReflectionMasks.initialize();
+        // Enable propagation through exceptions
+        ExceptionStore.initialize();
     }
 
     private GaletteAgent() {

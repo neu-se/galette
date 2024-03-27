@@ -50,6 +50,6 @@ class EmptyFrameAdjuster implements FrameAdjuster {
 
     @Override
     public TagFrame createFrame() {
-        return new TagFrame();
+        return TagFrame.create(null);
     }
 }

@@ -3,16 +3,19 @@ package edu.neu.ccs.prl.galette.internal.runtime;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.Queue;
 
 public class TagFrame {
+    private final TagFrame parent;
     private Class<?> caller;
     private Tag returnTag = Tag.getEmptyTag();
     private final Queue<Tag> tags;
 
-    public TagFrame() {
-        this.tags = new Queue<>();
+    public TagFrame(Queue<Tag> tags, TagFrame parent) {
+        this.parent = parent;
+        this.tags = new Queue<>(tags);
     }
 
-    public TagFrame(Queue<Tag> tags) {
-        this.tags = new Queue<>(tags);
+    public TagFrame(TagFrame parent) {
+        this.parent = parent;
+        this.tags = new Queue<>();
     }
 
     @InvokedViaHandle(handle = Handle.FRAME_DEQUEUE)
@@ -51,11 +54,6 @@ public class TagFrame {
         return this;
     }
 
-    @InvokedViaHandle(handle = Handle.FRAME_SET_THROWN_TAG)
-    public void setThrownTag(Throwable t, Tag tag) {
-        // TODO
-    }
-
     public Queue<Tag> copyTags() {
         return new Queue<>(tags);
     }
@@ -64,14 +62,17 @@ public class TagFrame {
         tags.clear();
     }
 
-    @InvokedViaHandle(handle = Handle.FRAME_CREATE_FOR_CALL)
-    public static TagFrame createForCall(TagFrame callerFrame) {
-        // TODO
-        return new TagFrame();
+    public TagFrame getParent() {
+        return parent;
     }
 
-    @InvokedViaHandle(handle = Handle.FRAME_CREATE_EMPTY)
-    public static TagFrame createEmpty() {
-        return new TagFrame();
+    @Override
+    public String toString() {
+        return tags.toString();
+    }
+
+    @InvokedViaHandle(handle = Handle.FRAME_CREATE)
+    public static TagFrame create(TagFrame parent) {
+        return new TagFrame(parent);
     }
 }

@@ -20,7 +20,7 @@ import org.objectweb.asm.commons.AnalyzerAdapter;
  * a signature polymorphic method call as an extra argument.
  * Instead, Galette will indirectly pass the frame by temporarily storing it on the {@link Thread} instance
  * representing the calling thread of execution.
- * This storage location is added by {@link ThreadLocalFrameAdder}.
+ * This storage location is added by {@link ThreadLocalAdder}.
  */
 class IndirectFramePasser extends MethodVisitor {
     private final ShadowLocals shadowLocals;

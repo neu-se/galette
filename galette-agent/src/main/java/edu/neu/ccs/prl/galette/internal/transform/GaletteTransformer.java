@@ -127,8 +127,8 @@ public class GaletteTransformer {
             cv = new OffsetCacheAdder(cv);
         }
         // Add a field to java.lang.Thread to store frame stacks
-        if (ThreadLocalFrameAdder.isApplicable(cn.name)) {
-            cv = new ThreadLocalFrameAdder(cv);
+        if (ThreadLocalAdder.isApplicable(cn.name)) {
+            cv = new ThreadLocalAdder(cv);
         }
         cn.accept(cv);
         return cw.toByteArray();

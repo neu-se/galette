@@ -286,11 +286,9 @@ class TagPropagator extends MethodVisitor {
             case Opcodes.ATHROW:
                 // ..., objectref -> []
                 super.visitInsn(DUP);
-                shadowLocals.loadTagFrame();
-                super.visitInsn(SWAP);
                 shadowLocals.peek(0);
-                // objectref, frame, objectref, objectref-tag
-                Handle.FRAME_SET_THROWN_TAG.accept(mv);
+                // objectref, objectref, objectref-tag
+                Handle.EXCEPTION_STORE_SET.accept(mv);
                 // objectref
                 shadowLocals.pop(1);
                 break;

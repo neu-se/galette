@@ -146,7 +146,8 @@ class ShadowLocals extends MethodVisitor {
         super.visitFrame(type, newLocal.size(), newLocal.toArray(new Object[newLocal.size()]), numStack, stack);
         if (startingHandler) {
             // Add a tag for the exception
-            Handle.TAG_GET_EMPTY.accept(mv);
+            super.visitInsn(DUP);
+            Handle.EXCEPTION_STORE_GET.accept(mv);
             push();
             startingHandler = false;
         }
@@ -298,8 +299,8 @@ class ShadowLocals extends MethodVisitor {
         if (createFrame) {
             loadTagFrame();
             // frame
-            Handle.FRAME_CREATE_FOR_CALL.accept(mv);
-            // frame (child)
+            Handle.FRAME_CREATE.accept(mv);
+            // child-frame
             int current = slots - 1;
             if (!isStatic) {
                 peek(current--);

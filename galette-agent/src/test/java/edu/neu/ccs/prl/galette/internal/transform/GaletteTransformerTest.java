@@ -27,7 +27,7 @@ class GaletteTransformerTest {
         Class<?> original = InstructionExamples.class;
         Class<?> instrumented = AsmTestUtil.instrumentAndLoad(original, name, GaletteTransformerTest::instrument);
         Object expected = original.getDeclaredMethod(name).invoke(null);
-        Object actual = instrumented.getDeclaredMethod(name, TagFrame.class).invoke(null, new TagFrame());
+        Object actual = instrumented.getDeclaredMethod(name, TagFrame.class).invoke(null, TagFrame.create(null));
         Assertions.assertEquals(expected, actual);
     }
 
@@ -49,9 +49,9 @@ class GaletteTransformerTest {
     void getStaticInt() throws ReflectiveOperationException {
         Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
-                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
+                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, TagFrame.create(null));
         Object result =
-                instrumented.getDeclaredMethod("getStaticInt", TagFrame.class).invoke(instance, new TagFrame());
+                instrumented.getDeclaredMethod("getStaticInt", TagFrame.class).invoke(instance, TagFrame.create(null));
         Assertions.assertEquals(7, result);
     }
 
@@ -59,9 +59,9 @@ class GaletteTransformerTest {
     void getFieldInt() throws ReflectiveOperationException {
         Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
-                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
+                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, TagFrame.create(null));
         Object result =
-                instrumented.getDeclaredMethod("getFieldInt", TagFrame.class).invoke(instance, new TagFrame());
+                instrumented.getDeclaredMethod("getFieldInt", TagFrame.class).invoke(instance, TagFrame.create(null));
         Assertions.assertEquals(99, result);
     }
 
@@ -69,27 +69,29 @@ class GaletteTransformerTest {
     void putFieldInt() throws ReflectiveOperationException {
         Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
-                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
-        instrumented.getDeclaredMethod("putFieldInt", int.class, TagFrame.class).invoke(instance, 22, new TagFrame());
+                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, TagFrame.create(null));
+        instrumented
+                .getDeclaredMethod("putFieldInt", int.class, TagFrame.class)
+                .invoke(instance, 22, TagFrame.create(null));
     }
 
     @Test
     void putStaticInt() throws ReflectiveOperationException {
         Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
-                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
+                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, TagFrame.create(null));
         instrumented
                 .getDeclaredMethod("putStaticInt", int.class, TagFrame.class)
-                .invoke(instance, 88, new TagFrame());
+                .invoke(instance, 88, TagFrame.create(null));
     }
 
     @Test
     void getStaticLong() throws ReflectiveOperationException {
         Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
-                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
+                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, TagFrame.create(null));
         Object result =
-                instrumented.getDeclaredMethod("getStaticLong", TagFrame.class).invoke(instance, new TagFrame());
+                instrumented.getDeclaredMethod("getStaticLong", TagFrame.class).invoke(instance, TagFrame.create(null));
         Assertions.assertEquals(7L, result);
     }
 
@@ -97,9 +99,9 @@ class GaletteTransformerTest {
     void getFieldLong() throws ReflectiveOperationException {
         Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
-                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
+                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, TagFrame.create(null));
         Object result =
-                instrumented.getDeclaredMethod("getFieldLong", TagFrame.class).invoke(instance, new TagFrame());
+                instrumented.getDeclaredMethod("getFieldLong", TagFrame.class).invoke(instance, TagFrame.create(null));
         Assertions.assertEquals(99L, result);
     }
 
@@ -107,20 +109,20 @@ class GaletteTransformerTest {
     void putFieldLong() throws ReflectiveOperationException {
         Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
-                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
+                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, TagFrame.create(null));
         instrumented
                 .getDeclaredMethod("putFieldLong", long.class, TagFrame.class)
-                .invoke(instance, 22L, new TagFrame());
+                .invoke(instance, 22L, TagFrame.create(null));
     }
 
     @Test
     void putStaticLong() throws ReflectiveOperationException {
         Class<?> instrumented = AsmTestUtil.instrumentAndLoad(FieldExamples.class, GaletteTransformerTest::instrument);
         Object instance =
-                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
+                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, TagFrame.create(null));
         instrumented
                 .getDeclaredMethod("putStaticLong", long.class, TagFrame.class)
-                .invoke(instance, 88L, new TagFrame());
+                .invoke(instance, 88L, TagFrame.create(null));
     }
 
     @Test
@@ -128,10 +130,10 @@ class GaletteTransformerTest {
         Class<?> instrumented =
                 AsmTestUtil.instrumentAndLoad(MethodCallExamples.class, GaletteTransformerTest::instrument);
         Object instance =
-                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
+                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, TagFrame.create(null));
         Object result = instrumented
                 .getDeclaredMethod("invokeVirtualIntReturn", int.class, TagFrame.class)
-                .invoke(instance, 7, new TagFrame());
+                .invoke(instance, 7, TagFrame.create(null));
         Assertions.assertEquals(7, result);
     }
 
@@ -140,10 +142,10 @@ class GaletteTransformerTest {
         Class<?> instrumented =
                 AsmTestUtil.instrumentAndLoad(MethodCallExamples.class, GaletteTransformerTest::instrument);
         Object instance =
-                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
+                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, TagFrame.create(null));
         Object result = instrumented
                 .getDeclaredMethod("invokeVirtualLongReturn", long.class, TagFrame.class)
-                .invoke(instance, 9L, new TagFrame());
+                .invoke(instance, 9L, TagFrame.create(null));
         Assertions.assertEquals(9L, result);
     }
 
@@ -152,10 +154,10 @@ class GaletteTransformerTest {
         Class<?> instrumented =
                 AsmTestUtil.instrumentAndLoad(MethodCallExamples.class, GaletteTransformerTest::instrument);
         Object instance =
-                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, new TagFrame());
+                instrumented.getDeclaredMethod("getInstance", TagFrame.class).invoke(null, TagFrame.create(null));
         Object result = instrumented
                 .getDeclaredMethod("invokeVirtualMixedParameterTypes", int.class, long.class, int.class, TagFrame.class)
-                .invoke(instance, -1, 9L, 2, new TagFrame());
+                .invoke(instance, -1, 9L, 2, TagFrame.create(null));
         Assertions.assertEquals(-1 + 9L + 2, result);
     }
 
@@ -167,7 +169,7 @@ class GaletteTransformerTest {
         builder.getMethodNode().visitInsn(DUP);
         builder.recordTags(Type.INT_TYPE, Type.INT_TYPE);
         TagRecorder recorder = new TagRecorder();
-        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, TagFrame.create(null));
         Assertions.assertEquals(Arrays.asList("10", "10"), recorder.getFirstLabels());
     }
 
@@ -180,7 +182,7 @@ class GaletteTransformerTest {
         builder.getMethodNode().visitInsn(DUP_X1);
         builder.recordTags(Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE);
         TagRecorder recorder = new TagRecorder();
-        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, TagFrame.create(null));
         // Order is from top of stack down
         Assertions.assertEquals(Arrays.asList("20", "10", "20"), recorder.getFirstLabels());
     }
@@ -195,7 +197,7 @@ class GaletteTransformerTest {
         builder.getMethodNode().visitInsn(DUP_X2);
         builder.recordTags(Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE);
         TagRecorder recorder = new TagRecorder();
-        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, TagFrame.create(null));
         // Order is from top of stack down
         Assertions.assertEquals(Arrays.asList("30", "20", "10", "30"), recorder.getFirstLabels());
     }
@@ -209,7 +211,7 @@ class GaletteTransformerTest {
         builder.getMethodNode().visitInsn(DUP_X2);
         builder.recordTags(Type.INT_TYPE, Type.LONG_TYPE, Type.INT_TYPE);
         TagRecorder recorder = new TagRecorder();
-        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, TagFrame.create(null));
         // Order is from top of stack down
         Assertions.assertEquals(Arrays.asList("20", "10", "20"), recorder.getFirstLabels());
     }
@@ -223,7 +225,7 @@ class GaletteTransformerTest {
         builder.getMethodNode().visitInsn(DUP2);
         builder.recordTags(Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE);
         TagRecorder recorder = new TagRecorder();
-        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, TagFrame.create(null));
         // Order is from top of stack down
         Assertions.assertEquals(Arrays.asList("20", "10", "20", "10"), recorder.getFirstLabels());
     }
@@ -236,7 +238,7 @@ class GaletteTransformerTest {
         builder.getMethodNode().visitInsn(DUP2);
         builder.recordTags(Type.LONG_TYPE, Type.LONG_TYPE);
         TagRecorder recorder = new TagRecorder();
-        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, TagFrame.create(null));
         // Order is from top of stack down
         Assertions.assertEquals(Arrays.asList("10", "10"), recorder.getFirstLabels());
     }
@@ -251,7 +253,7 @@ class GaletteTransformerTest {
         builder.getMethodNode().visitInsn(DUP2_X1);
         builder.recordTags(Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE);
         TagRecorder recorder = new TagRecorder();
-        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, TagFrame.create(null));
         // Order is from top of stack down
         Assertions.assertEquals(Arrays.asList("30", "20", "10", "30", "20"), recorder.getFirstLabels());
     }
@@ -265,7 +267,7 @@ class GaletteTransformerTest {
         builder.getMethodNode().visitInsn(DUP2_X1);
         builder.recordTags(Type.LONG_TYPE, Type.INT_TYPE, Type.LONG_TYPE);
         TagRecorder recorder = new TagRecorder();
-        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, TagFrame.create(null));
         // Order is from top of stack down
         Assertions.assertEquals(Arrays.asList("20", "10", "20"), recorder.getFirstLabels());
     }
@@ -281,7 +283,7 @@ class GaletteTransformerTest {
         builder.getMethodNode().visitInsn(DUP2_X2);
         builder.recordTags(Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE);
         TagRecorder recorder = new TagRecorder();
-        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, TagFrame.create(null));
         // Order is from top of stack down
         Assertions.assertEquals(Arrays.asList("40", "30", "20", "10", "40", "30"), recorder.getFirstLabels());
     }
@@ -296,7 +298,7 @@ class GaletteTransformerTest {
         builder.getMethodNode().visitInsn(DUP2_X2);
         builder.recordTags(Type.LONG_TYPE, Type.INT_TYPE, Type.INT_TYPE, Type.LONG_TYPE);
         TagRecorder recorder = new TagRecorder();
-        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, TagFrame.create(null));
         // Order is from top of stack down
         Assertions.assertEquals(Arrays.asList("30", "20", "10", "30"), recorder.getFirstLabels());
     }
@@ -311,7 +313,7 @@ class GaletteTransformerTest {
         builder.getMethodNode().visitInsn(DUP2_X2);
         builder.recordTags(Type.INT_TYPE, Type.INT_TYPE, Type.LONG_TYPE, Type.INT_TYPE, Type.INT_TYPE);
         TagRecorder recorder = new TagRecorder();
-        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, TagFrame.create(null));
         // Order is from top of stack down
         Assertions.assertEquals(Arrays.asList("30", "20", "10", "30", "20"), recorder.getFirstLabels());
     }
@@ -325,7 +327,7 @@ class GaletteTransformerTest {
         builder.getMethodNode().visitInsn(DUP2_X2);
         builder.recordTags(Type.LONG_TYPE, Type.LONG_TYPE, Type.LONG_TYPE);
         TagRecorder recorder = new TagRecorder();
-        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, TagFrame.create(null));
         // Order is from top of stack down
         Assertions.assertEquals(Arrays.asList("20", "10", "20"), recorder.getFirstLabels());
     }
@@ -339,7 +341,7 @@ class GaletteTransformerTest {
         builder.getMethodNode().visitInsn(SWAP);
         builder.recordTags(Type.INT_TYPE, Type.INT_TYPE);
         TagRecorder recorder = new TagRecorder();
-        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, new TagFrame());
+        builder.build(GaletteTransformerTest::instrument).invoke(null, recorder, TagFrame.create(null));
         // Order is from top of stack down
         Assertions.assertEquals(Arrays.asList("10", "20"), recorder.getFirstLabels());
     }

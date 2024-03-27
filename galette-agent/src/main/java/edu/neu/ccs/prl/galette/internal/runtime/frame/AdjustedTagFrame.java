@@ -9,7 +9,7 @@ class AdjustedTagFrame extends TagFrame {
     private final Object[] arguments;
 
     public AdjustedTagFrame(TagFrame original, Object[] arguments, Queue<Tag> tags) {
-        super(tags);
+        super(tags, original.getParent());
         this.original = original;
         this.arguments = arguments;
     }
@@ -24,12 +24,6 @@ class AdjustedTagFrame extends TagFrame {
     public TagFrame setCaller(Class<?> caller) {
         original.setCaller(caller);
         return super.setCaller(caller);
-    }
-
-    @Override
-    public void setThrownTag(Throwable t, Tag tag) {
-        original.setThrownTag(t, tag);
-        super.setThrownTag(t, tag);
     }
 
     public TagFrame getOriginal() {

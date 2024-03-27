@@ -7,7 +7,7 @@ import edu.neu.ccs.prl.galette.internal.runtime.collection.Pair;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.MemberAccess;
 import org.objectweb.asm.Opcodes;
 
-public final class IndirectTagFrameStore extends TagFrame {
+public final class IndirectTagFrameStore {
     private static volatile boolean INITIALIZED = false;
     private static final Object UNINITIALIZED_THIS = new Object();
 
@@ -62,12 +62,12 @@ public final class IndirectTagFrameStore extends TagFrame {
         }
     }
 
-    public static void initialize() {
-        INITIALIZED = true;
-    }
-
     @InvokedViaHandle(handle = Handle.INDIRECT_FRAME_GET_UNINITIALIZED_THIS)
     public static Object getUninitializedThisMarker() {
         return UNINITIALIZED_THIS;
+    }
+
+    public static void initialize() {
+        INITIALIZED = true;
     }
 }

@@ -22,7 +22,7 @@ class IndirectFramePasserTest {
         Method method = instrumented.getDeclaredMethod("invokeIntIntIoInt", MethodHandle.class, TagFrame.class);
         MethodType mt = methodType(int.class, int.class, int.class);
         MethodHandle mh = lookup.findStatic(Math.class, "max", mt);
-        int result = (int) method.invoke(null, mh, new TagFrame());
+        int result = (int) method.invoke(null, mh, TagFrame.create(null));
         Assertions.assertEquals(98, result);
     }
 }
