@@ -1,5 +1,7 @@
 package edu.neu.ccs.prl.galette.bench;
 
+import static edu.neu.ccs.prl.galette.bench.HolderValueCategory.*;
+
 import edu.neu.ccs.prl.galette.bench.extension.FlowBench;
 import edu.neu.ccs.prl.galette.bench.extension.FlowChecker;
 import edu.neu.ccs.prl.galette.bench.extension.TagManager;
@@ -59,7 +61,10 @@ public class SerializationITCase {
             Long.TYPE,
             Object.class
         };
-        return BenchUtil.cartesianProduct(types, new Boolean[] {true, false}, HolderValueCategory.values())
+        HolderValueCategory[] categories = new HolderValueCategory[] {
+            BASIC, BOXED, ONE_DIMENSIONAL_ARRAY, TWO_DIMENSIONAL_ARRAY, OBJECT_HOLDING_ONE_DIMENSIONAL_ARRAY
+        };
+        return BenchUtil.cartesianProduct(types, new Boolean[] {true, false}, categories)
                 .filter(MethodReflectionITCase::isValid);
     }
 

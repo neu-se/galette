@@ -4,7 +4,7 @@ import java.lang.annotation.*;
 
 /**
  * Indicates that calls to the annotated method should be added during instrumentation to
- * replace calls to another "masked" method.
+ * "mask" calls to a method.
  * Methods with this annotation must be public and static.
  */
 @Target(ElementType.METHOD)
@@ -35,9 +35,11 @@ public @interface Mask {
     /**
      * The descriptor of the masked method or the empty string if the descriptor should be computed from the descriptor
      * of the annotated method as follows:
-     * If {@link Mask#isStatic()} is {@code true}, then the descriptor of the masked method is the same as the
-     * annotated method.
-     * Otherwise, the descriptor of the masked method is the same as the annotated method minus the first parameter.
+     * Start with the descriptor of the annotated method.
+     * If {@link Mask#type()} is {@link MaskType#POST_PROCESS} and the annotated method is non-void, then remove the
+     * first parameter (which will be used to store the original return value).
+     * If {@link Mask#isStatic()} is {@code false}, then removed the next parameter
+     * (which will be used to store the receiver).
      */
     String descriptor() default "";
 

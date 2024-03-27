@@ -1,43 +1,46 @@
 package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
 import edu.neu.ccs.prl.galette.internal.runtime.*;
+import edu.neu.ccs.prl.galette.internal.runtime.collection.HashMap;
 import edu.neu.ccs.prl.galette.internal.transform.Configuration;
 import java.io.*;
+import java.lang.ref.SoftReference;
 import org.objectweb.asm.Opcodes;
 
 /**
  * TODO
  * ObjectOutputStream#writeString
- * ObjectOutputStream#writeObject0(Object obj, boolean unshared
+ * ObjectOutputStream#writeObject write tag?
  */
 public final class SerializationMasks {
-    @Mask(
-            owner = "java/io/ObjectOutputStream",
-            name = "writeObject0",
-            descriptor = "(Ljava/lang/Object;ZLedu/neu/ccs/prl/galette/internal/runtime/TagFrame;)V",
-            type = MaskType.POST_PROCESS)
-    public static void writeObject0(ObjectOutputStream stream, Object obj, boolean unshared, TagFrame frame)
+    @Mask(owner = "java/io/ObjectOutputStream", name = "writeObject0", type = MaskType.POST_PROCESS)
+    public static void writeObject0(ObjectOutputStream out, Object obj, boolean unshared, TagFrame frame)
             throws IOException {
         if (Configuration.isPropagateThroughSerialization()) {
             if (obj != null && obj.getClass().isArray()) {
                 ArrayWrapper wrapper = ArrayTagStore.getWrapper(obj);
-                stream.writeObject(wrapper);
+                out.writeObject(wrapper);
+            } else if (isMirroredType(obj)) {
+                out.writeObject(FieldTagStore.getTags(obj));
             }
         }
     }
 
-    @Mask(
-            owner = "java/io/ObjectInputStream",
-            name = "readObject0",
-            descriptor = "(Ljava/lang/Class;ZLedu/neu/ccs/prl/galette/internal/runtime/TagFrame;)Ljava/lang/Object;",
-            type = MaskType.POST_PROCESS)
+    @Mask(owner = "java/io/ObjectInputStream", name = "readObject0", type = MaskType.POST_PROCESS)
     public static Object readObject0(
-            Object retValue, ObjectInputStream stream, Class<?> type, boolean unshared, TagFrame frame) {
+            Object retValue, ObjectInputStream in, Class<?> type, boolean unshared, TagFrame frame) {
         if (Configuration.isPropagateThroughSerialization()) {
             if (retValue != null && retValue.getClass().isArray()) {
-                ArrayWrapper wrapper = (ArrayWrapper) readObject0(stream, ArrayWrapper.class, unshared, new TagFrame());
+                ArrayWrapper wrapper = (ArrayWrapper) readObject0(in, ArrayWrapper.class, unshared, new TagFrame());
                 if (wrapper != null) {
                     ArrayTagStore.setWrapper(retValue, wrapper);
+                }
+            } else if (isMirroredType(retValue)) {
+                @SuppressWarnings("unchecked")
+                HashMap<String, Tag> tags =
+                        (HashMap<String, Tag>) readObject0(in, HashMap.class, unshared, new TagFrame());
+                if (tags != null) {
+                    FieldTagStore.setTags(retValue, tags);
                 }
             }
         }
@@ -48,5 +51,18 @@ public final class SerializationMasks {
     @MemberAccess(owner = "java/io/ObjectInputStream", name = "readObject0", opcode = Opcodes.INVOKEVIRTUAL)
     public static Object readObject0(ObjectInputStream stream, Class<?> type, boolean unshared, TagFrame frame) {
         throw new AssertionError("Placeholder method was called");
+    }
+
+    private static boolean isMirroredType(Object o) {
+        return o instanceof Integer
+                || o instanceof Boolean
+                || o instanceof Byte
+                || o instanceof Character
+                || o instanceof Double
+                || o instanceof Float
+                || o instanceof Long
+                || o instanceof Short
+                || o instanceof StackTraceElement
+                || o instanceof SoftReference;
     }
 }

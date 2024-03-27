@@ -9,6 +9,8 @@ import edu.neu.ccs.prl.galette.internal.runtime.collection.SimpleMap;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.LinkedList;
 import org.objectweb.asm.Type;
 
 public final class MaskRegistry {
@@ -86,13 +88,24 @@ public final class MaskRegistry {
     private static String createKey(Method method, Mask mask) {
         String descriptor = mask.descriptor();
         if (descriptor.isEmpty()) {
-            descriptor = Type.getMethodDescriptor(method);
-            if (!mask.isStatic()) {
-                // Remove the parameter for the receiver
-                descriptor = '(' + descriptor.substring(descriptor.indexOf(';') + 1);
-            }
+            descriptor = computeDescriptor(method, mask);
         }
         return MaskRegistry.getKey(mask.owner(), mask.name(), descriptor);
+    }
+
+    private static String computeDescriptor(Method method, Mask mask) {
+        String descriptor = Type.getMethodDescriptor(method);
+        Type returnType = Type.getReturnType(descriptor);
+        LinkedList<Type> parameters = new LinkedList<>(Arrays.asList(Type.getArgumentTypes(descriptor)));
+        if (mask.type() == MaskType.POST_PROCESS && !returnType.equals(Type.VOID_TYPE)) {
+            // Remove the parameter for the original return
+            parameters.removeFirst();
+        }
+        if (!mask.isStatic()) {
+            // Remove the parameter for the receiver
+            parameters.removeFirst();
+        }
+        return Type.getMethodDescriptor(returnType, parameters.toArray(new Type[0]));
     }
 
     public static final class MaskInfo {

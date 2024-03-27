@@ -7,13 +7,18 @@
  */
 package edu.neu.ccs.prl.galette.internal.runtime.collection;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
 
 /**
  * Null key values are supported.
  */
-public class HashMap<K, V> {
+public class HashMap<K, V> implements Serializable {
+    private static final long serialVersionUID = 836953968426584036L;
     /**
      * The maximum ratio of stored elements to storage size that does not lead to rehash.
      */
@@ -33,7 +38,7 @@ public class HashMap<K, V> {
     /**
      * The maximum number of elements that can be put in this map before having to rehash.
      */
-    private int threshold;
+    private transient int threshold;
 
     /**
      * Constructs a new, empty map.
@@ -319,6 +324,37 @@ public class HashMap<K, V> {
             keys.add(itr.next().getKey());
         }
         return keys;
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        out.writeInt(size());
+        Iterator<HashMap.Entry<K, V>> itr = entryIterator();
+        while (itr.hasNext()) {
+            HashMap.Entry<K, V> entry = itr.next();
+            out.writeObject(entry.getKey());
+            out.writeObject(entry.getValue());
+        }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        int size = in.readInt();
+        if (size >= 0) {
+            int capacity = ObjectIntMap.calculateCapacity(size);
+            this.size = 0;
+            this.entries = newElementArray(capacity);
+            computeThreshold();
+        } else {
+            throw new IllegalArgumentException();
+        }
+        for (int i = 0; i < size; i++) {
+            @SuppressWarnings("unchecked")
+            K key = (K) in.readObject();
+            @SuppressWarnings("unchecked")
+            V value = (V) in.readObject();
+            put(key, value);
+        }
     }
 
     public static class Entry<K, V> {

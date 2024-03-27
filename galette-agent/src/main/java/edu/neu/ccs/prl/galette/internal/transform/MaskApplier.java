@@ -3,6 +3,7 @@ package edu.neu.ccs.prl.galette.internal.transform;
 import static org.objectweb.asm.Opcodes.*;
 
 import edu.neu.ccs.prl.galette.internal.runtime.mask.ClassMasks;
+import edu.neu.ccs.prl.galette.internal.runtime.mask.UnsafeMasks;
 import edu.neu.ccs.prl.galette.internal.transform.MaskRegistry.MaskInfo;
 import java.io.ObjectStreamClass;
 import org.objectweb.asm.MethodVisitor;
@@ -19,11 +20,23 @@ class MaskApplier extends GeneratorAdapter {
      */
     static final String OBJECT_STREAM_CLASS_INTERNAL_NAME = Type.getInternalName(ObjectStreamClass.class);
     /**
+     * Internal name for FieldReflector.
+     * <p>
+     * Non-null.
+     */
+    static final String FIELD_REFLECTOR_INTERNAL_NAME = "java/io/ObjectStreamClass$FieldReflector";
+    /**
      * Internal name for {@link ClassMasks}.
      * <p>
      * Non-null.
      */
     static final String CLASS_MASKS_INTERNAL_NAME = Type.getInternalName(ClassMasks.class);
+    /**
+     * Internal name for {@link edu.neu.ccs.prl.galette.internal.runtime.mask.UnsafeMasks]}.
+     * <p>
+     * Non-null.
+     */
+    static final String UNSAFE_MASKS_INTERNAL_NAME = Type.getInternalName(UnsafeMasks.class);
     /**
      * Internal name of the class being visited.
      * <p>
@@ -82,10 +95,21 @@ class MaskApplier extends GeneratorAdapter {
     }
 
     private boolean allowMask(MaskInfo mask) {
-        return !Configuration.isPropagateThroughSerialization()
-                || !mask.getRecord().getOwner().equals(CLASS_MASKS_INTERNAL_NAME)
-                || !className.equals(OBJECT_STREAM_CLASS_INTERNAL_NAME)
-                || !mask.getRecord().getName().equals("getFields");
+        if (Configuration.isPropagateThroughSerialization()) {
+            return !isDisabledForObjectStreamClass(mask) && !isDisabledForFieldReflector(mask);
+        }
+        return true;
+    }
+
+    private boolean isDisabledForFieldReflector(MaskInfo mask) {
+        return className.equals(FIELD_REFLECTOR_INTERNAL_NAME)
+                && UNSAFE_MASKS_INTERNAL_NAME.equals(mask.getRecord().getOwner());
+    }
+
+    private boolean isDisabledForObjectStreamClass(MaskInfo mask) {
+        return className.equals(OBJECT_STREAM_CLASS_INTERNAL_NAME)
+                && CLASS_MASKS_INTERNAL_NAME.equals(mask.getRecord().getOwner())
+                && "getFields".equals(mask.getRecord().getName());
     }
 
     private void collectArguments(boolean isStatic, String descriptor) {
