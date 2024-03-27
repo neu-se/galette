@@ -16,9 +16,10 @@ import java.security.ProtectionDomain;
 public final class GaletteAgent {
     static {
         // Enable mirrored tag stores
-        FieldTagStore.initialize();
-        ArrayTagStore.initialize();
+        // Note: must initialize FlagAccessor first to prevent circularity
         FlagAccessor.initialize();
+        ArrayTagStore.initialize();
+        FieldTagStore.initialize();
         // Enable propagation through Unsafe accesses
         UnsafeTagLocator.initialize();
         // Enable indirect frame passing
