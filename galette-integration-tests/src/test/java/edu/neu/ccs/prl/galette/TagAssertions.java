@@ -44,4 +44,16 @@ public final class TagAssertions {
     public static void assertTagEquals(short value, Object... labels) {
         Assertions.assertArrayEquals(labels, Tag.getLabels(Tainter.getTag(value)));
     }
+
+    public static void taintWithIndices(char[] c) {
+        for (int i = 0; i < c.length; i++) {
+            c[i] = Tainter.setTag(c[i], Tag.of(i));
+        }
+    }
+
+    public static String taintWithIndices(String s) {
+        char[] c = s.toCharArray();
+        taintWithIndices(c);
+        return new String(c);
+    }
 }

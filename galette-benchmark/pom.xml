@@ -47,6 +47,26 @@
                                 <arg>-XDignore.symbol.file</arg>
                             </compilerArgs>
                             <fork>true</fork>
+                            <excludes>
+                                <exclude>**/StringIndyConcatITCase.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>compile-11</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <release>11</release>
+                            <compilerArgs>
+                                <arg>-XDignore.symbol.file</arg>
+                            </compilerArgs>
+                            <fork>true</fork>
+                            <includes>
+                                <include>**/StringIndyConcatITCase.java</include>
+                            </includes>
                         </configuration>
                     </execution>
                 </executions>

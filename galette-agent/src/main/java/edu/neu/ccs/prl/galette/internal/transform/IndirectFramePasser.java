@@ -46,9 +46,24 @@ class IndirectFramePasser extends MethodVisitor {
 
     private void visitSignaturePolymorphicMethodInsn(
             int opcode, String owner, String name, String descriptor, boolean isInterface) {
-        boolean isStatic = opcode == INVOKESTATIC;
         Label scopeEnd = new Label();
         Label handler = new Label();
+        prepareForCall(descriptor, scopeEnd, handler, opcode == INVOKESTATIC);
+        // Call the signature polymorphic method
+        // The analyzer must see this call; therefore, delegate to mv (analyzer)
+        super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+        restoreFromCall(descriptor, scopeEnd, handler);
+    }
+
+    private void restoreFromCall(String descriptor, Label scopeEnd, Label handler) {
+        // Set the tag for the return value
+        shadowLocals.restoreFromCall(descriptor, true);
+        if (analyzer.locals != null) {
+            endHandlerScope(scopeEnd, handler);
+        }
+    }
+
+    private void prepareForCall(String descriptor, Label scopeEnd, Label handler, boolean isStatic) {
         if (analyzer.locals != null) {
             startHandlerScope(scopeEnd, handler);
         }
@@ -62,14 +77,20 @@ class IndirectFramePasser extends MethodVisitor {
         Handle.INDIRECT_FRAME_SET.accept(shadowLocals);
         // Load the arguments from the local variables
         shadowLocals.loadArgumentsFromVariables(isStatic, descriptor, argumentsIndex);
-        // Call the signature polymorphic method
-        // The analyzer must see this call; therefore, delegate to mv (analyzer)
-        super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
-        // Set the tag for the return value
-        shadowLocals.restoreFromCall(descriptor, true);
-        if (analyzer.locals != null) {
-            endHandlerScope(scopeEnd, handler);
-        }
+    }
+
+    @Override
+    public void visitInvokeDynamicInsn(
+            String name,
+            String descriptor,
+            org.objectweb.asm.Handle bootstrapMethodHandle,
+            Object... bootstrapMethodArguments) {
+        // ..., [arg1, [arg2 ...]] -> ...
+        Label scopeEnd = new Label();
+        Label handler = new Label();
+        prepareForCall(descriptor, scopeEnd, handler, true);
+        super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
+        restoreFromCall(descriptor, scopeEnd, handler);
     }
 
     private void createArgumentArray(boolean isStatic, String descriptor, int argumentsIndex) {

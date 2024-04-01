@@ -73,6 +73,25 @@ public final class Tag implements Serializable {
         return buffer.append('}').toString();
     }
 
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        Object[] labels = getLabels();
+        out.writeInt(getLabels().length);
+        for (Object label : labels) {
+            out.writeObject(label);
+        }
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        backingMap = new ObjectIntMap<>();
+        int length = in.readInt();
+        for (int i = 0; i < length; i++) {
+            Object label = in.readObject();
+            backingMap.put(label, 1);
+        }
+    }
+
     @InvokedViaHandle(handle = Handle.TAG_GET_EMPTY)
     public static Tag getEmptyTag() {
         return null;
@@ -114,22 +133,13 @@ public final class Tag implements Serializable {
         return tag == null ? new Object[0] : tag.getLabels();
     }
 
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-        Object[] labels = getLabels();
-        out.writeInt(getLabels().length);
-        for (Object label : labels) {
-            out.writeObject(label);
+    public static Tag union(Tag[] tags) {
+        Tag result = Tag.getEmptyTag();
+        if (tags != null) {
+            for (Tag t : tags) {
+                result = union(result, t);
+            }
         }
-    }
-
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        backingMap = new ObjectIntMap<>();
-        int length = in.readInt();
-        for (int i = 0; i < length; i++) {
-            Object label = in.readObject();
-            backingMap.put(label, 1);
-        }
+        return result;
     }
 }

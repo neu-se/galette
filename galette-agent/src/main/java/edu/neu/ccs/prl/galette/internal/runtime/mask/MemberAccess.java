@@ -35,4 +35,11 @@ public @interface MemberAccess {
      * @return opcode of the instruction used to access the member.
      */
     int opcode();
+
+    /**
+     * {@code true} if the class that owns the member to be accessed is an interface.
+     *
+     * @return {@code true} if the class that owns the member to be accessed is an interface.
+     */
+    boolean isInterface() default false;
 }

@@ -50,9 +50,17 @@ public final class BenchUtil {
         }
     }
 
+    public static String taintCharacters(TagManager manager, String s, String label) {
+        char[] c = s.toCharArray();
+        for (int i = 0; i < c.length; i++) {
+            c[i] = manager.setLabels(c[i], new Object[] {label});
+        }
+        return new String(c);
+    }
+
     public static String taintWithIndices(TagManager manager, String s) {
         char[] c = s.toCharArray();
-        taintWithIndices(manager, s.toCharArray());
+        taintWithIndices(manager, c);
         return new String(c);
     }
 }

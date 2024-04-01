@@ -8,7 +8,7 @@ public final class ArrayWrapper implements Serializable {
     private Tag length = Tag.getEmptyTag();
     private final Tag[] elements;
 
-    ArrayWrapper(Object array) {
+    public ArrayWrapper(Object array) {
         int length = Array.getLength(array);
         elements = new Tag[length];
     }

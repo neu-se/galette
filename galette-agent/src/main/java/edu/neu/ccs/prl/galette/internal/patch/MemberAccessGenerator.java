@@ -89,7 +89,7 @@ public class MemberAccessGenerator extends ClassVisitor {
                 mAccess.owner(),
                 mAccess.name(),
                 computeMethodDescriptor(access, descriptor, mAccess),
-                false);
+                mAccess.isInterface());
         mv.visitInsn(Type.getReturnType(descriptor).getOpcode(Opcodes.IRETURN));
     }
 

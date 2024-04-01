@@ -2,6 +2,7 @@ package edu.neu.ccs.prl.galette.internal.transform;
 
 import static org.objectweb.asm.Opcodes.*;
 
+import edu.neu.ccs.prl.galette.internal.runtime.Handle;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.ClassMasks;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.UnsafeMasks;
 import edu.neu.ccs.prl.galette.internal.transform.MaskRegistry.MaskInfo;
@@ -70,21 +71,23 @@ class MaskApplier extends GeneratorAdapter {
                     return;
                 case FIX_ARGUMENTS:
                     mask.getRecord().accept(getDelegate());
-                    spreadArguments(owner, opcode == INVOKESTATIC, descriptor);
+                    spreadArguments(owner, opcode == INVOKESTATIC, descriptor, false);
                     super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
                     return;
                 case POST_PROCESS:
                     collectArguments(opcode == INVOKESTATIC, descriptor);
                     super.visitInsn(DUP);
                     // ..., arrayref, arrayref
-                    spreadArguments(owner, opcode == INVOKESTATIC, descriptor);
+                    // Store a copy of the original frame to ensure that the arguments' tags can be accessed by the
+                    // mask
+                    spreadArguments(owner, opcode == INVOKESTATIC, descriptor, true);
                     super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
                     // ..., arrayref, ret
                     if (!Type.getReturnType(descriptor).equals(Type.VOID_TYPE)) {
                         swap(Type.INT_TYPE, Type.getReturnType(descriptor));
                     }
                     // ..., ret, arrayref
-                    spreadArguments(owner, opcode == INVOKESTATIC, descriptor);
+                    spreadArguments(owner, opcode == INVOKESTATIC, descriptor, false);
                     mask.getRecord().accept(getDelegate());
                     return;
                 default:
@@ -148,7 +151,7 @@ class MaskApplier extends GeneratorAdapter {
         // stack: ..., arrayref
     }
 
-    private void spreadArguments(String owner, boolean isStatic, String descriptor) {
+    private void spreadArguments(String owner, boolean isStatic, String descriptor, boolean copyFrame) {
         // stack: ..., arrayref
         int index = 0;
         if (!isStatic) {
@@ -171,6 +174,20 @@ class MaskApplier extends GeneratorAdapter {
             unbox(argument);
             swap(Type.INT_TYPE, argument);
             // ..., receiver?, arg0, arg1_, ..., arg_{i}, arrayref
+        }
+        if (copyFrame && arguments.length > 0) {
+            Type last = arguments[arguments.length - 1];
+            if (GaletteNames.FRAME_DESCRIPTOR.equals(last.getDescriptor())) {
+                // stack: ..., receiver?, arg_0, arg_1, ..., frame, arrayref
+                super.visitInsn(DUP2);
+                super.visitInsn(SWAP);
+                // stack: ..., receiver?, arg_0, arg_1, ..., frame, arrayref, arrayref, frame
+                Handle.PROCESSED_FRAME_CREATE.accept(mv);
+                AsmUtil.pushInt(mv, index - 1);
+                super.visitInsn(SWAP);
+                // stack: ..., receiver?, arg_0, arg_1, ..., frame, arrayref, arrayref, index, processed-frame
+                super.visitInsn(AASTORE);
+            }
         }
         super.visitInsn(POP);
         // stack: ..., receiver?, arg_0, arg_1, ..., arg_{n-1}

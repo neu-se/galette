@@ -23,7 +23,11 @@ public final class MaskRegistry {
         EnumMasks.class,
         ArrayMasks.class,
         ReflectionMasks.class,
-        SerializationMasks.class
+        SerializationMasks.class,
+        StringConcatHelperMasks.class,
+        SunFloatingDecimalMasks.class,
+        JdkFloatingDecimalMasks.class,
+        AbstractStringBuilderMasks.class,
     };
     private static final SimpleMap<String, MaskInfo> masks = new SimpleMap<>();
 

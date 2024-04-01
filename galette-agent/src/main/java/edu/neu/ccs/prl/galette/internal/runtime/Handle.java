@@ -2,6 +2,7 @@ package edu.neu.ccs.prl.galette.internal.runtime;
 
 import edu.neu.ccs.prl.galette.internal.runtime.frame.FrameAdjuster;
 import edu.neu.ccs.prl.galette.internal.runtime.frame.IndirectTagFrameStore;
+import edu.neu.ccs.prl.galette.internal.runtime.mask.ProcessedTagFrame;
 import edu.neu.ccs.prl.galette.internal.transform.HandleRegistry;
 import edu.neu.ccs.prl.galette.internal.transform.MaskRegistry;
 import org.objectweb.asm.MethodVisitor;
@@ -23,6 +24,7 @@ public enum Handle {
     INDIRECT_FRAME_CLEAR(IndirectTagFrameStore.class),
     INDIRECT_FRAME_SET(IndirectTagFrameStore.class),
     INDIRECT_FRAME_GET_UNINITIALIZED_THIS(IndirectTagFrameStore.class),
+    PROCESSED_FRAME_CREATE(ProcessedTagFrame.class),
     ARRAY_TAG_STORE_GET_LENGTH_TAG(ArrayTagStore.class),
     ARRAY_TAG_STORE_SET_LENGTH_TAG(ArrayTagStore.class),
     ARRAY_TAG_STORE_GET_TAG(ArrayTagStore.class),
