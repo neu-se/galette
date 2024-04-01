@@ -48,7 +48,7 @@
                             </compilerArgs>
                             <fork>true</fork>
                             <excludes>
-                                <exclude>**/StringIndyConcatITCase.java</exclude>
+                                <exclude>**/IndyConcatAdapter.java</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -65,7 +65,7 @@
                             </compilerArgs>
                             <fork>true</fork>
                             <includes>
-                                <include>**/StringIndyConcatITCase.java</include>
+                                <include>**/IndyConcatAdapter.java</include>
                             </includes>
                         </configuration>
                     </execution>

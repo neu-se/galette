@@ -26,6 +26,8 @@ class AccessModifier extends ClassVisitor {
                 || "java/lang/ClassLoader".equals(className)
                 || "java/lang/reflect/Array".equals(className)
                 || "java/io/ObjectInputStream".equals(className)
-                || "java/lang/StringConcatHelper".equals(className);
+                || "java/lang/StringConcatHelper".equals(className)
+                || "jdk/internal/math/DoubleToDecimal".equals(className)
+                || "jdk/internal/math/FloatToDecimal".equals(className);
     }
 }

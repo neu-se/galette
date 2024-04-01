@@ -11,6 +11,11 @@ public final class StringConcatHelperMasks {
         throw new AssertionError("Placeholder method was called");
     }
 
+    @MemberAccess(owner = "java/lang/StringConcatHelper", name = "prepend", opcode = Opcodes.INVOKESTATIC)
+    public static long prepend(long indexCoder, byte[] buf, String value, TagFrame frame) {
+        throw new AssertionError("Placeholder method was called");
+    }
+
     @Mask(owner = "java/lang/StringConcatHelper", name = "prepend", type = MaskType.REPLACE, isStatic = true)
     public static int prepend(int index, byte[] buf, byte coder, boolean value, TagFrame frame) {
         Tag indexTag = frame.dequeue();
@@ -25,6 +30,20 @@ public final class StringConcatHelperMasks {
                 .enqueue(coderTag)
                 .enqueue(sTag);
         int result = prepend(index, buf, coder, s, childFrame);
+        frame.setReturnTag(childFrame.getReturnTag());
+        return result;
+    }
+
+    @Mask(owner = "java/lang/StringConcatHelper", name = "prepend", type = MaskType.REPLACE, isStatic = true)
+    public static long prepend(long indexCoder, byte[] buf, boolean value, TagFrame frame) {
+        Tag indexCoderTag = frame.dequeue();
+        Tag bufTag = frame.dequeue();
+        Tag valueTag = frame.dequeue();
+        String s = StringAccessor.setCharTags(value ? "true" : "false", valueTag);
+        Tag sTag = Tag.getEmptyTag();
+        TagFrame childFrame =
+                new TagFrame(frame).enqueue(indexCoderTag).enqueue(bufTag).enqueue(sTag);
+        long result = prepend(indexCoder, buf, s, childFrame);
         frame.setReturnTag(childFrame.getReturnTag());
         return result;
     }

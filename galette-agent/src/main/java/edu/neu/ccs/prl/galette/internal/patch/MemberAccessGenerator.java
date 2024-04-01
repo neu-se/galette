@@ -65,6 +65,7 @@ public class MemberAccessGenerator extends ClassVisitor {
     }
 
     private void generateGetField(int access, String descriptor, MemberAccess mAccess, MethodVisitor mv) {
+        fixReceiver(access, mAccess, mv);
         AsmUtil.loadArguments(mv, access, descriptor);
         Type ret = Type.getReturnType(descriptor);
         mv.visitFieldInsn(mAccess.opcode(), mAccess.owner(), mAccess.name(), ret.getDescriptor());
@@ -72,6 +73,7 @@ public class MemberAccessGenerator extends ClassVisitor {
     }
 
     private void generatePutField(int access, String descriptor, MemberAccess mAccess, MethodVisitor mv) {
+        fixReceiver(access, mAccess, mv);
         AsmUtil.loadArguments(mv, access, descriptor);
         Type[] args = Type.getArgumentTypes(descriptor);
         mv.visitFieldInsn(mAccess.opcode(), mAccess.owner(), mAccess.name(), args[args.length - 1].getDescriptor());
@@ -82,6 +84,8 @@ public class MemberAccessGenerator extends ClassVisitor {
         if (mAccess.name().equals("<init>")) {
             mv.visitTypeInsn(Opcodes.NEW, mAccess.owner());
             mv.visitInsn(Opcodes.DUP);
+        } else {
+            fixReceiver(access, mAccess, mv);
         }
         AsmUtil.loadArguments(mv, access, descriptor);
         mv.visitMethodInsn(
@@ -91,6 +95,17 @@ public class MemberAccessGenerator extends ClassVisitor {
                 computeMethodDescriptor(access, descriptor, mAccess),
                 mAccess.isInterface());
         mv.visitInsn(Type.getReturnType(descriptor).getOpcode(Opcodes.IRETURN));
+    }
+
+    private void fixReceiver(int access, MemberAccess mAccess, MethodVisitor mv) {
+        // Cast the receiver
+        if (mAccess.opcode() != Opcodes.INVOKESTATIC) {
+            // Skip "this" for virtual methods
+            int varIndex = AsmUtil.isSet(access, Opcodes.ACC_STATIC) ? 0 : 1;
+            mv.visitVarInsn(Opcodes.ALOAD, varIndex);
+            mv.visitTypeInsn(Opcodes.CHECKCAST, mAccess.owner());
+            mv.visitVarInsn(Opcodes.ASTORE, varIndex);
+        }
     }
 
     private static String computeMethodDescriptor(int access, String descriptor, MemberAccess mAccess) {

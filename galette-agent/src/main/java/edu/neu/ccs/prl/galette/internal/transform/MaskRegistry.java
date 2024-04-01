@@ -28,6 +28,7 @@ public final class MaskRegistry {
         SunFloatingDecimalMasks.class,
         JdkFloatingDecimalMasks.class,
         AbstractStringBuilderMasks.class,
+        ToDecimalMasks.class
     };
     private static final SimpleMap<String, MaskInfo> masks = new SimpleMap<>();
 
