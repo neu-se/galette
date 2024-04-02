@@ -21,4 +21,44 @@ public final class AbstractStringBuilderMasks {
         frame.setReturnTag(receiverTag);
         return buffer;
     }
+
+    @Mask(owner = "java/lang/StringBuilder", name = "append", type = MaskType.REPLACE)
+    public static StringBuilder append(StringBuilder builder, int value, TagFrame frame) {
+        Tag receiverTag = frame.dequeue();
+        String s = BoxTypeAccessor.toString(value, TagFrame.create(null));
+        s = StringAccessor.setCharTags(s, frame.dequeue());
+        StringAccessor.append(builder, s, new TagFrame(null));
+        frame.setReturnTag(receiverTag);
+        return builder;
+    }
+
+    @Mask(owner = "java/lang/StringBuffer", name = "append", type = MaskType.REPLACE)
+    public static StringBuffer append(StringBuffer builder, int value, TagFrame frame) {
+        Tag receiverTag = frame.dequeue();
+        String s = BoxTypeAccessor.toString(value, TagFrame.create(null));
+        s = StringAccessor.setCharTags(s, frame.dequeue());
+        StringAccessor.append(builder, s, new TagFrame(null));
+        frame.setReturnTag(receiverTag);
+        return builder;
+    }
+
+    @Mask(owner = "java/lang/StringBuilder", name = "append", type = MaskType.REPLACE)
+    public static StringBuilder append(StringBuilder builder, long value, TagFrame frame) {
+        Tag receiverTag = frame.dequeue();
+        String s = BoxTypeAccessor.toString(value, TagFrame.create(null));
+        s = StringAccessor.setCharTags(s, frame.dequeue());
+        StringAccessor.append(builder, s, new TagFrame(null));
+        frame.setReturnTag(receiverTag);
+        return builder;
+    }
+
+    @Mask(owner = "java/lang/StringBuffer", name = "append", type = MaskType.REPLACE)
+    public static StringBuffer append(StringBuffer builder, long value, TagFrame frame) {
+        Tag receiverTag = frame.dequeue();
+        String s = BoxTypeAccessor.toString(value, TagFrame.create(null));
+        s = StringAccessor.setCharTags(s, frame.dequeue());
+        StringAccessor.append(builder, s, new TagFrame(null));
+        frame.setReturnTag(receiverTag);
+        return builder;
+    }
 }

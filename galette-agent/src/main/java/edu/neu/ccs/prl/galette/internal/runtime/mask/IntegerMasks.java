@@ -42,6 +42,14 @@ public final class IntegerMasks {
     }
 
     @Mask(owner = "java/lang/Integer", name = "toString", isStatic = true, type = MaskType.POST_PROCESS)
+    public static String toString(String returnValue, int i, TagFrame frame) {
+        Tag valueTag = frame.dequeue();
+        Tag tag = Tag.union(frame.getReturnTag(), valueTag);
+        frame.setReturnTag(tag);
+        return StringAccessor.setCharTags(returnValue, tag);
+    }
+
+    @Mask(owner = "java/lang/Integer", name = "toString", isStatic = true, type = MaskType.POST_PROCESS)
     public static String toString(String returnValue, int i, int radix, TagFrame frame) {
         Tag valueTag = frame.dequeue();
         Tag radixTag = frame.dequeue();

@@ -94,4 +94,14 @@ public final class BoxTypeAccessor {
     static boolean booleanValue(Boolean receiver, TagFrame frame) {
         throw new AssertionError("Placeholder method was called");
     }
+
+    @MemberAccess(owner = "java/lang/Integer", name = "toString", opcode = Opcodes.INVOKESTATIC)
+    public static String toString(int value, TagFrame frame) {
+        throw new AssertionError("Placeholder method was called");
+    }
+
+    @MemberAccess(owner = "java/lang/Long", name = "toString", opcode = Opcodes.INVOKESTATIC)
+    public static String toString(long value, TagFrame frame) {
+        throw new AssertionError("Placeholder method was called");
+    }
 }
