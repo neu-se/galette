@@ -18,7 +18,6 @@ public final class MaskRegistry {
         UnsafeMasks.class,
         ClassMasks.class,
         ClassLoaderMasks.class,
-        BoxTypeMasks.class,
         SystemMasks.class,
         EnumMasks.class,
         ArrayMasks.class,
@@ -28,7 +27,15 @@ public final class MaskRegistry {
         SunFloatingDecimalMasks.class,
         JdkFloatingDecimalMasks.class,
         AbstractStringBuilderMasks.class,
-        ToDecimalMasks.class
+        ToDecimalMasks.class,
+        BooleanMasks.class,
+        ByteMasks.class,
+        CharacterMasks.class,
+        DoubleMasks.class,
+        FloatMasks.class,
+        IntegerMasks.class,
+        LongMasks.class,
+        ShortMasks.class
     };
     private static final SimpleMap<String, MaskInfo> masks = new SimpleMap<>();
 

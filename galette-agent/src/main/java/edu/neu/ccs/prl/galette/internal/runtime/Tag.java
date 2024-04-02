@@ -113,6 +113,24 @@ public final class Tag implements Serializable, TaggedObject {
         }
     }
 
+    public static Tag union(Tag t0, Tag t1, Tag t2) {
+        return union(t0, union(t1, t2));
+    }
+
+    public static Tag union(Tag t0, Tag t1, Tag t2, Tag t3) {
+        return union(t0, union(t1, t2, t3));
+    }
+
+    public static Tag union(Tag[] tags) {
+        Tag result = Tag.getEmptyTag();
+        if (tags != null) {
+            for (Tag t : tags) {
+                result = union(result, t);
+            }
+        }
+        return result;
+    }
+
     public static Tag of(Object label) {
         return new Tag(label);
     }
@@ -131,16 +149,6 @@ public final class Tag implements Serializable, TaggedObject {
 
     public static Object[] getLabels(Tag tag) {
         return tag == null ? new Object[0] : tag.getLabels();
-    }
-
-    public static Tag union(Tag[] tags) {
-        Tag result = Tag.getEmptyTag();
-        if (tags != null) {
-            for (Tag t : tags) {
-                result = union(result, t);
-            }
-        }
-        return result;
     }
 
     @Override

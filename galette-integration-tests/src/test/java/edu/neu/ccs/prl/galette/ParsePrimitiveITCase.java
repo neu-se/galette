@@ -23,7 +23,7 @@ public class ParsePrimitiveITCase {
     @Test
     void parseByte() {
         String s = TagAssertions.taintWithIndices("72");
-        byte value = Byte.parseByte(s);
+        byte value = Byte.parseByte(s, 10);
         TagAssertions.assertTagEquals(
                 value, IntStream.range(0, s.length()).boxed().toArray());
     }
@@ -31,23 +31,39 @@ public class ParsePrimitiveITCase {
     @Test
     void parseShort() {
         String s = TagAssertions.taintWithIndices("72");
-        short value = Short.parseShort(s);
+        short value = Short.parseShort(s, 10);
         TagAssertions.assertTagEquals(
                 value, IntStream.range(0, s.length()).boxed().toArray());
     }
 
     @Test
-    void parseInteger() {
+    void parseInt() {
         String s = TagAssertions.taintWithIndices("-0872");
-        int value = Integer.parseInt(s);
+        int value = Integer.parseInt(s, 10);
+        TagAssertions.assertTagEquals(
+                value, IntStream.range(0, s.length()).boxed().toArray());
+    }
+
+    @Test
+    void parseUnsignedInt() {
+        String s = TagAssertions.taintWithIndices("872");
+        int value = Integer.parseUnsignedInt(s, 10);
         TagAssertions.assertTagEquals(
                 value, IntStream.range(0, s.length()).boxed().toArray());
     }
 
     @Test
     void parseLong() {
-        String s = TagAssertions.taintWithIndices("999999972");
-        long value = Long.parseLong(s);
+        String s = TagAssertions.taintWithIndices("-999999972");
+        long value = Long.parseLong(s, 10);
+        TagAssertions.assertTagEquals(
+                value, IntStream.range(0, s.length()).boxed().toArray());
+    }
+
+    @Test
+    void parseUnsignedLong() {
+        String s = TagAssertions.taintWithIndices("9223372036854775806");
+        long value = Long.parseUnsignedLong(s, 10);
         TagAssertions.assertTagEquals(
                 value, IntStream.range(0, s.length()).boxed().toArray());
     }

@@ -3,7 +3,7 @@ package edu.neu.ccs.prl.galette.internal.runtime.mask;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 import org.objectweb.asm.Opcodes;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public final class BoxTypeAccessor {
     @MemberAccess(owner = "java/lang/Boolean", name = "valueOf", opcode = Opcodes.INVOKESTATIC)
     public static Boolean valueOf(boolean value, TagFrame frame) {
@@ -90,13 +90,8 @@ public final class BoxTypeAccessor {
         throw new AssertionError("Placeholder method was called");
     }
 
-    @MemberAccess(owner = "java/lang/Integer", name = "parseInt", opcode = Opcodes.INVOKESTATIC)
-    public static int parseInt(String value, TagFrame frame) {
-        throw new AssertionError("Placeholder method was called");
-    }
-
-    @MemberAccess(owner = "java/lang/Long", name = "parseLong", opcode = Opcodes.INVOKESTATIC)
-    public static long parseLong(String value, TagFrame frame) {
+    @MemberAccess(owner = "java/lang/Boolean", name = "booleanValue", opcode = Opcodes.INVOKEVIRTUAL)
+    static boolean booleanValue(Boolean receiver, TagFrame frame) {
         throw new AssertionError("Placeholder method was called");
     }
 }
