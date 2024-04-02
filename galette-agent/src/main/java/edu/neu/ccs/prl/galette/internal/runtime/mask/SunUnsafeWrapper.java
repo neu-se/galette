@@ -44,19 +44,6 @@ public final class SunUnsafeWrapper implements UnsafeWrapper {
         return UNSAFE.arrayBaseOffset(arrayClass);
     }
 
-    @SuppressWarnings({"unused", "SameParameterValue"})
-    @MemberAccess(owner = "sun/misc/Unsafe", name = "defineClass", opcode = Opcodes.INVOKEVIRTUAL)
-    private static Class<?> defineClass(
-            Unsafe unsafe,
-            String name,
-            byte[] b,
-            int off,
-            int len,
-            ClassLoader loader,
-            ProtectionDomain protectionDomain) {
-        throw new AssertionError("Placeholder method was called");
-    }
-
     @Override
     public void putObject(Object o, long offset, Object x) {
         UNSAFE.putObject(o, offset, x);
