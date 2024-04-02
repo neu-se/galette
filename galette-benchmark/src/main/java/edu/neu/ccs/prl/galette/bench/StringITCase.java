@@ -4,6 +4,8 @@ import edu.neu.ccs.prl.galette.bench.extension.FlowBench;
 import edu.neu.ccs.prl.galette.bench.extension.FlowChecker;
 import edu.neu.ccs.prl.galette.bench.extension.TagManager;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -176,6 +178,7 @@ public class StringITCase {
 
     @ParameterizedTest(name = "repeat(taintValue={0})")
     @ValueSource(booleans = {true, false})
+    @EnabledForJreRange(min = JRE.JAVA_11)
     void repeat(boolean taintValue) {
         String s1 = "hello";
         if (taintValue) {
