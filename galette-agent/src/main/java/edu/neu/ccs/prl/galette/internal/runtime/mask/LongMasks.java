@@ -40,4 +40,13 @@ public final class LongMasks {
         }
         return returnValue;
     }
+
+    @Mask(owner = "java/lang/Long", name = "toString", isStatic = true, type = MaskType.POST_PROCESS)
+    public static String toString(String returnValue, long i, int radix, TagFrame frame) {
+        Tag valueTag = frame.dequeue();
+        Tag radixTag = frame.dequeue();
+        Tag tag = Tag.union(frame.getReturnTag(), valueTag, radixTag);
+        frame.setReturnTag(tag);
+        return StringAccessor.setCharTags(returnValue, tag);
+    }
 }
