@@ -31,7 +31,7 @@ class NativeWrapperCreator extends MethodVisitor {
         // Create a replacement method body
         super.visitCode();
         // Load the original arguments
-        AsmUtil.loadThisAndArguments(mv, callee.getOpcode() == Opcodes.INVOKESTATIC, callee.getDescriptor());
+        AsmUtil.loadReceiverAndArguments(mv, callee.getOpcode() == Opcodes.INVOKESTATIC, callee.getDescriptor(), 0);
         // Call the wrapped method
         callee.accept(mv);
         super.visitInsn(Type.getReturnType(callee.getDescriptor()).getOpcode(Opcodes.IRETURN));

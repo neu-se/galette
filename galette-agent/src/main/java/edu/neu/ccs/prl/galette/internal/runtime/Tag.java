@@ -8,7 +8,7 @@ import java.io.*;
 /**
  * An immutable set of labels.
  */
-public final class Tag implements Serializable {
+public final class Tag implements Serializable, TaggedObject {
     private static final long serialVersionUID = -1353943194836946961L;
     private transient ObjectIntMap<Object> backingMap;
 
@@ -142,4 +142,27 @@ public final class Tag implements Serializable {
         }
         return result;
     }
+
+    @Override
+    public int hashCode(TagFrame frame) {
+        return hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj, TagFrame frame) {
+        return equals(obj);
+    }
+
+    @Override
+    public String toString(TagFrame frame) {
+        return toString();
+    }
+
+    @Override
+    public Object clone(TagFrame frame) throws CloneNotSupportedException {
+        throw new CloneNotSupportedException();
+    }
+
+    @Override
+    public void finalize(TagFrame frame) {}
 }

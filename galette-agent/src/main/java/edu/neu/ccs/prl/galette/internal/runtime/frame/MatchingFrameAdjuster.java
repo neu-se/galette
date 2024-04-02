@@ -1,5 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.runtime.frame;
 
+import edu.neu.ccs.prl.galette.internal.runtime.PrimitiveBoxer.*;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 
 class MatchingFrameAdjuster implements FrameAdjuster {
@@ -16,9 +17,9 @@ class MatchingFrameAdjuster implements FrameAdjuster {
     public FrameAdjuster process(boolean value) {
         if (index < arguments.length) {
             Object actual = arguments[index++];
-            if (actual instanceof Boolean && (Boolean) actual == value) {
+            if (actual instanceof BoxedBoolean && ((BoxedBoolean) actual).getValue() == value) {
                 return this;
-            } else if (matchIntType(actual, value ? 1 : 0)) {
+            } else if (actual instanceof BoxedInt && ((BoxedInt) actual).getValue() == (value ? 1 : 0)) {
                 return this;
             }
         }
@@ -29,9 +30,9 @@ class MatchingFrameAdjuster implements FrameAdjuster {
     public FrameAdjuster process(byte value) {
         if (index < arguments.length) {
             Object actual = arguments[index++];
-            if (actual instanceof Byte && (Byte) actual == value) {
+            if (actual instanceof BoxedByte && ((BoxedByte) actual).getValue() == value) {
                 return this;
-            } else if (matchIntType(actual, value)) {
+            } else if (actual instanceof BoxedInt && ((BoxedInt) actual).getValue() == value) {
                 return this;
             }
         }
@@ -42,9 +43,9 @@ class MatchingFrameAdjuster implements FrameAdjuster {
     public FrameAdjuster process(char value) {
         if (index < arguments.length) {
             Object actual = arguments[index++];
-            if (actual instanceof Character && (Character) actual == value) {
+            if (actual instanceof BoxedChar && ((BoxedChar) actual).getValue() == value) {
                 return this;
-            } else if (matchIntType(actual, value)) {
+            } else if (actual instanceof BoxedInt && ((BoxedInt) actual).getValue() == value) {
                 return this;
             }
         }
@@ -55,9 +56,9 @@ class MatchingFrameAdjuster implements FrameAdjuster {
     public FrameAdjuster process(short value) {
         if (index < arguments.length) {
             Object actual = arguments[index++];
-            if (actual instanceof Short && (Short) actual == value) {
+            if (actual instanceof BoxedShort && ((BoxedShort) actual).getValue() == value) {
                 return this;
-            } else if (matchIntType(actual, value)) {
+            } else if (actual instanceof BoxedInt && ((BoxedInt) actual).getValue() == value) {
                 return this;
             }
         }
@@ -68,21 +69,7 @@ class MatchingFrameAdjuster implements FrameAdjuster {
     public FrameAdjuster process(int value) {
         if (index < arguments.length) {
             Object actual = arguments[index++];
-            int aValue;
-            if (actual instanceof Boolean) {
-                aValue = (Boolean) actual ? 1 : 0;
-            } else if (actual instanceof Byte) {
-                aValue = (Byte) actual;
-            } else if (actual instanceof Character) {
-                aValue = (Character) actual;
-            } else if (actual instanceof Integer) {
-                aValue = (Integer) actual;
-            } else if (actual instanceof Short) {
-                aValue = (Short) actual;
-            } else {
-                return new MismatchedFrameAdjuster(original, arguments);
-            }
-            if (value == aValue) {
+            if (actual instanceof BoxedStackInt && ((BoxedStackInt) actual).getIntValue() == value) {
                 return this;
             }
         }
@@ -93,7 +80,7 @@ class MatchingFrameAdjuster implements FrameAdjuster {
     public FrameAdjuster process(long value) {
         if (index < arguments.length) {
             Object actual = arguments[index++];
-            if (actual instanceof Long && (Long) actual == value) {
+            if (actual instanceof BoxedLong && ((BoxedLong) actual).getValue() == value) {
                 return this;
             }
         }
@@ -104,7 +91,7 @@ class MatchingFrameAdjuster implements FrameAdjuster {
     public FrameAdjuster process(float value) {
         if (index < arguments.length) {
             Object actual = arguments[index++];
-            if (actual instanceof Float && (Float) actual == value) {
+            if (actual instanceof BoxedFloat && ((BoxedFloat) actual).getValue() == value) {
                 return this;
             }
         }
@@ -115,7 +102,7 @@ class MatchingFrameAdjuster implements FrameAdjuster {
     public FrameAdjuster process(double value) {
         if (index < arguments.length) {
             Object actual = arguments[index++];
-            if (actual instanceof Double && (Double) actual == value) {
+            if (actual instanceof BoxedDouble && ((BoxedDouble) actual).getValue() == value) {
                 return this;
             }
         }
@@ -140,9 +127,5 @@ class MatchingFrameAdjuster implements FrameAdjuster {
     @Override
     public TagFrame createFrame() {
         return new AdjustedTagFrame(original, arguments, original.copyTags());
-    }
-
-    private boolean matchIntType(Object actual, int value) {
-        return actual instanceof Integer && (Integer) actual == value;
     }
 }

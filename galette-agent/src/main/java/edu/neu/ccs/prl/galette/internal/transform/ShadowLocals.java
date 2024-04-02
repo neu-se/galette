@@ -1,7 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.transform;
 
 import static org.objectweb.asm.Opcodes.*;
-import static org.objectweb.asm.Opcodes.ILOAD;
 
 import edu.neu.ccs.prl.galette.internal.runtime.Handle;
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
@@ -359,38 +358,6 @@ class ShadowLocals extends MethodVisitor {
     public int getNextFreeVariable() {
         // Place the local variable after the top of the shadow stack
         return getShadowStackIndex(0) + 1;
-    }
-
-    public int storeArgumentsToVariables(boolean isStatic, String descriptor) {
-        // stack: ..., receiver?, arg_0, arg_1, ..., arg_{n-1}
-        int firstIndex = getNextFreeVariable();
-        int index = firstIndex + AsmUtil.countLocalVariables(isStatic, descriptor);
-        Type[] arguments = Type.getArgumentTypes(descriptor);
-        // Last argument is on the top of the stack; visit types in reverse order
-        for (int i = arguments.length - 1; i >= 0; i--) {
-            // stack: receiver?, arg_0, arg_1, ..., arg_i
-            Type argument = arguments[i];
-            index -= argument.getSize();
-            visitVarInsn(argument.getOpcode(ISTORE), index);
-        }
-        if (!isStatic) {
-            visitVarInsn(ASTORE, --index);
-        }
-        assert index == firstIndex;
-        // stack: ...
-        return firstIndex;
-    }
-
-    public void loadArgumentsFromVariables(boolean isStatic, String descriptor, int index) {
-        // stack: ...
-        if (!isStatic) {
-            visitVarInsn(ALOAD, index++);
-        }
-        for (Type argument : Type.getArgumentTypes(descriptor)) {
-            visitVarInsn(argument.getOpcode(ILOAD), index);
-            index += argument.getSize();
-        }
-        // stack: ..., receiver?, arg_0, arg_1, ..., arg_{n-1}
     }
 
     static ShadowLocals newInstance(MethodVisitor mv, MethodNode original, boolean isShadow) {

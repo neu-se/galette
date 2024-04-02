@@ -7,6 +7,8 @@
  */
 package edu.neu.ccs.prl.galette.internal.runtime.collection;
 
+import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.runtime.TaggedObject;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -17,7 +19,7 @@ import java.util.NoSuchElementException;
 /**
  * Null key values are supported.
  */
-public class HashMap<K, V> implements Serializable {
+public class HashMap<K, V> implements Serializable, TaggedObject {
     private static final long serialVersionUID = 836953968426584036L;
     /**
      * The maximum ratio of stored elements to storage size that does not lead to rehash.
@@ -356,6 +358,29 @@ public class HashMap<K, V> implements Serializable {
             put(key, value);
         }
     }
+
+    @Override
+    public int hashCode(TagFrame frame) {
+        return hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj, TagFrame frame) {
+        return equals(obj);
+    }
+
+    @Override
+    public String toString(TagFrame frame) {
+        return toString();
+    }
+
+    @Override
+    public Object clone(TagFrame frame) throws CloneNotSupportedException {
+        throw new CloneNotSupportedException();
+    }
+
+    @Override
+    public void finalize(TagFrame frame) {}
 
     public static class Entry<K, V> {
         private final int hash;

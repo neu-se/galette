@@ -66,7 +66,7 @@ public class MemberAccessGenerator extends ClassVisitor {
 
     private void generateGetField(int access, String descriptor, MemberAccess mAccess, MethodVisitor mv) {
         fixReceiver(access, mAccess, mv);
-        AsmUtil.loadArguments(mv, access, descriptor);
+        AsmUtil.loadArguments(mv, descriptor, AsmUtil.isSet(access, Opcodes.ACC_STATIC) ? 0 : 1);
         Type ret = Type.getReturnType(descriptor);
         mv.visitFieldInsn(mAccess.opcode(), mAccess.owner(), mAccess.name(), ret.getDescriptor());
         mv.visitInsn(Type.getReturnType(descriptor).getOpcode(Opcodes.IRETURN));
@@ -74,7 +74,7 @@ public class MemberAccessGenerator extends ClassVisitor {
 
     private void generatePutField(int access, String descriptor, MemberAccess mAccess, MethodVisitor mv) {
         fixReceiver(access, mAccess, mv);
-        AsmUtil.loadArguments(mv, access, descriptor);
+        AsmUtil.loadArguments(mv, descriptor, AsmUtil.isSet(access, Opcodes.ACC_STATIC) ? 0 : 1);
         Type[] args = Type.getArgumentTypes(descriptor);
         mv.visitFieldInsn(mAccess.opcode(), mAccess.owner(), mAccess.name(), args[args.length - 1].getDescriptor());
         mv.visitInsn(Type.getReturnType(descriptor).getOpcode(Opcodes.IRETURN));
@@ -87,7 +87,7 @@ public class MemberAccessGenerator extends ClassVisitor {
         } else {
             fixReceiver(access, mAccess, mv);
         }
-        AsmUtil.loadArguments(mv, access, descriptor);
+        AsmUtil.loadArguments(mv, descriptor, AsmUtil.isSet(access, Opcodes.ACC_STATIC) ? 0 : 1);
         mv.visitMethodInsn(
                 mAccess.opcode(),
                 mAccess.owner(),

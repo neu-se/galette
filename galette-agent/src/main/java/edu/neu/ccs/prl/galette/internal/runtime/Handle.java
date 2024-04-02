@@ -5,6 +5,7 @@ import edu.neu.ccs.prl.galette.internal.runtime.frame.IndirectTagFrameStore;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.ProcessedTagFrame;
 import edu.neu.ccs.prl.galette.internal.transform.HandleRegistry;
 import edu.neu.ccs.prl.galette.internal.transform.MaskRegistry;
+import edu.neu.ccs.prl.galette.internal.transform.MethodRecord;
 import org.objectweb.asm.MethodVisitor;
 
 public enum Handle {
@@ -45,7 +46,23 @@ public enum Handle {
     FRAME_ADJUSTER_PROCESS_DOUBLE(FrameAdjuster.class),
     FRAME_ADJUSTER_PROCESS_OBJECT(FrameAdjuster.class),
     EXCEPTION_STORE_SET(ExceptionStore.class),
-    EXCEPTION_STORE_GET(ExceptionStore.class);
+    EXCEPTION_STORE_GET(ExceptionStore.class),
+    UNBOX_BOOLEAN(PrimitiveBoxer.class),
+    UNBOX_BYTE(PrimitiveBoxer.class),
+    UNBOX_CHAR(PrimitiveBoxer.class),
+    UNBOX_SHORT(PrimitiveBoxer.class),
+    UNBOX_INT(PrimitiveBoxer.class),
+    UNBOX_LONG(PrimitiveBoxer.class),
+    UNBOX_DOUBLE(PrimitiveBoxer.class),
+    UNBOX_FLOAT(PrimitiveBoxer.class),
+    BOX_BOOLEAN(PrimitiveBoxer.class),
+    BOX_BYTE(PrimitiveBoxer.class),
+    BOX_CHAR(PrimitiveBoxer.class),
+    BOX_SHORT(PrimitiveBoxer.class),
+    BOX_INT(PrimitiveBoxer.class),
+    BOX_LONG(PrimitiveBoxer.class),
+    BOX_DOUBLE(PrimitiveBoxer.class),
+    BOX_FLOAT(PrimitiveBoxer.class);
 
     private final Class<?> owner;
 
@@ -60,7 +77,11 @@ public enum Handle {
         return owner;
     }
 
+    public MethodRecord getRecord() {
+        return HandleRegistry.getRecord(this);
+    }
+
     public void accept(MethodVisitor mv) {
-        HandleRegistry.getRecord(this).accept(mv);
+        getRecord().accept(mv);
     }
 }

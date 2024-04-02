@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 
@@ -68,15 +67,17 @@ class IndirectFramePasser extends MethodVisitor {
             startHandlerScope(scopeEnd, handler);
         }
         // Store the arguments to the local variables
-        int argumentsIndex = shadowLocals.storeArgumentsToVariables(isStatic, descriptor);
+        int varIndex = shadowLocals.getNextFreeVariable();
+        AsmUtil.storeReceiverAndArguments(shadowLocals, isStatic, descriptor, varIndex);
         // Consume tags from the shadow stack for the arguments of the call and create a frame
         shadowLocals.prepareForCall(isStatic, descriptor, true);
         // Create an array of argument values
-        createArgumentArray(isStatic, descriptor, argumentsIndex);
+        AsmUtil.loadReceiverAndArguments(shadowLocals, isStatic, descriptor, varIndex);
+        AsmUtil.collectArguments(shadowLocals, isStatic, descriptor);
         // Store the frame and arguments in the indirect frame store
         Handle.INDIRECT_FRAME_SET.accept(shadowLocals);
         // Load the arguments from the local variables
-        shadowLocals.loadArgumentsFromVariables(isStatic, descriptor, argumentsIndex);
+        AsmUtil.loadReceiverAndArguments(shadowLocals, isStatic, descriptor, varIndex);
     }
 
     @Override
@@ -91,34 +92,6 @@ class IndirectFramePasser extends MethodVisitor {
         prepareForCall(descriptor, scopeEnd, handler, true);
         super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments);
         restoreFromCall(descriptor, scopeEnd, handler);
-    }
-
-    private void createArgumentArray(boolean isStatic, String descriptor, int argumentsIndex) {
-        // stack: ...
-        Type[] arguments = Type.getArgumentTypes(descriptor);
-        int length = arguments.length + (isStatic ? 0 : 1);
-        AsmUtil.pushInt(shadowLocals, length);
-        shadowLocals.visitTypeInsn(Opcodes.ANEWARRAY, "java/lang/Object");
-        int index = 0;
-        if (!isStatic) {
-            shadowLocals.visitInsn(DUP);
-            AsmUtil.pushInt(shadowLocals, index++);
-            shadowLocals.visitVarInsn(ALOAD, argumentsIndex++);
-            // stack: ..., arrayref, arrayref, index, value
-            shadowLocals.visitInsn(AASTORE);
-            // stack: ..., arrayref
-        }
-        for (Type argument : arguments) {
-            shadowLocals.visitInsn(DUP);
-            AsmUtil.pushInt(shadowLocals, index++);
-            shadowLocals.visitVarInsn(argument.getOpcode(ILOAD), argumentsIndex);
-            argumentsIndex += argument.getSize();
-            PrimitiveBoxer.box(shadowLocals, argument);
-            // stack: ..., arrayref, arrayref, index, value
-            shadowLocals.visitInsn(AASTORE);
-            // stack: ..., arrayref
-        }
-        // stack: ..., arrayref
     }
 
     private void startHandlerScope(Label scopeEnd, Label handler) {

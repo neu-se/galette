@@ -39,7 +39,7 @@ class ShadowWrapperCreator extends MethodVisitor {
         super.visitCode();
         // Wrapping a shadow; load all arguments and the added frame (descriptor is for the shadow and the frame will be
         // added at the next available index by the initializer
-        AsmUtil.loadThisAndArguments(mv, callee.getOpcode() == Opcodes.INVOKESTATIC, callee.getDescriptor());
+        AsmUtil.loadReceiverAndArguments(mv, callee.getOpcode() == Opcodes.INVOKESTATIC, callee.getDescriptor(), 0);
         // If the original method called getCallerClass, compute the caller class now and push to the frame
         fixer.fix(mv);
         // Call to the wrapped method
