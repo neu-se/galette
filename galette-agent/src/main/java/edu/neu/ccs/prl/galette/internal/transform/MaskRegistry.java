@@ -98,14 +98,24 @@ public final class MaskRegistry {
     }
 
     private static String createKey(Method method, Mask mask) {
-        String descriptor = mask.descriptor();
-        if (descriptor.isEmpty()) {
-            descriptor = computeDescriptor(method, mask);
-        }
+        Type returnType = computeReturnType(method, mask);
+        Type[] parameterTypes = computeParameterTypes(method, mask);
+        String descriptor = Type.getMethodDescriptor(returnType, parameterTypes);
         return MaskRegistry.getKey(mask.owner(), mask.name(), descriptor);
     }
 
-    private static String computeDescriptor(Method method, Mask mask) {
+    private static Type computeReturnType(Method method, Mask mask) {
+        if (!mask.returnDescriptor().isEmpty()) {
+            return Type.getReturnType("()" + mask.returnDescriptor());
+        } else {
+            return Type.getReturnType(method);
+        }
+    }
+
+    private static Type[] computeParameterTypes(Method method, Mask mask) {
+        if (!mask.parametersDescriptor().isEmpty()) {
+            return Type.getArgumentTypes(mask.parametersDescriptor() + "V");
+        }
         String descriptor = Type.getMethodDescriptor(method);
         Type returnType = Type.getReturnType(descriptor);
         LinkedList<Type> parameters = new LinkedList<>(Arrays.asList(Type.getArgumentTypes(descriptor)));
@@ -117,7 +127,7 @@ public final class MaskRegistry {
             // Remove the parameter for the receiver
             parameters.removeFirst();
         }
-        return Type.getMethodDescriptor(returnType, parameters.toArray(new Type[0]));
+        return parameters.toArray(new Type[0]);
     }
 
     public static final class MaskInfo {

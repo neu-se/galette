@@ -13,12 +13,12 @@ public final class ClassMasks {
     @Mask(
             owner = "java/lang/Class",
             name = "getFields",
-            descriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)[Ljava/lang/reflect/Field;",
+            parametersDescriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)",
             type = MaskType.REPAIR_RETURN)
     @Mask(
             owner = "java/lang/Class",
             name = "getDeclaredFields",
-            descriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)[Ljava/lang/reflect/Field;",
+            parametersDescriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)",
             type = MaskType.REPAIR_RETURN)
     public static Field[] getFields(Field[] fields) {
         SimpleList<Field> result = new SimpleList<>();
@@ -33,12 +33,12 @@ public final class ClassMasks {
     @Mask(
             owner = "java/lang/Class",
             name = "getMethods",
-            descriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)[Ljava/lang/reflect/Method;",
+            parametersDescriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)",
             type = MaskType.REPAIR_RETURN)
     @Mask(
             owner = "java/lang/Class",
             name = "getDeclaredMethods",
-            descriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)[Ljava/lang/reflect/Method;",
+            parametersDescriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)",
             type = MaskType.REPAIR_RETURN)
     public static Method[] getMethods(Method[] methods) {
         SimpleList<Method> result = new SimpleList<>();
@@ -53,12 +53,12 @@ public final class ClassMasks {
     @Mask(
             owner = "java/lang/Class",
             name = "getConstructors",
-            descriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)[Ljava/lang/reflect/Constructor;",
+            parametersDescriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)",
             type = MaskType.REPAIR_RETURN)
     @Mask(
             owner = "java/lang/Class",
             name = "getDeclaredConstructors",
-            descriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)[Ljava/lang/reflect/Constructor;",
+            parametersDescriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)",
             type = MaskType.REPAIR_RETURN)
     public static Constructor<?>[] getConstructors(Constructor<?>[] constructors) {
         SimpleList<Constructor<?>> result = new SimpleList<>();
@@ -73,7 +73,7 @@ public final class ClassMasks {
     @Mask(
             owner = "java/lang/Class",
             name = "getInterfaces",
-            descriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)[Ljava/lang/Class;",
+            parametersDescriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)",
             type = MaskType.REPAIR_RETURN)
     public static Class<?>[] getInterfaces(Class<?>[] interfaces) {
         SimpleList<Class<?>> list = filter(interfaces);
@@ -83,7 +83,7 @@ public final class ClassMasks {
     @Mask(
             owner = "sun/reflect/generics/repository/ClassRepository",
             name = "getSuperInterfaces",
-            descriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)[Ljava/lang/reflect/Type;",
+            parametersDescriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)",
             type = MaskType.REPAIR_RETURN)
     public static Type[] getSuperInterfaces(Type[] interfaces) {
         SimpleList<Type> list = filter(interfaces);

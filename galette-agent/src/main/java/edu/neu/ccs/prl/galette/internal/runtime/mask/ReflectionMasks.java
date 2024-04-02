@@ -17,22 +17,19 @@ public final class ReflectionMasks {
     @Mask(
             owner = "sun/reflect/NativeMethodAccessorImpl",
             name = "invoke0",
-            descriptor = "(Ljava/lang/reflect/Method;Ljava/lang/Object;[Ljava/lang/Object;"
-                    + "Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)Ljava/lang/Object;",
+            returnDescriptor = "Ljava/lang/Object;",
             isStatic = true,
             type = MaskType.FIX_ARGUMENTS)
     @Mask(
             owner = "jdk/internal/reflect/NativeMethodAccessorImpl",
             name = "invoke0",
-            descriptor = "(Ljava/lang/reflect/Method;Ljava/lang/Object;[Ljava/lang/Object;"
-                    + "Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)Ljava/lang/Object;",
+            returnDescriptor = "Ljava/lang/Object;",
             isStatic = true,
             type = MaskType.FIX_ARGUMENTS)
     @Mask(
             owner = "jdk/internal/reflect/DirectMethodHandleAccessor$NativeAccessor",
             name = "invoke0",
-            descriptor = "(Ljava/lang/reflect/Method;Ljava/lang/Object;[Ljava/lang/Object;"
-                    + "Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)Ljava/lang/Object;",
+            returnDescriptor = "Ljava/lang/Object;",
             isStatic = true,
             type = MaskType.FIX_ARGUMENTS)
     public static Object[] invoke0(Method m, Object obj, Object[] args, TagFrame frame) {
@@ -51,22 +48,19 @@ public final class ReflectionMasks {
     @Mask(
             owner = "sun/reflect/NativeConstructorAccessorImpl",
             name = "newInstance0",
-            descriptor = "(Ljava/lang/reflect/Constructor;[Ljava/lang/Object;"
-                    + "Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)Ljava/lang/Object;",
+            returnDescriptor = "Ljava/lang/Object;",
             isStatic = true,
             type = MaskType.FIX_ARGUMENTS)
     @Mask(
             owner = "jdk/internal/reflect/NativeConstructorAccessorImpl",
             name = "newInstance0",
-            descriptor = "(Ljava/lang/reflect/Constructor;[Ljava/lang/Object;"
-                    + "Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)Ljava/lang/Object;",
+            returnDescriptor = "Ljava/lang/Object;",
             isStatic = true,
             type = MaskType.FIX_ARGUMENTS)
     @Mask(
             owner = "jdk/internal/reflect/DirectConstructorHandleAccessor$NativeAccessor",
             name = "newInstance0",
-            descriptor = "(Ljava/lang/reflect/Constructor;[Ljava/lang/Object;"
-                    + "Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)Ljava/lang/Object;",
+            returnDescriptor = "Ljava/lang/Object;",
             isStatic = true,
             type = MaskType.FIX_ARGUMENTS)
     public static Object[] newInstance0(Constructor<?> c, Object[] args, TagFrame frame) {
