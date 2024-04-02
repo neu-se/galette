@@ -1,5 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
+import edu.neu.ccs.prl.galette.internal.runtime.PrimitiveBoxer;
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 import edu.neu.ccs.prl.galette.internal.transform.GaletteTransformer;
@@ -9,465 +10,376 @@ import java.security.ProtectionDomain;
 public final class UnsafeMasks {
     private static final UnsafeWrapper UNSAFE = UnsafeWrapper.createInstance();
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "defineAnonymousClass0")
-    @Mask(owner = "sun/misc/Unsafe", name = "defineAnonymousClass")
-    public static Class<?> defineAnonymousClass(Object receiver, Class<?> hostClass, byte[] data, Object[] cpPatches) {
+    @Mask(
+            owner = "jdk/internal/misc/Unsafe",
+            name = "defineAnonymousClass0",
+            returnDescriptor = "Ljava/lang/Class;",
+            type = MaskType.FIX_ARGUMENTS)
+    @Mask(
+            owner = "sun/misc/Unsafe",
+            name = "defineAnonymousClass",
+            returnDescriptor = "Ljava/lang/Class;",
+            type = MaskType.FIX_ARGUMENTS)
+    public static Object[] defineAnonymousClass(Object receiver, Class<?> hostClass, byte[] data, Object[] cpPatches) {
         byte[] instrumented = GaletteTransformer.getInstanceAndTransform(data, true);
-        return UNSAFE.defineAnonymousClass(hostClass, instrumented, cpPatches);
+        return new Object[] {receiver, hostClass, instrumented, cpPatches};
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "defineClass0")
-    @Mask(owner = "sun/misc/Unsafe", name = "defineClass")
-    public static Class<?> defineClass(
+    @Mask(
+            owner = "jdk/internal/misc/Unsafe",
+            name = "defineClass0",
+            returnDescriptor = "Ljava/lang/Class;",
+            type = MaskType.FIX_ARGUMENTS)
+    @Mask(
+            owner = "sun/misc/Unsafe",
+            name = "defineClass",
+            returnDescriptor = "Ljava/lang/Class;",
+            type = MaskType.FIX_ARGUMENTS)
+    public static Object[] defineClass(
             Object receiver, String name, byte[] b, int off, int len, ClassLoader loader, ProtectionDomain domain) {
         byte[] buffer = copy(b, off, len);
         if (buffer != null) {
             byte[] instrumented = GaletteTransformer.getInstanceAndTransform(buffer, false);
-            return UNSAFE.defineClass(name, instrumented, 0, instrumented.length, loader, domain);
+            b = instrumented;
+            off = 0;
+            len = instrumented.length;
         }
-        return UNSAFE.defineClass(name, b, off, len, loader, domain);
+        return new Object[] {receiver, name, b, PrimitiveBoxer.box(off), PrimitiveBoxer.box(len), loader, domain};
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putBoolean")
-    @Mask(owner = "sun/misc/Unsafe", name = "putBoolean")
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putBoolean", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putBoolean", type = MaskType.POST_PROCESS)
     public static void putBoolean(Object receiver, Object o, long offset, boolean x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putBoolean(o, offset, x);
-        UnsafeTagLocator.putTag(o, offset, offsetTag, xTag);
+        put(o, offset, frame);
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putByte")
-    @Mask(owner = "sun/misc/Unsafe", name = "putByte")
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putByte", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putByte", type = MaskType.POST_PROCESS)
     public static void putByte(Object receiver, Object o, long offset, byte x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putByte(o, offset, x);
-        UnsafeTagLocator.putTag(o, offset, offsetTag, xTag);
+        put(o, offset, frame);
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putChar")
-    @Mask(owner = "sun/misc/Unsafe", name = "putChar")
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putChar", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putChar", type = MaskType.POST_PROCESS)
     public static void putChar(Object receiver, Object o, long offset, char x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putChar(o, offset, x);
-        UnsafeTagLocator.putTag(o, offset, offsetTag, xTag);
+        put(o, offset, frame);
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putDouble")
-    @Mask(owner = "sun/misc/Unsafe", name = "putDouble")
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putDouble", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putDouble", type = MaskType.POST_PROCESS)
     public static void putDouble(Object receiver, Object o, long offset, double x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putDouble(o, offset, x);
-        UnsafeTagLocator.putTag(o, offset, offsetTag, xTag);
+        put(o, offset, frame);
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putFloat")
-    @Mask(owner = "sun/misc/Unsafe", name = "putFloat")
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putFloat", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putFloat", type = MaskType.POST_PROCESS)
     public static void putFloat(Object receiver, Object o, long offset, float x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putFloat(o, offset, x);
-        UnsafeTagLocator.putTag(o, offset, offsetTag, xTag);
+        put(o, offset, frame);
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putInt")
-    @Mask(owner = "sun/misc/Unsafe", name = "putInt")
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putInt", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putInt", type = MaskType.POST_PROCESS)
     public static void putInt(Object receiver, Object o, long offset, int x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putInt(o, offset, x);
-        UnsafeTagLocator.putTag(o, offset, offsetTag, xTag);
+        put(o, offset, frame);
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putLong")
-    @Mask(owner = "sun/misc/Unsafe", name = "putLong")
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putLong", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putLong", type = MaskType.POST_PROCESS)
     public static void putLong(Object receiver, Object o, long offset, long x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putLong(o, offset, x);
-        UnsafeTagLocator.putTag(o, offset, offsetTag, xTag);
+        put(o, offset, frame);
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putShort")
-    @Mask(owner = "sun/misc/Unsafe", name = "putShort")
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putShort", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putShort", type = MaskType.POST_PROCESS)
     public static void putShort(Object receiver, Object o, long offset, short x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putShort(o, offset, x);
-        UnsafeTagLocator.putTag(o, offset, offsetTag, xTag);
+        put(o, offset, frame);
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putObject")
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putReference")
-    @Mask(owner = "sun/misc/Unsafe", name = "putObject")
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putObject", type = MaskType.POST_PROCESS)
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putReference", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putObject", type = MaskType.POST_PROCESS)
     public static void putObject(Object receiver, Object o, long offset, Object x, TagFrame frame) {
+        put(o, offset, frame);
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putBooleanVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putBooleanVolatile", type = MaskType.POST_PROCESS)
+    public static void putBooleanVolatile(Object receiver, Object o, long offset, boolean x, TagFrame frame) {
+        putVolatile(o, offset, frame);
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putByteVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putByteVolatile", type = MaskType.POST_PROCESS)
+    public static void putByteVolatile(Object receiver, Object o, long offset, byte x, TagFrame frame) {
+        putVolatile(o, offset, frame);
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putCharVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putCharVolatile", type = MaskType.POST_PROCESS)
+    public static void putCharVolatile(Object receiver, Object o, long offset, char x, TagFrame frame) {
+        putVolatile(o, offset, frame);
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putDoubleVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putDoubleVolatile", type = MaskType.POST_PROCESS)
+    public static void putDoubleVolatile(Object receiver, Object o, long offset, double x, TagFrame frame) {
+        putVolatile(o, offset, frame);
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putFloatVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putFloatVolatile", type = MaskType.POST_PROCESS)
+    public static void putFloatVolatile(Object receiver, Object o, long offset, float x, TagFrame frame) {
+        putVolatile(o, offset, frame);
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putIntVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putIntVolatile", type = MaskType.POST_PROCESS)
+    public static void putIntVolatile(Object receiver, Object o, long offset, int x, TagFrame frame) {
+        putVolatile(o, offset, frame);
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putLongVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putLongVolatile", type = MaskType.POST_PROCESS)
+    public static void putLongVolatile(Object receiver, Object o, long offset, long x, TagFrame frame) {
+        putVolatile(o, offset, frame);
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putShortVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putShortVolatile", type = MaskType.POST_PROCESS)
+    public static void putShortVolatile(Object receiver, Object o, long offset, short x, TagFrame frame) {
+        putVolatile(o, offset, frame);
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putObjectVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putReferenceVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "putObjectVolatile", type = MaskType.POST_PROCESS)
+    public static void putObjectVolatile(Object receiver, Object o, long offset, Object x, TagFrame frame) {
+        putVolatile(o, offset, frame);
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getBoolean", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getBoolean", type = MaskType.POST_PROCESS)
+    public static boolean getBoolean(boolean returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        get(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getByte", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getByte", type = MaskType.POST_PROCESS)
+    public static byte getByte(byte returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        get(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getChar", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getChar", type = MaskType.POST_PROCESS)
+    public static char getChar(char returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        get(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getDouble", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getDouble", type = MaskType.POST_PROCESS)
+    public static double getDouble(double returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        get(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getFloat", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getFloat", type = MaskType.POST_PROCESS)
+    public static float getFloat(float returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        get(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getInt", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getInt", type = MaskType.POST_PROCESS)
+    public static int getInt(int returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        get(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getLong", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getLong", type = MaskType.POST_PROCESS)
+    public static long getLong(long returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        get(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getShort", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getShort", type = MaskType.POST_PROCESS)
+    public static short getShort(short returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        get(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getObject", type = MaskType.POST_PROCESS)
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getReference", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getObject", type = MaskType.POST_PROCESS)
+    public static Object getObject(Object returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        get(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getBooleanVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getBooleanVolatile", type = MaskType.POST_PROCESS)
+    public static boolean getBooleanVolatile(
+            boolean returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        getVolatile(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getByteVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getByteVolatile", type = MaskType.POST_PROCESS)
+    public static byte getByteVolatile(byte returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        getVolatile(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getCharVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getCharVolatile", type = MaskType.POST_PROCESS)
+    public static char getCharVolatile(char returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        getVolatile(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getDoubleVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getDoubleVolatile", type = MaskType.POST_PROCESS)
+    public static double getDoubleVolatile(double returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        getVolatile(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getFloatVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getFloatVolatile", type = MaskType.POST_PROCESS)
+    public static float getFloatVolatile(float returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        getVolatile(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getIntVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getIntVolatile", type = MaskType.POST_PROCESS)
+    public static int getIntVolatile(int returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        getVolatile(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getLongVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getLongVolatile", type = MaskType.POST_PROCESS)
+    public static long getLongVolatile(long returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        getVolatile(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getShortVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getShortVolatile", type = MaskType.POST_PROCESS)
+    public static short getShortVolatile(short returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        getVolatile(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getObjectVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getReferenceVolatile", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "getObjectVolatile", type = MaskType.POST_PROCESS)
+    public static Object getObjectVolatile(Object returnValue, Object receiver, Object o, long offset, TagFrame frame) {
+        getVolatile(o, offset, frame);
+        return returnValue;
+    }
+
+    @Mask(owner = "sun/misc/Unsafe", name = "putOrderedInt", type = MaskType.POST_PROCESS)
+    public static void putOrderedInt(Object receiver, Object o, long offset, int x, TagFrame frame) {
+        putVolatile(o, offset, frame);
+    }
+
+    @Mask(owner = "sun/misc/Unsafe", name = "putOrderedLong", type = MaskType.POST_PROCESS)
+    public static void putOrderedLong(Object receiver, Object o, long offset, long x, TagFrame frame) {
+        putVolatile(o, offset, frame);
+    }
+
+    @Mask(owner = "sun/misc/Unsafe", name = "putOrderedObject", type = MaskType.POST_PROCESS)
+    public static void putOrderedObject(Object receiver, Object o, long offset, Object x, TagFrame frame) {
+        putVolatile(o, offset, frame);
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndSetInt", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "compareAndSwapInt", type = MaskType.POST_PROCESS)
+    public static boolean compareAndSwapInt(
+            boolean result, Object receiver, Object o, long offset, int expected, int x, TagFrame frame) {
+        return compareAndSwap(result, o, offset, frame);
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndSetLong", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "compareAndSwapLong", type = MaskType.POST_PROCESS)
+    public static boolean compareAndSwapLong(
+            boolean result, Object receiver, Object o, long offset, long expected, long x, TagFrame frame) {
+        return compareAndSwap(result, o, offset, frame);
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndSetObject", type = MaskType.POST_PROCESS)
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndSetReference", type = MaskType.POST_PROCESS)
+    @Mask(owner = "sun/misc/Unsafe", name = "compareAndSwapObject", type = MaskType.POST_PROCESS)
+    public static boolean compareAndSwapObject(
+            boolean result, Object receiver, Object o, long offset, Object expected, Object x, TagFrame frame) {
+        return compareAndSwap(result, o, offset, frame);
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndExchangeInt", type = MaskType.POST_PROCESS)
+    public static int compareAndExchangeInt(
+            int result, Object receiver, Object o, long offset, int expected, int x, TagFrame frame) {
+        compareAndExchange(frame, o, offset, result == expected);
+        return result;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndExchangeLong", type = MaskType.POST_PROCESS)
+    public static long compareAndExchangeLong(
+            long result, Object receiver, Object o, long offset, long expected, long x, TagFrame frame) {
+        compareAndExchange(frame, o, offset, result == expected);
+        return result;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndExchangeObject", type = MaskType.POST_PROCESS)
+    public static Object compareAndExchangeObject(
+            Object result, Object receiver, Object o, long offset, Object expected, Object x, TagFrame frame) {
+        compareAndExchange(frame, o, offset, result == expected);
+        return result;
+    }
+
+    private static void put(Object o, long offset, TagFrame frame) {
         Tag receiverTag = frame.dequeue();
         Tag oTag = frame.dequeue();
         Tag offsetTag = frame.dequeue();
         Tag xTag = frame.dequeue();
-        UNSAFE.putObject(o, offset, x);
         UnsafeTagLocator.putTag(o, offset, offsetTag, xTag);
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putBooleanVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "putBooleanVolatile")
-    public static void putBooleanVolatile(Object receiver, Object o, long offset, boolean x, TagFrame frame) {
+    private static void putVolatile(Object o, long offset, TagFrame frame) {
         Tag receiverTag = frame.dequeue();
         Tag oTag = frame.dequeue();
         Tag offsetTag = frame.dequeue();
         Tag xTag = frame.dequeue();
-        UNSAFE.putBooleanVolatile(o, offset, x);
         UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putByteVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "putByteVolatile")
-    public static void putByteVolatile(Object receiver, Object o, long offset, byte x, TagFrame frame) {
+    private static void get(Object o, long offset, TagFrame frame) {
         Tag receiverTag = frame.dequeue();
         Tag oTag = frame.dequeue();
         Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putByteVolatile(o, offset, x);
-        UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putCharVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "putCharVolatile")
-    public static void putCharVolatile(Object receiver, Object o, long offset, char x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putCharVolatile(o, offset, x);
-        UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putDoubleVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "putDoubleVolatile")
-    public static void putDoubleVolatile(Object receiver, Object o, long offset, double x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putDoubleVolatile(o, offset, x);
-        UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putFloatVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "putFloatVolatile")
-    public static void putFloatVolatile(Object receiver, Object o, long offset, float x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putFloatVolatile(o, offset, x);
-        UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putIntVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "putIntVolatile")
-    public static void putIntVolatile(Object receiver, Object o, long offset, int x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putIntVolatile(o, offset, x);
-        UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putLongVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "putLongVolatile")
-    public static void putLongVolatile(Object receiver, Object o, long offset, long x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putLongVolatile(o, offset, x);
-        UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putShortVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "putShortVolatile")
-    public static void putShortVolatile(Object receiver, Object o, long offset, short x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putShortVolatile(o, offset, x);
-        UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putObjectVolatile")
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "putReferenceVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "putObjectVolatile")
-    public static void putObjectVolatile(Object receiver, Object o, long offset, Object x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putObjectVolatile(o, offset, x);
-        UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getBoolean")
-    @Mask(owner = "sun/misc/Unsafe", name = "getBoolean")
-    public static boolean getBoolean(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        boolean result = UNSAFE.getBoolean(o, offset);
         frame.setReturnTag(UnsafeTagLocator.getTag(o, offset, offsetTag));
-        return result;
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getByte")
-    @Mask(owner = "sun/misc/Unsafe", name = "getByte")
-    public static byte getByte(Object receiver, Object o, long offset, TagFrame frame) {
+    private static void getVolatile(Object o, long offset, TagFrame frame) {
         Tag receiverTag = frame.dequeue();
         Tag oTag = frame.dequeue();
         Tag offsetTag = frame.dequeue();
-        byte result = UNSAFE.getByte(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getChar")
-    @Mask(owner = "sun/misc/Unsafe", name = "getChar")
-    public static char getChar(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        char result = UNSAFE.getChar(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getDouble")
-    @Mask(owner = "sun/misc/Unsafe", name = "getDouble")
-    public static double getDouble(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        double result = UNSAFE.getDouble(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getFloat")
-    @Mask(owner = "sun/misc/Unsafe", name = "getFloat")
-    public static float getFloat(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        float result = UNSAFE.getFloat(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getInt")
-    @Mask(owner = "sun/misc/Unsafe", name = "getInt")
-    public static int getInt(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        int result = UNSAFE.getInt(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getLong")
-    @Mask(owner = "sun/misc/Unsafe", name = "getLong")
-    public static long getLong(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        long result = UNSAFE.getLong(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getShort")
-    @Mask(owner = "sun/misc/Unsafe", name = "getShort")
-    public static short getShort(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        short result = UNSAFE.getShort(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getObject")
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getReference")
-    @Mask(owner = "sun/misc/Unsafe", name = "getObject")
-    public static Object getObject(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Object result = UNSAFE.getObject(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getBooleanVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "getBooleanVolatile")
-    public static boolean getBooleanVolatile(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        boolean result = UNSAFE.getBooleanVolatile(o, offset);
         frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag));
-        return result;
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getByteVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "getByteVolatile")
-    public static byte getByteVolatile(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        byte result = UNSAFE.getByteVolatile(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getCharVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "getCharVolatile")
-    public static char getCharVolatile(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        char result = UNSAFE.getCharVolatile(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getDoubleVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "getDoubleVolatile")
-    public static double getDoubleVolatile(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        double result = UNSAFE.getDoubleVolatile(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getFloatVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "getFloatVolatile")
-    public static float getFloatVolatile(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        float result = UNSAFE.getFloatVolatile(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getIntVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "getIntVolatile")
-    public static int getIntVolatile(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        int result = UNSAFE.getIntVolatile(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getLongVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "getLongVolatile")
-    public static long getLongVolatile(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        long result = UNSAFE.getLongVolatile(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getShortVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "getShortVolatile")
-    public static short getShortVolatile(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        short result = UNSAFE.getShortVolatile(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getObjectVolatile")
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "getReferenceVolatile")
-    @Mask(owner = "sun/misc/Unsafe", name = "getObjectVolatile")
-    public static Object getObjectVolatile(Object receiver, Object o, long offset, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Object result = UNSAFE.getObjectVolatile(o, offset);
-        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag));
-        return result;
-    }
-
-    @Mask(owner = "sun/misc/Unsafe", name = "putOrderedInt")
-    public static void putOrderedInt(Object receiver, Object o, long offset, int x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putOrderedInt(o, offset, x);
-        UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-    }
-
-    @Mask(owner = "sun/misc/Unsafe", name = "putOrderedLong")
-    public static void putOrderedLong(Object receiver, Object o, long offset, long x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putOrderedLong(o, offset, x);
-        UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-    }
-
-    @Mask(owner = "sun/misc/Unsafe", name = "putOrderedObject")
-    public static void putOrderedObject(Object receiver, Object o, long offset, Object x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UNSAFE.putOrderedObject(o, offset, x);
-        UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndSetInt")
-    @Mask(owner = "sun/misc/Unsafe", name = "compareAndSwapInt")
-    public static boolean compareAndSwapInt(
-            Object receiver, Object o, long offset, int expected, int x, TagFrame frame) {
+    private static boolean compareAndSwap(boolean result, Object o, long offset, TagFrame frame) {
         Tag receiverTag = frame.dequeue();
         Tag oTag = frame.dequeue();
         Tag offsetTag = frame.dequeue();
         Tag expectedTag = frame.dequeue();
         Tag xTag = frame.dequeue();
-        boolean result = UNSAFE.compareAndSwapInt(o, offset, expected, x);
         frame.setReturnTag(Tag.getEmptyTag());
         if (result) {
             // Swap succeeded, update the tag
@@ -477,100 +389,19 @@ public final class UnsafeMasks {
         return result;
     }
 
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndSetLong")
-    @Mask(owner = "sun/misc/Unsafe", name = "compareAndSwapLong")
-    public static boolean compareAndSwapLong(
-            Object receiver, Object o, long offset, long expected, long x, TagFrame frame) {
+    private static void compareAndExchange(TagFrame frame, Object o, long offset, boolean result) {
         Tag receiverTag = frame.dequeue();
         Tag oTag = frame.dequeue();
         Tag offsetTag = frame.dequeue();
         Tag expectedTag = frame.dequeue();
         Tag xTag = frame.dequeue();
-        boolean result = UNSAFE.compareAndSwapLong(o, offset, expected, x);
-        frame.setReturnTag(Tag.getEmptyTag());
+        // Set the return tag to be the current value
+        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag));
         if (result) {
-            // Swap succeeded, update the tag
-            // There is no way to swap both the tag and the value atomically
-            UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-        }
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndSetObject")
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndSetReference")
-    @Mask(owner = "sun/misc/Unsafe", name = "compareAndSwapObject")
-    public static boolean compareAndSwapObject(
-            Object receiver, Object o, long offset, Object expected, Object x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag expectedTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        boolean result = UNSAFE.compareAndSwapObject(o, offset, expected, x);
-        frame.setReturnTag(Tag.getEmptyTag());
-        if (result) {
-            // Swap succeeded, update the tag
-            // There is no way to swap both the tag and the value atomically
-            UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-        }
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndExchangeInt")
-    public static int compareAndExchangeInt(
-            Object receiver, Object o, long offset, int expected, int x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag expectedTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        // Set the return tag to be the current value
-        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag));
-        int result = UNSAFE.compareAndExchangeInt(o, offset, expected, x);
-        if (result == expected) {
             // Exchange succeeded, update the tag
             // There is no way to exchange both the tag and the value atomically
             UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
         }
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndExchangeLong")
-    public static long compareAndExchangeLong(
-            Object receiver, Object o, long offset, long expected, long x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag expectedTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        // Set the return tag to be the current value
-        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag));
-        long result = UNSAFE.compareAndExchangeLong(o, offset, expected, x);
-        if (result == expected) {
-            // Exchange succeeded, update the tag
-            // There is no way to exchange both the tag and the value atomically
-            UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-        }
-        return result;
-    }
-
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndExchangeObject")
-    public static Object compareAndExchangeObject(
-            Object receiver, Object o, long offset, Object expected, Object x, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag expectedTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        // Set the return tag to be the current value
-        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag));
-        Object result = UNSAFE.compareAndExchangeObject(o, offset, expected, x);
-        if (result == expected) {
-            // Exchange succeeded, update the tag
-            // There is no way to exchange both the tag and the value atomically
-            UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag);
-        }
-        return result;
     }
 
     public static byte[] copy(byte[] b, int off, int len) {

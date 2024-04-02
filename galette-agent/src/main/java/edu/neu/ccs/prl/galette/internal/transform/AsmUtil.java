@@ -241,8 +241,7 @@ public final class AsmUtil {
         if (delegate != null) {
             Handle unboxer = getUnboxer(type);
             if (unboxer != null) {
-                String name =
-                        Type.getReturnType(unboxer.getRecord().getDescriptor()).getInternalName();
+                String name = Type.getArgumentTypes(unboxer.getRecord().getDescriptor())[0].getInternalName();
                 delegate.visitTypeInsn(CHECKCAST, name);
                 unboxer.accept(delegate);
             } else {
