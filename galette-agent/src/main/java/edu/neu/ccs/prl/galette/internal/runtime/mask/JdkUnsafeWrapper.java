@@ -32,12 +32,6 @@ public final class JdkUnsafeWrapper implements UnsafeWrapper {
         return UNSAFE.arrayBaseOffset(arrayClass);
     }
 
-    @SuppressWarnings({"unused", "SameParameterValue"})
-    @MemberAccess(owner = "jdk/internal/misc/Unsafe", name = "defineAnonymousClass0", opcode = Opcodes.INVOKEVIRTUAL)
-    private static Class<?> defineAnonymousClass0(Unsafe unsafe, Class<?> hostClass, byte[] data, Object[] cpPatches) {
-        throw new AssertionError("Placeholder method was called");
-    }
-
     @Override
     public void putObject(Object o, long offset, Object x) {
         UNSAFE.putObject(o, offset, x);
