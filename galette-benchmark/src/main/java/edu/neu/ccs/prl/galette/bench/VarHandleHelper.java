@@ -1,7 +1,6 @@
 package edu.neu.ccs.prl.galette.bench;
 
 import java.lang.invoke.VarHandle;
-import java.lang.invoke.VarHandle.AccessMode;
 
 @SuppressWarnings("DuplicatedCode")
 public final class VarHandleHelper {

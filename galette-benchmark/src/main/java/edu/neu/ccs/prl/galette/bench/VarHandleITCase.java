@@ -1,7 +1,6 @@
 package edu.neu.ccs.prl.galette.bench;
 
 import static edu.neu.ccs.prl.galette.bench.VarHandleHelper.*;
-import static java.lang.invoke.VarHandle.AccessMode;
 
 import edu.neu.ccs.prl.galette.bench.extension.FlowBench;
 import edu.neu.ccs.prl.galette.bench.extension.FlowChecker;
