@@ -22,6 +22,10 @@ public interface UnsafeWrapper {
 
     Object getObjectVolatile(Object o, long offset);
 
+    byte compareAndExchangeByte(Object o, long offset, byte expected, byte x);
+
+    short compareAndExchangeShort(Object o, long offset, short expected, short x);
+
     static UnsafeWrapper createInstance() {
         return Configuration.isJava8() ? new SunUnsafeWrapper() : new JdkUnsafeWrapper();
     }

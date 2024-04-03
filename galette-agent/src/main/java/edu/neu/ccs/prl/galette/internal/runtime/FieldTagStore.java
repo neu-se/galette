@@ -25,22 +25,22 @@ public final class FieldTagStore {
 
     @InvokedViaHandle(handle = Handle.FIELD_TAG_STORE_PUT_STATIC)
     public static synchronized void putStatic(Tag tag, String fieldReference) {
-        if (staticFieldTags != null && FlagAccessor.reserve()) {
+        if (staticFieldTags != null && TagStoreFlagAccessor.reserve()) {
             try {
                 staticFieldTags.put(fieldReference, tag);
             } finally {
-                FlagAccessor.free();
+                TagStoreFlagAccessor.free();
             }
         }
     }
 
     @InvokedViaHandle(handle = Handle.FIELD_TAG_STORE_GET_STATIC)
     public static synchronized Tag getStatic(String fieldReference) {
-        if (staticFieldTags != null && FlagAccessor.reserve()) {
+        if (staticFieldTags != null && TagStoreFlagAccessor.reserve()) {
             try {
                 return staticFieldTags.get(fieldReference);
             } finally {
-                FlagAccessor.free();
+                TagStoreFlagAccessor.free();
             }
         }
         return Tag.getEmptyTag();
@@ -61,7 +61,7 @@ public final class FieldTagStore {
     }
 
     private static synchronized HashMap<String, Tag> getInstanceTagsInternal(Object receiver, Tag tag) {
-        if (staticFieldTags != null && FlagAccessor.reserve()) {
+        if (staticFieldTags != null && TagStoreFlagAccessor.reserve()) {
             try {
                 HashMap<String, Tag> tags = instanceFieldTags.get(receiver);
                 if (tags == null && !Tag.isEmpty(tag)) {
@@ -70,7 +70,7 @@ public final class FieldTagStore {
                 }
                 return tags;
             } finally {
-                FlagAccessor.free();
+                TagStoreFlagAccessor.free();
             }
         }
         return null;
@@ -82,22 +82,22 @@ public final class FieldTagStore {
     }
 
     public static synchronized void setInstanceTags(Object receiver, HashMap<String, Tag> tags) {
-        if (staticFieldTags != null && FlagAccessor.reserve()) {
+        if (staticFieldTags != null && TagStoreFlagAccessor.reserve()) {
             try {
                 instanceFieldTags.put(receiver, new HashMap<>(tags));
             } finally {
-                FlagAccessor.free();
+                TagStoreFlagAccessor.free();
             }
         }
     }
 
     public static synchronized void clear() {
-        if (staticFieldTags != null && FlagAccessor.reserve()) {
+        if (staticFieldTags != null && TagStoreFlagAccessor.reserve()) {
             try {
                 instanceFieldTags.clear();
                 staticFieldTags.clear();
             } finally {
-                FlagAccessor.free();
+                TagStoreFlagAccessor.free();
             }
         }
     }

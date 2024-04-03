@@ -329,6 +329,38 @@ public final class UnsafeMasks {
         return result;
     }
 
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndExchangeShort", type = MaskType.REPLACE)
+    public static short compareAndExchangeShort(
+            Object receiver, Object o, long offset, short expected, short x, TagFrame frame) {
+        boolean free = UnsafeFlagAccessor.reserve();
+        short result;
+        try {
+            result = UNSAFE.compareAndExchangeShort(o, offset, expected, x);
+        } finally {
+            if (free) {
+                UnsafeFlagAccessor.free();
+            }
+        }
+        compareAndExchange(frame, o, offset, result == expected, short[].class);
+        return result;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndExchangeByte", type = MaskType.REPLACE)
+    public static byte compareAndExchangeByte(
+            Object receiver, Object o, long offset, byte expected, byte x, TagFrame frame) {
+        boolean free = UnsafeFlagAccessor.reserve();
+        byte result;
+        try {
+            result = UNSAFE.compareAndExchangeByte(o, offset, expected, x);
+        } finally {
+            if (free) {
+                UnsafeFlagAccessor.free();
+            }
+        }
+        compareAndExchange(frame, o, offset, result == expected, byte[].class);
+        return result;
+    }
+
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndExchangeLong", type = MaskType.POST_PROCESS)
     public static long compareAndExchangeLong(
             long result, Object receiver, Object o, long offset, long expected, long x, TagFrame frame) {
@@ -343,63 +375,115 @@ public final class UnsafeMasks {
         return result;
     }
 
-    private static void put(Object o, long offset, TagFrame frame, Class<?> arrayType) {
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "byte2bool", type = MaskType.POST_PROCESS)
+    public static boolean byte2bool(boolean returnValue, Object receiver, byte b, TagFrame frame) {
         Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UnsafeTagLocator.putTag(o, offset, offsetTag, xTag, arrayType);
+        Tag valueTag = frame.dequeue();
+        frame.setReturnTag(valueTag);
+        return returnValue;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "bool2byte", type = MaskType.POST_PROCESS)
+    public static byte bool2byte(byte returnValue, Object receiver, boolean b, TagFrame frame) {
+        Tag receiverTag = frame.dequeue();
+        Tag valueTag = frame.dequeue();
+        frame.setReturnTag(valueTag);
+        return returnValue;
+    }
+
+    private static void put(Object o, long offset, TagFrame frame, Class<?> arrayType) {
+        if (UnsafeFlagAccessor.reserve()) {
+            try {
+                Tag receiverTag = frame.dequeue();
+                Tag oTag = frame.dequeue();
+                Tag offsetTag = frame.dequeue();
+                Tag xTag = frame.dequeue();
+                UnsafeTagLocator.putTag(o, offset, offsetTag, xTag, arrayType);
+            } finally {
+                UnsafeFlagAccessor.free();
+            }
+        }
     }
 
     private static void putVolatile(Object o, long offset, TagFrame frame, Class<?> arrayType) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag, arrayType);
+        if (UnsafeFlagAccessor.reserve()) {
+            try {
+                Tag receiverTag = frame.dequeue();
+                Tag oTag = frame.dequeue();
+                Tag offsetTag = frame.dequeue();
+                Tag xTag = frame.dequeue();
+                UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag, arrayType);
+            } finally {
+                UnsafeFlagAccessor.free();
+            }
+        }
     }
 
     private static void get(Object o, long offset, TagFrame frame, Class<?> arrayType) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        frame.setReturnTag(UnsafeTagLocator.getTag(o, offset, offsetTag, arrayType));
+        if (UnsafeFlagAccessor.reserve()) {
+            try {
+                Tag receiverTag = frame.dequeue();
+                Tag oTag = frame.dequeue();
+                Tag offsetTag = frame.dequeue();
+                frame.setReturnTag(UnsafeTagLocator.getTag(o, offset, offsetTag, arrayType));
+            } finally {
+                UnsafeFlagAccessor.free();
+            }
+        }
     }
 
     private static void getVolatile(Object o, long offset, TagFrame frame, Class<?> arrayType) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag, arrayType));
+        if (UnsafeFlagAccessor.reserve()) {
+            try {
+                Tag receiverTag = frame.dequeue();
+                Tag oTag = frame.dequeue();
+                Tag offsetTag = frame.dequeue();
+                frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag, arrayType));
+            } finally {
+                UnsafeFlagAccessor.free();
+            }
+        }
     }
 
     private static boolean compareAndSwap(boolean result, Object o, long offset, TagFrame frame, Class<?> arrayType) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag expectedTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        frame.setReturnTag(Tag.getEmptyTag());
-        if (result) {
-            // Swap succeeded, update the tag
-            // There is no way to swap both the tag and the value atomically
-            UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag, arrayType);
+        if (UnsafeFlagAccessor.reserve()) {
+            try {
+                Tag receiverTag = frame.dequeue();
+                Tag oTag = frame.dequeue();
+                Tag offsetTag = frame.dequeue();
+                Tag expectedTag = frame.dequeue();
+                Tag xTag = frame.dequeue();
+                frame.setReturnTag(Tag.getEmptyTag());
+                if (result) {
+                    // Swap succeeded, update the tag
+                    // There is no way to swap both the tag and the value atomically
+                    UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag, arrayType);
+                }
+            } finally {
+                UnsafeFlagAccessor.free();
+            }
         }
         return result;
     }
 
     private static void compareAndExchange(TagFrame frame, Object o, long offset, boolean result, Class<?> arrayType) {
-        Tag receiverTag = frame.dequeue();
-        Tag oTag = frame.dequeue();
-        Tag offsetTag = frame.dequeue();
-        Tag expectedTag = frame.dequeue();
-        Tag xTag = frame.dequeue();
-        // Set the return tag to be the current value
-        frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag, arrayType));
-        if (result) {
-            // Exchange succeeded, update the tag
-            // There is no way to exchange both the tag and the value atomically
-            UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag, arrayType);
+        if (UnsafeFlagAccessor.reserve()) {
+            try {
+                Tag receiverTag = frame.dequeue();
+                Tag oTag = frame.dequeue();
+                Tag offsetTag = frame.dequeue();
+                Tag expectedTag = frame.dequeue();
+                Tag xTag = frame.dequeue();
+                // Set the return tag to be the current value
+                frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag, arrayType));
+                if (result) {
+                    // Exchange succeeded, update the tag
+                    // There is no way to exchange both the tag and the value atomically
+                    UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag, arrayType);
+                }
+            } finally {
+                UnsafeFlagAccessor.free();
+            }
         }
     }
 

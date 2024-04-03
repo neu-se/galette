@@ -3,7 +3,7 @@ package edu.neu.ccs.prl.galette.internal.agent;
 import edu.neu.ccs.prl.galette.internal.runtime.*;
 import edu.neu.ccs.prl.galette.internal.runtime.frame.IndirectTagFrameStore;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.ReflectionMasks;
-import edu.neu.ccs.prl.galette.internal.runtime.mask.UnsafeTagLocator;
+import edu.neu.ccs.prl.galette.internal.runtime.mask.UnsafeFlagAccessor;
 import edu.neu.ccs.prl.galette.internal.transform.GaletteLog;
 import edu.neu.ccs.prl.galette.internal.transform.GaletteTransformer;
 import edu.neu.ccs.prl.galette.internal.transform.TransformationCache;
@@ -16,12 +16,12 @@ import java.security.ProtectionDomain;
 public final class GaletteAgent {
     static {
         // Enable mirrored tag stores
-        // Note: must initialize FlagAccessor first to prevent circularity
-        FlagAccessor.initialize();
+        // Note: must initialize TagStoreFlagAccessor first to prevent circularity
+        TagStoreFlagAccessor.initialize();
         ArrayTagStore.initialize();
         FieldTagStore.initialize();
         // Enable propagation through Unsafe accesses
-        UnsafeTagLocator.initialize();
+        UnsafeFlagAccessor.initialize();
         // Enable indirect frame passing
         IndirectTagFrameStore.initialize();
         // Enable propagation through reflective method and constructor calls

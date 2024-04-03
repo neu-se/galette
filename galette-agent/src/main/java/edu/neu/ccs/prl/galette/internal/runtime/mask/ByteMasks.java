@@ -14,15 +14,4 @@ public final class ByteMasks {
         TagFrame calleeFrame = TagFrame.create(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
         return BoxTypeAccessor.newByte(value, calleeFrame);
     }
-
-    @Mask(owner = "java/lang/Double", name = "valueOf", isStatic = true)
-    public static Double valueOf(double value, TagFrame frame) {
-        Tag valueTag = frame.dequeue();
-        frame.setReturnTag(valueTag);
-        if (Tag.isEmpty(valueTag)) {
-            return BoxTypeAccessor.valueOf(value, TagFrame.create(frame));
-        }
-        TagFrame calleeFrame = TagFrame.create(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
-        return BoxTypeAccessor.newDouble(value, calleeFrame);
-    }
 }

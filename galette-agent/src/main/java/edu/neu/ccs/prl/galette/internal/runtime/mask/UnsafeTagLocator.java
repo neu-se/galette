@@ -9,21 +9,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import org.objectweb.asm.Opcodes;
 
-public final class UnsafeTagLocator {
+final class UnsafeTagLocator {
     private static final UnsafeWrapper UNSAFE = UnsafeWrapper.createInstance();
-    private static volatile boolean initialized = false;
 
     /**
      *  Used to disambiguate between a static field of a given type and an instance field of java.lang.Class.
      */
     private static long LAST_INSTANCE_OFFSET_JAVA_LANG_CLASS = UNSAFE.getInvalidFieldOffset();
 
-    public static void initialize() {
-        initialized = true;
-    }
-
     static void putTag(Object o, long offset, Tag offsetTag, Tag tag, Class<?> arrayType) {
-        if (initialized && o != null) {
+        if (o != null) {
             if (o.getClass().isArray()) {
                 putArrayTag(o, offset, offsetTag, tag, arrayType, false);
             } else {
@@ -36,7 +31,7 @@ public final class UnsafeTagLocator {
     }
 
     static void putTagVolatile(Object o, long offset, Tag offsetTag, Tag tag, Class<?> arrayType) {
-        if (initialized && o != null) {
+        if (o != null) {
             if (o.getClass().isArray()) {
                 putArrayTag(o, offset, offsetTag, tag, arrayType, true);
             } else {
@@ -81,7 +76,7 @@ public final class UnsafeTagLocator {
     }
 
     static Tag getTag(Object o, long offset, Tag offsetTag, Class<?> arrayType) {
-        if (initialized && o != null) {
+        if (o != null) {
             if (o.getClass().isArray()) {
                 return getArrayTag(o, offset, offsetTag, arrayType, false);
             } else {
@@ -98,7 +93,7 @@ public final class UnsafeTagLocator {
     }
 
     static Tag getTagVolatile(Object o, long offset, Tag offsetTag, Class<?> arrayType) {
-        if (initialized && o != null) {
+        if (o != null) {
             if (o.getClass().isArray()) {
                 return getArrayTag(o, offset, offsetTag, arrayType, true);
             } else {

@@ -110,11 +110,11 @@ public final class ArrayTagStore {
     }
 
     public static synchronized void clear() {
-        if (wrappers != null && FlagAccessor.reserve()) {
+        if (wrappers != null && TagStoreFlagAccessor.reserve()) {
             try {
                 wrappers.clear();
             } finally {
-                FlagAccessor.free();
+                TagStoreFlagAccessor.free();
             }
         }
     }
@@ -126,22 +126,22 @@ public final class ArrayTagStore {
     }
 
     public static synchronized ArrayWrapper getWrapper(Object array) {
-        if (wrappers != null && array != null && FlagAccessor.reserve()) {
+        if (wrappers != null && array != null && TagStoreFlagAccessor.reserve()) {
             try {
                 return wrappers.get(array);
             } finally {
-                FlagAccessor.free();
+                TagStoreFlagAccessor.free();
             }
         }
         return null;
     }
 
     public static synchronized void setWrapper(Object array, ArrayWrapper wrapper) {
-        if (wrappers != null && array != null && FlagAccessor.reserve()) {
+        if (wrappers != null && array != null && TagStoreFlagAccessor.reserve()) {
             try {
                 wrappers.put(array, wrapper);
             } finally {
-                FlagAccessor.free();
+                TagStoreFlagAccessor.free();
             }
         }
     }

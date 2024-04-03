@@ -7,20 +7,20 @@ import org.objectweb.asm.Opcodes;
  * Before accessing mirrored tags, tag stores must check whether the access was triggered from
  * within a tag store's handling of a different access.
  * This "inner" access should be suppressed to prevent the risk of triggering an infinite loop.
- * This suppression is done using {@link FlagAccessor#reserve()}.
+ * This suppression is done using {@link TagStoreFlagAccessor#reserve()}.
  */
 @SuppressWarnings("ConstantValue")
-public final class FlagAccessor {
+public final class TagStoreFlagAccessor {
     private static volatile boolean INITIALIZED = false;
 
     @SuppressWarnings("unused")
-    @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_$$LOCAL_flag", opcode = Opcodes.GETFIELD)
+    @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_$$LOCAL_tagStoreFlag", opcode = Opcodes.GETFIELD)
     private static boolean getFlag(Thread thread) {
         throw new AssertionError("Placeholder method was called");
     }
 
     @SuppressWarnings("unused")
-    @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_$$LOCAL_flag", opcode = Opcodes.PUTFIELD)
+    @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_$$LOCAL_tagStoreFlag", opcode = Opcodes.PUTFIELD)
     private static void setFlag(Thread thread, boolean value) {
         throw new AssertionError("Placeholder method was called");
     }

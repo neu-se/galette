@@ -14,4 +14,19 @@ public final class FloatMasks {
         TagFrame calleeFrame = TagFrame.create(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
         return BoxTypeAccessor.newFloat(value, calleeFrame);
     }
+
+    @Mask(owner = "java/lang/Float", name = "floatToRawIntBits", isStatic = true, type = MaskType.POST_PROCESS)
+    @Mask(owner = "java/lang/Float", name = "floatToIntBits", isStatic = true, type = MaskType.POST_PROCESS)
+    public static int floatToIntBits(int returnValue, float value, TagFrame frame) {
+        Tag valueTag = frame.dequeue();
+        frame.setReturnTag(valueTag);
+        return returnValue;
+    }
+
+    @Mask(owner = "java/lang/Float", name = "intBitsToFloat", isStatic = true, type = MaskType.POST_PROCESS)
+    public static float intBitsToFloat(float returnValue, int bits, TagFrame frame) {
+        Tag valueTag = frame.dequeue();
+        frame.setReturnTag(valueTag);
+        return returnValue;
+    }
 }

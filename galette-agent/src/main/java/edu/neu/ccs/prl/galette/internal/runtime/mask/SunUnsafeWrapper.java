@@ -62,4 +62,14 @@ public final class SunUnsafeWrapper implements UnsafeWrapper {
     public Object getObjectVolatile(Object o, long offset) {
         return UNSAFE.getObjectVolatile(o, offset);
     }
+
+    @Override
+    public byte compareAndExchangeByte(Object o, long offset, byte expected, byte x) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public short compareAndExchangeShort(Object o, long offset, short expected, short x) {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -13,8 +13,11 @@ class ThreadLocalAdder extends ClassVisitor {
     private static final String LOCAL_EXCEPTION_INFO_FIELD_NAME =
             GaletteTransformer.ADDED_MEMBER_PREFIX + "$$LOCAL_exceptionInfo";
     private static final String LOCAL_EXCEPTION_INFO_DESCRIPTOR = Type.getDescriptor(Object.class);
-    private static final String LOCAL_FLAG_FIELD_NAME = GaletteTransformer.ADDED_MEMBER_PREFIX + "$$LOCAL_flag";
     private static final String LOCAL_FLAG_DESCRIPTOR = Type.getDescriptor(boolean.class);
+    private static final String LOCAL_TAG_STORE_FLAG_FIELD_NAME =
+            GaletteTransformer.ADDED_MEMBER_PREFIX + "$$LOCAL_tagStoreFlag";
+    private static final String LOCAL_UNSAFE_FLAG_FIELD_NAME =
+            GaletteTransformer.ADDED_MEMBER_PREFIX + "$$LOCAL_unsafeFlag";
 
     ThreadLocalAdder(ClassVisitor classVisitor) {
         super(GaletteTransformer.ASM_VERSION, classVisitor);
@@ -25,7 +28,8 @@ class ThreadLocalAdder extends ClassVisitor {
         super.visitField(LOCAL_FIELD_ACCESS, LOCAL_FRAME_FIELD_NAME, LOCAL_FRAME_FIELD_DESCRIPTOR, null, null);
         super.visitField(
                 LOCAL_FIELD_ACCESS, LOCAL_EXCEPTION_INFO_FIELD_NAME, LOCAL_EXCEPTION_INFO_DESCRIPTOR, null, null);
-        super.visitField(LOCAL_FIELD_ACCESS, LOCAL_FLAG_FIELD_NAME, LOCAL_FLAG_DESCRIPTOR, null, false);
+        super.visitField(LOCAL_FIELD_ACCESS, LOCAL_TAG_STORE_FLAG_FIELD_NAME, LOCAL_FLAG_DESCRIPTOR, null, false);
+        super.visitField(LOCAL_FIELD_ACCESS, LOCAL_UNSAFE_FLAG_FIELD_NAME, LOCAL_FLAG_DESCRIPTOR, null, false);
         super.visitEnd();
     }
 
