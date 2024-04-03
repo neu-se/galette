@@ -13,6 +13,10 @@ public final class ArrayWrapper implements Serializable, TaggedObject {
         elements = new Tag[length];
     }
 
+    public int size() {
+        return elements.length;
+    }
+
     public Tag[] getElements() {
         return elements;
     }

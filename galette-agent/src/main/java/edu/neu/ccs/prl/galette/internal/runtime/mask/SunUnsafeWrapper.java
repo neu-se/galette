@@ -1,7 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
 import java.lang.reflect.Field;
-import java.security.ProtectionDomain;
 import org.objectweb.asm.Opcodes;
 import sun.misc.Unsafe;
 
@@ -35,7 +34,7 @@ public final class SunUnsafeWrapper implements UnsafeWrapper {
     }
 
     @Override
-    public long arrayIndexScale(Class<?> clazz) {
+    public int arrayIndexScale(Class<?> clazz) {
         return UNSAFE.arrayIndexScale(clazz);
     }
 

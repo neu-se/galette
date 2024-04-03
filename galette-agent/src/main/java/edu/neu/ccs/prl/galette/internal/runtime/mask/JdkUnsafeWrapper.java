@@ -2,7 +2,6 @@ package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
 import java.lang.reflect.Field;
 import jdk.internal.misc.Unsafe;
-import org.objectweb.asm.Opcodes;
 
 public final class JdkUnsafeWrapper implements UnsafeWrapper {
     private static final Unsafe UNSAFE = Unsafe.getUnsafe();
@@ -23,7 +22,7 @@ public final class JdkUnsafeWrapper implements UnsafeWrapper {
     }
 
     @Override
-    public long arrayIndexScale(Class<?> clazz) {
+    public int arrayIndexScale(Class<?> clazz) {
         return UNSAFE.arrayIndexScale(clazz);
     }
 

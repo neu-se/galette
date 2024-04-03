@@ -19,7 +19,7 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "compareAndSwapInt(compareSucceeds={0}, taintValue={1}, location={2})")
     @MethodSource("compareAndSwapArguments")
-    void compareAndSwapInt(boolean compareSucceeds, boolean taintValue, UnsafeLocation location)
+    void compareAndSwapInt(boolean compareSucceeds, boolean taintValue, VariableLocation location)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
         int original = location.getCategory().getInt(holder);
@@ -39,7 +39,7 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "compareAndSwapLong(compareSucceeds={0}, taintValue={1}, location={2})")
     @MethodSource("compareAndSwapArguments")
-    void compareAndSwapLong(boolean compareSucceeds, boolean taintValue, UnsafeLocation location)
+    void compareAndSwapLong(boolean compareSucceeds, boolean taintValue, VariableLocation location)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
         long original = location.getCategory().getLong(holder);
@@ -59,7 +59,7 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "compareAndSwapObject(compareSucceeds={0}, taintValue={1}, location={2})")
     @MethodSource("compareAndSwapArguments")
-    void compareAndSwapObject(boolean compareSucceeds, boolean taintValue, UnsafeLocation location)
+    void compareAndSwapObject(boolean compareSucceeds, boolean taintValue, VariableLocation location)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
         Object original = location.getCategory().getObject(holder);
@@ -79,7 +79,7 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "getBoolean(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void getBoolean(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
+    void getBoolean(boolean taintValue, VariableLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
         boolean expected = location.getCategory().getBoolean(holder);
@@ -94,7 +94,8 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "getByte(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void getByte(boolean taintValue, UnsafeLocation location, AccessPolicy policy) throws ReflectiveOperationException {
+    void getByte(boolean taintValue, VariableLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
         byte expected = location.getCategory().getByte(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, byte.class);
@@ -108,7 +109,8 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "getChar(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void getChar(boolean taintValue, UnsafeLocation location, AccessPolicy policy) throws ReflectiveOperationException {
+    void getChar(boolean taintValue, VariableLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
         char expected = location.getCategory().getChar(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, char.class);
@@ -122,7 +124,7 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "getDouble(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void getDouble(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
+    void getDouble(boolean taintValue, VariableLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
         double expected = location.getCategory().getDouble(holder);
@@ -137,7 +139,7 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "getFloat(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void getFloat(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
+    void getFloat(boolean taintValue, VariableLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
         float expected = location.getCategory().getFloat(holder);
@@ -152,7 +154,8 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "getInt(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void getInt(boolean taintValue, UnsafeLocation location, AccessPolicy policy) throws ReflectiveOperationException {
+    void getInt(boolean taintValue, VariableLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
         int expected = location.getCategory().getInt(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, int.class);
@@ -166,7 +169,8 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "getLong(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void getLong(boolean taintValue, UnsafeLocation location, AccessPolicy policy) throws ReflectiveOperationException {
+    void getLong(boolean taintValue, VariableLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
         long expected = location.getCategory().getLong(holder);
         Object[] expectedLabels = location.getExpectedLabels(taintValue, long.class);
@@ -180,7 +184,7 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "getShort(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void getShort(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
+    void getShort(boolean taintValue, VariableLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
         short expected = location.getCategory().getShort(holder);
@@ -195,7 +199,7 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "getObject(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void getObject(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
+    void getObject(boolean taintValue, VariableLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
         Object expected = location.getCategory().getObject(holder);
@@ -210,7 +214,7 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "putBoolean(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void putBoolean(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
+    void putBoolean(boolean taintValue, VariableLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
         Object[] labels = new Object[] {"set"};
@@ -230,7 +234,8 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "putByte(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void putByte(boolean taintValue, UnsafeLocation location, AccessPolicy policy) throws ReflectiveOperationException {
+    void putByte(boolean taintValue, VariableLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
         byte expected = 55;
         Object[] labels = new Object[] {"set"};
@@ -251,7 +256,8 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "putChar(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void putChar(boolean taintValue, UnsafeLocation location, AccessPolicy policy) throws ReflectiveOperationException {
+    void putChar(boolean taintValue, VariableLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
         char expected = 55;
         Object[] labels = new Object[] {"set"};
@@ -272,7 +278,7 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "putDouble(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void putDouble(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
+    void putDouble(boolean taintValue, VariableLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
         double expected = 55;
@@ -294,7 +300,7 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "putFloat(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void putFloat(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
+    void putFloat(boolean taintValue, VariableLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
         float expected = 55.0f;
@@ -316,7 +322,8 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "putInt(taintValue={0}, location={1}, policy={2})")
     @MethodSource("extendedArguments")
-    void putInt(boolean taintValue, UnsafeLocation location, AccessPolicy policy) throws ReflectiveOperationException {
+    void putInt(boolean taintValue, VariableLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
         int expected = 55;
         Object[] labels = new Object[] {"set"};
@@ -337,7 +344,8 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "putLong(taintValue={0}, location={1}, policy={2})")
     @MethodSource("extendedArguments")
-    void putLong(boolean taintValue, UnsafeLocation location, AccessPolicy policy) throws ReflectiveOperationException {
+    void putLong(boolean taintValue, VariableLocation location, AccessPolicy policy)
+            throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
         long expected = 55L;
         Object[] labels = new Object[] {"set"};
@@ -358,7 +366,7 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "putShort(taintValue={0}, location={1}, policy={2})")
     @MethodSource("arguments")
-    void putShort(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
+    void putShort(boolean taintValue, VariableLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
         short expected = 55;
@@ -380,7 +388,7 @@ public abstract class UnsafeBaseITCase {
 
     @ParameterizedTest(name = "putObject(taintValue={0}, location={1}, policy={2})")
     @MethodSource("extendedArguments")
-    void putObject(boolean taintValue, UnsafeLocation location, AccessPolicy policy)
+    void putObject(boolean taintValue, VariableLocation location, AccessPolicy policy)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue);
         Object expected = "world";
@@ -400,7 +408,7 @@ public abstract class UnsafeBaseITCase {
         }
     }
 
-    void checkWitnessLabels(boolean taintValue, UnsafeLocation location, Class<?> type, Object[] actual) {
+    void checkWitnessLabels(boolean taintValue, VariableLocation location, Class<?> type, Object[] actual) {
         if (taintValue) {
             checker.checkEmpty(actual);
         } else {
@@ -409,7 +417,7 @@ public abstract class UnsafeBaseITCase {
     }
 
     void checkCompareAndSwapLabels(
-            boolean compareSucceeds, boolean taintValue, UnsafeLocation location, Class<?> type, Object[] actual) {
+            boolean compareSucceeds, boolean taintValue, VariableLocation location, Class<?> type, Object[] actual) {
         if (taintValue && compareSucceeds) {
             checker.check(new Object[] {"update"}, actual);
         } else if (!taintValue && !compareSucceeds) {
@@ -423,16 +431,17 @@ public abstract class UnsafeBaseITCase {
 
     static Stream<Arguments> compareAndSwapArguments() {
         return BenchUtil.cartesianProduct(
-                new Boolean[] {true, false}, new Boolean[] {true, false}, UnsafeLocation.values());
+                new Boolean[] {true, false}, new Boolean[] {true, false}, VariableLocation.values());
     }
 
     static Stream<Arguments> arguments() {
-        return BenchUtil.cartesianProduct(new Boolean[] {true, false}, UnsafeLocation.values(), new AccessPolicy[] {
+        return BenchUtil.cartesianProduct(new Boolean[] {true, false}, VariableLocation.values(), new AccessPolicy[] {
             AccessPolicy.NORMAL, AccessPolicy.VOLATILE
         });
     }
 
     static Stream<Arguments> extendedArguments() {
-        return BenchUtil.cartesianProduct(new Boolean[] {true, false}, UnsafeLocation.values(), AccessPolicy.values());
+        return BenchUtil.cartesianProduct(
+                new Boolean[] {true, false}, VariableLocation.values(), AccessPolicy.values());
     }
 }

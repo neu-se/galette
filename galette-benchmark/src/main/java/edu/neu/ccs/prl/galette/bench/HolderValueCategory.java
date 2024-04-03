@@ -568,7 +568,11 @@ enum HolderValueCategory {
         }
     }
 
+    public String getFieldName(Class<?> baseType) {
+        return Holder.getBasicName(baseType) + suffix();
+    }
+
     public Field getField(Class<?> baseType) throws NoSuchFieldException {
-        return Holder.class.getDeclaredField(Holder.getBasicName(baseType) + suffix());
+        return Holder.class.getDeclaredField(getFieldName(baseType));
     }
 }

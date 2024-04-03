@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import jdk.internal.misc.Unsafe;
 
 public class JdkUnsafeAdapter implements UnsafeAdapter {
-    private static final Unsafe UNSAFE = Unsafe.getUnsafe();
+    public static final Unsafe UNSAFE = Unsafe.getUnsafe();
 
     @Override
     public long objectFieldOffset(Field f) {

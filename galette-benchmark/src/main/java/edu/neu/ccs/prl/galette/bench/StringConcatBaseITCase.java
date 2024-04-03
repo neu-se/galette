@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 @FlowBench
 @SuppressWarnings({"ConstantValue", "DuplicatedCode"})
-public abstract class StringConcatITCase {
+public abstract class StringConcatBaseITCase {
     @SuppressWarnings("unused")
     TagManager manager;
 

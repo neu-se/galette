@@ -4,7 +4,7 @@ import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
 
 @EnabledForJreRange(min = JRE.JAVA_11)
-public class StringIndyConcatITCase extends StringConcatITCase {
+public class StringIndyConcatITCase extends StringConcatBaseITCase {
     @Override
     ConcatAdapter getAdapter() {
         return new IndyConcatAdapter();

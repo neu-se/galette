@@ -38,6 +38,12 @@ public final class BenchUtil {
         return result;
     }
 
+    public static void taintWithIndices(TagManager manager, byte[] a) {
+        for (int i = 0; i < a.length; i++) {
+            a[i] = manager.setLabels(a[i], new String[] {String.valueOf(i)});
+        }
+    }
+
     public static void taintWithIndices(TagManager manager, int[] a) {
         for (int i = 0; i < a.length; i++) {
             a[i] = manager.setLabels(a[i], new String[] {String.valueOf(i)});

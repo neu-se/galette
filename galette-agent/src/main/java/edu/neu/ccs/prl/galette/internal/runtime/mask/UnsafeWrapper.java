@@ -10,7 +10,7 @@ public interface UnsafeWrapper {
 
     long staticFieldOffset(Field f);
 
-    long arrayIndexScale(Class<?> clazz);
+    int arrayIndexScale(Class<?> clazz);
 
     int arrayBaseOffset(Class<?> arrayClass);
 

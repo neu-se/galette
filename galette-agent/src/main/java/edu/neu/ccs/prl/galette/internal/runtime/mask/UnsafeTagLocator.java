@@ -1,6 +1,7 @@
 package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
 import edu.neu.ccs.prl.galette.internal.runtime.ArrayTagStore;
+import edu.neu.ccs.prl.galette.internal.runtime.ArrayWrapper;
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.SimpleList;
 import edu.neu.ccs.prl.galette.internal.transform.ShadowFieldAdder;
@@ -21,11 +22,10 @@ public final class UnsafeTagLocator {
         initialized = true;
     }
 
-    static void putTag(Object o, long offset, Tag offsetTag, Tag tag) {
+    static void putTag(Object o, long offset, Tag offsetTag, Tag tag, Class<?> arrayType) {
         if (initialized && o != null) {
             if (o.getClass().isArray()) {
-                int index = computeArrayIndex(o, offset);
-                ArrayTagStore.setTag(o, index, Tag.getEmptyTag(), offsetTag, tag);
+                putArrayTag(o, offset, offsetTag, tag, arrayType, false);
             } else {
                 long shadowOffset = getShadowOffset(o, offset);
                 if (shadowOffset != UNSAFE.getInvalidFieldOffset()) {
@@ -35,12 +35,10 @@ public final class UnsafeTagLocator {
         }
     }
 
-    static void putTagVolatile(Object o, long offset, Tag offsetTag, Tag tag) {
+    static void putTagVolatile(Object o, long offset, Tag offsetTag, Tag tag, Class<?> arrayType) {
         if (initialized && o != null) {
             if (o.getClass().isArray()) {
-                int index = computeArrayIndex(o, offset);
-                long shadowOffset = UNSAFE.arrayBaseOffset(Tag[].class) + UNSAFE.arrayIndexScale(Tag[].class) * index;
-                ArrayTagStore.setTagVolatile(UNSAFE, o, offsetTag, tag, shadowOffset);
+                putArrayTag(o, offset, offsetTag, tag, arrayType, true);
             } else {
                 long shadowOffset = getShadowOffset(o, offset);
                 if (shadowOffset != UNSAFE.getInvalidFieldOffset()) {
@@ -50,11 +48,42 @@ public final class UnsafeTagLocator {
         }
     }
 
-    static Tag getTag(Object o, long offset, Tag offsetTag) {
+    private static void putArrayTag(
+            Object array, long offset, Tag offsetTag, Tag tag, Class<?> arrayType, boolean volatileAccess) {
+        // Propagate the array index's tag
+        tag = Tag.union(offsetTag, tag);
+        ArrayWrapper wrapper = ArrayTagStore.getWrapper(array, tag);
+        if (wrapper != null) {
+            int index = computeArrayIndex(array, offset);
+            int scale = UNSAFE.arrayIndexScale(array.getClass());
+            int typeScale = UNSAFE.arrayIndexScale(arrayType);
+            if (scale >= typeScale) {
+                // Aligned access, or partial value unaligned
+                putArrayTag(wrapper, index, tag, volatileAccess);
+            } else {
+                // Unaligned access
+                int count = typeScale / scale;
+                for (int i = 0; i < count && index + i < wrapper.size(); i++) {
+                    putArrayTag(wrapper, index + i, tag, volatileAccess);
+                }
+            }
+        }
+    }
+
+    private static void putArrayTag(ArrayWrapper wrapper, int index, Tag tag, boolean volatileAccess) {
+        if (volatileAccess) {
+            long shadowOffset =
+                    UNSAFE.arrayBaseOffset(Tag[].class) + (long) UNSAFE.arrayIndexScale(Tag[].class) * index;
+            UNSAFE.putObjectVolatile(wrapper.getElements(), shadowOffset, tag);
+        } else {
+            wrapper.setElement(tag, index);
+        }
+    }
+
+    static Tag getTag(Object o, long offset, Tag offsetTag, Class<?> arrayType) {
         if (initialized && o != null) {
             if (o.getClass().isArray()) {
-                int index = computeArrayIndex(o, offset);
-                return ArrayTagStore.getTag(o, index, Tag.getEmptyTag(), offsetTag);
+                return getArrayTag(o, offset, offsetTag, arrayType, false);
             } else {
                 long shadowOffset = getShadowOffset(o, offset);
                 if (shadowOffset != UNSAFE.getInvalidFieldOffset()) {
@@ -68,12 +97,10 @@ public final class UnsafeTagLocator {
         return Tag.getEmptyTag();
     }
 
-    static Tag getTagVolatile(Object o, long offset, Tag offsetTag) {
+    static Tag getTagVolatile(Object o, long offset, Tag offsetTag, Class<?> arrayType) {
         if (initialized && o != null) {
             if (o.getClass().isArray()) {
-                int index = computeArrayIndex(o, offset);
-                long shadowOffset = UNSAFE.arrayBaseOffset(Tag[].class) + UNSAFE.arrayIndexScale(Tag[].class) * index;
-                return ArrayTagStore.getTagVolatile(UNSAFE, o, offsetTag, shadowOffset);
+                return getArrayTag(o, offset, offsetTag, arrayType, true);
             } else {
                 long shadowOffset = getShadowOffset(o, offset);
                 if (shadowOffset != UNSAFE.getInvalidFieldOffset()) {
@@ -85,6 +112,39 @@ public final class UnsafeTagLocator {
             }
         }
         return Tag.getEmptyTag();
+    }
+
+    private static Tag getArrayTag(
+            Object array, long offset, Tag offsetTag, Class<?> arrayType, boolean volatileAccess) {
+        ArrayWrapper wrapper = ArrayTagStore.getWrapper(array);
+        // Propagate the array index's tag
+        Tag result = offsetTag;
+        if (wrapper != null) {
+            int index = computeArrayIndex(array, offset);
+            int scale = UNSAFE.arrayIndexScale(array.getClass());
+            int typeScale = UNSAFE.arrayIndexScale(arrayType);
+            if (scale >= typeScale) {
+                // Aligned access, or partial value unaligned
+                result = Tag.union(result, getArrayTag(wrapper, index, volatileAccess));
+            } else {
+                // Unaligned access
+                int count = typeScale / scale;
+                for (int i = 0; i < count && index + i < wrapper.size(); i++) {
+                    result = Tag.union(result, getArrayTag(wrapper, index + i, volatileAccess));
+                }
+            }
+        }
+        return result;
+    }
+
+    private static Tag getArrayTag(ArrayWrapper wrapper, int index, boolean volatileAccess) {
+        if (volatileAccess) {
+            long shadowOffset =
+                    UNSAFE.arrayBaseOffset(Tag[].class) + (long) UNSAFE.arrayIndexScale(Tag[].class) * index;
+            return (Tag) UNSAFE.getObjectVolatile(wrapper.getElements(), shadowOffset);
+        } else {
+            return wrapper.getElement(index);
+        }
     }
 
     private static long getShadowOffset(Object o, long offset) {

@@ -1,7 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.runtime;
 
 import edu.neu.ccs.prl.galette.internal.runtime.collection.WeakIdentityHashMap;
-import edu.neu.ccs.prl.galette.internal.runtime.mask.UnsafeWrapper;
 import java.lang.reflect.Array;
 
 /**
@@ -73,17 +72,6 @@ public final class ArrayTagStore {
         return wrapper == null ? indexTag : Tag.union(indexTag, wrapper.getElement(index));
     }
 
-    public static Tag getTagVolatile(UnsafeWrapper unsafe, Object array, Tag indexTag, long offset) {
-        ArrayWrapper wrapper = getWrapper(array);
-        // Propagate the array index's tag
-        if (wrapper == null) {
-            return indexTag;
-        } else {
-            Tag elementTag = (Tag) unsafe.getObjectVolatile(wrapper.getElements(), offset);
-            return Tag.union(indexTag, elementTag);
-        }
-    }
-
     @InvokedViaHandle(handle = Handle.ARRAY_TAG_STORE_SET_TAG)
     public static void setTag(Object array, int index, Tag arrayTag, Tag indexTag, Tag valueTag) {
         // Propagate the array index's tag
@@ -91,15 +79,6 @@ public final class ArrayTagStore {
         ArrayWrapper wrapper = getWrapper(array, tag);
         if (wrapper != null) {
             wrapper.setElement(tag, index);
-        }
-    }
-
-    public static void setTagVolatile(UnsafeWrapper unsafe, Object array, Tag indexTag, Tag valueTag, long offset) {
-        // Propagate the array index's tag
-        Tag tag = Tag.union(indexTag, valueTag);
-        ArrayWrapper wrapper = getWrapper(array, tag);
-        if (wrapper != null) {
-            unsafe.putObjectVolatile(wrapper.getElements(), offset, tag);
         }
     }
 
@@ -119,7 +98,7 @@ public final class ArrayTagStore {
         }
     }
 
-    private static synchronized ArrayWrapper getWrapper(Object array, Tag tag) {
+    public static synchronized ArrayWrapper getWrapper(Object array, Tag tag) {
         ArrayWrapper wrapper = getWrapper(array);
         if (wrapper == null) {
             if (array != null && !Tag.isEmpty(tag)) {
