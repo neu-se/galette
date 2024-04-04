@@ -4,19 +4,19 @@ Galette is a system for performing dynamic taint tracking in the Java Virtual Ma
 Galette uses Java bytecode instrumentation to associate labels, also called "taint tags",
 with program data and to propagate these labels along information "flows" at runtime.
 
-Galette requires Java 11 to build, but it can also be used on Java 8.
+Galette requires Java 17 to build, but it can also be used on Java 8.
 
 ## Building Galette
 
 ### Requirements
 
-* Java Development Kit (JDK) 11
+* Java Development Kit (JDK) 17
 * [Apache Maven](https://maven.apache.org/) 3.6.0+
 
 ### Steps
 
 1. Clone or download this repository.
-2. Ensure that some version of the JDK 11 is installed.
+2. Ensure that some version of the JDK 17 is installed.
    We recommend using a JDK from [Oracle](https://www.oracle.com/java/technologies/downloads/),
    the [Adoptium Working Group](https://adoptium.net/temurin/releases/), or [Amazon](https://aws.amazon.com/corretto/).
 3. Set the JAVA_HOME environmental variable to the path of this JDK installation.
@@ -30,8 +30,8 @@ Galette requires Java 11 to build, but it can also be used on Java 8.
 ## Running Galette's Tests
 
 Once you have built Galette according to the directions described above, you can run the tests and examples.
-Although Galette currently requires Java 11 to build, it can also be used on Java 8.
-If you would like to run Galette's tests on Java 8, build Galette using Java 11, then change the
+Although Galette currently requires Java 17 to build, it can also be used on Java 8.
+If you would like to run Galette's tests on Java 8, build Galette using Java 17, then change the
 `JAVA_HOME` environmental variable to the path of a JDK 8 installation before running the tests.
 To run the root directory of this project, run `mvn -pl :galette-integration-tests verify`.
 The first time you run this command, Maven will invoke the Galette Maven plugin to create

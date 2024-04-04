@@ -49,6 +49,7 @@
                             <fork>true</fork>
                             <excludes>
                                 <exclude>**/IndyConcatAdapter.java</exclude>
+                                <exclude>**/RecordTypeITCase*.java</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -69,6 +70,23 @@
                             </includes>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>compile-16</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <release>16</release>
+                            <compilerArgs>
+                                <arg>-XDignore.symbol.file</arg>
+                            </compilerArgs>
+                            <fork>true</fork>
+                            <includes>
+                                <include>**/RecordTypeITCase*.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -84,9 +102,27 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>[9,)</version>
+                                    <version>[16,)</version>
                                 </requireJavaVersion>
                             </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadoc</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <sourcepath>${project.build.sourceDirectory}/edu/neu/ccs/prl/galette/bench/</sourcepath>
+                            <sourceFileExcludes>
+                                <sourceFileExclude>**/RecordTypeITCase.java</sourceFileExclude>
+                            </sourceFileExcludes>
                         </configuration>
                     </execution>
                 </executions>
