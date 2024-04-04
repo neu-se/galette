@@ -18,32 +18,4 @@ public class RecordTypeITCase {
     void toStringInt() {}
 
     void hashCodeInt() {}
-
-    void localRecord() {
-        record IntLongPair(int x, long y) {}
-        int x = 7;
-        long y = 40L;
-        IntLongPair pair = new IntLongPair(x, y);
-        pair.x();
-    }
-
-    record BooleanRecord(boolean value) {}
-
-    record ByteRecord(byte value) {}
-
-    record CharRecord(char value) {}
-
-    record FloatRecord(float value) {}
-
-    record DoubleRecord(double value) {}
-
-    record IntRecord(int value) {}
-
-    record LongRecord(long value) {}
-
-    record ShortRecord(short value) {}
-
-    record ObjectRecord(Object value) {}
-
-    record IntArrayRecord(int[] value) {}
 }

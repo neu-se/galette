@@ -49,7 +49,7 @@
                             <fork>true</fork>
                             <excludes>
                                 <exclude>**/IndyConcatAdapter.java</exclude>
-                                <exclude>**/RecordTypeITCase*.java</exclude>
+                                <exclude>**/RecordTypes*.java</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -83,7 +83,7 @@
                             </compilerArgs>
                             <fork>true</fork>
                             <includes>
-                                <include>**/RecordTypeITCase*.java</include>
+                                <include>**/RecordTypes*.java</include>
                             </includes>
                         </configuration>
                     </execution>
@@ -121,7 +121,7 @@
                         <configuration>
                             <sourcepath>${project.build.sourceDirectory}/edu/neu/ccs/prl/galette/bench/</sourcepath>
                             <sourceFileExcludes>
-                                <sourceFileExclude>**/RecordTypeITCase.java</sourceFileExclude>
+                                <sourceFileExclude>**/RecordTypes*.java</sourceFileExclude>
                             </sourceFileExcludes>
                         </configuration>
                     </execution>
