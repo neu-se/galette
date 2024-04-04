@@ -3,6 +3,7 @@ package edu.neu.ccs.prl.galette.internal.runtime.mask;
 import edu.neu.ccs.prl.galette.internal.runtime.PrimitiveBoxer;
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.transform.Configuration;
 import edu.neu.ccs.prl.galette.internal.transform.GaletteTransformer;
 import java.security.ProtectionDomain;
 
@@ -369,8 +370,17 @@ public final class UnsafeMasks {
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndExchangeObject", type = MaskType.POST_PROCESS)
-    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndExchangeReference", type = MaskType.POST_PROCESS)
     public static Object compareAndExchangeObject(
+            Object result, Object receiver, Object o, long offset, Object expected, Object x, TagFrame frame) {
+        if (Configuration.getJavaVersion() <= 11) {
+            // In Java 12, compareAndExchangeObject was replaced with compareAndExchangeReference
+            compareAndExchange(frame, o, offset, result == expected, Object[].class);
+        }
+        return result;
+    }
+
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndExchangeReference", type = MaskType.POST_PROCESS)
+    public static Object compareAndExchangeReference(
             Object result, Object receiver, Object o, long offset, Object expected, Object x, TagFrame frame) {
         compareAndExchange(frame, o, offset, result == expected, Object[].class);
         return result;

@@ -8,6 +8,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+@SuppressWarnings("Since15")
 public class ConfigurationEmbedder extends ClassVisitor {
     private static final String TARGET_METHOD_NAME = "<clinit>";
 
@@ -23,9 +24,10 @@ public class ConfigurationEmbedder extends ClassVisitor {
                 ? new MethodVisitor(api, mv) {
                     @Override
                     public void visitFieldInsn(int opcode, String owner, String name, String descriptor) {
-                        if (name.equals("IS_JAVA_8")) {
+                        if (name.equals("JAVA_VERSION")) {
                             super.visitInsn(Opcodes.POP);
-                            AsmUtil.pushInt(this.mv, 0);
+                            int version = Runtime.version().feature();
+                            AsmUtil.pushInt(this.mv, version);
                         }
                         super.visitFieldInsn(opcode, owner, name, descriptor);
                     }

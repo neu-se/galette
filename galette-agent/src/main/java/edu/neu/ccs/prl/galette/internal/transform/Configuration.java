@@ -8,7 +8,7 @@ public final class Configuration {
      * The value of this field is changed to false by the {@link ConfigurationEmbedder} for Java 9+.
      * This field cannot be marked as final to prevent its value from being inlined.
      */
-    private static boolean IS_JAVA_8 = true;
+    private static int JAVA_VERSION = 8;
     /**
      * {@code true} if taint tags should be written and read when serializing objects using
      * {@link java.io.ObjectInputStream} and {@link java.io.ObjectOutputStream}.
@@ -20,7 +20,11 @@ public final class Configuration {
     }
 
     public static boolean isJava8() {
-        return IS_JAVA_8;
+        return JAVA_VERSION == 8;
+    }
+
+    public static int getJavaVersion() {
+        return JAVA_VERSION;
     }
 
     public static boolean isPropagateThroughSerialization() {
