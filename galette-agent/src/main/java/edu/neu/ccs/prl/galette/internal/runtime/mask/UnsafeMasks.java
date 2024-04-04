@@ -369,6 +369,7 @@ public final class UnsafeMasks {
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndExchangeObject", type = MaskType.POST_PROCESS)
+    @Mask(owner = "jdk/internal/misc/Unsafe", name = "compareAndExchangeReference", type = MaskType.POST_PROCESS)
     public static Object compareAndExchangeObject(
             Object result, Object receiver, Object o, long offset, Object expected, Object x, TagFrame frame) {
         compareAndExchange(frame, o, offset, result == expected, Object[].class);
