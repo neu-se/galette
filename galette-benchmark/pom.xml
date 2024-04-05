@@ -54,13 +54,13 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>compile-11</id>
+                        <id>compile-9</id>
                         <phase>process-sources</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>
                         <configuration>
-                            <release>11</release>
+                            <release>9</release>
                             <compilerArgs>
                                 <arg>-XDignore.symbol.file</arg>
                             </compilerArgs>
