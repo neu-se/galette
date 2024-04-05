@@ -55,7 +55,7 @@
                     </execution>
                     <execution>
                         <id>compile-11</id>
-                        <phase>compile</phase>
+                        <phase>process-sources</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>
@@ -72,7 +72,7 @@
                     </execution>
                     <execution>
                         <id>compile-16</id>
-                        <phase>compile</phase>
+                        <phase>process-sources</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>
@@ -119,10 +119,10 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <sourcepath>${project.build.sourceDirectory}/edu/neu/ccs/prl/galette/bench/</sourcepath>
-                            <sourceFileExcludes>
-                                <sourceFileExclude>**/RecordTypes*.java</sourceFileExclude>
-                            </sourceFileExcludes>
+                            <source>16</source>
+                            <additionalJOption>
+                                --add-exports=java.base/jdk.internal.misc=ALL-UNNAMED
+                            </additionalJOption>
                         </configuration>
                     </execution>
                 </executions>

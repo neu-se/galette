@@ -1,6 +1,6 @@
 package edu.neu.ccs.prl.galette.bench;
 
-public class RecordTypes {
+public final class RecordTypes {
     record BooleanRecord(boolean value) {}
 
     record ByteRecord(byte value) {}
@@ -19,5 +19,21 @@ public class RecordTypes {
 
     record ObjectRecord(Object value) {}
 
+    record BooleanArrayRecord(boolean[] value) {}
+
+    record ByteArrayRecord(byte[] value) {}
+
+    record CharArrayRecord(char[] value) {}
+
+    record FloatArrayRecord(float[] value) {}
+
+    record DoubleArrayRecord(double[] value) {}
+
+    record ShortArrayRecord(short[] value) {}
+
     record IntArrayRecord(int[] value) {}
+
+    record LongArrayRecord(long[] value) {}
+
+    record ObjectArrayRecord(Object[] value) {}
 }

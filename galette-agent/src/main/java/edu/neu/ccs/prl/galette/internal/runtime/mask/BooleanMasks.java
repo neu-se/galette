@@ -58,4 +58,12 @@ public final class BooleanMasks {
         frame.setReturnTag(tag);
         return StringAccessor.setCharTags(returnValue, tag);
     }
+
+    @Mask(owner = "java/lang/Boolean", name = "hashCode", isStatic = true, type = MaskType.POST_PROCESS)
+    public static int hashCode(int returnValue, boolean value, TagFrame frame) {
+        Tag valueTag = frame.dequeue();
+        Tag tag = Tag.union(frame.getReturnTag(), valueTag);
+        frame.setReturnTag(tag);
+        return returnValue;
+    }
 }
