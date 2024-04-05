@@ -11,20 +11,17 @@
     <artifactId>galette-evaluation-tools</artifactId>
     <properties>
         <java.args> </java.args>
-        <report.dir>${project.build.directory}/flow-reports/</report.dir>
+        <flow.report>${project.build.directory}/flow-report.csv</flow.report>
         <!--suppress UnresolvedMavenProperty -->
         <mirror-taint.agentJar>${com.shadow.taint:taint-agent-core:jar}</mirror-taint.agentJar>
-        <mirror-taint.report>${report.dir}/mirror-taint.csv</mirror-taint.report>
         <!--suppress UnresolvedMavenProperty -->
         <phosphor.agentJar>${edu.gmu.swe.phosphor:Phosphor:jar}</phosphor.agentJar>
         <phosphor.java>${project.build.directory}/phosphor/java</phosphor.java>
         <phosphor.cache>${project.build.directory}/phosphor/cache</phosphor.cache>
-        <phosphor.report>${report.dir}/phosphor.csv</phosphor.report>
         <!--suppress UnresolvedMavenProperty -->
         <galette.agentJar>${edu.neu.ccs.prl.galette:galette-agent:jar}</galette.agentJar>
         <galette.java>${project.build.directory}/galette/java/</galette.java>
         <galette.cache>${project.build.directory}/galette/cache</galette.cache>
-        <galette.report>${report.dir}/galette.csv</galette.report>
     </properties>
     <dependencies>
         <dependency>
@@ -79,30 +76,6 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-clean-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>delete-report</id>
-                                <phase>process-test-resources</phase>
-                                <goals>
-                                    <goal>clean</goal>
-                                </goals>
-                                <configuration>
-                                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
-                                    <filesets>
-                                        <fileset>
-                                            <directory>${report.dir}</directory>
-                                            <includes>
-                                                <include>**/mirror-taint.csv</include>
-                                            </includes>
-                                        </fileset>
-                                    </filesets>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <executions>
                             <execution>
@@ -116,7 +89,7 @@
                                     <reuseForks>false</reuseForks>
                                     <argLine>
                                         -Dflow.report.append=true
-                                        -Dflow.report=${mirror-taint.report}
+                                        -Dflow.report=${flow.report}
                                         -Dflow.manager=edu.neu.ccs.prl.galette.eval.MirrorTaintTagManager
                                         -Xbootclasspath/a:${mirror-taint.agentJar}
                                         -javaagent:${mirror-taint.agentJar}
@@ -139,30 +112,6 @@
             <id>phosphor</id>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-clean-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>delete-report</id>
-                                <phase>process-test-resources</phase>
-                                <goals>
-                                    <goal>clean</goal>
-                                </goals>
-                                <configuration>
-                                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
-                                    <filesets>
-                                        <fileset>
-                                            <directory>${report.dir}</directory>
-                                            <includes>
-                                                <include>**/phosphor.csv</include>
-                                            </includes>
-                                        </fileset>
-                                    </filesets>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>edu.gmu.swe.phosphor</groupId>
                         <artifactId>phosphor-instrument-maven-plugin</artifactId>
@@ -206,7 +155,7 @@
                                     <reuseForks>false</reuseForks>
                                     <argLine>
                                         -Dflow.report.append=true
-                                        -Dflow.report=${phosphor.report}
+                                        -Dflow.report=${flow.report}
                                         -Dflow.manager=edu.neu.ccs.prl.galette.eval.PhosphorTagManager
                                         -DphosphorCacheDirectory=${phosphor.cache}
                                         -Xbootclasspath/a:${phosphor.agentJar}
@@ -230,30 +179,6 @@
             <id>galette</id>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-clean-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>delete-report</id>
-                                <phase>process-test-resources</phase>
-                                <goals>
-                                    <goal>clean</goal>
-                                </goals>
-                                <configuration>
-                                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
-                                    <filesets>
-                                        <fileset>
-                                            <directory>${report.dir}</directory>
-                                            <includes>
-                                                <include>**/galette.csv</include>
-                                            </includes>
-                                        </fileset>
-                                    </filesets>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                     <plugin>
                         <groupId>edu.neu.ccs.prl.galette</groupId>
                         <artifactId>galette-maven-plugin</artifactId>
@@ -289,7 +214,7 @@
                                     <jvm>${galette.java}/bin/java</jvm>
                                     <argLine>
                                         -Dflow.report.append=true
-                                        -Dflow.report=${galette.report}
+                                        -Dflow.report=${flow.report}
                                         -Dflow.manager=edu.neu.ccs.prl.galette.bench.extension.GaletteTagManager
                                         -Dgalette.cache=${galette.cache}
                                         -Xbootclasspath/a:${galette.agentJar}
