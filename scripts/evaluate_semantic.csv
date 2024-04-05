@@ -1,8 +1,24 @@
-temurin 8 galette
-temurin 11 galette
-temurin 17 galette
-temurin 21 galette
-corretto 8 galette
-corretto 11 galette
-corretto 17 galette
-corretto 21 galette
+temurin,8,galette
+temurin,11,galette
+temurin,17,galette
+temurin,21,galette
+corretto,8,galette
+corretto,11,galette
+corretto,17,galette
+corretto,21,galette
+temurin,8,phosphor
+temurin,11,phosphor
+temurin,17,phosphor
+temurin,21,phosphor
+corretto,8,phosphor
+corretto,11,phosphor
+corretto,17,phosphor
+corretto,21,phosphor
+temurin,8,mirror-taint
+temurin,11,mirror-taint
+temurin,17,mirror-taint
+temurin,21,mirror-taint
+corretto,8,mirror-taint
+corretto,11,mirror-taint
+corretto,17,mirror-taint
+corretto,21,mirror-taint

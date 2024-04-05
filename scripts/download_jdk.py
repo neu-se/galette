@@ -12,21 +12,21 @@ JDK_URL_TEMPLATES = {
 }
 
 JDKS = {
-    ('temurin', '8'): ('jdk8u402-b06', '8u402b06'),
-    ('temurin', '11'): ('jdk-11.0.22%2B7', '11.0.22_7'),
-    ('temurin', '17'): ('jdk-17.0.10%2B7', '17.0.10_7'),
-    ('temurin', '21'): ('jdk-21.0.2%2B13', '21.0.2_13'),
-    ('corretto', '8'): '8.402.08.1',
-    ('corretto', '11'): '11.0.22.7.1',
-    ('corretto', '17'): '17.0.10.8.1',
-    ('corretto', '21'): '21.0.2.14.1',
-    ('oracle', '17'): '17.0.10',
-    ('oracle', '21'): '21.0.2'
+    ('temurin', '8'): ['jdk8u402-b06', '8u402b06'],
+    ('temurin', '11'): ['jdk-11.0.22%2B7', '11.0.22_7'],
+    ('temurin', '17'): ['jdk-17.0.10%2B7', '17.0.10_7'],
+    ('temurin', '21'): ['jdk-21.0.2%2B13', '21.0.2_13'],
+    ('corretto', '8'): ['8.402.08.1'],
+    ('corretto', '11'): ['11.0.22.7.1'],
+    ('corretto', '17'): ['17.0.10.8.1'],
+    ('corretto', '21'): ['21.0.2.14.1'],
+    ('oracle', '17'): ['17.0.10'],
+    ('oracle', '21'): ['21.0.2']
 }
 
 
 def download(output_dir, vendor, version):
-    info = tuple(JDKS[(vendor, version)])
+    info = JDKS[(vendor, version)]
     url = JDK_URL_TEMPLATES[vendor].format(vendor, version, *info)
     jdk_dir = os.path.join(output_dir, vendor, version)
     os.makedirs(jdk_dir, exist_ok=True)
