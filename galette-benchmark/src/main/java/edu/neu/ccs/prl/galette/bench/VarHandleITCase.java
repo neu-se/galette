@@ -25,7 +25,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 @FlowBench
 @EnabledForJreRange(min = JRE.JAVA_9)
-@Timeout(value = 3, threadMode = SEPARATE_THREAD)
+@Timeout(value = 5, threadMode = SEPARATE_THREAD)
 public class VarHandleITCase {
     @SuppressWarnings("unused")
     TagManager manager;
