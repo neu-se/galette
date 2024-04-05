@@ -1,6 +1,7 @@
 package edu.neu.ccs.prl.galette.bench;
 
 import static edu.neu.ccs.prl.galette.bench.VarHandleHelper.*;
+import static org.junit.jupiter.api.Timeout.ThreadMode.SEPARATE_THREAD;
 
 import edu.neu.ccs.prl.galette.bench.extension.FlowBench;
 import edu.neu.ccs.prl.galette.bench.extension.FlowChecker;
@@ -14,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -23,6 +25,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 @FlowBench
 @EnabledForJreRange(min = JRE.JAVA_9)
+@Timeout(value = 3, threadMode = SEPARATE_THREAD)
 public class VarHandleITCase {
     @SuppressWarnings("unused")
     TagManager manager;
