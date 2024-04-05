@@ -10,20 +10,31 @@
     </parent>
     <artifactId>galette-evaluation-tools</artifactId>
     <properties>
-        <java.args> </java.args>
+        <!--suppress CheckTagEmptyBody -->
+        <java.arg1></java.arg1>
+        <!--suppress CheckTagEmptyBody -->
+        <java.arg2></java.arg2>
         <flow.report>${project.build.directory}/flow-report.csv</flow.report>
         <!--suppress UnresolvedMavenProperty -->
         <mirror-taint.agentJar>${com.shadow.taint:taint-agent-core:jar}</mirror-taint.agentJar>
         <!--suppress UnresolvedMavenProperty -->
+        <mirror-taint.java>${JAVA_HOME}</mirror-taint.java>
+        <!--suppress UnresolvedMavenProperty -->
         <phosphor.agentJar>${edu.gmu.swe.phosphor:Phosphor:jar}</phosphor.agentJar>
         <phosphor.java>${project.build.directory}/phosphor/java</phosphor.java>
-        <phosphor.cache>${project.build.directory}/phosphor/cache</phosphor.cache>
         <!--suppress UnresolvedMavenProperty -->
         <galette.agentJar>${edu.neu.ccs.prl.galette:galette-agent:jar}</galette.agentJar>
         <galette.java>${project.build.directory}/galette/java/</galette.java>
-        <galette.cache>${project.build.directory}/galette/cache</galette.cache>
+        <!--suppress UnresolvedMavenProperty -->
+        <benchmark.jar>${edu.neu.ccs.prl.galette:galette-benchmark:jar}</benchmark.jar>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-console-standalone</artifactId>
+            <version>1.10.0</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>edu.neu.ccs.prl.galette</groupId>
             <artifactId>galette-agent</artifactId>
@@ -58,6 +69,114 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>galette</id>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${galette.java}/bin/java</executable>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>-Dflow.report=${flow.report}</argument>
+                                <argument>-Xbootclasspath/a:${galette.agentJar}</argument>
+                                <argument>-javaagent:${galette.agentJar}</argument>
+                                <argument>
+                                    -Dflow.manager=edu.neu.ccs.prl.galette.bench.extension.GaletteTagManager
+                                </argument>
+                                <argument>${java.arg1}</argument>
+                                <argument>${java.arg2}</argument>
+                                <argument>-Xmx8G</argument>
+                                <argument>-ea</argument>
+                                <argument>
+                                    org.junit.platform.console.ConsoleLauncher
+                                </argument>
+                                <argument>execute</argument>
+                                <argument>--disable-banner</argument>
+                                <argument>--disable-ansi-colors</argument>
+                                <argument>--details=testfeed</argument>
+                                <argument>--scan-classpath=${benchmark.jar}</argument>
+                                <argument>--include-classname=.*ITCase</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>mirror-taint</id>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${mirror-taint.java}/bin/java</executable>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>-Dflow.report=${flow.report}</argument>
+                                <argument>-Xbootclasspath/a:${mirror-taint.agentJar}</argument>
+                                <argument>-javaagent:${mirror-taint.agentJar}</argument>
+                                <argument>
+                                    -Dflow.manager=edu.neu.ccs.prl.galette.eval.MirrorTaintTagManager
+                                </argument>
+                                <argument>${java.arg1}</argument>
+                                <argument>${java.arg2}</argument>
+                                <argument>-Xmx8G</argument>
+                                <argument>-ea</argument>
+                                <argument>
+                                    org.junit.platform.console.ConsoleLauncher
+                                </argument>
+                                <argument>execute</argument>
+                                <argument>--disable-banner</argument>
+                                <argument>--disable-ansi-colors</argument>
+                                <argument>--details=testfeed</argument>
+                                <argument>--scan-classpath=${benchmark.jar}</argument>
+                                <argument>--include-classname=.*ITCase</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>phosphor</id>
+                        <phase>none</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${phosphor.java}/bin/java</executable>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath/>
+                                <argument>-Dflow.report=${flow.report}</argument>
+                                <argument>-Xbootclasspath/a:${phosphor.agentJar}</argument>
+                                <argument>-javaagent:${phosphor.agentJar}=enum,acmpeq</argument>
+                                <argument>
+                                    -Dflow.manager=edu.neu.ccs.prl.galette.eval.PhosphorTagManager
+                                </argument>
+                                <argument>${java.arg1}</argument>
+                                <argument>${java.arg2}</argument>
+                                <argument>-Xmx8G</argument>
+                                <argument>-ea</argument>
+                                <argument>
+                                    org.junit.platform.console.ConsoleLauncher
+                                </argument>
+                                <argument>execute</argument>
+                                <argument>--disable-banner</argument>
+                                <argument>--disable-ansi-colors</argument>
+                                <argument>--details=testfeed</argument>
+                                <argument>--scan-classpath=${benchmark.jar}</argument>
+                                <argument>--include-classname=.*ITCase</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -67,46 +186,12 @@
                 <jdk>[9,)</jdk>
             </activation>
             <properties>
-                <java.args>--add-exports java.base/jdk.internal.misc=ALL-UNNAMED</java.args>
+                <java.arg1>--add-exports</java.arg1>
+                <java.arg2>java.base/jdk.internal.misc=ALL-UNNAMED</java.arg2>
             </properties>
         </profile>
         <profile>
             <id>mirror-taint</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>mirror-taint</id>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                                <phase>integration-test</phase>
-                                <configuration>
-                                    <reuseForks>false</reuseForks>
-                                    <argLine>
-                                        -Dflow.report.append=true
-                                        -Dflow.report=${flow.report}
-                                        -Dflow.manager=edu.neu.ccs.prl.galette.eval.MirrorTaintTagManager
-                                        -Xbootclasspath/a:${mirror-taint.agentJar}
-                                        -javaagent:${mirror-taint.agentJar}
-                                        ${java.args}
-                                    </argLine>
-                                    <dependenciesToScan>
-                                        <scan>edu.neu.ccs.prl.galette:galette-benchmark</scan>
-                                    </dependenciesToScan>
-                                    <excludes>
-                                        <exclude>META-INF/**/*</exclude>
-                                    </excludes>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
         <profile>
             <id>phosphor</id>
@@ -139,39 +224,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>phosphor</id>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                                <phase>integration-test</phase>
-                                <configuration>
-                                    <jvm>${phosphor.java}/bin/java</jvm>
-                                    <reuseForks>false</reuseForks>
-                                    <argLine>
-                                        -Dflow.report.append=true
-                                        -Dflow.report=${flow.report}
-                                        -Dflow.manager=edu.neu.ccs.prl.galette.eval.PhosphorTagManager
-                                        -DphosphorCacheDirectory=${phosphor.cache}
-                                        -Xbootclasspath/a:${phosphor.agentJar}
-                                        -javaagent:${phosphor.agentJar}=enum,acmpeq
-                                        ${java.args}
-                                    </argLine>
-                                    <dependenciesToScan>
-                                        <scan>edu.neu.ccs.prl.galette:galette-benchmark</scan>
-                                    </dependenciesToScan>
-                                    <excludes>
-                                        <exclude>META-INF/**/*</exclude>
-                                    </excludes>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -195,38 +247,6 @@
                                     <linkedCaches>
                                         <linkedCache>${galette.cache}</linkedCache>
                                     </linkedCaches>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>galette</id>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                                <phase>integration-test</phase>
-                                <configuration>
-                                    <jvm>${galette.java}/bin/java</jvm>
-                                    <argLine>
-                                        -Dflow.report.append=true
-                                        -Dflow.report=${flow.report}
-                                        -Dflow.manager=edu.neu.ccs.prl.galette.bench.extension.GaletteTagManager
-                                        -Dgalette.cache=${galette.cache}
-                                        -Xbootclasspath/a:${galette.agentJar}
-                                        -javaagent:${galette.agentJar}
-                                        ${java.args}
-                                    </argLine>
-                                    <dependenciesToScan>
-                                        <scan>edu.neu.ccs.prl.galette:galette-benchmark</scan>
-                                    </dependenciesToScan>
-                                    <excludes>
-                                        <exclude>META-INF/**/*</exclude>
-                                    </excludes>
                                 </configuration>
                             </execution>
                         </executions>

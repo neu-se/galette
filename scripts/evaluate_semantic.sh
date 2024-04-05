@@ -56,13 +56,25 @@ python3 "$PROJECT_ROOT/scripts/download_jdk.py" \
 # Export Java home
 export JAVA_HOME="$JDK_DIRECTORY/$VENDOR/$VERSION/"
 
-# Run the trial
+# Build the evaluation module and create an instrumented JDK
 mvn -ntp -B -e \
   -f "$PROJECT_ROOT/galette-evaluation/galette-evaluation-tools/" \
   -s "$SETTINGS_FILE" \
   -P"$TOOL" \
-  -Dflow.report="$REPORT_FILE"\
+  -DskipTests \
+  clean \
   install
+
+# Run the tests
+mvn -ntp -B -e \
+  -f "$PROJECT_ROOT/galette-evaluation/galette-evaluation-tools/" \
+  -s "$SETTINGS_FILE" \
+  -Dflow.report="$REPORT_FILE" \
+  dependency:properties \
+  exec:exec@"$TOOL" \
+  || exit_code=$?
+
+echo "Trial exited with code $exit_code"
 
 # Record configuration information
 echo "{

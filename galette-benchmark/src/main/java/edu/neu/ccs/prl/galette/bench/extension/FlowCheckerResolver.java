@@ -2,6 +2,7 @@ package edu.neu.ccs.prl.galette.bench.extension;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.extension.*;
@@ -92,6 +93,7 @@ class FlowCheckerResolver implements ParameterResolver, TestWatcher, AfterTestEx
         List<? extends Throwable> failures = getFlowChecker(context).getFailures();
         if (!failures.isEmpty()) {
             MultipleFailuresError e = new MultipleFailuresError("Propagated labels did not match expected", failures);
+            e.setStackTrace(Arrays.stream(e.getStackTrace()).limit(1).toArray(StackTraceElement[]::new));
             getStore(context).put(MultipleFailuresError.class, e);
             throw e;
         }
