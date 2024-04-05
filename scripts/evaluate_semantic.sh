@@ -25,11 +25,19 @@ readonly SETTINGS_FILE="$PROJECT_ROOT/settings.xml"
 # Create the output directory
 mkdir -p "$OUTPUT_DIRECTORY"
 
+# Create and activate a virtual environment
+python3 -m venv venv
+. venv/bin/activate
+
+# Install required Python libraries
+python3 -m pip install -r "$PROJECT_ROOT/scripts/requirements.txt"
+
 # Download Java 17
 python3 "$PROJECT_ROOT/scripts/download_jdk.py" \
   --output-dir "$JDK_DIRECTORY" \
   --vendor "temurin" \
   --version "17"
+
 # Export Java home
 export JAVA_HOME="$JDK_DIRECTORY/temurin/17/"
 
@@ -44,6 +52,7 @@ python3 "$PROJECT_ROOT/scripts/download_jdk.py" \
   --output-dir "$JDK_DIRECTORY" \
   --vendor "$VENDOR" \
   --version "$VERSION"
+
 # Export Java home
 export JAVA_HOME="$JDK_DIRECTORY/$VENDOR/$VERSION/"
 
