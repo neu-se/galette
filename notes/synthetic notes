@@ -26,10 +26,8 @@ jdk-8u202-linux-x64.tar.gz
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/evaluate_semantic.sh 1 evaluate_semantic.csv
 
 Running:
-/ci-logs/public/katie/galette/results/slurm-1189043/
+/ci-logs/public/katie/galette/results/slurm-1189075/
 
-Check that evaluate_semantic.sh now works
-Collect data with evaluate_semantic.sh
 Create table for collected data
 
 Phosphor will crash on:

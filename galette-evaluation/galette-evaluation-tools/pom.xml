@@ -133,7 +133,7 @@
                             <commandlineArgs>
                                 -Xbootclasspath/a:${phosphor.agentJar}
                                 -javaagent:${phosphor.agentJar}
-                                -Dflow.manager=edu.neu.ccs.prl.galette.eval.PhosphorTaintTagManager
+                                -Dflow.manager=edu.neu.ccs.prl.galette.eval.PhosphorTagManager
                                 ${base.exec.args}
                             </commandlineArgs>
                         </configuration>
