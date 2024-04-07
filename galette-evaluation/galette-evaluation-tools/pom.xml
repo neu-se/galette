@@ -96,6 +96,12 @@
                                 <argument>-Xmx8G</argument>
                                 <argument>-ea</argument>
                                 <argument>
+                                    -Djunit.jupiter.testclass.order.default=org.junit.jupiter.api.ClassOrderer$DisplayName
+                                </argument>
+                                <argument>
+                                    -Djunit.jupiter.testmethod.order.default=org.junit.jupiter.api.MethodOrderer$DisplayName
+                                </argument>
+                                <argument>
                                     org.junit.platform.console.ConsoleLauncher
                                 </argument>
                                 <argument>execute</argument>
@@ -130,6 +136,12 @@
                                 <argument>-Xmx8G</argument>
                                 <argument>-ea</argument>
                                 <argument>
+                                    -Djunit.jupiter.testclass.order.default=org.junit.jupiter.api.ClassOrderer$DisplayName
+                                </argument>
+                                <argument>
+                                    -Djunit.jupiter.testmethod.order.default=org.junit.jupiter.api.MethodOrderer$DisplayName
+                                </argument>
+                                <argument>
                                     org.junit.platform.console.ConsoleLauncher
                                 </argument>
                                 <argument>execute</argument>
@@ -163,6 +175,12 @@
                                 <argument>${java.arg2}</argument>
                                 <argument>-Xmx8G</argument>
                                 <argument>-ea</argument>
+                                <argument>
+                                    -Djunit.jupiter.testclass.order.default=org.junit.jupiter.api.ClassOrderer$DisplayName
+                                </argument>
+                                <argument>
+                                    -Djunit.jupiter.testmethod.order.default=org.junit.jupiter.api.MethodOrderer$DisplayName
+                                </argument>
                                 <argument>
                                     org.junit.platform.console.ConsoleLauncher
                                 </argument>
