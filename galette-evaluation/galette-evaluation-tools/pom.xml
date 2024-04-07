@@ -10,10 +10,6 @@
     </parent>
     <artifactId>galette-evaluation-tools</artifactId>
     <properties>
-        <!--suppress CheckTagEmptyBody -->
-        <java.arg1></java.arg1>
-        <!--suppress CheckTagEmptyBody -->
-        <java.arg2></java.arg2>
         <flow.report>${project.build.directory}/flow-report.csv</flow.report>
         <!--suppress UnresolvedMavenProperty -->
         <mirror-taint.agentJar>${com.shadow.taint:taint-agent-core:jar}</mirror-taint.agentJar>
@@ -25,8 +21,26 @@
         <!--suppress UnresolvedMavenProperty -->
         <galette.agentJar>${edu.neu.ccs.prl.galette:galette-agent:jar}</galette.agentJar>
         <galette.java>${project.build.directory}/galette/java/</galette.java>
+        <galette.manager>edu.neu.ccs.prl.galette.bench.extension.GaletteTagManager</galette.manager>
         <!--suppress UnresolvedMavenProperty -->
         <benchmark.jar>${edu.neu.ccs.prl.galette:galette-benchmark:jar}</benchmark.jar>
+        <initial.exec.args>
+            -classpath
+            %classpath
+            -Dflow.report=${flow.report}
+            -ea
+            -Xmx8G
+            -Djunit.jupiter.testclass.order.default=org.junit.jupiter.api.ClassOrderer$DisplayName
+            -Djunit.jupiter.testmethod.order.default=org.junit.jupiter.api.MethodOrderer$DisplayName
+            org.junit.platform.console.ConsoleLauncher
+            execute
+            --disable-banner
+            --disable-ansi-colors
+            --details=testfeed
+            --scan-classpath=${benchmark.jar}
+            --include-classname=.*
+        </initial.exec.args>
+        <base.exec.args>${base.exec.args}</base.exec.args>
     </properties>
     <dependencies>
         <dependency>
@@ -82,35 +96,12 @@
                         <configuration>
                             <executable>${galette.java}/bin/java</executable>
                             <classpathScope>test</classpathScope>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <classpath/>
-                                <argument>-Dflow.report=${flow.report}</argument>
-                                <argument>-Xbootclasspath/a:${galette.agentJar}</argument>
-                                <argument>-javaagent:${galette.agentJar}</argument>
-                                <argument>
-                                    -Dflow.manager=edu.neu.ccs.prl.galette.bench.extension.GaletteTagManager
-                                </argument>
-                                <argument>${java.arg1}</argument>
-                                <argument>${java.arg2}</argument>
-                                <argument>-Xmx8G</argument>
-                                <argument>-ea</argument>
-                                <argument>
-                                    -Djunit.jupiter.testclass.order.default=org.junit.jupiter.api.ClassOrderer$DisplayName
-                                </argument>
-                                <argument>
-                                    -Djunit.jupiter.testmethod.order.default=org.junit.jupiter.api.MethodOrderer$DisplayName
-                                </argument>
-                                <argument>
-                                    org.junit.platform.console.ConsoleLauncher
-                                </argument>
-                                <argument>execute</argument>
-                                <argument>--disable-banner</argument>
-                                <argument>--disable-ansi-colors</argument>
-                                <argument>--details=testfeed</argument>
-                                <argument>--scan-classpath=${benchmark.jar}</argument>
-                                <argument>--include-classname=.*ITCase</argument>
-                            </arguments>
+                            <commandlineArgs>
+                                -Xbootclasspath/a:${galette.agentJar}
+                                -javaagent:${galette.agentJar}
+                                -Dflow.manager=${galette.manager}
+                                ${base.exec.args}
+                            </commandlineArgs>
                         </configuration>
                     </execution>
                     <execution>
@@ -122,35 +113,12 @@
                         <configuration>
                             <executable>${mirror-taint.java}/bin/java</executable>
                             <classpathScope>test</classpathScope>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <classpath/>
-                                <argument>-Dflow.report=${flow.report}</argument>
-                                <argument>-Xbootclasspath/a:${mirror-taint.agentJar}</argument>
-                                <argument>-javaagent:${mirror-taint.agentJar}</argument>
-                                <argument>
-                                    -Dflow.manager=edu.neu.ccs.prl.galette.eval.MirrorTaintTagManager
-                                </argument>
-                                <argument>${java.arg1}</argument>
-                                <argument>${java.arg2}</argument>
-                                <argument>-Xmx8G</argument>
-                                <argument>-ea</argument>
-                                <argument>
-                                    -Djunit.jupiter.testclass.order.default=org.junit.jupiter.api.ClassOrderer$DisplayName
-                                </argument>
-                                <argument>
-                                    -Djunit.jupiter.testmethod.order.default=org.junit.jupiter.api.MethodOrderer$DisplayName
-                                </argument>
-                                <argument>
-                                    org.junit.platform.console.ConsoleLauncher
-                                </argument>
-                                <argument>execute</argument>
-                                <argument>--disable-banner</argument>
-                                <argument>--disable-ansi-colors</argument>
-                                <argument>--details=testfeed</argument>
-                                <argument>--scan-classpath=${benchmark.jar}</argument>
-                                <argument>--include-classname=.*ITCase</argument>
-                            </arguments>
+                            <commandlineArgs>
+                                -Xbootclasspath/a:${mirror-taint.agentJar}
+                                -javaagent:${mirror-taint.agentJar}
+                                -Dflow.manager=edu.neu.ccs.prl.galette.eval.MirrorTaintTagManager
+                                ${base.exec.args}
+                            </commandlineArgs>
                         </configuration>
                     </execution>
                     <execution>
@@ -162,35 +130,12 @@
                         <configuration>
                             <executable>${phosphor.java}/bin/java</executable>
                             <classpathScope>test</classpathScope>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <classpath/>
-                                <argument>-Dflow.report=${flow.report}</argument>
-                                <argument>-Xbootclasspath/a:${phosphor.agentJar}</argument>
-                                <argument>-javaagent:${phosphor.agentJar}=enum,acmpeq</argument>
-                                <argument>
-                                    -Dflow.manager=edu.neu.ccs.prl.galette.eval.PhosphorTagManager
-                                </argument>
-                                <argument>${java.arg1}</argument>
-                                <argument>${java.arg2}</argument>
-                                <argument>-Xmx8G</argument>
-                                <argument>-ea</argument>
-                                <argument>
-                                    -Djunit.jupiter.testclass.order.default=org.junit.jupiter.api.ClassOrderer$DisplayName
-                                </argument>
-                                <argument>
-                                    -Djunit.jupiter.testmethod.order.default=org.junit.jupiter.api.MethodOrderer$DisplayName
-                                </argument>
-                                <argument>
-                                    org.junit.platform.console.ConsoleLauncher
-                                </argument>
-                                <argument>execute</argument>
-                                <argument>--disable-banner</argument>
-                                <argument>--disable-ansi-colors</argument>
-                                <argument>--details=testfeed</argument>
-                                <argument>--scan-classpath=${benchmark.jar}</argument>
-                                <argument>--include-classname=.*ITCase</argument>
-                            </arguments>
+                            <commandlineArgs>
+                                -Xbootclasspath/a:${phosphor.agentJar}
+                                -javaagent:${phosphor.agentJar}
+                                -Dflow.manager=edu.neu.ccs.prl.galette.eval.PhosphorTaintTagManager
+                                ${base.exec.args}
+                            </commandlineArgs>
                         </configuration>
                     </execution>
                 </executions>
@@ -204,8 +149,11 @@
                 <jdk>[9,)</jdk>
             </activation>
             <properties>
-                <java.arg1>--add-exports</java.arg1>
-                <java.arg2>java.base/jdk.internal.misc=ALL-UNNAMED</java.arg2>
+                <base.exec.args>
+                    --add-exports
+                    java.base/jdk.internal.misc=ALL-UNNAMED
+                    ${initial.exec.args}
+                </base.exec.args>
             </properties>
         </profile>
         <profile>
