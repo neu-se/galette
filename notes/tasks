@@ -1,0 +1,24 @@
+* Create README based on Phosphor's
+* Port PowerSetTree (new name Subset Tree) from Phosphor
+* Fix stack traces
+* Configuration
+* Performance tuning
+* Any TODOs in codebase
+* Tracking through externalizable/serialization of strings/reference tags
+* Create separate plugin for creating instrumented JDKs (astrolabe), "Utilities for dynamic analysis tools"
+* Enums/ Phosphor's WITH_ENUMS_BY_VALUE
+------------------------------------------------------------------------
+MirrorTaint only supports java 16 or lower (b/c of ASM version)
+Send bug fixes to MirrorTaint developers.
+Ask if they would be willing to release an updated, obfuscated JAR for MirrorTaint containing the fixes and license
+that would allow us to include MirrorTaint in an evaluation.
+------------------------------------------------------------------------
+Paper Notes:
+
+create table for synthetic benchmark suite (for supplemental materials)?
+group | number of tests | description
+ArrayReflectionITCase | X |Uses java.lang.reflect.Array to create arrays, set array elements, and get array elements
+
+for signature polymorphism, show example of instrumentation applied at wrappers
+and at signature polymorphic call sites
+walk through example

@@ -1,0 +1,7 @@
+sudo /usr/lib/jvm/java-11-openjdk-amd64/bin/java --add-modules=jdk.hotspot.agent sun.jvm.hotspot.HSDB
+java -jar /snap/intellij-idea-ultimate/current/plugins/java-decompiler/lib/java-decompiler.jar <CLASS_FILE> <OUTPUT_DIR>
+java -XX:+AggressiveOpts -XX:+UnlockDiagnosticVMOptions -XX:+UnlockExperimentalVMOptions -XX:+PrintFlagsFinal -XX:+PrintFlagsWithComments -version
+
+-XX:+TraceBytecodes {develop} Trace bytecode execution
+-XX:+ShowHiddenFrames
+-Djava.lang.invoke.MethodHandle.DUMP_CLASS_FILES=true

@@ -1,0 +1,28 @@
+['batik', 'graphchi', 'h2o', 'luindex', 'lusearch', 'sunflow']
+dacapo-23.11-chopin.tar.xz
+    full release minus some large datasets that can be independently downloaded
+
+--size default
+--callback <CALLBACK_CLASS>
+-n 40
+twenty warm-up executions (which are discarded) followed by 20 measurement executions.
+For each subject and tool, we perform twenty
+Each measurement iteration is performed in its own JVM (if using -C).
+Follow DaCaPo's usage guidelines 
+
+For each subject, we perform twenty warmup iterations (which are discarded) followed by fifty measurement iterations using each tool.
+Warmup iterations mitigate major performance fluctuations that occur when the JVM is first started due to dynamic optimizations.
+% Cite https://dl.acm.org/doi/abs/10.1007/s10664-022-10247-x
+
+For each measurement iteration, we record the execution time and the peak memory usage.
+The execution time is the elapsed real (wall-clock) time taken to complete the workload.
+Peak memory usage is computed by sampling the resident set size (RSS) of the Java process with a sample interval of one millisecond.
+% as reported by /proc/pid/smaps_rollup 
+The maximum RSS sampled during the interval is recorded as the peak memory usage.
+
+https://github.com/cache2k/cache2k-benchmark/blob/e4cd7a8c491bf275545b3003932c2eebb69606e9/jmh-suite/src/main/java/org/cache2k/benchmark/jmh/ForcedGcMemoryProfiler.java
+Take runtime reported by DaCapo
+Exclude trial if DaCapo's validation fails (see paper for explanation of validation)
+
+Compare results with Mann Whitney U-test
+TODO identify locations to use as taint sources manually for each dacapo subject

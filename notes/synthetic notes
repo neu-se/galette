@@ -1,0 +1,39 @@
+Input 
+ 1. directory of .tar.gz JDKs
+ 2. output directory path
+Run the synthetic benchmark suite with each taint tracking system using each of the JDKs
+
+Synthetic benchmarks were creating using the JUnit 5 (version 5.10.0) Java testing framework.
+
+All synthetic benchmarks are compiled using OpenJDK Temurin (version 17.0.10+7).
+We configured \texttt{javac} to generate class files for Java 8 except for the "StringIndyConcat" and "RecordType" groups.
+These groups test Java features not available for Java 8 class files.
+The "StringIndyConcat" group was compiled to Java 9 class files; this group tests the improved string concatenation introduced in Java 9 which uses the \texttt{invokedynamic} instruction instead \code{java.lang.StringBuilder}~\citep{jep-280}.
+The "RecordType" group was compiled to Java 16 class files; this group tests the record types introduced in Java 16~\citep{jep-395}.
+
+For Phosphor we used the options: enum,acmpeq,serialization
+JVM options: -ea, -Xmx8G
+
+Did not use Oracle Java it is closed source (8 and 11 downloads require license to be accepted)
+https://www.oracle.com/java/technologies/javase/jdk-faqs.html#:~:text=You%20can%20download%20the%20latest,Conditions%20License%20for%20all%20users.
+https://www.oracle.com/downloads/licenses/javase-license1.html
+
+https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html
+https://www.oracle.com/java/technologies/javase/javase8-archive-downloads.html
+jdk-11.0.21_linux-x64_bin.tar.gz
+jdk-8u202-linux-x64.tar.gz
+
+./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/evaluate_semantic.sh 1 evaluate_semantic.csv
+
+/ci-logs/public/katie/galette/results/slurm-1188891/
+
+Fix infinite loop in Phosphor for VarHandleITCase?
+
+Check that evaluate_semantic.sh now works
+Collect data with evaluate_semantic.sh
+Create table for collected data
+
+How to handle fatal test crashes from Phosphor on VarHandleITCase
+
+All other tests appear to be fine for Phosphor
+Should we just bulk fail Phosphor on all tests?
