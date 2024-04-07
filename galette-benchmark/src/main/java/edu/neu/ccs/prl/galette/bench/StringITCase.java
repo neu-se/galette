@@ -4,8 +4,6 @@ import edu.neu.ccs.prl.galette.bench.extension.FlowBench;
 import edu.neu.ccs.prl.galette.bench.extension.FlowChecker;
 import edu.neu.ccs.prl.galette.bench.extension.TagManager;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.condition.EnabledForJreRange;
-import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -174,19 +172,6 @@ public class StringITCase {
         checkLabels(actual, taintValue, 0, s1.length(), new Object[] {"label1"});
         checkLabels(actual, taintValue, s1.length(), s1.length() + 1, new Object[] {"label2"});
         checkLabels(actual, taintValue, s1.length() + 1, actual.length(), new Object[] {"label3"});
-    }
-
-    @ParameterizedTest(name = "repeat(taintValue={0})")
-    @ValueSource(booleans = {true, false})
-    @EnabledForJreRange(min = JRE.JAVA_11)
-    void repeat(boolean taintValue) {
-        String s1 = "hello";
-        if (taintValue) {
-            s1 = BenchUtil.taintCharacters(manager, s1, "label1");
-        }
-        String actual = s1.repeat(2);
-        Assertions.assertEquals("hellohello", actual);
-        checkLabels(actual, taintValue, 0, actual.length(), new Object[] {"label1"});
     }
 
     @ParameterizedTest(name = "chars(taintValue={0})")

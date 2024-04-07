@@ -25,15 +25,15 @@ jdk-8u202-linux-x64.tar.gz
 
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/evaluate_semantic.sh 1 evaluate_semantic.csv
 
-/ci-logs/public/katie/galette/results/slurm-1188891/
-
-Fix infinite loop in Phosphor for VarHandleITCase?
+Running:
+/ci-logs/public/katie/galette/results/slurm-1188963/
 
 Check that evaluate_semantic.sh now works
 Collect data with evaluate_semantic.sh
 Create table for collected data
 
-How to handle fatal test crashes from Phosphor on VarHandleITCase
-
-All other tests appear to be fine for Phosphor
-Should we just bulk fail Phosphor on all tests?
+Phosphor will crash on:
+VarHandleITCase#getAndBitwiseBoolean
+VarHandleITCase#compareAndExchangeBoolean
+with location
+ONE_DIMENSIONAL_ARRAY.getBoolean
