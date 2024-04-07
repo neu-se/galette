@@ -40,7 +40,7 @@
             --scan-classpath=${benchmark.jar}
             --include-classname=.*
         </initial.exec.args>
-        <base.exec.args>${base.exec.args}</base.exec.args>
+        <base.exec.args>${initial.exec.args}</base.exec.args>
     </properties>
     <dependencies>
         <dependency>
