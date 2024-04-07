@@ -1,6 +1,3 @@
-Input 
- 1. directory of .tar.gz JDKs
- 2. output directory path
 Run the synthetic benchmark suite with each taint tracking system using each of the JDKs
 
 Synthetic benchmarks were creating using the JUnit 5 (version 5.10.0) Java testing framework.
@@ -25,13 +22,20 @@ jdk-8u202-linux-x64.tar.gz
 
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/evaluate_semantic.sh 1 evaluate_semantic.csv
 
-Running:
+Last run:
 /ci-logs/public/katie/galette/results/slurm-1189075/
-
-Create table for collected data
 
 Phosphor will crash on:
 VarHandleITCase#getAndBitwiseBoolean
 VarHandleITCase#compareAndExchangeBoolean
 with location
 ONE_DIMENSIONAL_ARRAY.getBoolean
+
+1. Address Phosphor crashes
+2. Consider reverting to the distributed MirrorTaint JAR
+3. Decide whether to include Oracle JDK for 8 and 11
+4. Recollect data
+5. Create table
+6. Examine root cause of failures for Phosphor and MirrorTaint
+7. Write up description of results
+
