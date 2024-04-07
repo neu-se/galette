@@ -5,10 +5,10 @@ readonly VERSION=$3
 readonly TOOL=$4
 readonly PROJECT_ROOT=$(pwd)
 readonly EXPERIMENT_DIRECTORY="/experiment/katie/galette/"
-readonly INFO_FILE_NAME="trial_info.json"
 readonly JDK_DIRECTORY="$(pwd)/jdk/"
 readonly OUTPUT_DIRECTORY="$(pwd)/out/"
 readonly REPORT_FILE="$OUTPUT_DIRECTORY/report.csv"
+readonly INFO_FILE="$OUTPUT_DIRECTORY/info.json"
 
 # Write a trace for each command to standard error
 set -x
@@ -84,7 +84,7 @@ echo "{
   \"commit_sha\": \"$(git --git-dir "$PROJECT_ROOT/.git" rev-parse HEAD)\",
   \"branch_name\": \"$(git --git-dir "$PROJECT_ROOT/.git" rev-parse --abbrev-ref HEAD)\",
   \"remote_origin_url\": \"$(git --git-dir "$PROJECT_ROOT/.git" config --get remote.origin.url)\"
-}" >"$OUTPUT_DIRECTORY/$INFO_FILE_NAME"
+}" >"$INFO_FILE"
 
 # Create a TAR archive of the output directory and move it to the results directory
 mkdir -p "$RESULTS_DIRECTORY"
