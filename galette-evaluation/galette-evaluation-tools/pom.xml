@@ -38,7 +38,7 @@
             --disable-ansi-colors
             --details=testfeed
             --scan-classpath=${benchmark.jar}
-            --include-classname=.*
+            --include-classname=.*ITCase
         </initial.exec.args>
         <base.exec.args>${initial.exec.args}</base.exec.args>
     </properties>
