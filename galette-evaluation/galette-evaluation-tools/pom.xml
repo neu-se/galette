@@ -210,9 +210,6 @@
                                 <phase>process-test-resources</phase>
                                 <configuration>
                                     <outputDirectory>${phosphor.java}</outputDirectory>
-                                    <linkedCaches>
-                                        <linkedCache>${phosphor.cache}</linkedCache>
-                                    </linkedCaches>
                                     <options>
                                         <forceUnboxAcmpEq>true</forceUnboxAcmpEq>
                                         <withEnumsByValue>true</withEnumsByValue>
@@ -244,9 +241,6 @@
                                 <phase>process-test-resources</phase>
                                 <configuration>
                                     <outputDirectory>${galette.java}</outputDirectory>
-                                    <linkedCaches>
-                                        <linkedCache>${galette.cache}</linkedCache>
-                                    </linkedCaches>
                                 </configuration>
                             </execution>
                         </executions>

@@ -1,5 +1,5 @@
 ['batik', 'graphchi', 'h2o', 'luindex', 'lusearch', 'sunflow']
-dacapo-23.11-chopin.tar.xz
+/experiment/katie/galette/dacapo-23.11-chopin.tar.xz
     full release minus some large datasets that can be independently downloaded
 
 --size default
@@ -26,3 +26,6 @@ Exclude trial if DaCapo's validation fails (see paper for explanation of validat
 
 Compare results with Mann Whitney U-test
 TODO identify locations to use as taint sources manually for each dacapo subject
+
+Which benchmarks require at least Java version 11?
+tomcat
