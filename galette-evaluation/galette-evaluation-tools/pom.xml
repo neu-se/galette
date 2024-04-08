@@ -107,7 +107,7 @@
                                 %classpath
                                 -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
                                 edu.neu.ccs.prl.galette.bench.extension.BenchmarkDriver
-                                ${galette.java}
+                                ${java.home}
                                 ${flow.report}
                                 -cp
                                 %classpath
@@ -133,7 +133,7 @@
                                 %classpath
                                 -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
                                 edu.neu.ccs.prl.galette.bench.extension.BenchmarkDriver
-                                ${galette.java}
+                                ${phosphor.java}
                                 ${flow.report}
                                 -cp
                                 %classpath
