@@ -1,7 +1,6 @@
 package edu.neu.ccs.prl.galette.bench.extension;
 
 import edu.neu.ccs.prl.galette.bench.extension.FlowReport.FlowReportEntry;
-import edu.neu.ccs.prl.meringue.ForkConnection;
 import edu.neu.ccs.prl.meringue.JvmLauncher;
 import java.io.Closeable;
 import java.io.IOException;
@@ -35,14 +34,6 @@ final class ForkedTestRunner implements Closeable {
         this.timeout = timeout;
     }
 
-    private void restartConnection() throws IOException {
-        closeConnection();
-        // Launch the analysis JVM
-        this.process = launcher.launch();
-        // Connection to the JVM
-        this.connection = new ForkConnection(server.accept());
-    }
-
     private boolean isConnected() {
         return connection != null && !connection.isClosed();
     }
@@ -59,18 +50,28 @@ final class ForkedTestRunner implements Closeable {
     private Set<String> run(FileFlowReport report, Set<String> uniqueIds) throws IOException, ClassNotFoundException {
         Set<String> executed = new HashSet<>();
         if (!isConnected()) {
-            restartConnection();
+            closeConnection();
+            // Launch the test JVM
+            this.process =
+                    launcher.appendArguments(uniqueIds.toArray(new String[0])).launch();
+            // Connect to the JVM
+            this.connection = new ForkConnection(server.accept());
         }
-        connection.send(uniqueIds.toArray(new String[0]));
         while (isConnected()) {
-            String nextId = connection.receive(String.class);
-            if (nextId == null) {
+            String nextId = connection.receiveString();
+            if (nextId.isEmpty()) {
                 return executed;
             }
             executed.add(nextId);
             ForkTimer timer = new ForkTimer();
             try {
-                report.record(connection.receive(FlowReportEntry.class));
+                FlowReportEntry entry = new FlowReportEntry(
+                        nextId,
+                        connection.receiveInt(),
+                        connection.receiveInt(),
+                        connection.receiveInt(),
+                        connection.receiveString());
+                report.record(entry);
             } catch (Throwable t) {
                 closeConnection();
                 String status = timer.timedOut ? "timeout" : "crash";
@@ -84,11 +85,6 @@ final class ForkedTestRunner implements Closeable {
 
     private void closeConnection() {
         if (connection != null && !connection.isClosed()) {
-            try {
-                connection.send(null);
-            } catch (IOException e) {
-                // Failed to send shutdown signal
-            }
             connection.close();
             connection = null;
         }

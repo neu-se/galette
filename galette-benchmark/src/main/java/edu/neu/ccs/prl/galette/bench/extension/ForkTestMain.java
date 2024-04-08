@@ -2,7 +2,6 @@ package edu.neu.ccs.prl.galette.bench.extension;
 
 import static org.junit.platform.engine.discovery.ClassNameFilter.includeClassNamePatterns;
 
-import edu.neu.ccs.prl.meringue.ForkConnection;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -21,10 +20,11 @@ public final class ForkTestMain {
         if (port == -1) {
             return;
         }
+        String[] uniqueIds = new String[args.length - 1];
+        System.arraycopy(args, 1, uniqueIds, 0, uniqueIds.length);
         try (ForkConnection connection = new ForkConnection(port)) {
             SimpleListener listener = new SimpleListener(new PrintWriter(System.out), connection);
             launcher.registerTestExecutionListeners(listener);
-            String[] uniqueIds = connection.receive(String[].class);
             DiscoverySelector[] selectors = Arrays.stream(uniqueIds)
                     .map(DiscoverySelectors::selectUniqueId)
                     .toArray(DiscoverySelector[]::new);
@@ -32,11 +32,16 @@ public final class ForkTestMain {
                     .selectors(selectors)
                     .filters(includeClassNamePatterns(".*ITCase"))
                     .build();
-            FlowCheckerResolver.setReport(connection::send);
+            FlowCheckerResolver.setReport(o -> {
+                connection.send(o.getTruePositives());
+                connection.send(o.getFalsePositives());
+                connection.send(o.getFalseNegatives());
+                connection.send(o.getStatus());
+            });
             TestPlan plan = launcher.discover(request);
             launcher.execute(plan);
             // Notify the runner that we have finished
-            connection.send(null);
+            connection.send("");
         }
     }
 
