@@ -22,12 +22,7 @@ public class FileFlowReport implements FlowReport {
         try (PrintWriter out = new PrintWriter(new FileOutputStream(report, true))) {
             out.printf(
                     "\"%s\",%d,%d,%d,%s%n",
-                    testIdentifier.replace('"', '\''),
-                    truePositives,
-                    falsePositives,
-                    falseNegatives,
-                    status
-            );
+                    testIdentifier.replace('"', '\''), truePositives, falsePositives, falseNegatives, status);
         }
     }
 

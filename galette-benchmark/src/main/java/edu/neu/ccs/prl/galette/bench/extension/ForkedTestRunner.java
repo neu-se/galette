@@ -3,7 +3,6 @@ package edu.neu.ccs.prl.galette.bench.extension;
 import edu.neu.ccs.prl.galette.bench.extension.FlowReport.FlowReportEntry;
 import edu.neu.ccs.prl.meringue.ForkConnection;
 import edu.neu.ccs.prl.meringue.JvmLauncher;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.ServerSocket;
