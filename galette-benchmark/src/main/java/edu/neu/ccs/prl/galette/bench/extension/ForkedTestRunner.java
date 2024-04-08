@@ -100,7 +100,7 @@ final class ForkedTestRunner implements Closeable {
         closeConnection();
     }
 
-    private static void stop(Process process) throws InterruptedException {
+    static void stop(Process process) throws InterruptedException {
         if (process.isAlive()) {
             process.destroy();
             if (!process.waitFor(5, TimeUnit.SECONDS)) {

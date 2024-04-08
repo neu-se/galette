@@ -19,6 +19,9 @@ public final class ForkTestMain {
 
     public static void main(String[] args) throws Throwable {
         int port = Integer.parseInt(args[0]);
+        if (port == -1) {
+            return;
+        }
         try (ForkConnection connection = new ForkConnection(port)) {
             while (!connection.isClosed()) {
                 String uniqueId = connection.receive(String.class);

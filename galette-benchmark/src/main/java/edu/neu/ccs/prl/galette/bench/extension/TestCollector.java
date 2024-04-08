@@ -3,7 +3,6 @@ package edu.neu.ccs.prl.galette.bench.extension;
 import static org.junit.platform.engine.discovery.ClassNameFilter.includeClassNamePatterns;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage;
 
-import edu.neu.ccs.prl.galette.bench.BenchUtil;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.platform.launcher.*;
@@ -14,7 +13,7 @@ final class TestCollector {
     static List<TestIdentifier> collectTests() {
         System.setProperty(TagManagerResolver.MANAGER_KEY, EmptyTagManager.class.getName());
         LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
-                .selectors(selectPackage(BenchUtil.class.getPackageName()))
+                .selectors(selectPackage("edu.neu.ccs.prl.galette.bench"))
                 .filters(includeClassNamePatterns(".*ITCase"))
                 .build();
         Launcher launcher = LauncherFactory.create();
