@@ -7,9 +7,10 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.time.Duration;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import org.junit.platform.launcher.TestIdentifier;
 
 final class ForkedTestRunner implements Closeable {
     /**
@@ -46,32 +47,39 @@ final class ForkedTestRunner implements Closeable {
         return connection != null && !connection.isClosed();
     }
 
-    FlowReportEntry run(String testIdentifier) throws IOException {
+    public void run(FileFlowReport report, List<TestIdentifier> testIdentifiers)
+            throws IOException, ClassNotFoundException {
+        Set<String> uniqueIds =
+                testIdentifiers.stream().map(TestIdentifier::getUniqueId).collect(Collectors.toSet());
+        while (!uniqueIds.isEmpty()) {
+            uniqueIds.removeAll(run(report, uniqueIds));
+        }
+    }
+
+    private Set<String> run(FileFlowReport report, Set<String> uniqueIds) throws IOException, ClassNotFoundException {
+        Set<String> executed = new HashSet<>();
         if (!isConnected()) {
             restartConnection();
         }
-        ForkTimer timer = timeout == null ? null : new ForkTimer();
-        try {
-            connection.send(testIdentifier);
-            FlowReportEntry entry = connection.receive(FlowReportEntry.class);
-            if (timer != null) {
-                timer.cancel();
+        connection.send(uniqueIds.toArray(new String[0]));
+        while (isConnected()) {
+            String nextId = connection.receive(String.class);
+            if (nextId == null) {
+                return executed;
             }
-            return entry;
-        } catch (Throwable t) {
-            // Input caused fork to fail
-            closeConnection();
-            restartConnection();
-            String status = "crash";
-            if (timer != null && timer.timedOut) {
-                status = "timeout";
-            }
-            return new FlowReportEntry(testIdentifier, 0, 0, 0, status);
-        } finally {
-            if (timer != null) {
+            executed.add(nextId);
+            ForkTimer timer = new ForkTimer();
+            try {
+                report.record(connection.receive(FlowReportEntry.class));
+            } catch (Throwable t) {
+                closeConnection();
+                String status = timer.timedOut ? "timeout" : "crash";
+                report.record(new FlowReportEntry(nextId, 0, 0, 0, status));
+            } finally {
                 timer.cancel();
             }
         }
+        return executed;
     }
 
     private void closeConnection() {
@@ -103,7 +111,7 @@ final class ForkedTestRunner implements Closeable {
     static void stop(Process process) throws InterruptedException {
         if (process.isAlive()) {
             process.destroy();
-            if (!process.waitFor(5, TimeUnit.SECONDS)) {
+            if (!process.waitFor(10, TimeUnit.SECONDS)) {
                 process.destroyForcibly().waitFor();
             }
         }

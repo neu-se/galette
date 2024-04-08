@@ -10,7 +10,7 @@ import java.util.*;
 import org.junit.platform.launcher.TestIdentifier;
 
 public final class BenchmarkDriver {
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
         File testJavaHome = new File(args[0]);
         FileFlowReport report = new FileFlowReport(new File(args[1]));
         JvmLauncher testForkLauncher = JvmLauncher.fromMain(
@@ -30,11 +30,8 @@ public final class BenchmarkDriver {
                 report.record(entry);
             }
         } else {
-            try (ForkedTestRunner runner = new ForkedTestRunner(testForkLauncher, Duration.ofSeconds(10))) {
-                for (TestIdentifier testIdentifier : testIdentifiers) {
-                    FlowReportEntry entry = runner.run(testIdentifier.getUniqueId());
-                    report.record(entry);
-                }
+            try (ForkedTestRunner runner = new ForkedTestRunner(testForkLauncher, Duration.ofSeconds(30))) {
+                runner.run(report, testIdentifiers);
             }
         }
     }
