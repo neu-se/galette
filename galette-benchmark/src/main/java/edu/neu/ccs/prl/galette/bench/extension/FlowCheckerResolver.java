@@ -1,5 +1,6 @@
 package edu.neu.ccs.prl.galette.bench.extension;
 
+import edu.neu.ccs.prl.galette.bench.extension.FlowReport.FlowReportEntry;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -9,12 +10,12 @@ import org.junit.jupiter.api.extension.*;
 import org.opentest4j.MultipleFailuresError;
 
 class FlowCheckerResolver implements ParameterResolver, TestWatcher, AfterTestExecutionCallback, BeforeEachCallback {
-    private static final FlowReport report;
+    private static FlowReport report;
 
     static {
         String path = System.getProperty("flow.report");
         try {
-            report = path == null ? null : new FlowReport(new File(path));
+            report = path == null ? null : new FileFlowReport(new File(path));
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }
@@ -66,12 +67,13 @@ class FlowCheckerResolver implements ParameterResolver, TestWatcher, AfterTestEx
         try {
             if (report != null) {
                 FlowChecker checker = getFlowChecker(context);
-                report.recordEntry(
-                        context.getRequiredTestClass(),
-                        context.getRequiredTestMethod(),
-                        context.getDisplayName(),
-                        checker,
+                FlowReportEntry entry = new FlowReportEntry(
+                        context.getUniqueId(),
+                        checker.getTruePositives(),
+                        checker.getFalsePositives(),
+                        checker.getFalseNegatives(),
                         status);
+                report.record(entry);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -97,5 +99,9 @@ class FlowCheckerResolver implements ParameterResolver, TestWatcher, AfterTestEx
             getStore(context).put(MultipleFailuresError.class, e);
             throw e;
         }
+    }
+
+    static void setReport(FlowReport report) {
+        FlowCheckerResolver.report = report;
     }
 }

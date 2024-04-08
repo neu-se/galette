@@ -14,33 +14,13 @@
         <!--suppress UnresolvedMavenProperty -->
         <mirror-taint.agentJar>${com.shadow.taint:taint-agent-core:jar}</mirror-taint.agentJar>
         <!--suppress UnresolvedMavenProperty -->
-        <mirror-taint.java>${JAVA_HOME}</mirror-taint.java>
+        <java.home>${JAVA_HOME}</java.home>
         <!--suppress UnresolvedMavenProperty -->
         <phosphor.agentJar>${edu.gmu.swe.phosphor:Phosphor:jar}</phosphor.agentJar>
         <phosphor.java>${project.build.directory}/phosphor/java</phosphor.java>
         <!--suppress UnresolvedMavenProperty -->
         <galette.agentJar>${edu.neu.ccs.prl.galette:galette-agent:jar}</galette.agentJar>
         <galette.java>${project.build.directory}/galette/java/</galette.java>
-        <galette.manager>edu.neu.ccs.prl.galette.bench.extension.GaletteTagManager</galette.manager>
-        <!--suppress UnresolvedMavenProperty -->
-        <benchmark.jar>${edu.neu.ccs.prl.galette:galette-benchmark:jar}</benchmark.jar>
-        <initial.exec.args>
-            -classpath
-            %classpath
-            -Dflow.report=${flow.report}
-            -ea
-            -Xmx8G
-            -Djunit.jupiter.testclass.order.default=org.junit.jupiter.api.ClassOrderer$DisplayName
-            -Djunit.jupiter.testmethod.order.default=org.junit.jupiter.api.MethodOrderer$DisplayName
-            org.junit.platform.console.ConsoleLauncher
-            execute
-            --disable-banner
-            --disable-ansi-colors
-            --details=testfeed
-            --scan-classpath=${benchmark.jar}
-            --include-classname=.*ITCase
-        </initial.exec.args>
-        <base.exec.args>${initial.exec.args}</base.exec.args>
     </properties>
     <dependencies>
         <dependency>
@@ -94,13 +74,22 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${galette.java}/bin/java</executable>
+                            <executable>${java.home}/bin/java</executable>
                             <classpathScope>test</classpathScope>
                             <commandlineArgs>
+                                -cp
+                                %classpath
+                                -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
+                                edu.neu.ccs.prl.galette.bench.extension.BenchmarkDriver
+                                ${galette.java}
+                                ${flow.report}
+                                -cp
+                                %classpath
+                                -ea
+                                -Xmx8G
                                 -Xbootclasspath/a:${galette.agentJar}
                                 -javaagent:${galette.agentJar}
-                                -Dflow.manager=${galette.manager}
-                                ${base.exec.args}
+                                -Dflow.manager=edu.neu.ccs.prl.galette.bench.extension.GaletteTagManager
                             </commandlineArgs>
                         </configuration>
                     </execution>
@@ -111,13 +100,22 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${mirror-taint.java}/bin/java</executable>
+                            <executable>${java.home}/bin/java</executable>
                             <classpathScope>test</classpathScope>
                             <commandlineArgs>
+                                -cp
+                                %classpath
+                                -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
+                                edu.neu.ccs.prl.galette.bench.extension.BenchmarkDriver
+                                ${galette.java}
+                                ${flow.report}
+                                -cp
+                                %classpath
+                                -ea
+                                -Xmx8G
                                 -Xbootclasspath/a:${mirror-taint.agentJar}
                                 -javaagent:${mirror-taint.agentJar}
                                 -Dflow.manager=edu.neu.ccs.prl.galette.eval.MirrorTaintTagManager
-                                ${base.exec.args}
                             </commandlineArgs>
                         </configuration>
                     </execution>
@@ -128,13 +126,22 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>${phosphor.java}/bin/java</executable>
+                            <executable>${java.home}/bin/java</executable>
                             <classpathScope>test</classpathScope>
                             <commandlineArgs>
+                                -cp
+                                %classpath
+                                -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
+                                edu.neu.ccs.prl.galette.bench.extension.BenchmarkDriver
+                                ${galette.java}
+                                ${flow.report}
+                                -cp
+                                %classpath
+                                -ea
+                                -Xmx8G
                                 -Xbootclasspath/a:${phosphor.agentJar}
                                 -javaagent:${phosphor.agentJar}
                                 -Dflow.manager=edu.neu.ccs.prl.galette.eval.PhosphorTagManager
-                                ${base.exec.args}
                             </commandlineArgs>
                         </configuration>
                     </execution>
@@ -143,19 +150,6 @@
         </plugins>
     </build>
     <profiles>
-        <profile>
-            <id>java</id>
-            <activation>
-                <jdk>[9,)</jdk>
-            </activation>
-            <properties>
-                <base.exec.args>
-                    --add-exports
-                    java.base/jdk.internal.misc=ALL-UNNAMED
-                    ${initial.exec.args}
-                </base.exec.args>
-            </properties>
-        </profile>
         <profile>
             <id>mirror-taint</id>
         </profile>

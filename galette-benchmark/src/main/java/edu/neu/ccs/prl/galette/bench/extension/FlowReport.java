@@ -1,35 +1,49 @@
 package edu.neu.ccs.prl.galette.bench.extension;
 
-import java.io.*;
-import java.lang.reflect.Method;
-import java.nio.file.Files;
+import java.io.IOException;
+import java.io.Serial;
+import java.io.Serializable;
 
-final class FlowReport {
-    private final File report;
+public interface FlowReport {
+    void record(FlowReportEntry entry) throws IOException;
 
-    FlowReport(File report) throws IOException {
-        Files.createDirectories(report.getParentFile().toPath());
-        this.report = report;
-        boolean append = Boolean.getBoolean("flow.report.append");
-        if (!report.isFile() || !append) {
-            try (PrintWriter out = new PrintWriter(new FileOutputStream(report, false))) {
-                out.println("class,method,name,tp,fp,fn,status");
-            }
+    final class FlowReportEntry implements Serializable {
+        @Serial
+        private static final long serialVersionUID = 1484508293276140432L;
+
+        private final String testIdentifier;
+        private final int truePositives;
+        private final int falsePositives;
+        private final int falseNegatives;
+        private final String status;
+
+        FlowReportEntry(
+                String testIdentifier, int truePositives, int falsePositives, int falseNegatives, String status) {
+            this.testIdentifier = testIdentifier;
+            this.truePositives = truePositives;
+            this.falsePositives = falsePositives;
+            this.falseNegatives = falseNegatives;
+            this.status = status;
         }
-    }
 
-    void recordEntry(Class<?> testClass, Method testMethod, String displayName, FlowChecker checker, String status)
-            throws FileNotFoundException {
-        try (PrintWriter out = new PrintWriter(new FileOutputStream(report, true))) {
-            out.printf(
-                    "\"%s\",\"%s\",\"%s\",%d,%d,%d,%s%n",
-                    testClass.getName(),
-                    testMethod.getName(),
-                    displayName.replace('"', '\''),
-                    checker.getTruePositives(),
-                    checker.getFalsePositives(),
-                    checker.getFalseNegatives(),
-                    status);
+        public String getTestIdentifier() {
+            return testIdentifier;
+        }
+
+        public int getTruePositives() {
+            return truePositives;
+        }
+
+        public int getFalsePositives() {
+            return falsePositives;
+        }
+
+        public int getFalseNegatives() {
+            return falseNegatives;
+        }
+
+        public String getStatus() {
+            return status;
         }
     }
 }

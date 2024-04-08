@@ -8,6 +8,8 @@ import org.junit.platform.commons.support.ModifierSupport;
 import org.junit.platform.commons.util.ReflectionUtils;
 
 class TagManagerResolver implements ParameterResolver, AfterEachCallback, BeforeEachCallback {
+    public static final String MANAGER_KEY = "flow.manager";
+
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
             throws ParameterResolutionException {
@@ -41,7 +43,7 @@ class TagManagerResolver implements ParameterResolver, AfterEachCallback, Before
 
     private static TagManager createTagManager(Object key) {
         try {
-            String name = System.getProperty("flow.manager");
+            String name = System.getProperty(MANAGER_KEY);
             if (name == null) {
                 throw new ParameterResolutionException("Missing value for system property: 'flow.manager'");
             }
