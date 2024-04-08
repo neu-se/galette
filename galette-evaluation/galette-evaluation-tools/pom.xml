@@ -79,7 +79,6 @@
                             <commandlineArgs>
                                 -cp
                                 %classpath
-                                -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
                                 edu.neu.ccs.prl.galette.bench.extension.BenchmarkDriver
                                 ${galette.java}
                                 ${flow.report}
@@ -105,7 +104,6 @@
                             <commandlineArgs>
                                 -cp
                                 %classpath
-                                -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
                                 edu.neu.ccs.prl.galette.bench.extension.BenchmarkDriver
                                 ${java.home}
                                 ${flow.report}
@@ -131,7 +129,6 @@
                             <commandlineArgs>
                                 -cp
                                 %classpath
-                                -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
                                 edu.neu.ccs.prl.galette.bench.extension.BenchmarkDriver
                                 ${phosphor.java}
                                 ${flow.report}
