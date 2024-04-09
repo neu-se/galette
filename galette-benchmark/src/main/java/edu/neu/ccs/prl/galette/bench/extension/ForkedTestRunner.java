@@ -38,8 +38,7 @@ final class ForkedTestRunner implements Closeable {
         return connection != null && !connection.isClosed();
     }
 
-    public void run(FileFlowReport report, List<TestIdentifier> testIdentifiers)
-            throws IOException, ClassNotFoundException {
+    public void run(FileFlowReport report, List<TestIdentifier> testIdentifiers) throws IOException {
         Set<String> uniqueIds =
                 testIdentifiers.stream().map(TestIdentifier::getUniqueId).collect(Collectors.toSet());
         while (!uniqueIds.isEmpty()) {
@@ -47,7 +46,7 @@ final class ForkedTestRunner implements Closeable {
         }
     }
 
-    private Set<String> run(FileFlowReport report, Set<String> uniqueIds) throws IOException, ClassNotFoundException {
+    private Set<String> run(FileFlowReport report, Set<String> uniqueIds) throws IOException {
         Set<String> executed = new HashSet<>();
         if (!isConnected()) {
             closeConnection();

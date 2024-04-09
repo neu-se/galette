@@ -85,7 +85,7 @@
                                 -cp
                                 %classpath
                                 -ea
-                                -Xmx8G
+                                -Xmx6G
                                 -Xbootclasspath/a:${galette.agentJar}
                                 -javaagent:${galette.agentJar}
                                 -Dflow.manager=edu.neu.ccs.prl.galette.bench.extension.GaletteTagManager
@@ -110,7 +110,7 @@
                                 -cp
                                 %classpath
                                 -ea
-                                -Xmx8G
+                                -Xmx6G
                                 -Xbootclasspath/a:${mirror-taint.agentJar}
                                 -javaagent:${mirror-taint.agentJar}
                                 -Dflow.manager=edu.neu.ccs.prl.galette.eval.MirrorTaintTagManager
@@ -135,7 +135,7 @@
                                 -cp
                                 %classpath
                                 -ea
-                                -Xmx8G
+                                -Xmx6G
                                 -Xbootclasspath/a:${phosphor.agentJar}
                                 -javaagent:${phosphor.agentJar}
                                 -Dflow.manager=edu.neu.ccs.prl.galette.eval.PhosphorTagManager

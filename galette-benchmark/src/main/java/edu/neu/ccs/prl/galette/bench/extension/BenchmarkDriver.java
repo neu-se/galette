@@ -30,7 +30,7 @@ public final class BenchmarkDriver {
                 report.record(entry);
             }
         } else {
-            try (ForkedTestRunner runner = new ForkedTestRunner(testForkLauncher, Duration.ofSeconds(30))) {
+            try (ForkedTestRunner runner = new ForkedTestRunner(testForkLauncher, Duration.ofMinutes(10))) {
                 runner.run(report, testIdentifiers);
             }
         }

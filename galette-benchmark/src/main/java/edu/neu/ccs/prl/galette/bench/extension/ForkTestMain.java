@@ -4,6 +4,7 @@ import static org.junit.platform.engine.discovery.ClassNameFilter.includeClassNa
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.TestExecutionResult;
@@ -68,7 +69,7 @@ public final class ForkTestMain {
         public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
             if (testIdentifier.isTest()) {
                 TestExecutionResult.Status status = testExecutionResult.getStatus();
-                out.println(String.format("%s :: %s", testIdentifier.getUniqueId(), status));
+                out.println(String.format("%s\t%s :: %s", ZonedDateTime.now(), testIdentifier.getUniqueId(), status));
                 out.flush();
             }
         }

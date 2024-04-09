@@ -71,10 +71,7 @@ mvn -ntp -B -e \
   -s "$SETTINGS_FILE" \
   -Dflow.report="$REPORT_FILE" \
   dependency:properties \
-  exec:exec@"$TOOL" \
-  || exit_code=$?
-
-echo "Trial exited with code $exit_code"
+  exec:exec@"$TOOL"
 
 # Record configuration information
 echo "{
