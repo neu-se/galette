@@ -15,21 +15,20 @@ Did not use Oracle Java it is closed source (8 and 11 downloads require license 
 
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/evaluate_semantic.sh 1 evaluate_semantic.csv
 
-Last run:
-/ci-logs/public/katie/galette/results/slurm-1189075/
+Running:
+/ci-logs/public/katie/galette/results/slurm-1189404/
 
-Phosphor will crash on:
+Phosphor may crash on:
 VarHandleITCase#getAndBitwiseBoolean
 VarHandleITCase#compareAndExchangeBoolean
 with location
 ONE_DIMENSIONAL_ARRAY.getBoolean
 
-* Consider reverting to the distributed MirrorTaint JAR
-* Recollect data
-* Create table
 * Examine root cause of failures for Phosphor and MirrorTaint
 * Write up description of results
 
 Add pattern matching
 Add additional cases for MethodHandles
 Add ternaries
+String templates
+Remove serialization tests?
