@@ -15,10 +15,13 @@ that would allow us to include MirrorTaint in an evaluation.
 ------------------------------------------------------------------------
 Paper Notes:
 
-create table for synthetic benchmark suite (for supplemental materials)?
+create table for functional benchmark suite (for supplemental materials)?
 group | number of tests | description
 ArrayReflectionITCase | X |Uses java.lang.reflect.Array to create arrays, set array elements, and get array elements
 
 for signature polymorphism, show example of instrumentation applied at wrappers
 and at signature polymorphic call sites
 walk through example
+
+%  https://aoli.al/papers/exchain-nsdi24.pdf
+
