@@ -328,6 +328,62 @@ Caused by: java.lang.ClassNotFoundException: InjectedInvoker
 	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java)
 	... 97 more
 luindex
+java.lang.reflect.InvocationTargetException
+java.lang.reflect.InvocationTargetException
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.dacapo.harness.Luindex.iterate(Luindex.java:77)
+	at org.dacapo.harness.Benchmark.run(Benchmark.java:253)
+	at org.dacapo.harness.TestHarness.runBenchmark(TestHarness.java:225)
+	at org.dacapo.harness.TestHarness.main(TestHarness.java:170)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at Harness.main(Unknown Source)
+	at Harness.main(Unknown Source)
+Caused by: java.lang.NoClassDefFoundError: InjectedInvoker
+	at java.base/jdk.internal.misc.Unsafe.defineAnonymousClass0(Native Method)
+	at java.base/jdk.internal.misc.Unsafe.defineAnonymousClass0(Unsafe.java)
+	at java.base/jdk.internal.misc.Unsafe.defineAnonymousClass(Unsafe.java:1223)
+	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller.makeInjectedInvoker(MethodHandleImpl.java:1219)
+	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller$1.computeValue(MethodHandleImpl.java:1229)
+	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller$1.computeValue(MethodHandleImpl.java:1227)
+	at java.base/java.lang.ClassValue.getFromHashMap(ClassValue.java:228)
+	at java.base/java.lang.ClassValue.getFromBackup(ClassValue.java:210)
+	at java.base/java.lang.ClassValue.get(ClassValue.java:116)
+	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller.bindCaller(MethodHandleImpl.java:1213)
+	at java.base/java.lang.invoke.MethodHandleImpl.bindCaller(MethodHandleImpl.java:1190)
+	at java.base/java.lang.invoke.MethodHandles$Lookup.maybeBindCaller(MethodHandles.java:2343)
+	at java.base/java.lang.invoke.MethodHandles$Lookup.getDirectMethodCommon(MethodHandles.java:2329)
+	at java.base/java.lang.invoke.MethodHandles$Lookup.getDirectMethodNoSecurityManager(MethodHandles.java:2278)
+	at java.base/java.lang.invoke.MethodHandles$Lookup.getDirectMethodForConstant(MethodHandles.java:2520)
+	at java.base/java.lang.invoke.MethodHandles$Lookup.linkMethodHandleConstant(MethodHandles.java:2466)
+	at java.base/java.lang.invoke.MethodHandleNatives.linkMethodHandleConstant(MethodHandleNatives.java:592)
+	at java.base/java.lang.invoke.MethodHandleNatives.linkMethodHandleConstant(MethodHandleNatives.java)
+	at org.apache.lucene.util.RamUsageEstimator.shallowSizeOfInstance(RamUsageEstimator.java:598)
+	at org.apache.lucene.util.RamUsageEstimator.<clinit>(RamUsageEstimator.java:189)
+	at org.apache.lucene.util.FrequencyTrackingRingBuffer.<clinit>(FrequencyTrackingRingBuffer.java:34)
+	at org.apache.lucene.search.UsageTrackingQueryCachingPolicy.<init>(UsageTrackingQueryCachingPolicy.java:107)
+	at org.apache.lucene.search.UsageTrackingQueryCachingPolicy.<init>(UsageTrackingQueryCachingPolicy.java:115)
+	at org.apache.lucene.search.IndexSearcher.<clinit>(IndexSearcher.java:87)
+	at org.apache.lucene.index.LiveIndexWriterConfig.<init>(LiveIndexWriterConfig.java:126)
+	at org.apache.lucene.index.IndexWriterConfig.<init>(IndexWriterConfig.java:145)
+	at org.apache.lucene.index.IndexWriterConfig.<init>(IndexWriterConfig.java:135)
+	at org.dacapo.luindex.Index.indexLineDoc(Index.java:104)
+	... 16 more
+Caused by: java.lang.ClassNotFoundException: InjectedInvoker
+	at java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:476)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:594)
+	at org.dacapo.harness.DacapoClassLoader.loadClass(DacapoClassLoader.java:152)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:527)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java)
+	... 44 more
+
 lusearch
 pmd
 spring
@@ -337,3 +393,9 @@ tradebeans
 tradesoap
 xalan
 zxing
+
+"A MethodHandle on the other hand should not be caller sensitive.
+To archive this, a MethodHandle will "bind" the lookup class as caller for caller sensitive methods.
+This is currently done by injecting a hidden class (InjectedInvoker)
+that acts as a trampoline for calling caller sensitive methods."
+https://mail.openjdk.org/pipermail/core-libs-dev/2021-January.txt
