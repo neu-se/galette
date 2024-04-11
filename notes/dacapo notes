@@ -1,6 +1,7 @@
-['batik', 'graphchi', 'h2o', 'luindex', 'lusearch', 'sunflow']
-/experiment/katie/galette/dacapo-23.11-chopin.tar.xz
-    full release minus some large datasets that can be independently downloaded
+/experiment/katie/galette/dacapo-23.11-chopin-small.tar.xz (1.3 GB)
+    Full release minus data files not necessary to run the small input size (compressed)
+/experiment/katie/galette/dacapo-23.11-chopin-small.tar (1.6 GB)
+    Full release minus data files not necessary to run the small input size (uncompressed)
 
 --size default
 --callback <CALLBACK_CLASS>
@@ -11,12 +12,18 @@ https://github.com/cache2k/cache2k-benchmark/blob/e4cd7a8c491bf275545b3003932c2e
 Take runtime reported by DaCapo
 Exclude trial if DaCapo's validation fails (see paper for explanation of validation)
 
+for h2o use option:
+--timeout-dialation 100
+
 TODO fix failures
 TODO performance tuning
 TODO identify locations to use as taint sources manually for each dacapo subject
 
-/usr/lib/jvm/jdk-11.0.22+7/bin/java  \
+JAVA_HOME2=/home/katie/IdeaProjects/phosphor2/galette-evaluation/galette-evaluation-tools/target/galette/java/
+DACAPO_JAR=/home/katie/Downloads/dacapo-23.11-chopin/dacapo-23.11-chopin.jar
+AGENT_JAR=/home/katie/IdeaProjects/phosphor2/galette-agent/target/galette-agent-1.0.0-SNAPSHOT.jar
+$JAVA_HOME2/bin/java \
 -ea -Xmx6G -javaagent:"$AGENT_JAR" \
 -Xbootclasspath/a:"$AGENT_JAR" \
 -jar "$DACAPO_JAR" \
---size small -n 1 "$BENCHMARK"
+--size small -n 1 kafka

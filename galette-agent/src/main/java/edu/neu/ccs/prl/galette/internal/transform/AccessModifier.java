@@ -23,7 +23,6 @@ class AccessModifier extends ClassVisitor {
         // TODO should we hide/mask the these changes?
         return "sun/misc/Unsafe".equals(className)
                 || "jdk/internal/misc/Unsafe".equals(className)
-                || "java/lang/ClassLoader".equals(className)
                 || "java/lang/reflect/Array".equals(className)
                 || "java/io/ObjectInputStream".equals(className)
                 || "java/lang/StringConcatHelper".equals(className)

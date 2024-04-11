@@ -2,400 +2,54 @@ Galette
 avrora 20250
 batik 28056
 biojava	28742
-
-cassandra
-java.lang.reflect.InvocationTargetException
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
-	at org.dacapo.harness.Cassandra.prepare(Cassandra.java:103)
-	at org.dacapo.harness.Benchmark.run(Benchmark.java:229)
-	at org.dacapo.harness.TestHarness.runBenchmark(TestHarness.java:225)
-	at org.dacapo.harness.TestHarness.main(TestHarness.java:170)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
-	at Harness.main(Unknown Source)
-	at Harness.main(Unknown Source)
-Caused by: org.apache.cassandra.exceptions.ConfigurationException: Invalid partitioner class org.apache.cassandra.dht.Murmur3Partitioner
-	at org.apache.cassandra.config.DatabaseDescriptor.applyPartitioner(DatabaseDescriptor.java:1419)
-	at org.apache.cassandra.config.DatabaseDescriptor.applyPartitioner(DatabaseDescriptor.java:1401)
-	at org.apache.cassandra.config.DatabaseDescriptor.applyAll(DatabaseDescriptor.java:441)
-	at org.apache.cassandra.config.DatabaseDescriptor.daemonInitialization(DatabaseDescriptor.java:251)
-	at org.apache.cassandra.config.DatabaseDescriptor.daemonInitialization(DatabaseDescriptor.java:235)
-	at org.apache.cassandra.service.CassandraDaemon.applyConfig(CassandraDaemon.java:819)
-	at org.apache.cassandra.service.EmbeddedCassandraService.start(EmbeddedCassandraService.java:49)
-	... 16 more
-Caused by: org.apache.cassandra.exceptions.ConfigurationException: Unable to find partitioner class 'org.apache.cassandra.dht.Murmur3Partitioner'
-	at org.apache.cassandra.utils.FBUtilities.classForName(FBUtilities.java:740)
-	at org.apache.cassandra.utils.FBUtilities.instanceOrConstruct(FBUtilities.java:752)
-	at org.apache.cassandra.utils.FBUtilities.newPartitioner(FBUtilities.java:637)
-	at org.apache.cassandra.utils.FBUtilities.newPartitioner(FBUtilities.java:623)
-	at org.apache.cassandra.config.DatabaseDescriptor.applyPartitioner(DatabaseDescriptor.java:1415)
-	... 22 more
-Caused by: java.lang.NoClassDefFoundError: InjectedInvoker
-	at java.base/jdk.internal.misc.Unsafe.defineAnonymousClass0(Native Method)
-	at java.base/jdk.internal.misc.Unsafe.defineAnonymousClass0(Unsafe.java)
-	at java.base/jdk.internal.misc.Unsafe.defineAnonymousClass(Unsafe.java:1223)
-	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller.makeInjectedInvoker(MethodHandleImpl.java:1219)
-	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller$1.computeValue(MethodHandleImpl.java:1229)
-	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller$1.computeValue(MethodHandleImpl.java:1227)
-	at java.base/java.lang.ClassValue.getFromHashMap(ClassValue.java:228)
-	at java.base/java.lang.ClassValue.getFromBackup(ClassValue.java:210)
-	at java.base/java.lang.ClassValue.get(ClassValue.java:116)
-	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller.bindCaller(MethodHandleImpl.java:1213)
-	at java.base/java.lang.invoke.MethodHandleImpl.bindCaller(MethodHandleImpl.java:1190)
-	at java.base/java.lang.invoke.MethodHandles$Lookup.maybeBindCaller(MethodHandles.java:2343)
-	at java.base/java.lang.invoke.MethodHandles$Lookup.getDirectMethodCommon(MethodHandles.java:2329)
-	at java.base/java.lang.invoke.MethodHandles$Lookup.getDirectMethodNoSecurityManager(MethodHandles.java:2278)
-	at java.base/java.lang.invoke.MethodHandles$Lookup.unreflect(MethodHandles.java:1747)
-	at org.github.jamm.utils.MethodHandleUtils.methodHandle(MethodHandleUtils.java:35)
-	at org.github.jamm.accessors.FieldAccessor.newInstance(FieldAccessor.java:33)
-	at org.github.jamm.MemoryMeter.<clinit>(MemoryMeter.java:184)
-	at org.apache.cassandra.utils.ObjectSizes.<clinit>(ObjectSizes.java:40)
-	at org.apache.cassandra.dht.Murmur3Partitioner.<clinit>(Murmur3Partitioner.java:54)
-	at java.base/java.lang.Class.forName0(Native Method)
-	at java.base/java.lang.Class.forName0(Class.java)
-	at java.base/java.lang.Class.forName(Class.java:315)
-	at org.apache.cassandra.utils.FBUtilities.classForName(FBUtilities.java:736)
-	... 26 more
-Caused by: java.lang.ClassNotFoundException: InjectedInvoker
-	at java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:476)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:594)
-	at org.dacapo.harness.DacapoClassLoader.loadClass(DacapoClassLoader.java:152)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:527)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java)
-	... 50 more
-
+cassandra 32218
 eclipse 37865
 fop 49981
 graphchi 108589
 h2 13123
-h2o
-Exception in thread "Heartbeat" java.lang.IllegalAccessError: Access denied for caller.
-	at javassist.util.proxy.DefineClassHelper$JavaOther.defineClass(DefineClassHelper.java:211)
-	at javassist.util.proxy.DefineClassHelper$Java11.defineClass(DefineClassHelper.java:52)
-	at javassist.util.proxy.DefineClassHelper.toClass(DefineClassHelper.java:260)
-	at javassist.ClassPool.toClass(ClassPool.java:1240)
-	at javassist.CtClass.toClass(CtClass.java:1392)
-	at water.Weaver.javassistLoadClass(Weaver.java:114)
-	at water.Weaver.javassistLoadClass(Weaver.java:98)
-	at water.Weaver.genDelegate(Weaver.java:59)
-	at water.TypeMap.getIcer(TypeMap.java:261)
-	at water.TypeMap.getIcer(TypeMap.java:248)
-	at water.Iced.icer(Iced.java:55)
-	at water.Iced.write(Iced.java:61)
-	at water.UDPHeartbeat.build_and_multicast(UDPHeartbeat.java:30)
-	at water.HeartBeatThread.run(HeartBeatThread.java:134)
-	at water.HeartBeatThread.run(HeartBeatThread.java)
-===== DaCapo 23.11-chopin h2o starting =====
-Importing file: citibiketripdata201908s.csv......
-2024-04-10 15:59:03.931:WARN:oejs.HttpChannel:qtp1253042143-33: /3/ImportFiles
-java.lang.RuntimeException: java.lang.ClassNotFoundException: water.Iced$Icer
-	at water.Weaver.genDelegate(Weaver.java:64)
-	at water.TypeMap.getIcer(TypeMap.java:261)
-	at water.TypeMap.getIcer(TypeMap.java:248)
-	at water.Iced.icer(Iced.java:55)
-	at water.Iced.writeJSON(Iced.java:65)
-	at water.api.schemas3.SchemaV3.writeJSON(SchemaV3.java:63)
-	at water.Iced.toJsonString(Iced.java:77)
-	at water.api.RequestServer.serveSchema(RequestServer.java:766)
-	at water.api.RequestServer.serveError(RequestServer.java:802)
-	at water.api.RequestServer.serve(RequestServer.java:513)
-	at water.api.RequestServer.doGeneric(RequestServer.java:303)
-	at water.api.RequestServer.doGet(RequestServer.java:225)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:687)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:790)
-	at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:865)
-	at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:535)
-	at org.eclipse.jetty.server.handler.ScopedHandler.nextHandle(ScopedHandler.java:255)
-	at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:1317)
-	at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:203)
-	at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:473)
-	at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:201)
-	at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:1219)
-	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:144)
-	at org.eclipse.jetty.server.handler.HandlerCollection.handle(HandlerCollection.java:126)
-	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:132)
-	at water.webserver.jetty9.Jetty9ServerAdapter$LoginHandler.handle(Jetty9ServerAdapter.java:130)
-	at org.eclipse.jetty.server.handler.HandlerCollection.handle(HandlerCollection.java:126)
-	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:132)
-	at org.eclipse.jetty.server.Server.handle(Server.java:531)
-	at org.eclipse.jetty.server.HttpChannel.handle(HttpChannel.java:352)
-	at org.eclipse.jetty.server.HttpConnection.onFillable(HttpConnection.java:260)
-	at org.eclipse.jetty.io.AbstractConnection$ReadCallback.succeeded(AbstractConnection.java:281)
-	at org.eclipse.jetty.io.FillInterest.fillable(FillInterest.java:102)
-	at org.eclipse.jetty.io.ChannelEndPoint$2.run(ChannelEndPoint.java:118)
-	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:762)
-	at org.eclipse.jetty.util.thread.QueuedThreadPool$2.run(QueuedThreadPool.java:680)
-	at java.base/java.lang.Thread.run(Thread.java:829)
-	at java.base/java.lang.Thread.run(Thread.java)
-Caused by:
-java.lang.ClassNotFoundException: water.Iced$Icer
-	at java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:476)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:594)
-	at org.dacapo.harness.DacapoClassLoader.loadClass(DacapoClassLoader.java:152)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:527)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java)
-	at java.base/java.lang.Class.forName0(Native Method)
-	at java.base/java.lang.Class.forName0(Class.java)
-	at java.base/java.lang.Class.forName(Class.java:398)
-	at water.Weaver.javassistLoadClass(Weaver.java:87)
-	at water.Weaver.javassistLoadClass(Weaver.java:98)
-	at water.Weaver.javassistLoadClass(Weaver.java:98)
-	at water.Weaver.javassistLoadClass(Weaver.java:98)
-	at water.Weaver.genDelegate(Weaver.java:59)
-	at water.TypeMap.getIcer(TypeMap.java:261)
-	at water.TypeMap.getIcer(TypeMap.java:248)
-	at water.Iced.icer(Iced.java:55)
-	at water.Iced.writeJSON(Iced.java:65)
-	at water.api.schemas3.SchemaV3.writeJSON(SchemaV3.java:63)
-	at water.Iced.toJsonString(Iced.java:77)
-	at water.api.RequestServer.serveSchema(RequestServer.java:766)
-	at water.api.RequestServer.serveError(RequestServer.java:802)
-	at water.api.RequestServer.serve(RequestServer.java:513)
-	at water.api.RequestServer.doGeneric(RequestServer.java:303)
-	at water.api.RequestServer.doGet(RequestServer.java:225)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:687)
-	at javax.servlet.http.HttpServlet.service(HttpServlet.java:790)
-	at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:865)
-	at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:535)
-	at org.eclipse.jetty.server.handler.ScopedHandler.nextHandle(ScopedHandler.java:255)
-	at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:1317)
-	at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:203)
-	at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:473)
-	at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:201)
-	at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:1219)
-	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:144)
-	at org.eclipse.jetty.server.handler.HandlerCollection.handle(HandlerCollection.java:126)
-	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:132)
-	at water.webserver.jetty9.Jetty9ServerAdapter$LoginHandler.handle(Jetty9ServerAdapter.java:130)
-	at org.eclipse.jetty.server.handler.HandlerCollection.handle(HandlerCollection.java:126)
-	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:132)
-	at org.eclipse.jetty.server.Server.handle(Server.java:531)
-	at org.eclipse.jetty.server.HttpChannel.handle(HttpChannel.java:352)
-	at org.eclipse.jetty.server.HttpConnection.onFillable(HttpConnection.java:260)
-	at org.eclipse.jetty.io.AbstractConnection$ReadCallback.succeeded(AbstractConnection.java:281)
-	at org.eclipse.jetty.io.FillInterest.fillable(FillInterest.java:102)
-	at org.eclipse.jetty.io.ChannelEndPoint$2.run(ChannelEndPoint.java:118)
-	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:762)
-	at org.eclipse.jetty.util.thread.QueuedThreadPool$2.run(QueuedThreadPool.java:680)
-	at java.base/java.lang.Thread.run(Thread.java:829)
-	at java.base/java.lang.Thread.run(Thread.java)
-java.io.IOException: Request failed for http://127.0.0.1:54321/3/ImportFiles?path=/home/katie/Downloads/dacapo-23.11-chopin/dacapo-23.11-chopin/dat/h2o/citibiketripdata201908s.csv with error code: 500
-java.io.IOException: Request failed for http://127.0.0.1:54321/3/ImportFiles?path=/home/katie/Downloads/dacapo-23.11-chopin/dacapo-23.11-chopin/dat/h2o/citibiketripdata201908s.csv with error code: 500
-	at org.dacapo.h2o.RestUtil.getMethod(RestUtil.java:70)
-	at org.dacapo.h2o.DacapoH2OFacade.importFiles(DacapoH2OFacade.java:111)
-	at org.dacapo.h2o.ClientRunner.iterate(ClientRunner.java:15)
-	at org.dacapo.harness.H2O.iterate(H2O.java:122)
-	at org.dacapo.harness.Benchmark.run(Benchmark.java:253)
-	at org.dacapo.harness.TestHarness.runBenchmark(TestHarness.java:225)
-	at org.dacapo.harness.TestHarness.main(TestHarness.java:170)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
-	at Harness.main(Unknown Source)
-	at Harness.main(Unknown Source)
+h2o 91366
 jme 30426
 jython 76740
-kafka
-java.lang.reflect.InvocationTargetException
-java.lang.reflect.InvocationTargetException
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
-	at org.dacapo.harness.Kafka.iterate(Kafka.java:53)
-	at org.dacapo.harness.Benchmark.run(Benchmark.java:253)
-	at org.dacapo.harness.TestHarness.runBenchmark(TestHarness.java:225)
-	at org.dacapo.harness.TestHarness.main(TestHarness.java:170)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
-	at Harness.main(Unknown Source)
-	at Harness.main(Unknown Source)
-Caused by: java.lang.reflect.InvocationTargetException
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
-	at org.dacapo.kafka.ClientRunner.runClient(Unknown Source)
-	at org.dacapo.kafka.Launcher.performIteration(Unknown Source)
-	... 16 more
-Caused by: java.lang.RuntimeException: Unable to start REST server
-	at org.apache.kafka.trogdor.rest.JsonRestServer.start(JsonRestServer.java:122)
-	at org.apache.kafka.trogdor.agent.Agent.main(Agent.java:253)
-	... 23 more
-Caused by: javax.servlet.ServletException: org.glassfish.jersey.servlet.ServletContainer-51a838f9==org.glassfish.jersey.servlet.ServletContainer@235d7459{jsp=null,order=-1,inst=true,async=true,src=EMBEDDED:null,STARTED}
-	at org.eclipse.jetty.servlet.ServletHolder.initServlet(ServletHolder.java:650)
-	at org.eclipse.jetty.servlet.ServletHolder.initialize(ServletHolder.java:415)
-	at org.eclipse.jetty.servlet.ServletHandler.lambda$initialize$0(ServletHandler.java:750)
-	at java.base/java.util.stream.SortedOps$SizedRefSortingSink.end(SortedOps.java:357)
-	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:485)
-	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:474)
-	at java.base/java.util.stream.StreamSpliterators$WrappingSpliterator.forEachRemaining(StreamSpliterators.java:312)
-	at java.base/java.util.stream.Streams$ConcatSpliterator.forEachRemaining(Streams.java:735)
-	at java.base/java.util.stream.ReferencePipeline$Head.forEach(ReferencePipeline.java:658)
-	at org.eclipse.jetty.servlet.ServletHandler.initialize(ServletHandler.java:774)
-	at org.eclipse.jetty.servlet.ServletContextHandler.startContext(ServletContextHandler.java:379)
-	at org.eclipse.jetty.server.handler.ContextHandler.doStart(ContextHandler.java:916)
-	at org.eclipse.jetty.servlet.ServletContextHandler.doStart(ServletContextHandler.java:288)
-	at org.eclipse.jetty.util.component.AbstractLifeCycle.start(AbstractLifeCycle.java:73)
-	at org.eclipse.jetty.util.component.ContainerLifeCycle.start(ContainerLifeCycle.java:169)
-	at org.eclipse.jetty.util.component.ContainerLifeCycle.doStart(ContainerLifeCycle.java:117)
-	at org.eclipse.jetty.server.handler.AbstractHandler.doStart(AbstractHandler.java:97)
-	at org.eclipse.jetty.util.component.AbstractLifeCycle.start(AbstractLifeCycle.java:73)
-	at org.eclipse.jetty.util.component.ContainerLifeCycle.start(ContainerLifeCycle.java:169)
-	at org.eclipse.jetty.util.component.ContainerLifeCycle.doStart(ContainerLifeCycle.java:110)
-	at org.eclipse.jetty.server.handler.AbstractHandler.doStart(AbstractHandler.java:97)
-	at org.eclipse.jetty.server.handler.StatisticsHandler.doStart(StatisticsHandler.java:264)
-	at org.eclipse.jetty.util.component.AbstractLifeCycle.start(AbstractLifeCycle.java:73)
-	at org.eclipse.jetty.util.component.ContainerLifeCycle.start(ContainerLifeCycle.java:169)
-	at org.eclipse.jetty.server.Server.start(Server.java:423)
-	at org.eclipse.jetty.util.component.ContainerLifeCycle.doStart(ContainerLifeCycle.java:110)
-	at org.eclipse.jetty.server.handler.AbstractHandler.doStart(AbstractHandler.java:97)
-	at org.eclipse.jetty.server.Server.doStart(Server.java:387)
-	at org.eclipse.jetty.util.component.AbstractLifeCycle.start(AbstractLifeCycle.java:73)
-	at org.apache.kafka.trogdor.rest.JsonRestServer.start(JsonRestServer.java:120)
-	... 24 more
-Caused by: A MultiException has 1 exceptions.  They are:
-1. java.lang.NoClassDefFoundError: InjectedInvoker
-
-	at org.jvnet.hk2.internal.Collector.throwIfErrors(Collector.java:65)
-	at org.jvnet.hk2.internal.Utilities.justCreate(Utilities.java:1044)
-	at org.jvnet.hk2.internal.ServiceLocatorImpl.create(ServiceLocatorImpl.java:968)
-	at org.jvnet.hk2.internal.ServiceLocatorImpl.createAndInitialize(ServiceLocatorImpl.java:1072)
-	at org.jvnet.hk2.internal.ServiceLocatorImpl.createAndInitialize(ServiceLocatorImpl.java:1064)
-	at org.glassfish.jersey.inject.hk2.AbstractHk2InjectionManager.createAndInitialize(AbstractHk2InjectionManager.java:189)
-	at org.glassfish.jersey.inject.hk2.ImmediateHk2InjectionManager.createAndInitialize(ImmediateHk2InjectionManager.java:30)
-	at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:195)
-	at java.base/java.util.stream.ReferencePipeline$11$1.accept(ReferencePipeline.java:442)
-	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1655)
-	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:484)
-	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:474)
-	at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:913)
-	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
-	at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:578)
-	at org.glassfish.jersey.internal.AutoDiscoverableConfigurator.init(AutoDiscoverableConfigurator.java:52)
-	at org.glassfish.jersey.server.ApplicationHandler.lambda$initialize$0(ApplicationHandler.java:290)
-	at java.base/java.util.Arrays$ArrayList.forEach(Arrays.java:4390)
-	at org.glassfish.jersey.server.ApplicationHandler.initialize(ApplicationHandler.java:290)
-	at org.glassfish.jersey.server.ApplicationHandler.<init>(ApplicationHandler.java:259)
-	at org.glassfish.jersey.servlet.WebComponent.<init>(WebComponent.java:311)
-	at org.glassfish.jersey.servlet.ServletContainer.init(ServletContainer.java:154)
-	at org.glassfish.jersey.servlet.ServletContainer.init(ServletContainer.java:347)
-	at javax.servlet.GenericServlet.init(GenericServlet.java:244)
-	at org.eclipse.jetty.servlet.ServletHolder.initServlet(ServletHolder.java:632)
-	... 53 more
-Caused by: java.lang.NoClassDefFoundError: InjectedInvoker
-	at java.base/jdk.internal.misc.Unsafe.defineAnonymousClass0(Native Method)
-	at java.base/jdk.internal.misc.Unsafe.defineAnonymousClass0(Unsafe.java)
-	at java.base/jdk.internal.misc.Unsafe.defineAnonymousClass(Unsafe.java:1223)
-	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller.makeInjectedInvoker(MethodHandleImpl.java:1219)
-	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller$1.computeValue(MethodHandleImpl.java:1229)
-	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller$1.computeValue(MethodHandleImpl.java:1227)
-	at java.base/java.lang.ClassValue.getFromHashMap(ClassValue.java:228)
-	at java.base/java.lang.ClassValue.getFromBackup(ClassValue.java:210)
-	at java.base/java.lang.ClassValue.get(ClassValue.java:116)
-	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller.bindCaller(MethodHandleImpl.java:1213)
-	at java.base/java.lang.invoke.MethodHandleImpl.bindCaller(MethodHandleImpl.java:1190)
-	at java.base/java.lang.invoke.MethodHandles$Lookup.maybeBindCaller(MethodHandles.java:2343)
-	at java.base/java.lang.invoke.MethodHandles$Lookup.getDirectMethodCommon(MethodHandles.java:2329)
-	at java.base/java.lang.invoke.MethodHandles$Lookup.getDirectMethodNoSecurityManager(MethodHandles.java:2278)
-	at java.base/java.lang.invoke.MethodHandles$Lookup.getDirectMethodForConstant(MethodHandles.java:2520)
-	at java.base/java.lang.invoke.MethodHandles$Lookup.linkMethodHandleConstant(MethodHandles.java:2466)
-	at java.base/java.lang.invoke.MethodHandleNatives.linkMethodHandleConstant(MethodHandleNatives.java:592)
-	at java.base/java.lang.invoke.MethodHandleNatives.linkMethodHandleConstant(MethodHandleNatives.java)
-	at org.glassfish.jersey.inject.hk2.JerseyClassAnalyzer.getConstructor(JerseyClassAnalyzer.java:148)
-	at org.jvnet.hk2.internal.Utilities.getConstructor(Utilities.java:156)
-	at org.jvnet.hk2.internal.Utilities.justCreate(Utilities.java:1042)
-	... 76 more
-Caused by: java.lang.ClassNotFoundException: InjectedInvoker
-	at java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:476)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:594)
-	at org.dacapo.harness.DacapoClassLoader.loadClass(DacapoClassLoader.java:152)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:527)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java)
-	... 97 more
-luindex
-java.lang.reflect.InvocationTargetException
-java.lang.reflect.InvocationTargetException
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
-	at org.dacapo.harness.Luindex.iterate(Luindex.java:77)
-	at org.dacapo.harness.Benchmark.run(Benchmark.java:253)
-	at org.dacapo.harness.TestHarness.runBenchmark(TestHarness.java:225)
-	at org.dacapo.harness.TestHarness.main(TestHarness.java:170)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
-	at Harness.main(Unknown Source)
-	at Harness.main(Unknown Source)
-Caused by: java.lang.NoClassDefFoundError: InjectedInvoker
-	at java.base/jdk.internal.misc.Unsafe.defineAnonymousClass0(Native Method)
-	at java.base/jdk.internal.misc.Unsafe.defineAnonymousClass0(Unsafe.java)
-	at java.base/jdk.internal.misc.Unsafe.defineAnonymousClass(Unsafe.java:1223)
-	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller.makeInjectedInvoker(MethodHandleImpl.java:1219)
-	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller$1.computeValue(MethodHandleImpl.java:1229)
-	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller$1.computeValue(MethodHandleImpl.java:1227)
-	at java.base/java.lang.ClassValue.getFromHashMap(ClassValue.java:228)
-	at java.base/java.lang.ClassValue.getFromBackup(ClassValue.java:210)
-	at java.base/java.lang.ClassValue.get(ClassValue.java:116)
-	at java.base/java.lang.invoke.MethodHandleImpl$BindCaller.bindCaller(MethodHandleImpl.java:1213)
-	at java.base/java.lang.invoke.MethodHandleImpl.bindCaller(MethodHandleImpl.java:1190)
-	at java.base/java.lang.invoke.MethodHandles$Lookup.maybeBindCaller(MethodHandles.java:2343)
-	at java.base/java.lang.invoke.MethodHandles$Lookup.getDirectMethodCommon(MethodHandles.java:2329)
-	at java.base/java.lang.invoke.MethodHandles$Lookup.getDirectMethodNoSecurityManager(MethodHandles.java:2278)
-	at java.base/java.lang.invoke.MethodHandles$Lookup.getDirectMethodForConstant(MethodHandles.java:2520)
-	at java.base/java.lang.invoke.MethodHandles$Lookup.linkMethodHandleConstant(MethodHandles.java:2466)
-	at java.base/java.lang.invoke.MethodHandleNatives.linkMethodHandleConstant(MethodHandleNatives.java:592)
-	at java.base/java.lang.invoke.MethodHandleNatives.linkMethodHandleConstant(MethodHandleNatives.java)
-	at org.apache.lucene.util.RamUsageEstimator.shallowSizeOfInstance(RamUsageEstimator.java:598)
-	at org.apache.lucene.util.RamUsageEstimator.<clinit>(RamUsageEstimator.java:189)
-	at org.apache.lucene.util.FrequencyTrackingRingBuffer.<clinit>(FrequencyTrackingRingBuffer.java:34)
-	at org.apache.lucene.search.UsageTrackingQueryCachingPolicy.<init>(UsageTrackingQueryCachingPolicy.java:107)
-	at org.apache.lucene.search.UsageTrackingQueryCachingPolicy.<init>(UsageTrackingQueryCachingPolicy.java:115)
-	at org.apache.lucene.search.IndexSearcher.<clinit>(IndexSearcher.java:87)
-	at org.apache.lucene.index.LiveIndexWriterConfig.<init>(LiveIndexWriterConfig.java:126)
-	at org.apache.lucene.index.IndexWriterConfig.<init>(IndexWriterConfig.java:145)
-	at org.apache.lucene.index.IndexWriterConfig.<init>(IndexWriterConfig.java:135)
-	at org.dacapo.luindex.Index.indexLineDoc(Index.java:104)
-	... 16 more
-Caused by: java.lang.ClassNotFoundException: InjectedInvoker
-	at java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:476)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:594)
-	at org.dacapo.harness.DacapoClassLoader.loadClass(DacapoClassLoader.java:152)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:527)
-	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java)
-	... 44 more
-
-lusearch
-pmd
-spring
-sunflow
+kafka  101223
+luindex 55312
+lusearch 79329
+pmd 18455
+spring 64243
+sunflow 9386
 tomcat
-tradebeans
-tradesoap
-xalan
-zxing
 
-"A MethodHandle on the other hand should not be caller sensitive.
-To archive this, a MethodHandle will "bind" the lookup class as caller for caller sensitive methods.
-This is currently done by injecting a hidden class (InjectedInvoker)
-that acts as a trampoline for calling caller sensitive methods."
-https://mail.openjdk.org/pipermail/core-libs-dev/2021-January.txt
+An error occurred at line: [15] in the generated java file: [&#47;home&#47;katie&#47;Downloads&#47;dacapo-23.11-chopin-small&#47;scratch&#47;tomcat&#47;work&#47;Catalina&#47;localhost&#47;examples&#47;org&#47;apache&#47;jsp&#47;jsp&#47;error&#47;err_jsp.java]
+The type err_jsp must implement the inherited abstract method TaggedObject.hashCode(TagFrame)
+
+An error occurred at line: [15] in the generated java file: [&#47;home&#47;katie&#47;Downloads&#47;dacapo-23.11-chopin-small&#47;scratch&#47;tomcat&#47;work&#47;Catalina&#47;localhost&#47;examples&#47;org&#47;apache&#47;jsp&#47;jsp&#47;error&#47;err_jsp.java]
+The type err_jsp must implement the inherited abstract method TaggedObject.finalize(TagFrame)
+
+An error occurred at line: [15] in the generated java file: [&#47;home&#47;katie&#47;Downloads&#47;dacapo-23.11-chopin-small&#47;scratch&#47;tomcat&#47;work&#47;Catalina&#47;localhost&#47;examples&#47;org&#47;apache&#47;jsp&#47;jsp&#47;error&#47;err_jsp.java]
+The type err_jsp must implement the inherited abstract method TaggedObject.toString(TagFrame)
+
+An error occurred at line: [15] in the generated java file: [&#47;home&#47;katie&#47;Downloads&#47;dacapo-23.11-chopin-small&#47;scratch&#47;tomcat&#47;work&#47;Catalina&#47;localhost&#47;examples&#47;org&#47;apache&#47;jsp&#47;jsp&#47;error&#47;err_jsp.java]
+The type err_jsp must implement the inherited abstract method TaggedObject.clone(TagFrame)
+
+An error occurred at line: [15] in the generated java file: [&#47;home&#47;katie&#47;Downloads&#47;dacapo-23.11-chopin-small&#47;scratch&#47;tomcat&#47;work&#47;Catalina&#47;localhost&#47;examples&#47;org&#47;apache&#47;jsp&#47;jsp&#47;error&#47;err_jsp.java]
+The type err_jsp must implement the inherited abstract method TaggedObject.equals(Object, TagFrame)
+
+Stacktrace:
+	org.apache.jasper.compiler.DefaultErrorHandler.javacError(DefaultErrorHandler.java:102)
+	org.apache.jasper.compiler.ErrorDispatcher.javacError(ErrorDispatcher.java:213)
+	org.apache.jasper.compiler.JDTCompiler.generateClass(JDTCompiler.java:513)
+	org.apache.jasper.compiler.Compiler.compile(Compiler.java:402)
+	org.apache.jasper.compiler.Compiler.compile(Compiler.java:372)
+	org.apache.jasper.compiler.Compiler.compile(Compiler.java:356)
+	org.apache.jasper.JspCompilationContext.compile(JspCompilationContext.java:603)
+	org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:396)
+	org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:380)
+	org.apache.jasper.servlet.JspServlet.service(JspServlet.java:328)
+	jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	org.apache.catalina.filters.HttpHeaderSecurityFilter.doFilter(HttpHeaderSecurityFilter.java:129)
+
+tradebeans
+    terminates unexpected possibly due to watchdog?
+tradesoap
+xalan 6537
+zxing 54881
