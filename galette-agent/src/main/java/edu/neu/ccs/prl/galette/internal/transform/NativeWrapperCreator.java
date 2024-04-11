@@ -67,7 +67,12 @@ class NativeWrapperCreator extends MethodVisitor {
     }
 
     static NativeWrapperCreator newInstance(
-            String owner, boolean isInterface, MethodVisitor mv, MethodNode mn, boolean isHostedAnonymous) {
+            String owner,
+            boolean isInterface,
+            MethodVisitor mv,
+            MethodNode mn,
+            boolean isHostedAnonymous,
+            boolean isObjectMethod) {
         if (!AsmUtil.hasMethodBody(mn.access)) {
             throw new IllegalArgumentException("Methods that are native or abstract cannot be wrappers");
         } else if (!ShadowMethodCreator.isShadowMethod(mn.desc)) {
@@ -75,6 +80,10 @@ class NativeWrapperCreator extends MethodVisitor {
         }
         int opcode = computeWrappedCallOpcode(mn.access, mn.name, isHostedAnonymous);
         String calleeDesc = ShadowMethodCreator.getOriginalMethodDescriptor(mn.desc);
+        if (isHostedAnonymous && isObjectMethod) {
+            // Call the method declared in Object directly; do not dispatch on the subclass
+            owner = "java/lang/Object";
+        }
         MethodRecord callee = new MethodRecord(opcode, owner, mn.name, calleeDesc, isInterface);
         return new NativeWrapperCreator(mv, callee);
     }
