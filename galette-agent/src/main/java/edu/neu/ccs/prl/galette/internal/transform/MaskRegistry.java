@@ -35,7 +35,8 @@ public final class MaskRegistry {
         FloatMasks.class,
         IntegerMasks.class,
         LongMasks.class,
-        ShortMasks.class
+        ShortMasks.class,
+        SecurityManagerMasks.class
     };
     private static final SimpleMap<String, MaskInfo> masks = new SimpleMap<>();
 

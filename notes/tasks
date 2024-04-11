@@ -1,6 +1,6 @@
 * Create README based on Phosphor's
 * Port PowerSetTree (new name Subset Tree) from Phosphor
-* Fix stack traces
+* Fix stack traces (remove the shadow wrapper for native methods)
 * Configuration
 * Performance tuning
 * Any TODOs in codebase
