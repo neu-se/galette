@@ -17,8 +17,7 @@ pmd 18455
 spring 64243
 sunflow 9386
 tomcat 86034
-tradebeans
-    terminates unexpected possibly due to watchdog?
-tradesoap
+tradebeans 10765
+tradesoap  81848
 xalan 6537
 zxing 54881

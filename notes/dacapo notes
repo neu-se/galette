@@ -1,7 +1,6 @@
-/experiment/katie/galette/dacapo-23.11-chopin-small.tar.xz (1.3 GB)
-    Full release minus data files not necessary to run the small input size (compressed)
 /experiment/katie/galette/dacapo-23.11-chopin-small.tar (1.6 GB)
-    Full release minus data files not necessary to run the small input size (uncompressed)
+    Full release minus data files not necessary to run the small input size
+    Modified file org.dacapo.harness.Benchmark to remove MD5 checksum of JAR and data files to allow files to be statically instrumented
 
 --size small
 --timeout-dialation 100
@@ -13,6 +12,8 @@ https://github.com/cache2k/cache2k-benchmark/blob/e4cd7a8c491bf275545b3003932c2e
 Take runtime reported by DaCapo
 Exclude trial if DaCapo's validation fails (see paper for explanation of validation)
 
+May not be able to statically instrument: org.jboss.jandex.Indexer is used in tradebeans
+
 JAVA_HOME2=/home/katie/IdeaProjects/phosphor2/galette-evaluation/galette-evaluation-tools/target/galette/java/
 DACAPO_JAR=/home/katie/Downloads/dacapo-23.11-chopin/dacapo-23.11-chopin.jar
 AGENT_JAR=/home/katie/IdeaProjects/phosphor2/galette-agent/target/galette-agent-1.0.0-SNAPSHOT.jar
@@ -20,4 +21,7 @@ $JAVA_HOME2/bin/java \
 -ea -Xmx6G -javaagent:"$AGENT_JAR" \
 -Xbootclasspath/a:"$AGENT_JAR" \
 -jar "$DACAPO_JAR" \
---size small -n 1 --timeout-dialation 1000 kafka
+--size small -n 1 --timeout-dialation 39000 tradebeans
+
+tradebeans max timeout-dialation: 39000  (otherwise overflow)
+for tradesoap max timeout-dialation: 35791

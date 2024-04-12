@@ -23,7 +23,6 @@ Functional experiments
 * [MUST] Write up description of results
 
 Performance experiments
-* [MUST] Fix remaining failures for Galette on certain DaCapo subjects
 * [MUST] Decide on a methodology of the performance evaluation
 * [MUST] Create a means recording execution times and sampling the resident set size (RSS) of the DaCapo benchmark process
 * [MUST] Create experiment and analysis scripts
