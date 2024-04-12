@@ -1,29 +1,36 @@
-* Create README based on Phosphor's
-* Port PowerSetTree (new name Subset Tree) from Phosphor
-* Fix stack traces (remove the shadow wrapper for native methods)
-* Configuration
-* Performance tuning
-* Any TODOs in codebase
-* Tracking through externalizable/serialization of strings/reference tags
-* Create separate plugin for creating instrumented JDKs (astrolabe), "Utilities for dynamic analysis tools"
-* Enums/ Phosphor's WITH_ENUMS_BY_VALUE
-* Re-examine all masks and consider the implications of subclassing (e.g., what if this method were called with a
-sub or super class reference)
-------------------------------------------------------------------------
-MirrorTaint only supports java 16 or lower (b/c of ASM version)
-Send bug fixes to MirrorTaint developers.
-Ask if they would be willing to release an updated, obfuscated JAR for MirrorTaint containing the fixes and license
-that would allow us to include MirrorTaint in an evaluation.
-------------------------------------------------------------------------
-Paper Notes:
+Implementation
+* [MUST] Improve the performance of array accesses
+* [MUST] General performance tuning
+* [MUST] Any TODOs in codebase
+* [SHOULD] Switch the tag representation from a HashMap to Phosphor's PowerSetTree
+* [SHOULD] Create README based on Phosphor's
+* [SHOULD] Remove extra entries in stack traces produces from Thread#dumpThread and StackTraceElement#initStackTraceElements
+    (remove the shadow wrapper for native methods)
+* [SHOULD] Have Unsafe masking use a map instead of a list
+* [SHOULD] Re-examine all masks and consider the implications of subclassing (e.g., what if this method were called
+    with a sub or super class reference)
+* [SHOULD] Create separate plugin for creating instrumented JDKs (astrolabe), "Utilities for dynamic analysis tools"
+* [COULD] Configuration
+* [WONT] Tracking through externalizable/serialization of strings/reference tags
+* [WONT] Enums/ Phosphor's WITH_ENUMS_BY_VALUE
 
-create table for functional benchmark suite (for supplemental materials)?
-group | number of tests | description
-ArrayReflectionITCase | X |Uses java.lang.reflect.Array to create arrays, set array elements, and get array elements
+Functional experiments
+* Create a detailed listing describing the functional benchmark groups
+* Add additional tests for MethodHandles
+* Add tests for pattern matching
+* Add tests for ternaries
+* Add tests for String templates
+* Consider removing the tests for serialization
+* Determine root cause of failures for Phosphor and MirrorTaint
+* Write up description of results
 
-for signature polymorphism, show example of instrumentation applied at wrappers
-and at signature polymorphic call sites
-walk through example
+Performance experiments
+* Fix remaining failures for Galette on certain DaCapo subjects
+* Decide on a methodology of the performance evaluation
+* Create a means recording execution times and sampling the resident set size (RSS) of the DaCapo benchmark process
+* Create experiment and analysis scripts
+* Write up description of results
+* Identify locations to use as taint sources manually for each DaCapo subject and apply labels
 
-%  https://aoli.al/papers/exchain-nsdi24.pdf
-
+Other
+* Contact the MirrorTaint authors about releasing an updated, obfuscated JAR for MirrorTaint containing the fixes I made and a license.

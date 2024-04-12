@@ -3,7 +3,8 @@
 /experiment/katie/galette/dacapo-23.11-chopin-small.tar (1.6 GB)
     Full release minus data files not necessary to run the small input size (uncompressed)
 
---size default
+--size small
+--timeout-dialation 100
 --callback <CALLBACK_CLASS>
 -n 40
 
@@ -13,11 +14,6 @@ Take runtime reported by DaCapo
 Exclude trial if DaCapo's validation fails (see paper for explanation of validation)
 
 for h2o use option:
---timeout-dialation 100
-
-TODO fix failures
-TODO performance tuning
-TODO identify locations to use as taint sources manually for each dacapo subject
 
 JAVA_HOME2=/home/katie/IdeaProjects/phosphor2/galette-evaluation/galette-evaluation-tools/target/galette/java/
 DACAPO_JAR=/home/katie/Downloads/dacapo-23.11-chopin/dacapo-23.11-chopin.jar
@@ -26,4 +22,4 @@ $JAVA_HOME2/bin/java \
 -ea -Xmx6G -javaagent:"$AGENT_JAR" \
 -Xbootclasspath/a:"$AGENT_JAR" \
 -jar "$DACAPO_JAR" \
---size small -n 1 kafka
+--size small -n 1 --timeout-dialation 1000 kafka
