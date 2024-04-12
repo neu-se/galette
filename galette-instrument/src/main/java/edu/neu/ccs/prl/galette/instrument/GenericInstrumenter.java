@@ -27,7 +27,15 @@ public class GenericInstrumenter extends Instrumenter {
 
     @Override
     public byte[] instrument(byte[] classFileBuffer, String name) throws IOException {
-        byte[] result = instrumentation.apply(classFileBuffer);
+        byte[] result = null;
+        try {
+            result = instrumentation.apply(classFileBuffer);
+        } catch (IllegalArgumentException e) {
+            // Ignore issues probably caused by attempted to instrument a fat binary
+            if (!e.getMessage().contains("Unsupported class file major version")) {
+                throw e;
+            }
+        }
         int n;
         if ((n = count.incrementAndGet()) % 1000 == 0 && verbose) {
             System.out.println("Processed: " + n);
