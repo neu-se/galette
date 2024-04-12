@@ -2,13 +2,21 @@ package edu.neu.ccs.prl.galette.internal.runtime;
 
 @SuppressWarnings("unused")
 public interface TaggedObject {
-    int hashCode(TagFrame frame);
+    default int hashCode(TagFrame frame) {
+        return hashCode();
+    }
 
-    boolean equals(Object obj, TagFrame frame);
+    default boolean equals(Object obj, TagFrame frame) {
+        return equals(obj);
+    }
 
-    String toString(TagFrame frame);
+    default String toString(TagFrame frame) {
+        return toString();
+    }
 
-    Object clone(TagFrame frame) throws CloneNotSupportedException;
+    default Object clone(TagFrame frame) throws CloneNotSupportedException {
+        throw new CloneNotSupportedException();
+    }
 
-    void finalize(TagFrame frame) throws Throwable;
+    default void finalize(TagFrame frame) throws Throwable {}
 }

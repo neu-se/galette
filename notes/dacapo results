@@ -16,38 +16,7 @@ lusearch 79329
 pmd 18455
 spring 64243
 sunflow 9386
-tomcat
-
-An error occurred at line: [15] in the generated java file: [&#47;home&#47;katie&#47;Downloads&#47;dacapo-23.11-chopin-small&#47;scratch&#47;tomcat&#47;work&#47;Catalina&#47;localhost&#47;examples&#47;org&#47;apache&#47;jsp&#47;jsp&#47;error&#47;err_jsp.java]
-The type err_jsp must implement the inherited abstract method TaggedObject.hashCode(TagFrame)
-
-An error occurred at line: [15] in the generated java file: [&#47;home&#47;katie&#47;Downloads&#47;dacapo-23.11-chopin-small&#47;scratch&#47;tomcat&#47;work&#47;Catalina&#47;localhost&#47;examples&#47;org&#47;apache&#47;jsp&#47;jsp&#47;error&#47;err_jsp.java]
-The type err_jsp must implement the inherited abstract method TaggedObject.finalize(TagFrame)
-
-An error occurred at line: [15] in the generated java file: [&#47;home&#47;katie&#47;Downloads&#47;dacapo-23.11-chopin-small&#47;scratch&#47;tomcat&#47;work&#47;Catalina&#47;localhost&#47;examples&#47;org&#47;apache&#47;jsp&#47;jsp&#47;error&#47;err_jsp.java]
-The type err_jsp must implement the inherited abstract method TaggedObject.toString(TagFrame)
-
-An error occurred at line: [15] in the generated java file: [&#47;home&#47;katie&#47;Downloads&#47;dacapo-23.11-chopin-small&#47;scratch&#47;tomcat&#47;work&#47;Catalina&#47;localhost&#47;examples&#47;org&#47;apache&#47;jsp&#47;jsp&#47;error&#47;err_jsp.java]
-The type err_jsp must implement the inherited abstract method TaggedObject.clone(TagFrame)
-
-An error occurred at line: [15] in the generated java file: [&#47;home&#47;katie&#47;Downloads&#47;dacapo-23.11-chopin-small&#47;scratch&#47;tomcat&#47;work&#47;Catalina&#47;localhost&#47;examples&#47;org&#47;apache&#47;jsp&#47;jsp&#47;error&#47;err_jsp.java]
-The type err_jsp must implement the inherited abstract method TaggedObject.equals(Object, TagFrame)
-
-Stacktrace:
-	org.apache.jasper.compiler.DefaultErrorHandler.javacError(DefaultErrorHandler.java:102)
-	org.apache.jasper.compiler.ErrorDispatcher.javacError(ErrorDispatcher.java:213)
-	org.apache.jasper.compiler.JDTCompiler.generateClass(JDTCompiler.java:513)
-	org.apache.jasper.compiler.Compiler.compile(Compiler.java:402)
-	org.apache.jasper.compiler.Compiler.compile(Compiler.java:372)
-	org.apache.jasper.compiler.Compiler.compile(Compiler.java:356)
-	org.apache.jasper.JspCompilationContext.compile(JspCompilationContext.java:603)
-	org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:396)
-	org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:380)
-	org.apache.jasper.servlet.JspServlet.service(JspServlet.java:328)
-	jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
-	org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
-	org.apache.catalina.filters.HttpHeaderSecurityFilter.doFilter(HttpHeaderSecurityFilter.java:129)
-
+tomcat 86034
 tradebeans
     terminates unexpected possibly due to watchdog?
 tradesoap
