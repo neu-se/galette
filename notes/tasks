@@ -2,35 +2,33 @@ Implementation
 * [MUST] Improve the performance of array accesses
 * [MUST] General performance tuning
 * [MUST] Any TODOs in codebase
+* [SHOULD] Improve the performance of Unsafe accesses (switch to HashMap)
 * [SHOULD] Switch the tag representation from a HashMap to Phosphor's PowerSetTree
 * [SHOULD] Create README based on Phosphor's
 * [SHOULD] Remove extra entries in stack traces produces from Thread#dumpThread and StackTraceElement#initStackTraceElements
     (remove the shadow wrapper for native methods)
-* [SHOULD] Have Unsafe masking use a map instead of a list
 * [SHOULD] Re-examine all masks and consider the implications of subclassing (e.g., what if this method were called
     with a sub or super class reference)
 * [SHOULD] Create separate plugin for creating instrumented JDKs (astrolabe), "Utilities for dynamic analysis tools"
 * [COULD] Configuration
-* [WONT] Tracking through externalizable/serialization of strings/reference tags
-* [WONT] Enums/ Phosphor's WITH_ENUMS_BY_VALUE
 
 Functional experiments
-* Create a detailed listing describing the functional benchmark groups
-* Add additional tests for MethodHandles
-* Add tests for pattern matching
-* Add tests for ternaries
-* Add tests for String templates
+* [COULD] Create a detailed listing describing the functional benchmark groups
+* [COULD] Add additional tests for MethodHandles
+* [COULD] Add tests for pattern matching
+* [COULD] Add tests for ternaries
+* [COULD] Add tests for String templates
 * Consider removing the tests for serialization
-* Determine root cause of failures for Phosphor and MirrorTaint
-* Write up description of results
+* [SHOULD] Determine root cause of failures for Phosphor and MirrorTaint
+* [MUST] Write up description of results
 
 Performance experiments
-* Fix remaining failures for Galette on certain DaCapo subjects
-* Decide on a methodology of the performance evaluation
-* Create a means recording execution times and sampling the resident set size (RSS) of the DaCapo benchmark process
-* Create experiment and analysis scripts
-* Write up description of results
-* Identify locations to use as taint sources manually for each DaCapo subject and apply labels
+* [MUST] Fix remaining failures for Galette on certain DaCapo subjects
+* [MUST] Decide on a methodology of the performance evaluation
+* [MUST] Create a means recording execution times and sampling the resident set size (RSS) of the DaCapo benchmark process
+* [MUST] Create experiment and analysis scripts
+* [MUST] Write up description of results
+* [COULD] Identify locations to use as taint sources manually for each DaCapo subject and apply labels
 
 Other
-* Contact the MirrorTaint authors about releasing an updated, obfuscated JAR for MirrorTaint containing the fixes I made and a license.
+* [SHOULD] Contact the MirrorTaint authors about releasing an updated, obfuscated JAR for MirrorTaint containing the fixes I made and a license.

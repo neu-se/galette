@@ -3,12 +3,16 @@ package edu.neu.ccs.prl.galette.internal.runtime;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.Iterator;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.ObjectIntMap;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.SimpleList;
+import edu.neu.ccs.prl.galette.internal.runtime.frame.IndirectTagFrameStore;
+import edu.neu.ccs.prl.galette.internal.runtime.mask.ReflectionMasks;
+import edu.neu.ccs.prl.galette.internal.runtime.mask.UnsafeFlagAccessor;
 import java.io.*;
 
 /**
  * An immutable set of labels.
  */
 public final class Tag implements Serializable, TaggedObject {
+    private static volatile boolean TRACKING = false;
     private static final long serialVersionUID = -1353943194836946961L;
     private transient ObjectIntMap<Object> backingMap;
 
@@ -86,6 +90,9 @@ public final class Tag implements Serializable, TaggedObject {
         in.defaultReadObject();
         backingMap = new ObjectIntMap<>();
         int length = in.readInt();
+        if (length != 0) {
+            startTracking();
+        }
         for (int i = 0; i < length; i++) {
             Object label = in.readObject();
             backingMap.put(label, 1);
@@ -132,15 +139,21 @@ public final class Tag implements Serializable, TaggedObject {
     }
 
     public static Tag of(Object label) {
+        startTracking();
         return new Tag(label);
     }
 
     public static Tag of(Object... labels) {
-        ObjectIntMap<Object> distinct = new ObjectIntMap<>();
-        for (Object label : labels) {
-            distinct.put(label, 1);
+        if (labels.length == 0) {
+            return Tag.getEmptyTag();
+        } else {
+            startTracking();
+            ObjectIntMap<Object> distinct = new ObjectIntMap<>();
+            for (Object label : labels) {
+                distinct.put(label, 1);
+            }
+            return new Tag(distinct);
         }
-        return new Tag(distinct);
     }
 
     public static boolean isEmpty(Tag tag) {
@@ -173,4 +186,23 @@ public final class Tag implements Serializable, TaggedObject {
 
     @Override
     public void finalize(TagFrame frame) {}
+
+    private static void startTracking() {
+        if (!TRACKING) {
+            TRACKING = true;
+            // Enable mirrored tag stores
+            // Note: must initialize TagStoreFlagAccessor first to prevent circularity
+            TagStoreFlagAccessor.initialize();
+            ArrayTagStore.initialize();
+            FieldTagStore.initialize();
+            // Enable propagation through Unsafe accesses
+            UnsafeFlagAccessor.initialize();
+            // Enable indirect frame passing
+            IndirectTagFrameStore.initialize();
+            // Enable propagation through reflective method and constructor calls
+            ReflectionMasks.initialize();
+            // Enable propagation through exceptions
+            ExceptionStore.initialize();
+        }
+    }
 }

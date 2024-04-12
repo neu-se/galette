@@ -9,20 +9,20 @@ import org.objectweb.asm.Opcodes;
  * This "inner" access should be suppressed to prevent the risk of triggering an infinite loop.
  * This suppression is done using {@link TagStoreFlagAccessor#reserve()}.
  */
-@SuppressWarnings("ConstantValue")
 public final class TagStoreFlagAccessor {
     private static volatile boolean INITIALIZED = false;
 
     @SuppressWarnings("unused")
     @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_$$LOCAL_tagStoreFlag", opcode = Opcodes.GETFIELD)
     private static boolean getFlag(Thread thread) {
-        throw new AssertionError("Placeholder method was called");
+        // Placeholder
+        return false;
     }
 
     @SuppressWarnings("unused")
     @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_$$LOCAL_tagStoreFlag", opcode = Opcodes.PUTFIELD)
     private static void setFlag(Thread thread, boolean value) {
-        throw new AssertionError("Placeholder method was called");
+        // Placeholder
     }
 
     public static void free() {

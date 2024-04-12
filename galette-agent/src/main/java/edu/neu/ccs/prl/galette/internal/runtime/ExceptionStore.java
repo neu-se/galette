@@ -13,13 +13,14 @@ public final class ExceptionStore {
     @SuppressWarnings("unused")
     @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_$$LOCAL_exceptionInfo", opcode = Opcodes.GETFIELD)
     private static Object getExceptionInfo(Thread thread) {
-        throw new AssertionError("Placeholder method was called");
+        // Placeholder
+        return null;
     }
 
     @SuppressWarnings("unused")
     @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_$$LOCAL_exceptionInfo", opcode = Opcodes.PUTFIELD)
     private static void setExceptionInfo(Thread thread, Object info) {
-        throw new AssertionError("Placeholder method was called");
+        // Placeholder
     }
 
     @InvokedViaHandle(handle = Handle.EXCEPTION_STORE_SET)
