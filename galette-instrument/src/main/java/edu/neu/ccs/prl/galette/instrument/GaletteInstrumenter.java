@@ -15,7 +15,7 @@ public final class GaletteInstrumenter {
         File source = new File(args[0]);
         File destination = new File(args[1]);
         boolean verbose = Boolean.getBoolean("galette.instrument.verbose");
-        String modules = System.getProperty("galette.instrument.modules", "ALL-UNNAMED");
+        String modules = System.getProperty("galette.instrument.modules", "ALL-MODULE-PATH");
         System.out.printf("Instrumenting %s to %s%n", source, destination);
         long elapsedTime = instrument(source, destination, instrumentation, verbose, modules);
         System.out.printf("Finished instrumentation after %dms%n", elapsedTime);

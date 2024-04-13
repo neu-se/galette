@@ -24,10 +24,14 @@ Functional experiments
 
 Performance experiments
 * [MUST] Decide on a methodology of the performance evaluation
+    Fork 20 JVMs (trials)
+    Perform 3 warm-up iterations (discarded) followed 5 measurement iterations
+    If JVM process terminates with non-zero ---> discard
 * [MUST] Create a means recording execution times and sampling the resident set size (RSS) of the DaCapo benchmark process
 * [MUST] Create experiment and analysis scripts
 * [MUST] Write up description of results
 * [COULD] Identify locations to use as taint sources manually for each DaCapo subject and apply labels
 
 Other
+* [SHOULD] Make full release of Phosphor
 * [SHOULD] Contact the MirrorTaint authors about releasing an updated, obfuscated JAR for MirrorTaint containing the fixes I made and a license.

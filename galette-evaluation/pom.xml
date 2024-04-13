@@ -11,7 +11,7 @@
     <artifactId>galette-evaluation</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>galette-evaluation-tools</module>
+        <module>galette-evaluation-core</module>
     </modules>
     <build>
         <plugins>
@@ -32,6 +32,22 @@
                             <file>${project.basedir}/lib/taint-agent-core-1.0.0.jar</file>
                             <groupId>com.shadow.taint</groupId>
                             <artifactId>taint-agent-core</artifactId>
+                            <version>1.0.0</version>
+                            <generatePom>true</generatePom>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-dacapo</id>
+                        <inherited>false</inherited>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <packaging>jar</packaging>
+                            <file>${project.basedir}/lib/dacapo-23.11-chopin.jar</file>
+                            <groupId>org.dacapo</groupId>
+                            <artifactId>dacapo-core</artifactId>
                             <version>1.0.0</version>
                             <generatePom>true</generatePom>
                         </configuration>

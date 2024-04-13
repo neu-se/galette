@@ -1,8 +1,8 @@
 import argparse
 import os
 import subprocess
-
-from downloader import Downloader
+import requests
+from tqdm import tqdm
 
 JDK_URL_TEMPLATES = {
     'corretto': 'https://corretto.aws/downloads/resources/{2}/amazon-corretto-{2}-linux-x64.tar.gz',
@@ -25,38 +25,75 @@ JDKS = {
 }
 
 
-def download(output_dir, vendor, version):
-    info = JDKS[(vendor, version)]
-    url = JDK_URL_TEMPLATES[vendor].format(vendor, version, *info)
-    jdk_dir = os.path.join(output_dir, vendor, version)
-    os.makedirs(jdk_dir, exist_ok=True)
-    file_name = url.rsplit('/', 1)[-1]
-    # Download the archive
-    archive = os.path.join(jdk_dir, file_name)
-    with Downloader(url) as d:
-        d.download(archive)
-    # Unpack the archive and strip the top level directory
-    subprocess.check_output(['tar', '-xvzf', archive, '--strip-components', '1', '-C', jdk_dir])
-    # Remove the archive
-    os.remove(archive)
-    return jdk_dir
+class Downloader(tqdm):
+    def __init__(self, url):
+        tqdm.__init__(self, unit='B', unit_scale=True, miniters=1, desc=url.rsplit('/', 1)[-1])
+        self.url = url
+
+    def record_progress(self, block_number, read_size, total_file_size):
+        self.total = total_file_size
+        self.update(block_number * read_size - self.n)
+
+    def download(self, output_path):
+        response = requests.get(self.url, stream=True)
+        response.raise_for_status()
+        self.total = int(response.headers.get("content-length", 0))
+        with open(output_path, 'wb') as file:
+            for chunk in response.iter_content(1024):
+                self.update(len(chunk))
+                file.write(chunk)
 
 
-def download_all(output_dir):
-    for key in JDKS.keys():
-        download(output_dir, *key)
+def download(output_dir, force, version, vendor='temurin'):
+    if not force and os.path.isdir(output_dir):
+        print(f'Found existing JDK directory: {output_dir}')
+    else:
+        print(f'Downloading JDK (vendor={vendor}, version={version}): {output_dir}')
+        info = JDKS[(vendor, version)]
+        url = JDK_URL_TEMPLATES[vendor].format(vendor, version, *info)
+        os.makedirs(output_dir, exist_ok=True)
+        file_name = url.rsplit('/', 1)[-1]
+        # Download the archive
+        archive = os.path.join(output_dir, file_name)
+        with Downloader(url) as d:
+            d.download(archive)
+        # Unpack the archive and strip the top level directory
+        subprocess.check_output(['tar', '-xvzf', archive, '--strip-components', '1', '-C', output_dir])
+        # Remove the archive
+        os.remove(archive)
+        print('Downloaded JDK.')
 
 
 def main():
     parser = argparse.ArgumentParser(description='Downloads a Java Development Kit (JDK).')
-    parser.add_argument('--output-dir', type=str,
-                        help='Path of the directory into which the resource to be downloaded should be stored.',
-                        required=True)
-    parser.add_argument("--vendor", help='Software vendor for the JDK.',
-                        choices=['temurin', 'corretto', 'oracle'], required=True)
-    parser.add_argument('--version', help='Major version for the JDK.',
-                        type=str,
-                        choices=['8', '11', '17', '21'], required=True)
+    parser.add_argument(
+        '-o',
+        '--output-dir',
+        type=str,
+        help='Path of the directory into which the resource to be downloaded should be stored.',
+        required=True
+    )
+    parser.add_argument(
+        '-n',
+        '--vendor',
+        help='Software vendor for the JDK.',
+        choices=['temurin', 'corretto', 'oracle'],
+        required=True
+    )
+    parser.add_argument(
+        '-v',
+        '--version',
+        help='Major version for the JDK.',
+        type=str,
+        choices=['8', '11', '17', '21'],
+        required=True
+    )
+    parser.add_argument(
+        '-f',
+        '--force',
+        help='Indicates that an existing directory should be overwritten',
+        action=argparse.BooleanOptionalAction
+    )
     args = parser.parse_args()
     download(**args.__dict__)
 

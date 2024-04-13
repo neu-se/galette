@@ -10,7 +10,7 @@ import java.util.*;
 import org.junit.platform.launcher.TestIdentifier;
 
 public final class BenchmarkDriver {
-    public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         File testJavaHome = new File(args[0]);
         FileFlowReport report = new FileFlowReport(new File(args[1]));
         JvmLauncher testForkLauncher = JvmLauncher.fromMain(
