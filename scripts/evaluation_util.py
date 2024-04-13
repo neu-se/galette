@@ -62,7 +62,7 @@ def instrument_jdk_galette(java_home, target_dir):
         os.path.abspath(java_home),
         os.path.join(target_dir)
     ]
-    subprocess.run(command, shell=False, check=True, capture_output=True)
+    subprocess.run(command, shell=False, check=True)
     print(f'Created Galette-instrumented JDK: {target_dir}')
 
 
@@ -109,7 +109,7 @@ def instrument_jdk_phosphor(java_home, target_dir, version, output_dir, settings
     command = [os.path.abspath(java_executable), MAX_HEAP, '-jar', os.path.abspath(driver_jar)]
     command += phosphor_options
     command += [os.path.abspath(java_home), os.path.join(target_dir)]
-    subprocess.run(command, shell=False, check=True, capture_output=True)
+    subprocess.run(command, shell=False, check=True)
     print(f'Created Phosphor-instrumented JDK')
 
 
