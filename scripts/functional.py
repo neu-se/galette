@@ -43,9 +43,9 @@ def run_driver(output_dir, report_file, tool, version, settings_file):
 
 def run(report_file, tool, output_dir, version, settings_file):
     # Build Galette
-    # build_maven_project(output_dir, GALETTE_ROOT, settings_file, '17')
+    build_maven_project(output_dir, GALETTE_ROOT, settings_file, '17')
     # Build evaluation classes
-    # build_maven_project(output_dir, GALETTE_EVALUATION_ROOT, settings_file, '17')
+    build_maven_project(output_dir, GALETTE_EVALUATION_ROOT, settings_file, '17')
     # Ensure the parent directory of the report file exists
     os.makedirs(pathlib.Path(report_file).parent, exist_ok=True)
     # Run the driver
