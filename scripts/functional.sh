@@ -1,7 +1,7 @@
 #!/bin/bash
 readonly RESULTS_DIRECTORY=$1
-readonly VERSION=$3
-readonly TOOL=$4
+readonly VERSION=$2
+readonly TOOL=$3
 readonly PROJECT_ROOT=$(pwd)
 readonly EXPERIMENT_DIRECTORY="/experiment/katie/galette/"
 readonly SCRATCH_DIRECTORY="$(pwd)/scratch/"
@@ -16,7 +16,7 @@ set -x
 set -e
 
 # Print the arguments
-echo "Running: results_directory=$RESULTS_DIRECTORY, vendor=$VENDOR, version=$VERSION, tool=$TOOL"
+echo "Running: results_directory=$RESULTS_DIRECTORY, version=$VERSION, tool=$TOOL"
 
 # Create the results directory
 mkdir -p "$RESULTS_DIRECTORY"
