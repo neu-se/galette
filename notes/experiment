@@ -1,9 +1,12 @@
+./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/functional.sh 1 functional_tasks.csv
+
+./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/performance.sh 1 performance_tasks.csv
+
+Last Run:
+/ci-logs/public/katie/galette/results/slurm-1189933/
+
 /experiment/katie/galette/dacapo-23.11-chopin-small.tar (1.6 GB)
 
-/proc/pid/smaps_rollup
-https://github.com/cache2k/cache2k-benchmark/blob/e4cd7a8c491bf275545b3003932c2eebb69606e9/jmh-suite/src/main/java/org/cache2k/benchmark/jmh/ForcedGcMemoryProfiler.java
-Take runtime reported by DaCapo
-Exclude trial if DaCapo's validation fails (see paper for explanation of validation)
 
 Cannot statically instrument:
 dacapo-23.11-chopin/dat/lib/daytrader/wildfly-26.1.3.Final/standalone/deployments/daytrader-ear-3.0-SNAPSHOT.ear

@@ -4,9 +4,12 @@ from evaluation_util import *
 BENCHMARKS = ['avrora', 'batik', 'biojava', 'cassandra', 'eclipse', 'fop', 'graphchi', 'h2', 'h2o', 'jme',
               'jython', 'kafka', 'luindex', 'lusearch', 'pmd', 'spring', 'sunflow', 'tomcat', 'tradebeans',
               'tradesoap', 'xalan', 'zxing']
+ITERATIONS = 10
+CALLBACK_CLASS = 'edu.neu.ccs.prl.galette.eval.RecordingCallback'
+DACAPO_MAIN_CLASS = 'Harness'
 
 
-def run_dacapo(resources_dir, report_file, tool, dacapo_dir, iterations, benchmark, settings_file):
+def run_dacapo(resources_dir, report_file, tool, dacapo_dir, benchmark, settings_file):
     # Get a JDK for the DaCapo process
     tool_jdk = create_tool_jdk(resources_dir, tool, '11', settings_file)
     java_executable = java_home_to_executable(tool_jdk)
@@ -19,9 +22,15 @@ def run_dacapo(resources_dir, report_file, tool, dacapo_dir, iterations, benchma
             f'-javaagent:{os.path.abspath(agent_jar)}{JAVA_AGENT_OPTIONS[tool]}',
         ]
     dacapo_jar = os.path.join(dacapo_dir, 'dacapo-23.11-chopin.jar')
-    java_options += ['-jar', os.path.abspath(dacapo_jar)]
-    # TODO --callback <CALLBACK_CLASS>
-    dacapo_options = ['--size', 'small', '-f', '1000', '-n', str(iterations), benchmark]
+    classpath = ':'.join(os.path.abspath(f) for f in [GALETTE_EVALUATION_CLASSES, dacapo_jar])
+    java_options += ['-cp', classpath, DACAPO_MAIN_CLASS]
+    dacapo_options = [
+        '--size', 'small',
+        '-f', '1000',
+        '-n', str(ITERATIONS),
+        '--callback', CALLBACK_CLASS,
+        benchmark
+    ]
     command = [os.path.abspath(java_executable)] + java_options + dacapo_options
     print(f'Starting DaCapo benchmark: {benchmark}')
     print('\t' + ' '.join(command))
@@ -49,7 +58,7 @@ def run(report_file, benchmark, tool, resources_dir, dacapo_archive, settings_fi
     dacapo_dir = os.path.join(resources_dir, 'dacapo')
     extract_dacapo(dacapo_archive, dacapo_dir)
     # Run DaCapo
-    run_dacapo(resources_dir, report_file, tool, dacapo_dir, 1, benchmark, settings_file)
+    run_dacapo(resources_dir, report_file, tool, dacapo_dir, benchmark, settings_file)
 
 
 def main():

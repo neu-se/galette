@@ -2,8 +2,6 @@ Implementation
 * [MUST] Improve the performance of array accesses
 * [MUST] General performance tuning
 * [MUST] Any TODOs in codebase
-* [MUST] Debug this https://github.com/neu-se/phosphor2/actions/runs/8676056734/job/23790146937
-    *** java.lang.instrument ASSERTION FAILED ***: "!errorOutstanding" with message transform method call failed at JPLISAgent.c line: 844
 * [SHOULD] Improve the performance of Unsafe accesses (switch to HashMap)
 * [SHOULD] Switch the tag representation from a HashMap to Phosphor's PowerSetTree
 * [SHOULD] Create README based on Phosphor's
@@ -27,9 +25,8 @@ Functional experiments
 Performance experiments
 * [MUST] Decide on a methodology of the performance evaluation
     Fork 20 JVMs (trials)
-    Perform 3 warm-up iterations (discarded) followed 5 measurement iterations
+    Perform 5 warm-up iterations (discarded) followed 5 measurement iterations
     If JVM process terminates with non-zero ---> discard
-* [MUST] Create a means of recording execution times and sampling the resident set size (RSS) of the DaCapo benchmark process
 * [MUST] Create experiment scripts
 * [MUST] Create analysis scripts
 * [MUST] Write up description of results

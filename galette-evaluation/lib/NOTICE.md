@@ -6,7 +6,6 @@ authors.
 ## Modifications
 
 * Various bug fixes
-*
 
 # DaCapo
 
