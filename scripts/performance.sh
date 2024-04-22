@@ -4,7 +4,7 @@ readonly TOOL=$2
 readonly BENCHMARK=$3
 readonly PROJECT_ROOT=$(pwd)
 readonly EXPERIMENT_DIRECTORY="/experiment/katie/galette/"
-readonly SCRATCH_DIRECTORY="$(pwd)/scratch/"
+readonly RESOURCES_DIRECTORY="$(pwd)/resources/"
 readonly OUTPUT_DIRECTORY="$(pwd)/out/"
 readonly REPORT_FILE="$OUTPUT_DIRECTORY/report.csv"
 readonly INFO_FILE="$OUTPUT_DIRECTORY/info.json"
@@ -25,6 +25,9 @@ mkdir -p "$RESULTS_DIRECTORY"
 # Create the output directory
 mkdir -p "$OUTPUT_DIRECTORY"
 
+# Create the resource directory
+mkdir -p "$RESOURCES_DIRECTORY"
+
 # Copy Maven settings file
 cp "$EXPERIMENT_DIRECTORY/settings.xml" "$SETTINGS_FILE"
 
@@ -44,10 +47,9 @@ timeout 1d \
   --report-file "$REPORT_FILE" \
   --benchmark "$BENCHMARK" \
   --tool "$TOOL" \
-  --output-dir "$SCRATCH_DIRECTORY" \
+  --resources-dir "$RESOURCES_DIRECTORY" \
   --dacapo-archive "$DACAPO_ARCHIVE" \
   --settings-file "$SETTINGS_FILE"
-
 
 # Record configuration information
 echo "{

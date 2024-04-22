@@ -3,7 +3,6 @@
 Last Run:
 /ci-logs/public/katie/galette/results/slurm-1189616/
 
-
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/performance.sh 1 performance_tasks.csv
 
 Last Run:

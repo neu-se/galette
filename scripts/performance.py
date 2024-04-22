@@ -76,8 +76,8 @@ def main():
         required=True
     )
     parser.add_argument(
-        '-o',
-        '--output-dir',
+        '-r',
+        '--resources-dir',
         type=str,
         help='Path of the directory into which downloaded resources should be stored and cached.',
         required=True

@@ -1,6 +1,9 @@
 package edu.neu.ccs.prl.galette.internal.runtime;
 
+import edu.neu.ccs.prl.galette.internal.runtime.collection.HashMap;
+import edu.neu.ccs.prl.galette.internal.runtime.collection.ObjectIntMap;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.WeakIdentityHashMap;
+
 import java.lang.reflect.Array;
 
 /**
@@ -121,6 +124,17 @@ public final class ArrayTagStore {
 
     public static synchronized void initialize() {
         if (wrappers == null) {
+            // Ensure that needed classes are initialized to prevent circular class initialization
+            Object[] dependencies = new Object[]{
+                    WeakIdentityHashMap.class,
+                    ObjectIntMap.class,
+                    System.class,
+                    HashMap.class,
+                    HashMap.Entry.class,
+                    ArrayWrapper.class
+            };
+            // Create a temporary map and add an element to force IdentityWeakReference to be initialized
+            new WeakIdentityHashMap<>().put(dependencies, dependencies);
             wrappers = new WeakIdentityHashMap<>();
         }
     }
