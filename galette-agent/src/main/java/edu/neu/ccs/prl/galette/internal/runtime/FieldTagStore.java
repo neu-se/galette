@@ -104,6 +104,7 @@ public final class FieldTagStore {
 
     public static synchronized void initialize() {
         if (staticFieldTags == null) {
+            WeakIdentityHashMap.ensureDependenciesLoaded();
             instanceFieldTags = new WeakIdentityHashMap<>();
             staticFieldTags = new HashMap<>();
         }

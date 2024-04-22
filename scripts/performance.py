@@ -6,13 +6,13 @@ BENCHMARKS = ['avrora', 'batik', 'biojava', 'cassandra', 'eclipse', 'fop', 'grap
               'tradesoap', 'xalan', 'zxing']
 
 
-def run_dacapo(output_dir, report_file, tool, dacapo_dir, iterations, benchmark, settings_file):
+def run_dacapo(resources_dir, report_file, tool, dacapo_dir, iterations, benchmark, settings_file):
     # Get a JDK for the DaCapo process
-    tool_jdk = create_tool_jdk(output_dir, tool, '11', settings_file)
+    tool_jdk = create_tool_jdk(resources_dir, tool, '11', settings_file)
     java_executable = java_home_to_executable(tool_jdk)
     java_options = ['-ea', MAX_HEAP, f'-Dgalette.dacapo.report={os.path.abspath(report_file)}']
     # Get the JAR file for the Java agent
-    agent_jar = get_agent_jar(output_dir, tool, settings_file)
+    agent_jar = get_agent_jar(resources_dir, tool, settings_file)
     if agent_jar is not None:
         java_options += [
             f'-Xbootclasspath/a:{os.path.abspath(agent_jar)}',
@@ -29,27 +29,27 @@ def run_dacapo(output_dir, report_file, tool, dacapo_dir, iterations, benchmark,
     print(f'Finished DaCapo benchmark')
 
 
-def extract_dacapo(archive, output_dir):
-    if os.path.isdir(output_dir):
-        print(f"Using existing DaCapo directory: {output_dir}")
-    print(f"Extracting DaCapo archive to {output_dir}")
-    os.makedirs(output_dir, exist_ok=True)
-    subprocess.check_output(['tar', '-xf', archive, '--strip-components', '1', '-C', output_dir])
+def extract_dacapo(archive, resources_dir):
+    if os.path.isdir(resources_dir):
+        print(f"Using existing DaCapo directory: {resources_dir}")
+    print(f"Extracting DaCapo archive to {resources_dir}")
+    os.makedirs(resources_dir, exist_ok=True)
+    subprocess.check_output(['tar', '-xf', archive, '--strip-components', '1', '-C', resources_dir])
     print(f"Extracted DaCapo archive.")
 
 
-def run(report_file, benchmark, tool, output_dir, dacapo_archive, settings_file):
+def run(report_file, benchmark, tool, resources_dir, dacapo_archive, settings_file):
     # Build Galette
-    build_maven_project(output_dir, GALETTE_ROOT, settings_file, '17')
+    build_maven_project(resources_dir, GALETTE_ROOT, settings_file, '17')
     # Build evaluation classes
-    build_maven_project(output_dir, GALETTE_EVALUATION_ROOT, settings_file, '17')
+    build_maven_project(resources_dir, GALETTE_EVALUATION_ROOT, settings_file, '17')
     # Ensure the parent directory of the report file exists
     os.makedirs(pathlib.Path(report_file).parent, exist_ok=True)
     # Ensure the DaCapo archive has been extracted
-    dacapo_dir = os.path.join(output_dir, 'dacapo')
+    dacapo_dir = os.path.join(resources_dir, 'dacapo')
     extract_dacapo(dacapo_archive, dacapo_dir)
     # Run DaCapo
-    run_dacapo(output_dir, report_file, tool, dacapo_dir, 1, benchmark, settings_file)
+    run_dacapo(resources_dir, report_file, tool, dacapo_dir, 1, benchmark, settings_file)
 
 
 def main():

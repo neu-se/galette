@@ -20,7 +20,7 @@ Functional experiments
 * [COULD] Add tests for pattern matching
 * [COULD] Add tests for ternaries
 * [COULD] Add tests for String templates
-* Consider removing the tests for serialization
+* [SHOULD] Consider making benchmark tests for serialization into integration tests for Galette
 * [SHOULD] Determine root cause of failures for Phosphor and MirrorTaint
 * [MUST] Write up description of results
 

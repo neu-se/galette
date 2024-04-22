@@ -50,7 +50,9 @@ public final class ExceptionStore {
         return Tag.getEmptyTag();
     }
 
-    public static void initialize() {
+    public static synchronized void initialize() {
+        // Ensure that needed classes are initialized to prevent circular class initialization
+        Object[] dependencies = new Object[] {Thread.currentThread()};
         INITIALIZED = true;
     }
 

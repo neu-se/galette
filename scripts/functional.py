@@ -9,16 +9,16 @@ TAG_MANAGERS = {
 }
 
 
-def run_driver(output_dir, report_file, tool, version, settings_file):
-    jdk = os.path.join(output_dir, 'jdk', version)
+def run_driver(resources_dir, report_file, tool, version, settings_file):
+    jdk = os.path.join(resources_dir, 'jdk', version)
     download_jdk.download(jdk, False, version)
     # Get a JDK for the driver process
-    tool_jdk = create_tool_jdk(output_dir, tool, version, settings_file)
+    tool_jdk = create_tool_jdk(resources_dir, tool, version, settings_file)
     # Get the classpath for the evaluation module
-    classpath = get_classpath(output_dir, GALETTE_EVALUATION_CORE_ROOT, scope='runtime') + \
+    classpath = get_classpath(resources_dir, GALETTE_EVALUATION_CORE_ROOT, scope='runtime') + \
                 ':' + GALETTE_EVALUATION_CLASSES
     # Get the JAR file for the Java agent
-    agent_jar = get_agent_jar(output_dir, tool, settings_file)
+    agent_jar = get_agent_jar(resources_dir, tool, settings_file)
     java_executable = java_home_to_executable(jdk)
     command = [
         os.path.abspath(java_executable),
@@ -41,15 +41,15 @@ def run_driver(output_dir, report_file, tool, version, settings_file):
     print(f'Finished functional experiment driver')
 
 
-def run(report_file, tool, output_dir, version, settings_file):
+def run(report_file, tool, resources_dir, version, settings_file):
     # Build Galette
-    build_maven_project(output_dir, GALETTE_ROOT, settings_file, '17')
+    build_maven_project(resources_dir, GALETTE_ROOT, settings_file, '17')
     # Build evaluation classes
-    build_maven_project(output_dir, GALETTE_EVALUATION_ROOT, settings_file, '17')
+    build_maven_project(resources_dir, GALETTE_EVALUATION_ROOT, settings_file, '17')
     # Ensure the parent directory of the report file exists
     os.makedirs(pathlib.Path(report_file).parent, exist_ok=True)
     # Run the driver
-    run_driver(output_dir, report_file, tool, version, settings_file)
+    run_driver(resources_dir, report_file, tool, version, settings_file)
 
 
 def main():
@@ -69,8 +69,8 @@ def main():
         required=True
     )
     parser.add_argument(
-        '-o',
-        '--output-dir',
+        '-r',
+        '--resources-dir',
         type=str,
         help='Path of the directory into which downloaded resources should be stored and cached.',
         required=True

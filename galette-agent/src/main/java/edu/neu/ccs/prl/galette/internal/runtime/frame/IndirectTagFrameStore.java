@@ -68,7 +68,9 @@ public final class IndirectTagFrameStore {
         return UNINITIALIZED_THIS;
     }
 
-    public static void initialize() {
+    public static synchronized void initialize() {
+        // Ensure that needed classes are initialized to prevent circular class initialization
+        Object[] dependencies = new Object[] {AdjustedTagFrame.class, Pair.class, Thread.currentThread()};
         INITIALIZED = true;
     }
 }

@@ -62,4 +62,16 @@ public class WeakIdentityHashMap<K, V> {
             return hashCode;
         }
     }
+
+    public static void ensureDependenciesLoaded() {
+        Object[] dependencies = new Object[] {
+            WeakIdentityHashMap.class,
+            ObjectIntMap.class,
+            System.class,
+            HashMap.class,
+            HashMap.Entry.class,
+            IdentityWeakReference.class,
+            ReferenceQueue.class
+        };
+    }
 }
