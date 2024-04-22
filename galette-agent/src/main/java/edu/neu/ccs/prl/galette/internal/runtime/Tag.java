@@ -181,13 +181,13 @@ public final class Tag implements Serializable, TaggedObject {
 
     @Override
     public Object clone(TagFrame frame) throws CloneNotSupportedException {
-        throw new CloneNotSupportedException();
+        return TaggedObject.super.clone(frame);
     }
 
     @Override
     public void finalize(TagFrame frame) {}
 
-    private static void startTracking() {
+    private static synchronized void startTracking() {
         if (!TRACKING) {
             TRACKING = true;
             // Enable mirrored tag stores
