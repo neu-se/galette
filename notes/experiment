@@ -3,10 +3,9 @@
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/performance.sh 1 performance_tasks.csv
 
 Last Run:
-/ci-logs/public/katie/galette/results/slurm-1189933/
+/ci-logs/public/katie/galette/results/slurm-1190029/
 
 /experiment/katie/galette/dacapo-23.11-chopin-small.tar (1.6 GB)
-
 
 Cannot statically instrument:
 dacapo-23.11-chopin/dat/lib/daytrader/wildfly-26.1.3.Final/standalone/deployments/daytrader-ear-3.0-SNAPSHOT.ear
@@ -15,3 +14,11 @@ dacapo-23.11-chopin/dat/lib/daytrader/wildfly-26.1.3.Final/standalone/deployment
 dacapo-23.11-chopin/jar/h2o/h2o.jar
     Benchmark: h2o
 Possibly others
+
+Disk usage issues:
+46 = mirror-taint,biojava
+47 = mirror-taint,cassandra
+59 = mirror-taint,spring
+
+Why are the results for cassandra missing?
+Which tasks have not finished?
