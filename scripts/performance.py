@@ -19,6 +19,8 @@ def run_dacapo(resources_dir, report_file, tool, dacapo_dir, benchmark, settings
     tool_jdk = create_tool_jdk(resources_dir, tool, '11', settings_file)
     java_executable = java_home_to_executable(tool_jdk)
     java_options = ['-ea', MAX_HEAP, f'-Dgalette.dacapo.report={os.path.abspath(report_file)}']
+    if tool == 'mirror-taint':
+        java_options += ['-Dtaint.quiet=true']
     # Get the JAR file for the Java agent
     agent_jar = get_agent_jar(resources_dir, tool, settings_file)
     if agent_jar is not None:

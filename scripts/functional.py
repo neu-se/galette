@@ -35,6 +35,8 @@ def run_driver(resources_dir, report_file, tool, version, settings_file):
         f'-javaagent:{os.path.abspath(agent_jar)}{JAVA_AGENT_OPTIONS[tool]}',
         f'-Dflow.manager={TAG_MANAGERS[tool]}'
     ]
+    if tool == 'mirror-taint':
+        command += ["-Dtaint.quiet=true"]
     print(f'Starting functional experiment driver')
     print('\t' + ' '.join(command))
     subprocess.run(command, shell=False, check=True)

@@ -6,6 +6,7 @@ authors.
 ## Modifications
 
 * Various bug fixes
+* Added option to suppress logging
 
 # DaCapo
 
