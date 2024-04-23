@@ -21,4 +21,13 @@ Disk usage issues:
 59 = mirror-taint,spring
 
 Why are the results for cassandra missing?
+Defect in DaCapo: https://github.com/dacapobench/dacapobench/issues/211
+The Cassandra benchmark was excluded due to an defect that impacted the benchmark in the 23.11 Chopin release of DaCapo (https://github.com/dacapobench/dacapobench/issues/211)
+
 Which tasks have not finished?
+
+Is MirrorTaint applying tags automatically?
+As far as I can tell the sources that MirrorTaint uses are application specific and, therefore, unlikely to apply to the
+DaCapo subjects.
+
+Add variance to performance tables

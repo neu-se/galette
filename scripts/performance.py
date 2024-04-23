@@ -1,10 +1,15 @@
 import argparse
+
+import pandas as pd
+
 from evaluation_util import *
+from report_util import set_columns
 
 BENCHMARKS = ['avrora', 'batik', 'biojava', 'cassandra', 'eclipse', 'fop', 'graphchi', 'h2', 'h2o', 'jme',
               'jython', 'kafka', 'luindex', 'lusearch', 'pmd', 'spring', 'sunflow', 'tomcat', 'tradebeans',
               'tradesoap', 'xalan', 'zxing']
-ITERATIONS = 10
+MEASUREMENT_ITERATIONS = 5
+WARMUP_ITERATIONS = 5
 CALLBACK_CLASS = 'edu.neu.ccs.prl.galette.eval.RecordingCallback'
 DACAPO_MAIN_CLASS = 'Harness'
 
@@ -27,7 +32,7 @@ def run_dacapo(resources_dir, report_file, tool, dacapo_dir, benchmark, settings
     dacapo_options = [
         '--size', 'small',
         '-f', '1000',
-        '-n', str(ITERATIONS),
+        '-n', str(MEASUREMENT_ITERATIONS + WARMUP_ITERATIONS),
         '--callback', CALLBACK_CLASS,
         benchmark
     ]
@@ -47,6 +52,18 @@ def extract_dacapo(archive, resources_dir):
     print(f"Extracted DaCapo archive.")
 
 
+def update_report(report_file, benchmark, tool):
+    # Read the unprocessed report
+    data = pd.read_csv(report_file) \
+        .rename(columns=lambda x: x.strip())
+    # Add columns for the benchmark and tool to the report
+    data = set_columns(data, benchmark=benchmark, tool=tool)
+    # Drop warm-up iterations
+    data = data[data['iteration'] >= WARMUP_ITERATIONS]
+    # Write the updated report
+    data.to_csv(report_file, index=False)
+
+
 def run(report_file, benchmark, tool, resources_dir, dacapo_archive, settings_file):
     # Build Galette
     build_maven_project(resources_dir, GALETTE_ROOT, settings_file, '17')
@@ -59,6 +76,8 @@ def run(report_file, benchmark, tool, resources_dir, dacapo_archive, settings_fi
     extract_dacapo(dacapo_archive, dacapo_dir)
     # Run DaCapo
     run_dacapo(resources_dir, report_file, tool, dacapo_dir, benchmark, settings_file)
+    # Fix the report
+    update_report(report_file, benchmark, tool)
 
 
 def main():

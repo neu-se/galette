@@ -50,6 +50,7 @@ def combine_trials(trials, file):
     print('Creating combined experiment CSV.')
     data = pd.concat([t.get_data_frame() for t in trials]) \
         .reset_index(drop=True)
+    data.to_csv(file, index=False)
     print(f'\tWrote combined experiment CSV to {file}.')
     return data
 

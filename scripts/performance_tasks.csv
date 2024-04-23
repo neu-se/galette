@@ -1,7 +1,6 @@
 none,avrora
 none,batik
 none,biojava
-none,cassandra
 none,eclipse
 none,fop
 none,graphchi
@@ -23,7 +22,6 @@ none,zxing
 galette,avrora
 galette,batik
 galette,biojava
-galette,cassandra
 galette,eclipse
 galette,fop
 galette,graphchi
@@ -45,7 +43,6 @@ galette,zxing
 mirror-taint,avrora
 mirror-taint,batik
 mirror-taint,biojava
-mirror-taint,cassandra
 mirror-taint,eclipse
 mirror-taint,fop
 mirror-taint,graphchi
@@ -67,7 +64,6 @@ mirror-taint,zxing
 phosphor,avrora
 phosphor,batik
 phosphor,biojava
-phosphor,cassandra
 phosphor,eclipse
 phosphor,fop
 phosphor,graphchi

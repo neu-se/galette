@@ -49,6 +49,16 @@ public class RecordingCallback extends Callback {
         sampler = null;
     }
 
+    @Override
+    public void complete(String benchmark, boolean valid) {
+        super.complete(benchmark, valid);
+        if (!valid) {
+            // Terminate early if validation fails
+            System.err.println("Exiting: DaCapo validation failed.");
+            System.exit(1);
+        }
+    }
+
     public void record(long residentSetSize, long elapsedTime) {
         try (PrintWriter out = new PrintWriter(new FileOutputStream(report, true))) {
             out.printf("%d,%d,%d%n", iterations, residentSetSize, elapsedTime);

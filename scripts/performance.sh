@@ -7,7 +7,7 @@ readonly EXPERIMENT_DIRECTORY="/experiment/katie/galette/"
 readonly RESOURCES_DIRECTORY="$(pwd)/resources/"
 readonly OUTPUT_DIRECTORY="$(pwd)/out/"
 readonly REPORT_FILE="$OUTPUT_DIRECTORY/report.csv"
-readonly INFO_FILE="$OUTPUT_DIRECTORY/info.json"
+readonly INFO_FILE="$RESULTS_DIRECTORY/info.json"
 readonly SETTINGS_FILE="$PROJECT_ROOT/settings.xml"
 readonly DACAPO_ARCHIVE="$PROJECT_ROOT/dacapo-23.11-chopin-small.tar"
 
@@ -27,6 +27,15 @@ mkdir -p "$OUTPUT_DIRECTORY"
 
 # Create the resource directory
 mkdir -p "$RESOURCES_DIRECTORY"
+
+# Record configuration information
+echo "{
+  \"benchmark\": \"$BENCHMARK\",
+  \"tool\": \"$TOOL\",
+  \"commit_sha\": \"$(git --git-dir "$PROJECT_ROOT/.git" rev-parse HEAD)\",
+  \"branch_name\": \"$(git --git-dir "$PROJECT_ROOT/.git" rev-parse --abbrev-ref HEAD)\",
+  \"remote_origin_url\": \"$(git --git-dir "$PROJECT_ROOT/.git" config --get remote.origin.url)\"
+}" >"$INFO_FILE"
 
 # Copy Maven settings file
 cp "$EXPERIMENT_DIRECTORY/settings.xml" "$SETTINGS_FILE"
@@ -51,14 +60,5 @@ timeout 1d \
   --dacapo-archive "$DACAPO_ARCHIVE" \
   --settings-file "$SETTINGS_FILE"
 
-# Record configuration information
-echo "{
-  \"benchmark\": \"$BENCHMARK\",
-  \"tool\": \"$TOOL\",
-  \"commit_sha\": \"$(git --git-dir "$PROJECT_ROOT/.git" rev-parse HEAD)\",
-  \"branch_name\": \"$(git --git-dir "$PROJECT_ROOT/.git" rev-parse --abbrev-ref HEAD)\",
-  \"remote_origin_url\": \"$(git --git-dir "$PROJECT_ROOT/.git" config --get remote.origin.url)\"
-}" >"$INFO_FILE"
-
-# Copy all normal files in the output directory to the results directory
-find "$OUTPUT_DIRECTORY" -maxdepth 1 -type f -exec cp -t "$RESULTS_DIRECTORY" {} +
+# Copy the report to the results directory
+cp "$REPORT_FILE" "$RESULTS_DIRECTORY"
