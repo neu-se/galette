@@ -1,9 +1,6 @@
 import argparse
 
-import pandas as pd
-
 from evaluation_util import *
-from report_util import set_columns
 
 DRIVER_MAIN_CLASS = 'edu.neu.ccs.prl.galette.bench.extension.BenchmarkDriver'
 TAG_MANAGERS = {
@@ -13,7 +10,7 @@ TAG_MANAGERS = {
 }
 
 
-def run_driver(resources_dir, report_file, tool, version, settings_file):
+def create_driver_command(resources_dir, settings_file, report_file, tool, version):
     jdk = os.path.join(resources_dir, 'jdk', version)
     download_jdk.download(jdk, False, version)
     # Get a JDK for the driver process
@@ -41,42 +38,21 @@ def run_driver(resources_dir, report_file, tool, version, settings_file):
     ]
     if tool == 'mirror-taint':
         command += ["-Dtaint.quiet=true"]
-    print(f'Starting functional experiment driver')
-    print('\t' + ' '.join(command))
-    subprocess.run(command, shell=False, check=True)
-    print(f'Finished functional experiment driver')
+    return command
 
 
-def update_report(report_file, version, tool):
-    # Read the unprocessed report
-    data = pd.read_csv(report_file) \
-        .rename(columns=lambda x: x.strip())
-    # Add columns for the version and tool to the report
-    data = set_columns(data, version=version, tool=tool)
-    # Write the updated report
-    data.to_csv(report_file, index=False)
-
-
-def run(report_file, tool, resources_dir, version, settings_file, skip_build):
-    # Build Galette
-    build_maven_project(resources_dir, GALETTE_ROOT, settings_file, skip_build, '17')
-    # Build evaluation classes
-    build_maven_project(resources_dir, GALETTE_EVALUATION_ROOT, settings_file, skip_build, '17')
-    # Ensure the parent directory of the report file exists
-    os.makedirs(pathlib.Path(report_file).parent, exist_ok=True)
-    # Run the driver
-    run_driver(resources_dir, report_file, tool, version, settings_file)
-    # Fix the report
-    update_report(report_file, version, tool)
+def run_functional(output_dir, resources_dir, settings_file, skip_build, version, tool):
+    run(output_dir, resources_dir, settings_file, skip_build, 'functional experiment driver', None, lambda x: x,
+        create_driver_command, version=version, tool=tool)
 
 
 def main():
     parser = argparse.ArgumentParser(description='Collects functional experiment data for a tool on a JDK.')
     parser.add_argument(
-        '-f',
-        '--report-file',
+        '-o',
+        '--output-dir',
         type=str,
-        help='Path of file into which the results should be written.',
+        help='Path of the directory into which output should be written.',
         required=True
     )
     parser.add_argument(
@@ -110,13 +86,13 @@ def main():
     parser.add_argument(
         '-k',
         '--skip-build',
-        help='Skip building of associated Maven projects (defaults to False)',
+        help='Skip building Maven projects (defaults to False)',
         default=False,
         action='store_true'
     )
     args = parser.parse_args()
     print(f'Collecting functional experiment data: {args.__dict__}')
-    run(**args.__dict__)
+    run_functional(**args.__dict__)
 
 
 if __name__ == '__main__':

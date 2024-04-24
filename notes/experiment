@@ -3,7 +3,7 @@
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/performance.sh 1 performance_tasks.csv <TIMEOUT>
 
 Last Run:
-/ci-logs/public/katie/galette/results/slurm-1190773/
+/ci-logs/public/katie/galette/results/slurm-1190866/
 
 /experiment/katie/galette/dacapo-23.11-chopin-small.tar (1.6 GB)
 
@@ -17,7 +17,6 @@ Possibly others
 
 Why are the results for cassandra missing?
 Defect in DaCapo: https://github.com/dacapobench/dacapobench/issues/211
-The Cassandra benchmark was excluded due to a defect in the 23.11 Chopin release of DaCapo that impacts the Cassandra benchmark (https://github.com/dacapobench/dacapobench/issues/211)
 
 Which tasks have not finished?
 * Phosphor times out on tradesoap and tradebeans due to removal of DaCapo imposed timeout

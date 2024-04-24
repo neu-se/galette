@@ -4,7 +4,11 @@ import subprocess
 import tempfile
 from collections import defaultdict
 
+import pandas as pd
+
 import download_jdk
+import run_data
+from report_util import set_columns
 
 TOOLS = ['none', 'galette', 'mirror-taint', 'phosphor']
 GALETTE_VERSION = '1.0.0-SNAPSHOT'
@@ -38,10 +42,10 @@ def ensure_java_home(output_dir, jdk_version):
 
 def build_maven_project(output_dir, project_root, settings_file, skip_build, jdk_version='17'):
     if skip_build:
-        print(f'Skipping build of project {project_root}')
+        print(f'Skipping build of project {project_root}.')
     else:
         ensure_java_home(output_dir, jdk_version)
-        print(f'Building project {project_root}')
+        print(f'Building project {project_root}.')
         # Build and install the project
         command = ['mvn', '-B', '-q', '-ntp', '-e', '-f', os.path.abspath(project_root), '-DskipTests', 'clean',
                    'install']
@@ -49,14 +53,14 @@ def build_maven_project(output_dir, project_root, settings_file, skip_build, jdk
             command += ['-s', os.path.abspath(settings_file)]
         print('\t' + ' '.join(command))
         subprocess.run(command, shell=False, check=True)
-        print('Built project')
+        print('Built project.')
 
 
 def instrument_jdk_galette(java_home, target_dir):
     if os.path.isdir(target_dir):
-        print(f'Using existing Galette-instrumented JDK: {target_dir}')
+        print(f'Using existing Galette-instrumented JDK: {target_dir}.')
         return
-    print(f'Creating Galette-instrumented JDK: {target_dir}')
+    print(f'Creating Galette-instrumented JDK: {target_dir}.')
     # Assumes that Galette has been built
     java_executable = java_home_to_executable(java_home)
     command = [
@@ -67,12 +71,12 @@ def instrument_jdk_galette(java_home, target_dir):
         os.path.join(target_dir)
     ]
     subprocess.run(command, shell=False, check=True)
-    print(f'Created Galette-instrumented JDK: {target_dir}')
+    print(f'Created Galette-instrumented JDK: {target_dir}.')
 
 
 def copy_dependency(project_root, output_dir, coordinate, settings_file):
     ensure_java_home(output_dir, '17')
-    print(f'Retrieving JAR for {coordinate}')
+    print(f'Retrieving JAR for {coordinate}.')
     command = [
         'mvn', '-q', '-e',
         '-f', os.path.abspath(project_root),
@@ -85,7 +89,7 @@ def copy_dependency(project_root, output_dir, coordinate, settings_file):
         command += ['-s', os.path.abspath(settings_file)]
     subprocess.run(command, shell=False, check=True)
     _, artifact_id, version, _ = coordinate.split(':', 4)
-    print(f'Retrieved JAR for {coordinate}')
+    print(f'Retrieved JAR for {coordinate}.')
     return os.path.join(output_dir, f'{artifact_id}-{version}.jar')
 
 
@@ -102,9 +106,9 @@ def get_agent_jar(output_dir, tool, settings_file):
 
 def instrument_jdk_phosphor(java_home, target_dir, version, output_dir, settings_file):
     if os.path.isdir(target_dir):
-        print(f'Using existing Phosphor-instrumented JDK: {target_dir}')
+        print(f'Using existing Phosphor-instrumented JDK: {target_dir}.')
         return
-    print(f'Creating Phosphor-instrumented JDK: {target_dir}')
+    print(f'Creating Phosphor-instrumented JDK: {target_dir}.')
     java_executable = java_home_to_executable(java_home)
     driver_jar = copy_dependency(GALETTE_EVALUATION_ROOT, output_dir, PHOSPHOR_DRIVER_COORDINATE, settings_file)
     phosphor_options = ['-q', '-forceUnboxAcmpEq', '-withEnumsByValue', '-serialization']
@@ -114,7 +118,7 @@ def instrument_jdk_phosphor(java_home, target_dir, version, output_dir, settings
     command += phosphor_options
     command += [os.path.abspath(java_home), os.path.join(target_dir)]
     subprocess.run(command, shell=False, check=True)
-    print(f'Created Phosphor-instrumented JDK')
+    print(f'Created Phosphor-instrumented JDK.')
 
 
 def create_tool_jdk(output_dir, tool, version, settings_file):
@@ -130,9 +134,7 @@ def create_tool_jdk(output_dir, tool, version, settings_file):
         instrument_jdk_phosphor(jdk, instrumented_jdk, version, output_dir, settings_file)
         return instrumented_jdk
     else:
-        instrumented_jdk = jdk
-    print('Created JDK')
-    return instrumented_jdk
+        return jdk
 
 
 def get_classpath(output_dir, project_root, scope='test'):
@@ -148,3 +150,49 @@ def get_classpath(output_dir, project_root, scope='test'):
         subprocess.run(command, shell=False, check=True)
         with open(temp.name) as f:
             return f.read()
+
+
+def update_report(report_file, f, **kwargs):
+    # Read the unprocessed report
+    data = pd.read_csv(report_file) \
+        .rename(columns=lambda x: x.strip())
+    # Add columns to the report
+    data = set_columns(data, **kwargs)
+    data = f(data)
+    # Write the updated report
+    data.to_csv(report_file, index=False)
+
+
+def run_task(task_name, command, timeout):
+    print(f'Starting {task_name}.')
+    print('\t' + ' '.join(command))
+    try:
+        process = subprocess.run(command, shell=False, timeout=timeout)
+        status = run_data.Status.SUCCESS if process.returncode == 0 else run_data.Status.RUN_FAILURE
+        print(f'Finished running {task_name}.')
+    except subprocess.TimeoutExpired:
+        status = run_data.Status.TIMEOUT
+        print(f'Timeout expired for {task_name}.')
+    return status
+
+
+def run(output_dir, resources_dir, settings_file, skip_build, task_name, timeout, report_f, command_f, **kwargs):
+    # Ensure the output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+    report_file = os.path.join(output_dir, run_data.DATA_FILE_NAME)
+    status_file = os.path.join(output_dir, run_data.STATUS_FILE_NAME)
+    try:
+        # Build Galette
+        build_maven_project(resources_dir, GALETTE_ROOT, settings_file, skip_build, '17')
+        # Build evaluation classes
+        build_maven_project(resources_dir, GALETTE_EVALUATION_ROOT, settings_file, skip_build, '17')
+        # Create the task's command
+        command = command_f(resources_dir, settings_file, report_file, **kwargs)
+        # Run the command
+        status = run_task(task_name, command, timeout)
+        # Fix the report
+        update_report(report_file, report_f, **kwargs)
+    except Exception as e:
+        run_data.write_status(status_file, run_data.Status.BUILD_FAILURE, **kwargs)
+        raise e
+    run_data.write_status(status_file, status, **kwargs)

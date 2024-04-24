@@ -46,9 +46,9 @@ class Downloader(tqdm):
 
 def download(output_dir, force, version, vendor='temurin'):
     if not force and os.path.isdir(output_dir):
-        print(f'Found existing JDK directory: {output_dir}')
+        print(f'Found existing JDK directory: {output_dir}.')
     else:
-        print(f'Downloading JDK (vendor={vendor}, version={version}): {output_dir}')
+        print(f'Downloading JDK (vendor={vendor}, version={version}): {output_dir}.')
         info = JDKS[(vendor, version)]
         url = JDK_URL_TEMPLATES[vendor].format(vendor, version, *info)
         os.makedirs(output_dir, exist_ok=True)

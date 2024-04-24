@@ -14,7 +14,7 @@ class Status(StrEnum):
     SUCCESS = auto()
     TIMEOUT = auto()
     BUILD_FAILURE = auto()
-    DACAPO_FAILURE = auto()
+    RUN_FAILURE = auto()
 
 
 class RunData:

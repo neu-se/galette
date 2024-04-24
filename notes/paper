@@ -20,6 +20,10 @@ ONE_DIMENSIONAL_ARRAY.getBoolean
 
 However, it no longer appears to be crashing
 
+The ``cassandra'' benchmark was excluded due to a defect in the 23.11 Chopin release of DaCapo that impacts the
+``cassandra'' benchmark (https://github.com/dacapobench/dacapobench/issues/211)
+
+
 For each of the performance benchmarks and each treatment, we report the median (x̃), and  standard deviation (s) of <STAT> value.
 Mann-Whitney U tests were performed to compare the memory usage of other treatments against Galette on each benchmark.
 A continuity correction of 0.5 was used when calculating p-values.

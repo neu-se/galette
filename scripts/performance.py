@@ -1,11 +1,7 @@
 import argparse
-from subprocess import TimeoutExpired
+from functools import partial
 
-import pandas as pd
-
-import run_data
 from evaluation_util import *
-from report_util import set_columns
 from run_data import Status, write_status
 
 BENCHMARKS = ['avrora', 'batik', 'biojava', 'eclipse', 'fop', 'graphchi', 'h2', 'h2o', 'jme',
@@ -17,7 +13,24 @@ CALLBACK_CLASS = 'edu.neu.ccs.prl.galette.eval.RecordingCallback'
 DACAPO_MAIN_CLASS = 'Harness'
 
 
-def run_dacapo(resources_dir, report_file, tool, dacapo_dir, benchmark, timeout, settings_file):
+def extract_dacapo(archive, resources_dir):
+    if os.path.isdir(resources_dir):
+        print(f"Using existing DaCapo directory: {resources_dir}.")
+    else:
+        print(f"Extracting DaCapo archive to {resources_dir}.")
+        os.makedirs(resources_dir, exist_ok=True)
+        subprocess.check_output(['tar', '-xf', archive, '--strip-components', '1', '-C', resources_dir])
+        print(f"Extracted DaCapo archive.")
+
+
+def drop_warmups(data):
+    return data[data['iteration'] >= WARMUP_ITERATIONS]
+
+
+def create_dacapo_command(resources_dir, settings_file, report_file, dacapo_archive, benchmark, tool):
+    # Ensure the DaCapo archive has been extracted
+    dacapo_dir = os.path.join(resources_dir, 'dacapo')
+    extract_dacapo(dacapo_archive, dacapo_dir)
     # Get a JDK for the DaCapo process
     tool_jdk = create_tool_jdk(resources_dir, tool, '11', settings_file)
     java_executable = java_home_to_executable(tool_jdk)
@@ -41,63 +54,12 @@ def run_dacapo(resources_dir, report_file, tool, dacapo_dir, benchmark, timeout,
         '--callback', CALLBACK_CLASS,
         benchmark
     ]
-    command = [os.path.abspath(java_executable)] + java_options + dacapo_options
-    print(f'Starting DaCapo benchmark: {benchmark}')
-    print('\t' + ' '.join(command))
-    try:
-        process = subprocess.run(command, shell=False, timeout=timeout)
-        status = Status.SUCCESS if process.returncode == 0 else Status.DACAPO_FAILURE
-        print(f'Finished DaCapo benchmark')
-    except TimeoutExpired:
-        status = Status.TIMEOUT
-        print(f'Timeout expired for DaCapo benchmark')
-    return status
+    return [os.path.abspath(java_executable)] + java_options + dacapo_options
 
 
-def extract_dacapo(archive, resources_dir):
-    if os.path.isdir(resources_dir):
-        print(f"Using existing DaCapo directory: {resources_dir}")
-    else:
-        print(f"Extracting DaCapo archive to {resources_dir}")
-        os.makedirs(resources_dir, exist_ok=True)
-        subprocess.check_output(['tar', '-xf', archive, '--strip-components', '1', '-C', resources_dir])
-        print(f"Extracted DaCapo archive")
-
-
-def update_report(report_file, benchmark, tool):
-    # Read the unprocessed report
-    data = pd.read_csv(report_file) \
-        .rename(columns=lambda x: x.strip())
-    # Add columns for the benchmark and tool to the report
-    data = set_columns(data, benchmark=benchmark, tool=tool)
-    # Drop warm-up iterations
-    data = data[data['iteration'] >= WARMUP_ITERATIONS]
-    # Write the updated report
-    data.to_csv(report_file, index=False)
-
-
-def run(output_dir, benchmark, tool, resources_dir, dacapo_archive, timeout, settings_file, skip_build):
-    # Ensure the results directory exists
-    os.makedirs(output_dir, exist_ok=True)
-    data_file = os.path.join(output_dir, run_data.DATA_FILE_NAME)
-    status_file = os.path.join(output_dir, run_data.STATUS_FILE_NAME)
-    try:
-        # Build Galette
-        build_maven_project(resources_dir, GALETTE_ROOT, settings_file, skip_build, '17')
-        # Build evaluation classes
-        build_maven_project(resources_dir, GALETTE_EVALUATION_ROOT, settings_file, skip_build, '17')
-        # Ensure the DaCapo archive has been extracted
-        dacapo_dir = os.path.join(resources_dir, 'dacapo')
-        extract_dacapo(dacapo_archive, dacapo_dir)
-        # Run DaCapo
-        status = run_dacapo(resources_dir, data_file, tool, dacapo_dir, benchmark, timeout * 60, settings_file)
-        status = run_dacapo(resources_dir, data_file, tool, dacapo_dir, benchmark, timeout * 60, settings_file)
-        # Fix the report
-        update_report(data_file, benchmark, tool)
-    except Exception as e:
-        write_status(status_file, Status.BUILD_FAILURE, benchmark=benchmark, tool=tool)
-        raise e
-    write_status(status_file, status, benchmark=benchmark, tool=tool)
+def run_performance(output_dir, resources_dir, settings_file, skip_build, benchmark, tool, dacapo_archive, timeout):
+    run(output_dir, resources_dir, settings_file, skip_build, f'DaCapo benchmark {benchmark}', timeout, drop_warmups,
+        partial(create_dacapo_command, dacapo_archive=dacapo_archive), benchmark=benchmark, tool=tool)
 
 
 def main():
@@ -153,13 +115,13 @@ def main():
     parser.add_argument(
         '-k',
         '--skip-build',
-        help='Skip building of associated Maven projects (defaults to False)',
+        help='Skip building Maven projects (defaults to False)',
         default=False,
         action='store_true'
     )
     args = parser.parse_args()
     print(f'Collecting performance experiment data: {args.__dict__}')
-    run(**args.__dict__)
+    run_performance(**args.__dict__)
 
 
 if __name__ == '__main__':
