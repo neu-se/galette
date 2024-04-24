@@ -2,8 +2,12 @@
 
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/performance.sh 1 performance_tasks.csv <TIMEOUT>
 
-Last Run:
-/ci-logs/public/katie/galette/results/slurm-1190866/
+Last Functional Run:
+/ci-logs/public/katie/galette/results/slurm-1191239/
+
+ Last Performance Run:
+/ci-logs/public/katie/galette/results/slurm-1191251/
+
 
 /experiment/katie/galette/dacapo-23.11-chopin-small.tar (1.6 GB)
 
