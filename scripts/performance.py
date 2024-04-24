@@ -1,14 +1,12 @@
 import argparse
-import json
 from subprocess import TimeoutExpired
-
-from strenum import StrEnum
-from enum import auto
 
 import pandas as pd
 
+import run_data
 from evaluation_util import *
 from report_util import set_columns
+from run_data import Status, write_status
 
 BENCHMARKS = ['avrora', 'batik', 'biojava', 'eclipse', 'fop', 'graphchi', 'h2', 'h2o', 'jme',
               'jython', 'kafka', 'luindex', 'lusearch', 'pmd', 'spring', 'sunflow', 'tomcat', 'tradebeans',
@@ -17,15 +15,6 @@ MEASUREMENT_ITERATIONS = 5
 WARMUP_ITERATIONS = 5
 CALLBACK_CLASS = 'edu.neu.ccs.prl.galette.eval.RecordingCallback'
 DACAPO_MAIN_CLASS = 'Harness'
-DATA_FILE_NAME = 'performance.csv'
-STATUS_FILE_NAME = 'status.json'
-
-
-class Status(StrEnum):
-    SUCCESS = auto()
-    TIMEOUT = auto()
-    DACAPO_FAILURE = auto()
-    BUILD_FAILURE = auto()
 
 
 def run_dacapo(resources_dir, report_file, tool, dacapo_dir, benchmark, timeout, settings_file):
@@ -87,36 +76,28 @@ def update_report(report_file, benchmark, tool):
     data.to_csv(report_file, index=False)
 
 
-def write_status(status_file, benchmark, tool, status):
-    print(f'Writing status to {status_file}')
-    with open(status_file, 'w') as f:
-        json.dump(dict(benchmark=benchmark, tool=tool, status=status), f)
-    print(f'Wrote status')
-
-
 def run(output_dir, benchmark, tool, resources_dir, dacapo_archive, timeout, settings_file, skip_build):
     # Ensure the results directory exists
     os.makedirs(output_dir, exist_ok=True)
-    data_file = os.path.join(output_dir, DATA_FILE_NAME)
-    status_file = os.path.join(output_dir, STATUS_FILE_NAME)
+    data_file = os.path.join(output_dir, run_data.DATA_FILE_NAME)
+    status_file = os.path.join(output_dir, run_data.STATUS_FILE_NAME)
     try:
         # Build Galette
         build_maven_project(resources_dir, GALETTE_ROOT, settings_file, skip_build, '17')
         # Build evaluation classes
         build_maven_project(resources_dir, GALETTE_EVALUATION_ROOT, settings_file, skip_build, '17')
-        # Ensure the parent directory of the report file exists
-        os.makedirs(pathlib.Path(data_file).parent, exist_ok=True)
         # Ensure the DaCapo archive has been extracted
         dacapo_dir = os.path.join(resources_dir, 'dacapo')
         extract_dacapo(dacapo_archive, dacapo_dir)
         # Run DaCapo
         status = run_dacapo(resources_dir, data_file, tool, dacapo_dir, benchmark, timeout * 60, settings_file)
+        status = run_dacapo(resources_dir, data_file, tool, dacapo_dir, benchmark, timeout * 60, settings_file)
         # Fix the report
         update_report(data_file, benchmark, tool)
     except Exception as e:
-        write_status(status_file, benchmark, tool, Status.BUILD_FAILURE)
+        write_status(status_file, Status.BUILD_FAILURE, benchmark=benchmark, tool=tool)
         raise e
-    write_status(status_file, benchmark, tool, status)
+    write_status(status_file, status, benchmark=benchmark, tool=tool)
 
 
 def main():

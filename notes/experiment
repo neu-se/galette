@@ -1,10 +1,9 @@
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/functional.sh 1 functional_tasks.csv
 
-./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/performance.sh 1 performance_tasks.csv
+./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/performance.sh 1 performance_tasks.csv <TIMEOUT>
 
 Last Run:
-/ci-logs/public/katie/galette/results/slurm-1190681/
-Started 14:01 April 23rd
+/ci-logs/public/katie/galette/results/slurm-1190773/
 
 /experiment/katie/galette/dacapo-23.11-chopin-small.tar (1.6 GB)
 
@@ -27,4 +26,4 @@ Is MirrorTaint applying tags automatically?
 As far as I can tell the sources that MirrorTaint uses are application specific and, therefore, unlikely to apply to the
 DaCapo subjects.
 
-Add variance to performance tables
+Check functional scripts

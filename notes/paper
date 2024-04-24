@@ -10,7 +10,7 @@ Add list of work using dynamic taint tracking in JVM from thesis proposal slides
 
 MirrorTaint only supports java 16 or lower (b/c of ASM version)
 
-For Phosphor we used the options: enum,acmpeq,serialization
+For Phosphor we used the options: -forceUnboxAcmpEq -withEnumsByValue and -serialization
 
 Phosphor was crashing on:
 VarHandleITCase#getAndBitwiseBoolean
@@ -19,3 +19,12 @@ with location
 ONE_DIMENSIONAL_ARRAY.getBoolean
 
 However, it no longer appears to be crashing
+
+For each of the performance benchmarks and each treatment, we report the median (x̃), and  standard deviation (s) of <STAT> value.
+Mann-Whitney U tests were performed to compare the memory usage of other treatments against Galette on each benchmark.
+A continuity correction of 0.5 was used when calculating p-values.
+We used the Vargha-Delaney A12 statistic [CITE] to quantify the effect sizes of these comparisons.
+We report the two-tailed, asymptotic p-value (p) and Vargha-Delaney A12 statistic for each of these comparisons.
+Following current best practices as described by Arcuri and Briand [CITE], a base significance level of 0.05 was adjusted
+for three comparisons resulting in a Bonferroni-corrected significance level of 0.0167 per test
+Statistically significant differences between the <STAT> of Galette and the other treatments are colored red in Table 3.

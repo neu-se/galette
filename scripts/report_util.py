@@ -39,11 +39,6 @@ def compute_bucket(value, bounds):
     return len(bounds)
 
 
-def compute_sig_level(n, alpha=0.05):
-    number_of_comparisons = 1 if n < 2 else n * (n - 1) / 2
-    return alpha / number_of_comparisons
-
-
 def compute_cartesian_index(data, columns):
     categories = [data[c].unique() for c in columns]
     # Create an index that it the cartesian product of all unique values in the specified columns
