@@ -3,7 +3,7 @@
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/performance.sh 20 performance_tasks.csv <TIMEOUT>
 
 Last Functional Run:
-/ci-logs/public/katie/galette/results/slurm-1191343/
+/ci-logs/public/katie/galette/results/slurm-1193135/
 
  Last Performance Run:
 /ci-logs/public/katie/galette/results/slurm-1191447/
@@ -28,5 +28,3 @@ Which tasks have not finished?
 Is MirrorTaint applying tags automatically?
 As far as I can tell the sources that MirrorTaint uses are application specific and, therefore, unlikely to apply to the
 DaCapo subjects.
-
-Why did SunUnsafe fail for Phosphor on Java 8?
