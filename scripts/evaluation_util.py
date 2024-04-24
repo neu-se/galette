@@ -36,16 +36,20 @@ def ensure_java_home(output_dir, jdk_version):
     return jdk
 
 
-def build_maven_project(output_dir, project_root, settings_file, jdk_version='17'):
-    ensure_java_home(output_dir, jdk_version)
-    print(f'Building project {project_root}')
-    # Build and install the project
-    command = ['mvn', '-B', '-q', '-ntp', '-e', '-f', os.path.abspath(project_root), '-DskipTests', 'clean', 'install']
-    if settings_file is not None:
-        command += ['-s', os.path.abspath(settings_file)]
-    print('\t' + ' '.join(command))
-    subprocess.run(command, shell=False, check=True)
-    print('Built project')
+def build_maven_project(output_dir, project_root, settings_file, skip_build, jdk_version='17'):
+    if skip_build:
+        print(f'Skipping build of project {project_root}')
+    else:
+        ensure_java_home(output_dir, jdk_version)
+        print(f'Building project {project_root}')
+        # Build and install the project
+        command = ['mvn', '-B', '-q', '-ntp', '-e', '-f', os.path.abspath(project_root), '-DskipTests', 'clean',
+                   'install']
+        if settings_file is not None:
+            command += ['-s', os.path.abspath(settings_file)]
+        print('\t' + ' '.join(command))
+        subprocess.run(command, shell=False, check=True)
+        print('Built project')
 
 
 def instrument_jdk_galette(java_home, target_dir):

@@ -3,8 +3,8 @@
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/performance.sh 1 performance_tasks.csv
 
 Last Run:
-/ci-logs/public/katie/galette/results/slurm-1190589/
-Started 13:12 April 23rd
+/ci-logs/public/katie/galette/results/slurm-1190681/
+Started 14:01 April 23rd
 
 /experiment/katie/galette/dacapo-23.11-chopin-small.tar (1.6 GB)
 
@@ -16,33 +16,15 @@ dacapo-23.11-chopin/jar/h2o/h2o.jar
     Benchmark: h2o
 Possibly others
 
-Disk usage issues:
-46 = mirror-taint,biojava
-59 = mirror-taint,spring
-
 Why are the results for cassandra missing?
 Defect in DaCapo: https://github.com/dacapobench/dacapobench/issues/211
-The Cassandra benchmark was excluded due to an defect that impacted the benchmark in the 23.11 Chopin release of DaCapo (https://github.com/dacapobench/dacapobench/issues/211)
+The Cassandra benchmark was excluded due to a defect in the 23.11 Chopin release of DaCapo that impacts the Cassandra benchmark (https://github.com/dacapobench/dacapobench/issues/211)
 
 Which tasks have not finished?
 * Phosphor times out on tradesoap and tradebeans due to removal of DaCapo imposed timeout
-
-Reset for disk space:
-mirror-taint,biojava,44
-    4.6G	./mirrorTaint/20240423173135/agent-info.log
-mirror-taint,spring,56
 
 Is MirrorTaint applying tags automatically?
 As far as I can tell the sources that MirrorTaint uses are application specific and, therefore, unlikely to apply to the
 DaCapo subjects.
 
 Add variance to performance tables
-
-
-Errors:
-phosphor    zxing
-    A fatal error has been detected by the Java Runtime Environment
-mirror-taint    eclipse
-    java.util.NoSuchElementException
-phosphor    kafka
-    java.lang.VerifyError: class scala.math.ScalaNumber overrides final method java.lang.Object.wait(JI)V

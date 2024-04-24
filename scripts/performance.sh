@@ -2,11 +2,11 @@
 readonly RESULTS_DIRECTORY=$1
 readonly TOOL=$2
 readonly BENCHMARK=$3
+readonly TIMEOUT=$4
 readonly PROJECT_ROOT=$(pwd)
 readonly EXPERIMENT_DIRECTORY="/experiment/katie/galette/"
 readonly RESOURCES_DIRECTORY="$(pwd)/resources/"
 readonly OUTPUT_DIRECTORY="$(pwd)/out/"
-readonly REPORT_FILE="$OUTPUT_DIRECTORY/report.csv"
 readonly INFO_FILE="$RESULTS_DIRECTORY/info.json"
 readonly SETTINGS_FILE="$PROJECT_ROOT/settings.xml"
 readonly DACAPO_ARCHIVE="$PROJECT_ROOT/dacapo-23.11-chopin-small.tar"
@@ -51,14 +51,14 @@ python3 -m venv venv
 python3 -m pip install -r "$PROJECT_ROOT/scripts/requirements.txt"
 
 # Run the script
-timeout 1d \
-  python3 "$PROJECT_ROOT/scripts/performance.py" \
-  --report-file "$REPORT_FILE" \
+python3 "$PROJECT_ROOT/scripts/performance.py" \
+  --output-dir "$OUTPUT_DIRECTORY" \
   --benchmark "$BENCHMARK" \
   --tool "$TOOL" \
   --resources-dir "$RESOURCES_DIRECTORY" \
   --dacapo-archive "$DACAPO_ARCHIVE" \
+  --timeout "$TIMEOUT" \
   --settings-file "$SETTINGS_FILE"
 
-# Copy the report to the results directory
-cp "$REPORT_FILE" "$RESULTS_DIRECTORY"
+# Copy all normal files in the output directory to the results directory
+find "$OUTPUT_DIRECTORY" -maxdepth 1 -type f -exec cp -t "$RESULTS_DIRECTORY" {} +

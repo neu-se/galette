@@ -1,4 +1,3 @@
-import json
 import os
 
 from report_util import *
@@ -12,18 +11,13 @@ class Trial:
 
     def __init__(self, trial_dir):
         self.data_file = os.path.join(trial_dir, DATA_FILE_NAME)
-        self.info_file = os.path.join(trial_dir, INFO_FILE_NAME)
-        self.valid = all(os.path.isfile(f) for f in [self.data_file, self.info_file])
-        self.info = {}
-        if os.path.isfile(self.info_file):
-            with open(self.info_file, 'r') as f:
-                self.info = json.load(f)
-        self.info['id'] = os.path.basename(trial_dir)
+        self.valid = all(os.path.isfile(f) for f in [self.data_file])
+        self.id = os.path.basename(trial_dir)
 
     def get_data_frame(self):
         data = pd.read_csv(self.data_file) \
             .rename(columns=lambda x: x.strip())
-        return set_columns(data, **self.info)
+        return select(data, trial_id=id)
 
 
 def find_trials(input_dir):
@@ -39,7 +33,7 @@ def check_trials(trials):
     result = []
     for c in trials:
         if not c.valid:
-            print(f"\tMissing required files for {c.info}.")
+            print(f"\tMissing required files for {c.id}.")
         else:
             result.append(c)
     print(f'\t{len(result)} trials were valid.')
@@ -56,8 +50,7 @@ def combine_trials(trials, file):
 
 
 def extract(input_dir, output_file):
-    trials = check_trials(find_trials(input_dir))
-    return combine_trials(trials, output_file)
+    return combine_trials(check_trials(find_trials(input_dir)), output_file)
 
 
 def assert_record_equality(frames):
