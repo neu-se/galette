@@ -2,7 +2,6 @@ import argparse
 from functools import partial
 
 from evaluation_util import *
-from run_data import Status, write_status
 
 BENCHMARKS = ['avrora', 'batik', 'biojava', 'eclipse', 'fop', 'graphchi', 'h2', 'h2o', 'jme',
               'jython', 'kafka', 'luindex', 'lusearch', 'pmd', 'spring', 'sunflow', 'tomcat', 'tradebeans',
@@ -58,8 +57,8 @@ def create_dacapo_command(resources_dir, settings_file, report_file, dacapo_arch
 
 
 def run_performance(output_dir, resources_dir, settings_file, skip_build, benchmark, tool, dacapo_archive, timeout):
-    run(output_dir, resources_dir, settings_file, skip_build, f'DaCapo benchmark {benchmark}', timeout, drop_warmups,
-        partial(create_dacapo_command, dacapo_archive=dacapo_archive), benchmark=benchmark, tool=tool)
+    run(output_dir, resources_dir, settings_file, skip_build, f'DaCapo benchmark {benchmark}', timeout * 60,
+        drop_warmups, partial(create_dacapo_command, dacapo_archive=dacapo_archive), benchmark=benchmark, tool=tool)
 
 
 def main():
