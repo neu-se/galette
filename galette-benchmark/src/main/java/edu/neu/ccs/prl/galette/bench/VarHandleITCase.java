@@ -82,7 +82,7 @@ public class VarHandleITCase {
     void getBoolean(boolean taintValue, VariableLocation location, AccessMode mode)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        VarHandle handle = location.getVarHandle(lookup, boolean.class);
+        VarHandle handle = getVarHandle(location, lookup, boolean.class);
         boolean actual;
         switch (location) {
             case INSTANCE_FIELD:
@@ -105,7 +105,7 @@ public class VarHandleITCase {
     @MethodSource("getArguments")
     void getByte(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        VarHandle handle = location.getVarHandle(lookup, byte.class);
+        VarHandle handle = getVarHandle(location, lookup, byte.class);
         byte actual;
         switch (location) {
             case INSTANCE_FIELD:
@@ -128,7 +128,7 @@ public class VarHandleITCase {
     @MethodSource("getArguments")
     void getChar(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        VarHandle handle = location.getVarHandle(lookup, char.class);
+        VarHandle handle = getVarHandle(location, lookup, char.class);
         char actual;
         switch (location) {
             case INSTANCE_FIELD:
@@ -151,7 +151,7 @@ public class VarHandleITCase {
     @MethodSource("getArguments")
     void getShort(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        VarHandle handle = location.getVarHandle(lookup, short.class);
+        VarHandle handle = getVarHandle(location, lookup, short.class);
         short actual;
         switch (location) {
             case INSTANCE_FIELD:
@@ -174,7 +174,7 @@ public class VarHandleITCase {
     @MethodSource("getArguments")
     void getInt(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        VarHandle handle = location.getVarHandle(lookup, int.class);
+        VarHandle handle = getVarHandle(location, lookup, int.class);
         int actual;
         switch (location) {
             case INSTANCE_FIELD:
@@ -197,7 +197,7 @@ public class VarHandleITCase {
     @MethodSource("getArguments")
     void getLong(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        VarHandle handle = location.getVarHandle(lookup, long.class);
+        VarHandle handle = getVarHandle(location, lookup, long.class);
         long actual;
         switch (location) {
             case INSTANCE_FIELD:
@@ -220,7 +220,7 @@ public class VarHandleITCase {
     @MethodSource("getArguments")
     void getFloat(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        VarHandle handle = location.getVarHandle(lookup, float.class);
+        VarHandle handle = getVarHandle(location, lookup, float.class);
         float actual;
         switch (location) {
             case INSTANCE_FIELD:
@@ -243,7 +243,7 @@ public class VarHandleITCase {
     @MethodSource("getArguments")
     void getDouble(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        VarHandle handle = location.getVarHandle(lookup, double.class);
+        VarHandle handle = getVarHandle(location, lookup, double.class);
         double actual;
         switch (location) {
             case INSTANCE_FIELD:
@@ -266,7 +266,7 @@ public class VarHandleITCase {
     @MethodSource("getArguments")
     void getObject(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue);
-        VarHandle handle = location.getVarHandle(lookup, Object.class);
+        VarHandle handle = getVarHandle(location, lookup, Object.class);
         Object actual;
         switch (location) {
             case INSTANCE_FIELD:
@@ -290,7 +290,7 @@ public class VarHandleITCase {
     void setBoolean(boolean taintValue, VariableLocation location, AccessMode mode)
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
-        VarHandle handle = location.getVarHandle(lookup, boolean.class);
+        VarHandle handle = getVarHandle(location, lookup, boolean.class);
         //noinspection SimplifiableConditionalExpression
         boolean expected = taintValue ? manager.setLabel(true, "label") : true;
         switch (location) {
@@ -315,7 +315,7 @@ public class VarHandleITCase {
     @MethodSource("setArguments")
     void setByte(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
-        VarHandle handle = location.getVarHandle(lookup, byte.class);
+        VarHandle handle = getVarHandle(location, lookup, byte.class);
         byte expected = taintValue ? manager.setLabel((byte) 4, "label") : 4;
         switch (location) {
             case INSTANCE_FIELD:
@@ -339,7 +339,7 @@ public class VarHandleITCase {
     @MethodSource("setArguments")
     void setChar(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
-        VarHandle handle = location.getVarHandle(lookup, char.class);
+        VarHandle handle = getVarHandle(location, lookup, char.class);
         char expected = taintValue ? manager.setLabel((char) 4, "label") : 4;
         switch (location) {
             case INSTANCE_FIELD:
@@ -363,7 +363,7 @@ public class VarHandleITCase {
     @MethodSource("setArguments")
     void setShort(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
-        VarHandle handle = location.getVarHandle(lookup, short.class);
+        VarHandle handle = getVarHandle(location, lookup, short.class);
         short expected = taintValue ? manager.setLabel((short) 4, "label") : 4;
         switch (location) {
             case INSTANCE_FIELD:
@@ -387,7 +387,7 @@ public class VarHandleITCase {
     @MethodSource("setArguments")
     void setInt(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
-        VarHandle handle = location.getVarHandle(lookup, int.class);
+        VarHandle handle = getVarHandle(location, lookup, int.class);
         int expected = taintValue ? manager.setLabel(4, "label") : 4;
         switch (location) {
             case INSTANCE_FIELD:
@@ -411,7 +411,7 @@ public class VarHandleITCase {
     @MethodSource("setArguments")
     void setLong(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
-        VarHandle handle = location.getVarHandle(lookup, long.class);
+        VarHandle handle = getVarHandle(location, lookup, long.class);
         long expected = taintValue ? manager.setLabel(4, "label") : 4;
         switch (location) {
             case INSTANCE_FIELD:
@@ -435,7 +435,7 @@ public class VarHandleITCase {
     @MethodSource("setArguments")
     void setFloat(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
-        VarHandle handle = location.getVarHandle(lookup, float.class);
+        VarHandle handle = getVarHandle(location, lookup, float.class);
         float expected = taintValue ? manager.setLabel(4, "label") : 4;
         switch (location) {
             case INSTANCE_FIELD:
@@ -459,7 +459,7 @@ public class VarHandleITCase {
     @MethodSource("setArguments")
     void setDouble(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
-        VarHandle handle = location.getVarHandle(lookup, double.class);
+        VarHandle handle = getVarHandle(location, lookup, double.class);
         double expected = taintValue ? manager.setLabel(4, "label") : 4;
         switch (location) {
             case INSTANCE_FIELD:
@@ -483,7 +483,7 @@ public class VarHandleITCase {
     @MethodSource("setArguments")
     void setObject(boolean taintValue, VariableLocation location, AccessMode mode) throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
-        VarHandle handle = location.getVarHandle(lookup, Object.class);
+        VarHandle handle = getVarHandle(location, lookup, Object.class);
         Object expected = taintValue ? manager.setLabel(new Object(), "label") : new Object();
         switch (location) {
             case INSTANCE_FIELD:
@@ -509,7 +509,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         boolean original = location.getCategory().getBoolean(holder);
-        VarHandle handle = location.getVarHandle(lookup, boolean.class);
+        VarHandle handle = getVarHandle(location, lookup, boolean.class);
         //noinspection SimplifiableConditionalExpression
         boolean update = taintValue ? manager.setLabel(true, "label") : true;
         boolean result;
@@ -538,7 +538,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         byte original = location.getCategory().getByte(holder);
-        VarHandle handle = location.getVarHandle(lookup, byte.class);
+        VarHandle handle = getVarHandle(location, lookup, byte.class);
         byte update = taintValue ? manager.setLabel((byte) 4, "label") : 4;
         boolean result;
         switch (location) {
@@ -566,7 +566,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         char original = location.getCategory().getChar(holder);
-        VarHandle handle = location.getVarHandle(lookup, char.class);
+        VarHandle handle = getVarHandle(location, lookup, char.class);
         char update = taintValue ? manager.setLabel((char) 4, "label") : 4;
         boolean result;
         switch (location) {
@@ -594,7 +594,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         short original = location.getCategory().getShort(holder);
-        VarHandle handle = location.getVarHandle(lookup, short.class);
+        VarHandle handle = getVarHandle(location, lookup, short.class);
         short update = taintValue ? manager.setLabel((short) 4, "label") : 4;
         boolean result;
         switch (location) {
@@ -622,7 +622,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         int original = location.getCategory().getInt(holder);
-        VarHandle handle = location.getVarHandle(lookup, int.class);
+        VarHandle handle = getVarHandle(location, lookup, int.class);
         int update = taintValue ? manager.setLabel(4, "label") : 4;
         boolean result;
         switch (location) {
@@ -650,7 +650,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         long original = location.getCategory().getLong(holder);
-        VarHandle handle = location.getVarHandle(lookup, long.class);
+        VarHandle handle = getVarHandle(location, lookup, long.class);
         long update = taintValue ? manager.setLabel(4, "label") : 4;
         boolean result;
         switch (location) {
@@ -678,7 +678,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         float original = location.getCategory().getFloat(holder);
-        VarHandle handle = location.getVarHandle(lookup, float.class);
+        VarHandle handle = getVarHandle(location, lookup, float.class);
         float update = taintValue ? manager.setLabel(4, "label") : 4;
         boolean result;
         switch (location) {
@@ -706,7 +706,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         double original = location.getCategory().getDouble(holder);
-        VarHandle handle = location.getVarHandle(lookup, double.class);
+        VarHandle handle = getVarHandle(location, lookup, double.class);
         double update = taintValue ? manager.setLabel(4, "label") : 4;
         boolean result;
         switch (location) {
@@ -734,7 +734,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         Object original = location.getCategory().getObject(holder);
-        VarHandle handle = location.getVarHandle(lookup, Object.class);
+        VarHandle handle = getVarHandle(location, lookup, Object.class);
         Object update = taintValue ? manager.setLabel(new Object(), "label") : new Object();
         boolean result;
         switch (location) {
@@ -762,7 +762,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         boolean original = location.getCategory().getBoolean(holder);
-        VarHandle handle = location.getVarHandle(lookup, boolean.class);
+        VarHandle handle = getVarHandle(location, lookup, boolean.class);
         //noinspection SimplifiableConditionalExpression
         boolean update = taintValue ? manager.setLabel(true, "label") : true;
         boolean witness;
@@ -792,7 +792,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         byte original = location.getCategory().getByte(holder);
-        VarHandle handle = location.getVarHandle(lookup, byte.class);
+        VarHandle handle = getVarHandle(location, lookup, byte.class);
         byte update = taintValue ? manager.setLabel((byte) 4, "label") : 4;
         byte witness;
         switch (location) {
@@ -821,7 +821,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         char original = location.getCategory().getChar(holder);
-        VarHandle handle = location.getVarHandle(lookup, char.class);
+        VarHandle handle = getVarHandle(location, lookup, char.class);
         char update = taintValue ? manager.setLabel((char) 4, "label") : 4;
         char witness;
         switch (location) {
@@ -850,7 +850,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         short original = location.getCategory().getShort(holder);
-        VarHandle handle = location.getVarHandle(lookup, short.class);
+        VarHandle handle = getVarHandle(location, lookup, short.class);
         short update = taintValue ? manager.setLabel((short) 4, "label") : 4;
         short witness;
         switch (location) {
@@ -879,7 +879,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         int original = location.getCategory().getInt(holder);
-        VarHandle handle = location.getVarHandle(lookup, int.class);
+        VarHandle handle = getVarHandle(location, lookup, int.class);
         int update = taintValue ? manager.setLabel(4, "label") : 4;
         int witness;
         switch (location) {
@@ -908,7 +908,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         long original = location.getCategory().getLong(holder);
-        VarHandle handle = location.getVarHandle(lookup, long.class);
+        VarHandle handle = getVarHandle(location, lookup, long.class);
         long update = taintValue ? manager.setLabel((long) 4, "label") : 4;
         long witness;
         switch (location) {
@@ -937,7 +937,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         float original = location.getCategory().getFloat(holder);
-        VarHandle handle = location.getVarHandle(lookup, float.class);
+        VarHandle handle = getVarHandle(location, lookup, float.class);
         float update = taintValue ? manager.setLabel((float) 4, "label") : 4;
         float witness;
         switch (location) {
@@ -966,7 +966,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         double original = location.getCategory().getDouble(holder);
-        VarHandle handle = location.getVarHandle(lookup, double.class);
+        VarHandle handle = getVarHandle(location, lookup, double.class);
         double update = taintValue ? manager.setLabel((double) 4, "label") : 4;
         double witness;
         switch (location) {
@@ -995,7 +995,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         Object original = location.getCategory().getObject(holder);
-        VarHandle handle = location.getVarHandle(lookup, Object.class);
+        VarHandle handle = getVarHandle(location, lookup, Object.class);
         Object update = taintValue ? manager.setLabel(new Object(), "label") : new Object();
         Object witness;
         switch (location) {
@@ -1024,7 +1024,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         boolean original = location.getCategory().getBoolean(holder);
-        VarHandle handle = location.getVarHandle(lookup, boolean.class);
+        VarHandle handle = getVarHandle(location, lookup, boolean.class);
         //noinspection SimplifiableConditionalExpression
         boolean update = taintValue ? manager.setLabel(true, "label") : true;
         boolean witness;
@@ -1054,7 +1054,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         byte original = location.getCategory().getByte(holder);
-        VarHandle handle = location.getVarHandle(lookup, byte.class);
+        VarHandle handle = getVarHandle(location, lookup, byte.class);
         byte update = taintValue ? manager.setLabel((byte) 4, "label") : 4;
         byte witness;
         switch (location) {
@@ -1083,7 +1083,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         char original = location.getCategory().getChar(holder);
-        VarHandle handle = location.getVarHandle(lookup, char.class);
+        VarHandle handle = getVarHandle(location, lookup, char.class);
         char update = taintValue ? manager.setLabel((char) 4, "label") : 4;
         char witness;
         switch (location) {
@@ -1112,7 +1112,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         short original = location.getCategory().getShort(holder);
-        VarHandle handle = location.getVarHandle(lookup, short.class);
+        VarHandle handle = getVarHandle(location, lookup, short.class);
         short update = taintValue ? manager.setLabel((short) 4, "label") : 4;
         short witness;
         switch (location) {
@@ -1141,7 +1141,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         int original = location.getCategory().getInt(holder);
-        VarHandle handle = location.getVarHandle(lookup, int.class);
+        VarHandle handle = getVarHandle(location, lookup, int.class);
         int update = taintValue ? manager.setLabel(4, "label") : 4;
         int witness;
         switch (location) {
@@ -1170,7 +1170,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         long original = location.getCategory().getLong(holder);
-        VarHandle handle = location.getVarHandle(lookup, long.class);
+        VarHandle handle = getVarHandle(location, lookup, long.class);
         long update = taintValue ? manager.setLabel((long) 4, "label") : 4;
         long witness;
         switch (location) {
@@ -1199,7 +1199,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         float original = location.getCategory().getFloat(holder);
-        VarHandle handle = location.getVarHandle(lookup, float.class);
+        VarHandle handle = getVarHandle(location, lookup, float.class);
         float update = taintValue ? manager.setLabel((float) 4, "label") : 4;
         float witness;
         switch (location) {
@@ -1228,7 +1228,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         double original = location.getCategory().getDouble(holder);
-        VarHandle handle = location.getVarHandle(lookup, double.class);
+        VarHandle handle = getVarHandle(location, lookup, double.class);
         double update = taintValue ? manager.setLabel((double) 4, "label") : 4;
         double witness;
         switch (location) {
@@ -1257,7 +1257,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, !taintValue, 120, false, "hello");
         Object original = location.getCategory().getObject(holder);
-        VarHandle handle = location.getVarHandle(lookup, Object.class);
+        VarHandle handle = getVarHandle(location, lookup, Object.class);
         Object update = taintValue ? manager.setLabel(new Object(), "label") : new Object();
         Object witness;
         switch (location) {
@@ -1286,7 +1286,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue, 120, false, "hello");
         byte original = location.getCategory().getByte(holder);
-        VarHandle handle = location.getVarHandle(lookup, byte.class);
+        VarHandle handle = getVarHandle(location, lookup, byte.class);
         byte update = taintUpdate ? manager.setLabel((byte) 4, "label") : 4;
         byte witness;
         switch (location) {
@@ -1315,7 +1315,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue, 120, false, "hello");
         char original = location.getCategory().getChar(holder);
-        VarHandle handle = location.getVarHandle(lookup, char.class);
+        VarHandle handle = getVarHandle(location, lookup, char.class);
         char update = taintUpdate ? manager.setLabel((char) 4, "label") : 4;
         char witness;
         switch (location) {
@@ -1344,7 +1344,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue, 120, false, "hello");
         short original = location.getCategory().getShort(holder);
-        VarHandle handle = location.getVarHandle(lookup, short.class);
+        VarHandle handle = getVarHandle(location, lookup, short.class);
         short update = taintUpdate ? manager.setLabel((short) 4, "label") : 4;
         short witness;
         switch (location) {
@@ -1373,7 +1373,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue, 120, false, "hello");
         int original = location.getCategory().getInt(holder);
-        VarHandle handle = location.getVarHandle(lookup, int.class);
+        VarHandle handle = getVarHandle(location, lookup, int.class);
         int update = taintUpdate ? manager.setLabel((int) 4, "label") : 4;
         int witness;
         switch (location) {
@@ -1402,7 +1402,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue, 120, false, "hello");
         long original = location.getCategory().getLong(holder);
-        VarHandle handle = location.getVarHandle(lookup, long.class);
+        VarHandle handle = getVarHandle(location, lookup, long.class);
         long update = taintUpdate ? manager.setLabel((long) 4, "label") : 4;
         long witness;
         switch (location) {
@@ -1431,7 +1431,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue, 120, false, "hello");
         float original = location.getCategory().getFloat(holder);
-        VarHandle handle = location.getVarHandle(lookup, float.class);
+        VarHandle handle = getVarHandle(location, lookup, float.class);
         float update = taintUpdate ? manager.setLabel((float) 4, "label") : 4;
         float witness;
         switch (location) {
@@ -1460,7 +1460,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue, 120, false, "hello");
         double original = location.getCategory().getDouble(holder);
-        VarHandle handle = location.getVarHandle(lookup, double.class);
+        VarHandle handle = getVarHandle(location, lookup, double.class);
         double update = taintUpdate ? manager.setLabel((double) 4, "label") : 4;
         double witness;
         switch (location) {
@@ -1489,7 +1489,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue, 120, false, "hello");
         boolean original = location.getCategory().getBoolean(holder);
-        VarHandle handle = location.getVarHandle(lookup, boolean.class);
+        VarHandle handle = getVarHandle(location, lookup, boolean.class);
         //noinspection SimplifiableConditionalExpression
         boolean update = taintUpdate ? manager.setLabel(true, "label") : true;
         boolean witness;
@@ -1519,7 +1519,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue, 120, false, "hello");
         byte original = location.getCategory().getByte(holder);
-        VarHandle handle = location.getVarHandle(lookup, byte.class);
+        VarHandle handle = getVarHandle(location, lookup, byte.class);
         byte update = taintUpdate ? manager.setLabel((byte) 4, "label") : 4;
         byte witness;
         switch (location) {
@@ -1548,7 +1548,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue, 120, false, "hello");
         char original = location.getCategory().getChar(holder);
-        VarHandle handle = location.getVarHandle(lookup, char.class);
+        VarHandle handle = getVarHandle(location, lookup, char.class);
         char update = taintUpdate ? manager.setLabel((char) 4, "label") : 4;
         char witness;
         switch (location) {
@@ -1577,7 +1577,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue, 120, false, "hello");
         short original = location.getCategory().getShort(holder);
-        VarHandle handle = location.getVarHandle(lookup, short.class);
+        VarHandle handle = getVarHandle(location, lookup, short.class);
         short update = taintUpdate ? manager.setLabel((short) 4, "label") : 4;
         short witness;
         switch (location) {
@@ -1606,7 +1606,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue, 120, false, "hello");
         int original = location.getCategory().getInt(holder);
-        VarHandle handle = location.getVarHandle(lookup, int.class);
+        VarHandle handle = getVarHandle(location, lookup, int.class);
         int update = taintUpdate ? manager.setLabel((int) 4, "label") : 4;
         int witness;
         switch (location) {
@@ -1635,7 +1635,7 @@ public class VarHandleITCase {
             throws ReflectiveOperationException {
         Holder holder = new Holder(manager, taintValue, 120, false, "hello");
         long original = location.getCategory().getLong(holder);
-        VarHandle handle = location.getVarHandle(lookup, long.class);
+        VarHandle handle = getVarHandle(location, lookup, long.class);
         long update = taintUpdate ? manager.setLabel((long) 4, "label") : 4;
         long witness;
         switch (location) {

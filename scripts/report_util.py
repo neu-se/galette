@@ -43,3 +43,12 @@ def compute_cartesian_index(data, columns):
     categories = [data[c].unique() for c in columns]
     # Create an index that it the cartesian product of all unique values in the specified columns
     return pd.MultiIndex.from_product(categories, names=columns)
+
+
+def format_tool_names(data):
+    result = pd.DataFrame(data)
+    result['tool'] = result['tool'] \
+        .apply(lambda x: x.replace('none', 'base')) \
+        .apply(str.title) \
+        .apply(lambda x: x.replace('-', ''))
+    return result

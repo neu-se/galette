@@ -1,13 +1,13 @@
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/functional.sh 1 functional_tasks.csv
 
-./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/performance.sh 1 performance_tasks.csv <TIMEOUT>
+./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/performance.sh 20 performance_tasks.csv <TIMEOUT>
 
 Last Functional Run:
-/ci-logs/public/katie/galette/results/slurm-1191239/
+/ci-logs/public/katie/galette/results/slurm-1191343/
 
  Last Performance Run:
-/ci-logs/public/katie/galette/results/slurm-1191251/
-
+/ci-logs/public/katie/galette/results/slurm-1191447/
+trials = 20, timeout=1440 minutes
 
 /experiment/katie/galette/dacapo-23.11-chopin-small.tar (1.6 GB)
 
@@ -29,4 +29,4 @@ Is MirrorTaint applying tags automatically?
 As far as I can tell the sources that MirrorTaint uses are application specific and, therefore, unlikely to apply to the
 DaCapo subjects.
 
-Check functional scripts
+Why did SunUnsafe fail for Phosphor on Java 8?

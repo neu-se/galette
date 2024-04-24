@@ -1,5 +1,6 @@
 package edu.neu.ccs.prl.galette.bench;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 
 @SuppressWarnings("DuplicatedCode")
@@ -3029,6 +3030,22 @@ public final class VarHandleHelper {
                 return original ^ update;
             default:
                 throw new IllegalArgumentException();
+        }
+    }
+
+    public static VarHandle getVarHandle(VariableLocation location, MethodHandles.Lookup lookup, Class<?> type)
+            throws ReflectiveOperationException {
+        switch (location) {
+            case STATIC_FIELD:
+                return lookup.findStaticVarHandle(
+                        Holder.class, location.getCategory().getFieldName(type), type);
+            case INSTANCE_FIELD:
+                return lookup.findVarHandle(Holder.class, location.getCategory().getFieldName(type), type);
+            case ARRAY_ELEMENT:
+                return MethodHandles.arrayElementVarHandle(
+                        location.getCategory().getFieldType(type));
+            default:
+                throw new AssertionError();
         }
     }
 }

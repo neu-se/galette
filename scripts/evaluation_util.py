@@ -191,7 +191,8 @@ def run(output_dir, resources_dir, settings_file, skip_build, task_name, timeout
         # Run the command
         status = run_task(task_name, command, timeout)
         # Fix the report
-        update_report(report_file, report_f, **kwargs)
+        if status == run_data.Status.SUCCESS:
+            update_report(report_file, report_f, **kwargs)
     except Exception as e:
         run_data.write_status(status_file, run_data.Status.BUILD_FAILURE, **kwargs)
         raise e
