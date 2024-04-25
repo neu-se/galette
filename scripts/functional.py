@@ -23,7 +23,6 @@ def create_driver_command(resources_dir, settings_file, report_file, tool, versi
     java_executable = java_home_to_executable(jdk)
     command = [
         os.path.abspath(java_executable),
-        '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8000',
         '-cp',
         classpath,
         DRIVER_MAIN_CLASS,
@@ -34,7 +33,6 @@ def create_driver_command(resources_dir, settings_file, report_file, tool, versi
         '-ea',
         MAX_HEAP,
         f'-Xbootclasspath/a:{os.path.abspath(agent_jar)}',
-        '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005',
         f'-javaagent:{os.path.abspath(agent_jar)}{JAVA_AGENT_OPTIONS[tool]}',
         f'-Dflow.manager={TAG_MANAGERS[tool]}'
     ]

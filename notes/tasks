@@ -1,10 +1,10 @@
 Implementation
-* [MUST] Improve the performance of array accesses
 * [MUST] General performance tuning
 * [MUST] Any TODOs in codebase
 * [SHOULD] Improve the performance of Unsafe accesses (switch to HashMap)
 * [SHOULD] Switch the tag representation from a HashMap to Phosphor's PowerSetTree
 * [SHOULD] Create README based on Phosphor's
+* [SHOULD] Improve the performance of array accesses
 * [SHOULD] Remove extra entries in stack traces produces from Thread#dumpThread and StackTraceElement#initStackTraceElements
     (remove the shadow wrapper for native methods)
 * [SHOULD] Re-examine all masks and consider the implications of subclassing (e.g., what if this method were called
@@ -15,18 +15,15 @@ Implementation
 Functional experiments
 * [COULD] Create a detailed listing describing the functional benchmark groups
 * [COULD] Add additional tests for MethodHandles
-* [COULD] Add tests for pattern matching
-* [COULD] Add tests for ternaries
-* [COULD] Add tests for String templates
+* [COULD] Add tests for pattern matching, ternary operators, and String templates
 * [SHOULD] Consider making benchmark tests for serialization into integration tests for Galette
 * [SHOULD] Determine root cause of failures for Phosphor and MirrorTaint
 * [MUST] Write up description of results
 
 Performance experiments
-* [MUST] Create analysis scripts
 * [MUST] Write up description of results
 * [COULD] Identify locations to use as taint sources manually for each DaCapo subject and apply labels
 
 Other
-* [SHOULD] Make full release of Phosphor
+* [SHOULD] Create a full release of Phosphor
 * [SHOULD] Contact the MirrorTaint authors about releasing an updated, obfuscated JAR for MirrorTaint containing the fixes I made and a license.
