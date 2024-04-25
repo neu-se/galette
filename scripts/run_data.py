@@ -15,6 +15,7 @@ class Status(StrEnum):
     TIMEOUT = auto()
     BUILD_FAILURE = auto()
     RUN_FAILURE = auto()
+    MISSING = auto()
 
 
 class RunData:
@@ -22,9 +23,14 @@ class RunData:
 
     def __init__(self, input_dir):
         self.data_file = os.path.join(input_dir, DATA_FILE_NAME)
-        with open(os.path.join(input_dir, STATUS_FILE_NAME), 'r') as f:
-            self.info = json.load(f)
-            self.status = Status(self.info['status'])
+        status_file = os.path.join(input_dir, STATUS_FILE_NAME)
+        if os.path.isfile(status_file):
+            with open(status_file, 'r') as f:
+                self.info = json.load(f)
+                self.status = Status(self.info['status'])
+        else:
+            self.info = {'status': 'MISSING'}
+            self.status = Status.MISSING
         self.id = os.path.basename(input_dir)
 
     def get_data_frame(self):

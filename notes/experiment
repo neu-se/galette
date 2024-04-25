@@ -3,9 +3,9 @@
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/performance.sh 20 performance_tasks.csv <TIMEOUT>
 
 Last Functional Run:
-/ci-logs/public/katie/galette/results/slurm-1193135/
+/ci-logs/public/katie/galette/results/slurm-1193160/
 
- Last Performance Run:
+Last Performance Run:
 /ci-logs/public/katie/galette/results/slurm-1191447/
 trials = 20, timeout=1440 minutes
 
@@ -23,8 +23,12 @@ Why are the results for cassandra missing?
 Defect in DaCapo: https://github.com/dacapobench/dacapobench/issues/211
 
 Which tasks have not finished?
-* Phosphor times out on tradesoap and tradebeans due to removal of DaCapo imposed timeout
+* Phosphor loops infinitely on tradesoap and tradebeans due to removal of DaCapo imposed timeout
 
 Is MirrorTaint applying tags automatically?
 As far as I can tell the sources that MirrorTaint uses are application specific and, therefore, unlikely to apply to the
 DaCapo subjects.
+
+1191447_1424 phosphor,tradebeans
+and
+1191447_1257 phosphor,tradesoap failed due to disk usage
