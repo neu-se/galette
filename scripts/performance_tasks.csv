@@ -8,7 +8,6 @@ none,h2
 none,h2o
 none,jme
 none,jython
-none,kafka
 none,luindex
 none,lusearch
 none,pmd
@@ -29,7 +28,6 @@ galette,h2
 galette,h2o
 galette,jme
 galette,jython
-galette,kafka
 galette,luindex
 galette,lusearch
 galette,pmd
@@ -50,7 +48,6 @@ mirror-taint,h2
 mirror-taint,h2o
 mirror-taint,jme
 mirror-taint,jython
-mirror-taint,kafka
 mirror-taint,luindex
 mirror-taint,lusearch
 mirror-taint,pmd
@@ -71,7 +68,6 @@ phosphor,h2
 phosphor,h2o
 phosphor,jme
 phosphor,jython
-phosphor,kafka
 phosphor,luindex
 phosphor,lusearch
 phosphor,pmd

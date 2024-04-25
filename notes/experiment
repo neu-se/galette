@@ -32,3 +32,5 @@ DaCapo subjects.
 1191447_1424 phosphor,tradebeans
 and
 1191447_1257 phosphor,tradesoap failed due to disk usage
+Disk usage is due to large log (scratch/log/server.log) recording errors:
+"2024-04-25 00:00:00,024 ERROR [stderr] (main) Got 404"

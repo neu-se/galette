@@ -16,7 +16,7 @@ Functional experiments
 * [COULD] Create a detailed listing describing the functional benchmark groups
 * [COULD] Add additional tests for MethodHandles
 * [COULD] Add tests for pattern matching, ternary operators, and String templates
-* [SHOULD] Consider making benchmark tests for serialization into integration tests for Galette
+* [SHOULD] Consider moving benchmark tests for serialization into integration tests for Galette
 * [SHOULD] Determine root cause of failures for Phosphor and MirrorTaint
 * [MUST] Write up description of results
 

@@ -10,8 +10,6 @@ Add list of work using dynamic taint tracking in JVM from thesis proposal slides
 
 MirrorTaint only supports java 16 or lower (b/c of ASM version)
 
-For Phosphor we used the options: -forceUnboxAcmpEq -withEnumsByValue and -serialization
-
 Phosphor was crashing on:
 VarHandleITCase#getAndBitwiseBoolean
 VarHandleITCase#compareAndExchangeBoolean
