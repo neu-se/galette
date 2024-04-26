@@ -26,6 +26,7 @@ Performance experiments
 
 General experiments
 * [SHOULD] Add commas to numbers in all tables?
+* [MUST] Check whether MirrorTaint is automatically applying labels somewhere
 
 Other
 * [SHOULD] Create a full release of Phosphor
