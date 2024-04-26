@@ -24,6 +24,9 @@ Performance experiments
 * [MUST] Write up description of results
 * [COULD] Identify locations to use as taint sources manually for each DaCapo subject and apply labels
 
+General experiments
+* [SHOULD] Add commas to numbers in all tables?
+
 Other
 * [SHOULD] Create a full release of Phosphor
 * [SHOULD] Contact the MirrorTaint authors about releasing an updated, obfuscated JAR for MirrorTaint containing the fixes I made and a license.
