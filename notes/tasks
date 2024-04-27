@@ -4,12 +4,10 @@ Implementation
 * [SHOULD] Improve the performance of Unsafe accesses (switch to HashMap)
 * [SHOULD] Switch the tag representation from a HashMap to Phosphor's PowerSetTree
 * [SHOULD] Create README based on Phosphor's
-* [SHOULD] Improve the performance of array accesses
 * [SHOULD] Remove extra entries in stack traces produces from Thread#dumpThread and StackTraceElement#initStackTraceElements
     (remove the shadow wrapper for native methods)
 * [SHOULD] Re-examine all masks and consider the implications of subclassing (e.g., what if this method were called
     with a sub or super class reference)
-* [COULD] Create separate plugin for creating instrumented JDKs (astrolabe), "Utilities for dynamic analysis tools"
 * [COULD] Configuration
 
 Functional experiments
@@ -25,7 +23,6 @@ Performance experiments
 * [COULD] Identify locations to use as taint sources manually for each DaCapo subject and apply labels
 
 General experiments
-* [SHOULD] Add commas to numbers in all tables?
 * [MUST] Check whether MirrorTaint is automatically applying labels somewhere
 
 Other

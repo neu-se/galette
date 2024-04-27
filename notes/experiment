@@ -6,18 +6,10 @@ Last Functional Run:
 /ci-logs/public/katie/galette/results/slurm-1193160/
 
 Last Performance Run:
-/ci-logs/public/katie/galette/results/slurm-1191447/
+/ci-logs/public/katie/galette/results/slurm-1193223/
 trials = 20, timeout=1440 minutes
 
 /experiment/katie/galette/dacapo-23.11-chopin-small.tar (1.6 GB)
-
-Cannot statically instrument:
-dacapo-23.11-chopin/dat/lib/daytrader/wildfly-26.1.3.Final/standalone/deployments/daytrader-ear-3.0-SNAPSHOT.ear
-    Reason:  org.jboss.jandex.Indexer
-    Benchmark: tradebeans
-dacapo-23.11-chopin/jar/h2o/h2o.jar
-    Benchmark: h2o
-Possibly others
 
 Why are the results for cassandra missing?
 Defect in DaCapo: https://github.com/dacapobench/dacapobench/issues/211
