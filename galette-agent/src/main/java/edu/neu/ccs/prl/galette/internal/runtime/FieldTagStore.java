@@ -1,7 +1,8 @@
 package edu.neu.ccs.prl.galette.internal.runtime;
 
 import edu.neu.ccs.prl.galette.internal.runtime.collection.HashMap;
-import edu.neu.ccs.prl.galette.internal.runtime.collection.WeakIdentityHashMap;
+import edu.neu.ccs.prl.galette.internal.runtime.collection.ObjectIntMap;
+import edu.neu.ccs.prl.galette.internal.runtime.collection.WeakDataStore;
 
 /**
  * Maintains a "mirror-space" for storing the taint tags associated with the fields of classes that do not have
@@ -16,7 +17,7 @@ import edu.neu.ccs.prl.galette.internal.runtime.collection.WeakIdentityHashMap;
  * the original field through the subtype.
  */
 public final class FieldTagStore {
-    private static WeakIdentityHashMap<Object, HashMap<String, Tag>> instanceFieldTags = null;
+    private static WeakDataStore<Object, HashMap<String, Tag>> instanceFieldTags = null;
     private static HashMap<String, Tag> staticFieldTags = null;
 
     private FieldTagStore() {
@@ -25,23 +26,15 @@ public final class FieldTagStore {
 
     @InvokedViaHandle(handle = Handle.FIELD_TAG_STORE_PUT_STATIC)
     public static synchronized void putStatic(Tag tag, String fieldReference) {
-        if (staticFieldTags != null && TagStoreFlagAccessor.reserve()) {
-            try {
-                staticFieldTags.put(fieldReference, tag);
-            } finally {
-                TagStoreFlagAccessor.free();
-            }
+        if (staticFieldTags != null) {
+            staticFieldTags.put(fieldReference, tag);
         }
     }
 
     @InvokedViaHandle(handle = Handle.FIELD_TAG_STORE_GET_STATIC)
     public static synchronized Tag getStatic(String fieldReference) {
-        if (staticFieldTags != null && TagStoreFlagAccessor.reserve()) {
-            try {
-                return staticFieldTags.get(fieldReference);
-            } finally {
-                TagStoreFlagAccessor.free();
-            }
+        if (staticFieldTags != null) {
+            return staticFieldTags.get(fieldReference);
         }
         return Tag.getEmptyTag();
     }
@@ -50,62 +43,68 @@ public final class FieldTagStore {
     public static synchronized void putField(Object receiver, Tag tag, String fieldReference) {
         HashMap<String, Tag> tags = getInstanceTagsInternal(receiver, tag);
         if (tags != null) {
-            tags.put(fieldReference, tag);
+            synchronized (tags) {
+                tags.put(fieldReference, tag);
+            }
         }
     }
 
     @InvokedViaHandle(handle = Handle.FIELD_TAG_STORE_GET_FIELD)
-    public static synchronized Tag getField(Object receiver, String fieldReference) {
+    public static Tag getField(Object receiver, String fieldReference) {
         HashMap<String, Tag> tags = getInstanceTagsInternal(receiver, null);
-        return tags == null ? Tag.getEmptyTag() : tags.get(fieldReference);
-    }
-
-    private static synchronized HashMap<String, Tag> getInstanceTagsInternal(Object receiver, Tag tag) {
-        if (staticFieldTags != null && TagStoreFlagAccessor.reserve()) {
-            try {
-                HashMap<String, Tag> tags = instanceFieldTags.get(receiver);
-                if (tags == null && !Tag.isEmpty(tag)) {
-                    tags = new HashMap<>();
-                    instanceFieldTags.put(receiver, tags);
-                }
-                return tags;
-            } finally {
-                TagStoreFlagAccessor.free();
+        if (tags != null) {
+            synchronized (tags) {
+                return tags.get(fieldReference);
             }
         }
         return null;
     }
 
-    public static synchronized HashMap<String, Tag> getInstanceTags(Object receiver) {
-        HashMap<String, Tag> tags = getInstanceTagsInternal(receiver, null);
-        return tags == null ? null : new HashMap<>(tags);
+    private static HashMap<String, Tag> getInstanceTagsInternal(Object receiver, Tag tag) {
+        if (staticFieldTags != null) {
+            HashMap<String, Tag> tags = instanceFieldTags.get(receiver);
+            if (tags == null && !Tag.isEmpty(tag)) {
+                tags = instanceFieldTags.computeIfAbsent(receiver);
+            }
+            return tags;
+        }
+        return null;
     }
 
-    public static synchronized void setInstanceTags(Object receiver, HashMap<String, Tag> tags) {
-        if (staticFieldTags != null && TagStoreFlagAccessor.reserve()) {
-            try {
-                instanceFieldTags.put(receiver, new HashMap<>(tags));
-            } finally {
-                TagStoreFlagAccessor.free();
+    public static HashMap<String, Tag> getInstanceTags(Object receiver) {
+        HashMap<String, Tag> tags = getInstanceTagsInternal(receiver, null);
+        if (tags == null) {
+            return null;
+        }
+        synchronized (tags) {
+            return new HashMap<>(tags);
+        }
+    }
+
+    public static void setInstanceTags(Object receiver, HashMap<String, Tag> tags) {
+        if (staticFieldTags != null) {
+            HashMap<String, Tag> dest = instanceFieldTags.computeIfAbsent(receiver);
+            synchronized (dest) {
+                dest.clear();
+                dest.putAll(tags);
             }
         }
     }
 
     public static synchronized void clear() {
-        if (staticFieldTags != null && TagStoreFlagAccessor.reserve()) {
-            try {
-                instanceFieldTags.clear();
-                staticFieldTags.clear();
-            } finally {
-                TagStoreFlagAccessor.free();
-            }
+        if (staticFieldTags != null) {
+            instanceFieldTags.clear();
+            staticFieldTags.clear();
         }
     }
 
-    public static synchronized void initialize() {
+    public static void initialize() {
         if (staticFieldTags == null) {
-            WeakIdentityHashMap.ensureDependenciesLoaded();
-            instanceFieldTags = new WeakIdentityHashMap<>();
+            // Ensure that needed classes are initialized to prevent circular class initialization
+            Object[] dependencies = new Object[] {
+                ObjectIntMap.class, System.class, HashMap.class, HashMap.Entry.class,
+            };
+            instanceFieldTags = new WeakDataStore<>(k -> new HashMap<>());
             staticFieldTags = new HashMap<>();
         }
     }

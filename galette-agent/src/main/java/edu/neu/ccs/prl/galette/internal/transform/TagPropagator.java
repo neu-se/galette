@@ -722,6 +722,10 @@ class TagPropagator extends MethodVisitor {
     }
 
     private static boolean isIgnoredMethod(String owner, String name) {
+        // Needed for compatability with JProfiler's agent
+        if (owner.startsWith("com/jprofiler")) {
+            return true;
+        }
         return isIgnoredClass(owner) || !ShadowMethodCreator.shouldShadow(name);
     }
 

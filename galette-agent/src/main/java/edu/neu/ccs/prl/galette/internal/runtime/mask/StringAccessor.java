@@ -53,7 +53,7 @@ public final class StringAccessor {
             for (int i = 0; i < values.length; i++) {
                 wrapper.setElement(tag, i);
             }
-            ArrayTagStore.setWrapper(values, wrapper);
+            ArrayTagStore.updateWrapper(values, wrapper);
         }
         return newString(values, new TagFrame(null));
     }

@@ -29,7 +29,7 @@ public final class SerializationMasks {
                 ArrayWrapper wrapper =
                         (ArrayWrapper) readObject0(in, ArrayWrapper.class, unshared, new TagFrame(frame));
                 if (wrapper != null) {
-                    ArrayTagStore.setWrapper(retValue, wrapper);
+                    ArrayTagStore.updateWrapper(retValue, wrapper);
                 }
             } else if (isMirroredType(retValue)) {
                 @SuppressWarnings("unchecked")

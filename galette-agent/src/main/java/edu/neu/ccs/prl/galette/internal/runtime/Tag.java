@@ -191,8 +191,6 @@ public final class Tag implements Serializable, TaggedObject {
         if (!TRACKING) {
             TRACKING = true;
             // Enable mirrored tag stores
-            // Note: must initialize TagStoreFlagAccessor first to prevent circularity
-            TagStoreFlagAccessor.initialize();
             ArrayTagStore.initialize();
             FieldTagStore.initialize();
             // Enable propagation through Unsafe accesses

@@ -1,6 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.runtime;
 
-import edu.neu.ccs.prl.galette.internal.runtime.collection.WeakIdentityHashMap;
+import edu.neu.ccs.prl.galette.internal.runtime.collection.WeakDataStore;
 import java.lang.reflect.Array;
 
 /**
@@ -10,7 +10,7 @@ public final class ArrayTagStore {
     /**
      * Delay initialization to prevent circular class initialization.
      */
-    private static volatile WeakIdentityHashMap<Object, ArrayWrapper> wrappers;
+    private static volatile WeakDataStore<Object, ArrayWrapper> wrappers;
 
     private ArrayTagStore() {
         throw new AssertionError();
@@ -82,70 +82,57 @@ public final class ArrayTagStore {
         }
     }
 
-    public static synchronized void arraycopyTags(Object src, int srcPos, Object dest, int destPos, int length) {
+    public static void arraycopyTags(Object src, int srcPos, Object dest, int destPos, int length) {
         ArrayWrapper sourceWrapper = getWrapper(src);
         ArrayWrapper destWrapper = getWrapper(dest);
         if (sourceWrapper != null || destWrapper != null) {
             if (destWrapper == null) {
-                destWrapper = new ArrayWrapper(dest);
-                setWrapper(dest, destWrapper);
+                destWrapper = wrappers.computeIfAbsent(dest);
             }
             if (sourceWrapper == null) {
-                sourceWrapper = new ArrayWrapper(src);
-                setWrapper(src, sourceWrapper);
+                sourceWrapper = wrappers.computeIfAbsent(src);
             }
             System.arraycopy(sourceWrapper.getElements(), srcPos, destWrapper.getElements(), destPos, length);
         }
     }
 
-    public static synchronized ArrayWrapper getWrapper(Object array, Tag tag) {
-        ArrayWrapper wrapper = getWrapper(array);
-        if (wrapper == null) {
-            if (array != null && !Tag.isEmpty(tag)) {
-                wrapper = new ArrayWrapper(array);
-                setWrapper(array, wrapper);
+    public static ArrayWrapper getWrapper(Object array, Tag tag) {
+        if (wrappers != null && array != null) {
+            ArrayWrapper wrapper = wrappers.get(array);
+            if (wrapper == null && !Tag.isEmpty(tag)) {
+                return wrappers.computeIfAbsent(array);
             }
-        }
-        return wrapper;
-    }
-
-    public static synchronized void clear() {
-        if (wrappers != null && TagStoreFlagAccessor.reserve()) {
-            try {
-                wrappers.clear();
-            } finally {
-                TagStoreFlagAccessor.free();
-            }
-        }
-    }
-
-    public static synchronized void initialize() {
-        if (wrappers == null) {
-            // Ensure that needed classes are initialized to prevent circular class initialization
-            Object[] dependencies = new Object[] {ArrayWrapper.class};
-            WeakIdentityHashMap.ensureDependenciesLoaded();
-            wrappers = new WeakIdentityHashMap<>();
-        }
-    }
-
-    public static synchronized ArrayWrapper getWrapper(Object array) {
-        if (wrappers != null && array != null && TagStoreFlagAccessor.reserve()) {
-            try {
-                return wrappers.get(array);
-            } finally {
-                TagStoreFlagAccessor.free();
-            }
+            return wrapper;
         }
         return null;
     }
 
-    public static synchronized void setWrapper(Object array, ArrayWrapper wrapper) {
-        if (wrappers != null && array != null && TagStoreFlagAccessor.reserve()) {
-            try {
-                wrappers.put(array, wrapper);
-            } finally {
-                TagStoreFlagAccessor.free();
-            }
+    public static void clear() {
+        if (wrappers != null) {
+            wrappers.clear();
+        }
+    }
+
+    public static void initialize() {
+        if (wrappers == null) {
+            // Ensure that needed classes are initialized to prevent circular class initialization
+            Object[] dependencies = new Object[] {ArrayWrapper.class};
+            wrappers = new WeakDataStore<>(ArrayWrapper::new);
+        }
+    }
+
+    public static ArrayWrapper getWrapper(Object array) {
+        if (wrappers != null && array != null) {
+            return wrappers.get(array);
+        }
+        return null;
+    }
+
+    public static void updateWrapper(Object array, ArrayWrapper sourceWrapper) {
+        if (wrappers != null && array != null) {
+            ArrayWrapper destWrapper = wrappers.computeIfAbsent(array);
+            destWrapper.setLength(sourceWrapper.getLength());
+            System.arraycopy(sourceWrapper.getElements(), 0, destWrapper.getElements(), 0, destWrapper.size());
         }
     }
 }
