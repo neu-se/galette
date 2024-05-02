@@ -2,6 +2,7 @@ package edu.neu.ccs.prl.galette.internal.runtime;
 
 import edu.neu.ccs.prl.galette.internal.runtime.frame.FrameAdjuster;
 import edu.neu.ccs.prl.galette.internal.runtime.frame.IndirectTagFrameStore;
+import edu.neu.ccs.prl.galette.internal.runtime.mask.GetCallerHelper;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.ProcessedTagFrame;
 import edu.neu.ccs.prl.galette.internal.transform.HandleRegistry;
 import edu.neu.ccs.prl.galette.internal.transform.MaskRegistry;
@@ -62,7 +63,8 @@ public enum Handle {
     BOX_INT(PrimitiveBoxer.class),
     BOX_LONG(PrimitiveBoxer.class),
     BOX_DOUBLE(PrimitiveBoxer.class),
-    BOX_FLOAT(PrimitiveBoxer.class);
+    BOX_FLOAT(PrimitiveBoxer.class),
+    GET_CALLER_HELPER(GetCallerHelper.class);
 
     private final Class<?> owner;
 

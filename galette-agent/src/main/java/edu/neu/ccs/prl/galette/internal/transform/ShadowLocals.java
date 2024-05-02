@@ -247,6 +247,14 @@ class ShadowLocals extends MethodVisitor {
         return index + shadowVariablesStart;
     }
 
+    public void loadStoredCallerClass() {
+        // TODO
+        loadTagFrame();
+        // ..., frame
+        Handle.FRAME_GET_CALLER.accept(mv);
+        // ..., stored-caller
+    }
+
     public void loadTagFrame() {
         super.visitVarInsn(Opcodes.ALOAD, frameIndex);
     }

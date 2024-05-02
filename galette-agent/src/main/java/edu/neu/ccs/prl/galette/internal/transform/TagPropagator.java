@@ -680,13 +680,11 @@ class TagPropagator extends MethodVisitor {
             super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
             if (isGetCallerClass(owner, name, descriptor)) {
                 // Check for a stored caller class
-                // [Class]
-                shadowLocals.loadTagFrame();
-                // [Class Frame]
-                super.visitInsn(Opcodes.SWAP);
-                // [Frame Class]
-                Handle.FRAME_GET_CALLER.accept(mv);
-                // [Class]
+                // [returned-caller]
+                shadowLocals.loadStoredCallerClass();
+                // [return-caller, stored-caller]
+                Handle.GET_CALLER_HELPER.accept(mv);
+                // [resolved-caller]
             }
             // Set the tag for the return value
             shadowLocals.restoreFromCall(descriptor, createFrame);

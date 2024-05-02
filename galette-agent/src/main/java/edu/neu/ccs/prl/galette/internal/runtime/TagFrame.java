@@ -39,8 +39,8 @@ public class TagFrame {
     }
 
     @InvokedViaHandle(handle = Handle.FRAME_GET_CALLER)
-    public Class<?> getCaller(Class<?> ret) {
-        return caller == null ? ret : caller;
+    public Class<?> getCaller() {
+        return caller;
     }
 
     @InvokedViaHandle(handle = Handle.FRAME_SET_CALLER)
