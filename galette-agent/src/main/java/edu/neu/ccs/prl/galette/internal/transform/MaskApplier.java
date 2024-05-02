@@ -70,10 +70,12 @@ class MaskApplier extends MethodVisitor {
             switch (mask.getType()) {
                 case REPLACE:
                     mask.getRecord().accept(getDelegate());
+                    castReturn(mask, descriptor);
                     return;
                 case REPAIR_RETURN:
                     super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
                     mask.getRecord().accept(getDelegate());
+                    castReturn(mask, descriptor);
                     return;
                 case FIX_ARGUMENTS:
                     mask.getRecord().accept(getDelegate());
@@ -82,12 +84,21 @@ class MaskApplier extends MethodVisitor {
                     return;
                 case POST_PROCESS:
                     visitPostProcessMask(opcode, owner, name, descriptor, isInterface, mask);
+                    castReturn(mask, descriptor);
                     return;
                 default:
                     throw new AssertionError();
             }
         }
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
+    }
+
+    private void castReturn(MaskInfo mask, String descriptor) {
+        Type actualReturnType = Type.getReturnType(descriptor);
+        Type maskReturnType = Type.getReturnType(mask.getRecord().getDescriptor());
+        if (actualReturnType.getSort() != Type.VOID && !maskReturnType.equals(actualReturnType)) {
+            super.visitTypeInsn(CHECKCAST, actualReturnType.getInternalName());
+        }
     }
 
     private void visitPostProcessMask(

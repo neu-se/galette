@@ -89,7 +89,7 @@ final class UnsafeTagLocator {
                 }
             }
         }
-        return Tag.getEmptyTag();
+        return Tag.emptyTag();
     }
 
     static Tag getTagVolatile(Object o, long offset, Tag offsetTag, Class<?> arrayType) {
@@ -106,7 +106,7 @@ final class UnsafeTagLocator {
                 }
             }
         }
-        return Tag.getEmptyTag();
+        return Tag.emptyTag();
     }
 
     private static Tag getArrayTag(

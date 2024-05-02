@@ -36,7 +36,7 @@ public final class FieldTagStore {
         if (staticFieldTags != null) {
             return staticFieldTags.get(fieldReference);
         }
-        return Tag.getEmptyTag();
+        return Tag.emptyTag();
     }
 
     @InvokedViaHandle(handle = Handle.FIELD_TAG_STORE_PUT_FIELD)

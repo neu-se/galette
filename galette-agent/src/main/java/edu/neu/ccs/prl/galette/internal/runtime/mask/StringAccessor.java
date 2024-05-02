@@ -6,26 +6,30 @@ import org.objectweb.asm.Opcodes;
 public final class StringAccessor {
     @SuppressWarnings("unused")
     @MemberAccess(owner = "java/lang/StringBuilder", name = "<init>", opcode = Opcodes.INVOKESPECIAL)
-    public static StringBuffer newStringBuilder(TagFrame frame) {
-        throw new AssertionError("Placeholder method was called");
+    public static StringBuilder newStringBuilder(TagFrame frame) {
+        // Placeholder
+        return new StringBuilder();
     }
 
     @SuppressWarnings("unused")
     @MemberAccess(owner = "java/lang/Appendable", name = "append", opcode = Opcodes.INVOKEINTERFACE, isInterface = true)
     public static Appendable append(Appendable appendable, CharSequence csq, TagFrame frame) {
-        throw new AssertionError("Placeholder method was called");
+        // Placeholder
+        return appendable;
     }
 
     @SuppressWarnings("unused")
     @MemberAccess(owner = "java/lang/String", name = "<init>", opcode = Opcodes.INVOKESPECIAL)
     public static String newString(char[] value, TagFrame frame) {
-        throw new AssertionError("Placeholder method was called");
+        // Placeholder
+        return new String(value);
     }
 
     @SuppressWarnings("unused")
     @MemberAccess(owner = "java/lang/String", name = "toCharArray", opcode = Opcodes.INVOKEVIRTUAL)
     public static char[] toCharArray(String s, TagFrame frame) {
-        throw new AssertionError("Placeholder method was called");
+        // Placeholder
+        return s.toCharArray();
     }
 
     public static String toString(Object o, TagFrame frame) {
@@ -45,6 +49,10 @@ public final class StringAccessor {
             }
         }
         return null;
+    }
+
+    public static Tag getMergedTag(String value, Tag valueTag) {
+        return Tag.union(Tag.union(StringAccessor.getCharTags(value)), valueTag);
     }
 
     public static String setCharTags(char[] values, Tag tag) {

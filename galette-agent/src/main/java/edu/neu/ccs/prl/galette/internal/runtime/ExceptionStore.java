@@ -47,7 +47,7 @@ public final class ExceptionStore {
                 }
             }
         }
-        return Tag.getEmptyTag();
+        return Tag.emptyTag();
     }
 
     public static synchronized void initialize() {

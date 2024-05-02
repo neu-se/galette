@@ -85,6 +85,11 @@ public final class ClassMasks {
             name = "getSuperInterfaces",
             parametersDescriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)",
             type = MaskType.REPAIR_RETURN)
+    @Mask(
+            owner = "sun/reflect/generics/repository/ClassRepository",
+            name = "computeSuperInterfaces",
+            parametersDescriptor = "(Ledu/neu/ccs/prl/galette/internal/runtime/TagFrame;)",
+            type = MaskType.REPAIR_RETURN)
     public static Type[] getSuperInterfaces(Type[] interfaces) {
         SimpleList<Type> list = filter(interfaces);
         return list.toArray(new Type[list.size()]);

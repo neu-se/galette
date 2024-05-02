@@ -19,7 +19,7 @@ public final class ArrayTagStore {
     @InvokedViaHandle(handle = Handle.ARRAY_TAG_STORE_GET_LENGTH_TAG)
     public static Tag getLengthTag(Object array, Tag arrayTag) {
         ArrayWrapper wrapper = getWrapper(array);
-        return wrapper == null ? Tag.getEmptyTag() : wrapper.getLength();
+        return wrapper == null ? Tag.emptyTag() : wrapper.getLength();
     }
 
     @InvokedViaHandle(handle = Handle.ARRAY_TAG_STORE_SET_LENGTH_TAG)

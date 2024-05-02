@@ -1,7 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
-import static edu.neu.ccs.prl.galette.internal.runtime.mask.JdkFloatingDecimalMasks.appendToPost;
-
+import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 import org.objectweb.asm.Opcodes;
 
@@ -9,42 +8,54 @@ public final class ToDecimalMasks {
     @SuppressWarnings({"unused", "UnusedReturnValue"})
     @MemberAccess(owner = "jdk/internal/math/DoubleToDecimal", name = "appendDecimalTo", opcode = Opcodes.INVOKEVIRTUAL)
     static Appendable appendDecimalToInternal(Object receiver, double d, Appendable buf, TagFrame frame) {
-        throw new AssertionError("Placeholder method was called");
+        // Placeholder
+        return buf;
     }
 
     @SuppressWarnings({"unused", "UnusedReturnValue"})
     @MemberAccess(owner = "jdk/internal/math/FloatToDecimal", name = "appendDecimalTo", opcode = Opcodes.INVOKEVIRTUAL)
     static Appendable appendDecimalToInternal(Object receiver, float f, Appendable buf, TagFrame frame) {
-        throw new AssertionError("Placeholder method was called");
+        // Placeholder
+        return buf;
     }
 
     @Mask(owner = "jdk/internal/math/DoubleToDecimal", name = "toDecimalString", type = MaskType.POST_PROCESS)
     public static String toDecimalString(String returnValue, Object receiver, double v, TagFrame frame) {
-        frame.dequeue();
-        return StringAccessor.setCharTags(returnValue, frame.dequeue());
+        Tag tag = Tag.union(frame.getReturnTag(), frame.get(0));
+        returnValue = StringAccessor.setCharTags(returnValue, tag);
+        frame.setReturnTag(tag);
+        return returnValue;
     }
 
     @Mask(owner = "jdk/internal/math/DoubleToDecimal", name = "appendDecimalTo", type = MaskType.REPLACE)
     public static Appendable appendDecimalTo(Object receiver, double v, Appendable app, TagFrame frame) {
-        frame.dequeue();
-        StringBuffer buffer = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
-        appendDecimalToInternal(receiver, v, buffer, TagFrame.emptyFrame());
-        appendToPost(app, frame, buffer);
+        Tag receiverTag = frame.get(0);
+        Tag valueTag = frame.get(1);
+        Tag bufTag = frame.get(2);
+        StringBuilder builder = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
+        appendDecimalToInternal(receiver, v, builder, TagFrame.emptyFrame());
+        JdkFloatingDecimalMasks.append(app, builder, frame, valueTag, bufTag);
+        frame.setReturnTag(receiverTag);
         return app;
     }
 
     @Mask(owner = "jdk/internal/math/FloatToDecimal", name = "toDecimalString", type = MaskType.POST_PROCESS)
     public static String toDecimalString(String returnValue, Object receiver, float v, TagFrame frame) {
-        frame.dequeue();
-        return StringAccessor.setCharTags(returnValue, frame.dequeue());
+        Tag tag = Tag.union(frame.getReturnTag(), frame.get(0));
+        returnValue = StringAccessor.setCharTags(returnValue, tag);
+        frame.setReturnTag(tag);
+        return returnValue;
     }
 
     @Mask(owner = "jdk/internal/math/FloatToDecimal", name = "appendDecimalTo", type = MaskType.REPLACE)
     public static Appendable appendDecimalTo(Object receiver, float v, Appendable app, TagFrame frame) {
-        frame.dequeue();
-        StringBuffer buffer = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
-        appendDecimalToInternal(receiver, v, buffer, TagFrame.emptyFrame());
-        appendToPost(app, frame, buffer);
+        Tag receiverTag = frame.get(0);
+        Tag valueTag = frame.get(1);
+        Tag bufTag = frame.get(2);
+        StringBuilder builder = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
+        appendDecimalToInternal(receiver, v, builder, TagFrame.emptyFrame());
+        JdkFloatingDecimalMasks.append(app, builder, frame, valueTag, bufTag);
+        frame.setReturnTag(receiverTag);
         return app;
     }
 }

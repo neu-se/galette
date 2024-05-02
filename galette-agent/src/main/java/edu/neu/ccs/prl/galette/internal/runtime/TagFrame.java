@@ -4,8 +4,9 @@ import edu.neu.ccs.prl.galette.internal.runtime.collection.Queue;
 
 public class TagFrame {
     private Class<?> caller;
-    private Tag returnTag = Tag.getEmptyTag();
+    private Tag returnTag = Tag.emptyTag();
     private final Queue<Tag> tags;
+    private int i = 0;
 
     public TagFrame(Queue<Tag> tags) {
         this.tags = new Queue<>(tags);
@@ -15,19 +16,23 @@ public class TagFrame {
         this.tags = new Queue<>();
     }
 
+    public Tag get(int index) {
+        while (index > i) {
+            dequeue();
+        }
+        return dequeue();
+    }
+
     @InvokedViaHandle(handle = Handle.FRAME_DEQUEUE)
     public Tag dequeue() {
-        return tags.isEmpty() ? Tag.getEmptyTag() : tags.dequeue();
+        i++;
+        return tags.isEmpty() ? Tag.emptyTag() : tags.dequeue();
     }
 
     @InvokedViaHandle(handle = Handle.FRAME_ENQUEUE)
     public TagFrame enqueue(Tag tag) {
         tags.enqueue(tag);
         return this;
-    }
-
-    public boolean isEmpty() {
-        return tags.isEmpty();
     }
 
     @InvokedViaHandle(handle = Handle.FRAME_GET_RETURN_TAG)
@@ -55,10 +60,6 @@ public class TagFrame {
         return new Queue<>(tags);
     }
 
-    public void clearTags() {
-        tags.clear();
-    }
-
     @Override
     public String toString() {
         return tags.toString();
@@ -70,61 +71,37 @@ public class TagFrame {
     }
 
     public TagFrame create(Tag... tags) {
-        TagFrame frame = new TagFrame();
+        return new TagFrame().enqueue(tags);
+    }
+
+    TagFrame enqueue(Tag... tags) {
         for (Tag tag : tags) {
-            frame.enqueue(tag);
+            enqueue(tag);
         }
-        return frame;
+        return this;
+    }
+
+    public static TagFrame newReflectiveFrame(TagFrame invokerFrame, Tag... tags) {
+        return new ReflectionTagFrame(invokerFrame).enqueue(tags);
     }
 
     public static TagFrame emptyFrame() {
         return new TagFrame();
     }
 
-    private static final TagFrame EMPTY = new TagFrame() {
-        @Override
-        public Tag dequeue() {
-            return null;
+    private static final class ReflectionTagFrame extends TagFrame {
+        private final TagFrame invokerFrame;
+
+        ReflectionTagFrame(TagFrame invokerFrame) {
+            this.invokerFrame = invokerFrame;
         }
 
-        @Override
-        public TagFrame enqueue(Tag tag) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return true;
-        }
-
-        @Override
         public Tag getReturnTag() {
-            return super.getReturnTag();
+            return invokerFrame.getReturnTag();
         }
 
-        @Override
         public void setReturnTag(Tag returnTag) {
-            super.setReturnTag(returnTag);
+            invokerFrame.setReturnTag(returnTag);
         }
-
-        @Override
-        public Class<?> getCaller(Class<?> ret) {
-            return null;
-        }
-
-        @Override
-        public TagFrame setCaller(Class<?> caller) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Queue<Tag> copyTags() {
-            return new Queue<>();
-        }
-
-        @Override
-        public void clearTags() {
-            throw new UnsupportedOperationException();
-        }
-    };
+    }
 }

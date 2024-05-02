@@ -7,6 +7,9 @@ import java.io.*;
 import java.lang.ref.SoftReference;
 import org.objectweb.asm.Opcodes;
 
+/**
+ * Note: does not handle accesses through subtypes
+ */
 public final class SerializationMasks {
     @Mask(owner = "java/io/ObjectOutputStream", name = "writeObject0", type = MaskType.POST_PROCESS)
     public static void writeObject0(ObjectOutputStream out, Object obj, boolean unshared, TagFrame frame)
@@ -46,7 +49,8 @@ public final class SerializationMasks {
     @SuppressWarnings("unused")
     @MemberAccess(owner = "java/io/ObjectInputStream", name = "readObject0", opcode = Opcodes.INVOKEVIRTUAL)
     public static Object readObject0(ObjectInputStream stream, Class<?> type, boolean unshared, TagFrame frame) {
-        throw new AssertionError("Placeholder method was called");
+        // Placeholder
+        return null;
     }
 
     private static boolean isMirroredType(Object o) {

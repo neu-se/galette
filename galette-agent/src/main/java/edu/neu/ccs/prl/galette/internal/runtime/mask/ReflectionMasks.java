@@ -36,10 +36,8 @@ public final class ReflectionMasks {
         if (hasShadow(m, obj)) {
             Method shadow = getShadowMethod(m);
             if (shadow != null) {
-                // Remove the tag for m
-                frame.dequeue();
-                fixFrame(m, args, frame, frame.dequeue());
-                return new Object[] {shadow, obj, append(args, frame), frame};
+                TagFrame calleeFrame = createCalleeFrame(m, args, frame.get(1), frame);
+                return new Object[] {shadow, obj, append(args, calleeFrame), frame};
             }
         }
         return new Object[] {m, obj, args, frame};
@@ -68,45 +66,43 @@ public final class ReflectionMasks {
             Constructor<?> shadow = getShadowConstructor(c);
             if (shadow != null) {
                 // Add tag for uninitialized this
-                fixFrame(c, args, frame, Tag.getEmptyTag());
-                return new Object[] {shadow, append(args, frame), frame};
+                TagFrame calleeFrame = createCalleeFrame(c, args, Tag.emptyTag(), frame);
+                return new Object[] {shadow, append(args, calleeFrame), frame};
             }
         }
         return new Object[] {c, args, frame};
     }
 
-    private static void fixFrame(Executable e, Object[] args, TagFrame frame, Tag receiverTag) {
-        if (args == null) {
-            fixFrame(e, frame, receiverTag);
-            return;
-        }
-        frame.clearTags();
+    private static TagFrame createCalleeFrame(Executable e, Object[] args, Tag receiverTag, TagFrame invokerFrame) {
         boolean isStatic = Modifier.isStatic(e.getModifiers());
-        if (!isStatic) {
-            frame.enqueue(receiverTag);
+        if (args == null) {
+            // Empty arguments
+            return isStatic
+                    ? TagFrame.newReflectiveFrame(invokerFrame)
+                    : TagFrame.newReflectiveFrame(invokerFrame, receiverTag);
         }
         Class<?>[] parameters = e.getParameterTypes();
         if (parameters.length != args.length) {
             // Invalid call
-            return;
+            return TagFrame.newReflectiveFrame(invokerFrame);
+        }
+        Tag[] tags;
+        int i = 0;
+        if (!isStatic) {
+            tags = new Tag[args.length + 1];
+            tags[i++] = receiverTag;
+        } else {
+            tags = new Tag[args.length];
         }
         ArrayWrapper wrapper = ArrayTagStore.getWrapper(args);
-        for (int i = 0; i < args.length; i++) {
-            Tag tag = wrapper == null ? Tag.getEmptyTag() : wrapper.getElement(i);
-            if (parameters[i].isPrimitive()) {
-                tag = Tag.union(tag, getValueTag(args[i]));
+        for (int j = 0; j < args.length; j++) {
+            Tag tag = wrapper == null ? Tag.emptyTag() : wrapper.getElement(j);
+            if (parameters[j].isPrimitive()) {
+                tag = Tag.union(tag, getValueTag(args[j]));
             }
-            frame.enqueue(tag);
+            tags[i++] = tag;
         }
-    }
-
-    private static void fixFrame(Executable e, TagFrame frame, Tag receiverTag) {
-        // Empty arguments
-        frame.clearTags();
-        boolean isStatic = Modifier.isStatic(e.getModifiers());
-        if (!isStatic) {
-            frame.enqueue(receiverTag);
-        }
+        return TagFrame.newReflectiveFrame(invokerFrame, tags);
     }
 
     private static Tag getValueTag(Object argument) {
@@ -128,7 +124,7 @@ public final class ReflectionMasks {
         } else if (argument instanceof Double) {
             return FieldTagStore.getField(argument, "java/lang/Double#value#D");
         }
-        return Tag.getEmptyTag();
+        return Tag.emptyTag();
     }
 
     private static Constructor<?> getShadowConstructor(Constructor<?> c) {

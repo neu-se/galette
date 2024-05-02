@@ -388,27 +388,21 @@ public final class UnsafeMasks {
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "byte2bool", type = MaskType.POST_PROCESS)
     public static boolean byte2bool(boolean returnValue, Object receiver, byte b, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag valueTag = frame.dequeue();
-        frame.setReturnTag(valueTag);
+        frame.setReturnTag(frame.get(1));
         return returnValue;
     }
 
     @Mask(owner = "jdk/internal/misc/Unsafe", name = "bool2byte", type = MaskType.POST_PROCESS)
     public static byte bool2byte(byte returnValue, Object receiver, boolean b, TagFrame frame) {
-        Tag receiverTag = frame.dequeue();
-        Tag valueTag = frame.dequeue();
-        frame.setReturnTag(valueTag);
+        frame.setReturnTag(frame.get(1));
         return returnValue;
     }
 
     private static void put(Object o, long offset, TagFrame frame, Class<?> arrayType) {
         if (UnsafeFlagAccessor.reserve()) {
             try {
-                Tag receiverTag = frame.dequeue();
-                Tag oTag = frame.dequeue();
-                Tag offsetTag = frame.dequeue();
-                Tag xTag = frame.dequeue();
+                Tag offsetTag = frame.get(2);
+                Tag xTag = frame.get(3);
                 UnsafeTagLocator.putTag(o, offset, offsetTag, xTag, arrayType);
             } finally {
                 UnsafeFlagAccessor.free();
@@ -419,10 +413,8 @@ public final class UnsafeMasks {
     private static void putVolatile(Object o, long offset, TagFrame frame, Class<?> arrayType) {
         if (UnsafeFlagAccessor.reserve()) {
             try {
-                Tag receiverTag = frame.dequeue();
-                Tag oTag = frame.dequeue();
-                Tag offsetTag = frame.dequeue();
-                Tag xTag = frame.dequeue();
+                Tag offsetTag = frame.get(2);
+                Tag xTag = frame.get(3);
                 UnsafeTagLocator.putTagVolatile(o, offset, offsetTag, xTag, arrayType);
             } finally {
                 UnsafeFlagAccessor.free();
@@ -433,9 +425,7 @@ public final class UnsafeMasks {
     private static void get(Object o, long offset, TagFrame frame, Class<?> arrayType) {
         if (UnsafeFlagAccessor.reserve()) {
             try {
-                Tag receiverTag = frame.dequeue();
-                Tag oTag = frame.dequeue();
-                Tag offsetTag = frame.dequeue();
+                Tag offsetTag = frame.get(2);
                 frame.setReturnTag(UnsafeTagLocator.getTag(o, offset, offsetTag, arrayType));
             } finally {
                 UnsafeFlagAccessor.free();
@@ -446,9 +436,7 @@ public final class UnsafeMasks {
     private static void getVolatile(Object o, long offset, TagFrame frame, Class<?> arrayType) {
         if (UnsafeFlagAccessor.reserve()) {
             try {
-                Tag receiverTag = frame.dequeue();
-                Tag oTag = frame.dequeue();
-                Tag offsetTag = frame.dequeue();
+                Tag offsetTag = frame.get(2);
                 frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag, arrayType));
             } finally {
                 UnsafeFlagAccessor.free();
@@ -459,12 +447,9 @@ public final class UnsafeMasks {
     private static boolean compareAndSwap(boolean result, Object o, long offset, TagFrame frame, Class<?> arrayType) {
         if (UnsafeFlagAccessor.reserve()) {
             try {
-                Tag receiverTag = frame.dequeue();
-                Tag oTag = frame.dequeue();
-                Tag offsetTag = frame.dequeue();
-                Tag expectedTag = frame.dequeue();
-                Tag xTag = frame.dequeue();
-                frame.setReturnTag(Tag.getEmptyTag());
+                Tag offsetTag = frame.get(2);
+                Tag xTag = frame.get(4);
+                frame.setReturnTag(Tag.emptyTag());
                 if (result) {
                     // Swap succeeded, update the tag
                     // There is no way to swap both the tag and the value atomically
@@ -480,11 +465,8 @@ public final class UnsafeMasks {
     private static void compareAndExchange(TagFrame frame, Object o, long offset, boolean result, Class<?> arrayType) {
         if (UnsafeFlagAccessor.reserve()) {
             try {
-                Tag receiverTag = frame.dequeue();
-                Tag oTag = frame.dequeue();
-                Tag offsetTag = frame.dequeue();
-                Tag expectedTag = frame.dequeue();
-                Tag xTag = frame.dequeue();
+                Tag offsetTag = frame.get(2);
+                Tag xTag = frame.get(4);
                 // Set the return tag to be the current value
                 frame.setReturnTag(UnsafeTagLocator.getTagVolatile(o, offset, offsetTag, arrayType));
                 if (result) {

@@ -2,16 +2,24 @@ package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import org.objectweb.asm.Opcodes;
 
 public class EnumMasks {
     @Mask(owner = "java/lang/Enum", name = "valueOf", isStatic = true)
     public static <T extends Enum<T>> T valueOf(Class<T> enumType, String name, TagFrame frame) {
-        Tag enumTypeTag = frame.dequeue();
-        Tag nameTag = frame.dequeue();
-        // TODO propagate from tainted characters in name to instance
+        Tag enumTypeTag = frame.get(0);
+        Tag nameTag = frame.get(1);
         TagFrame calleeFrame = frame.create(enumTypeTag, nameTag);
-        T result = EnumAccessor.valueOf(enumType, name, calleeFrame);
-        frame.setReturnTag(Tag.union(nameTag, calleeFrame.getReturnTag()));
+        T result = valueOfInternal(enumType, name, calleeFrame);
+        Tag merged = Tag.union(calleeFrame.getReturnTag(), StringAccessor.getMergedTag(name, nameTag));
+        frame.setReturnTag(merged);
         return result;
+    }
+
+    @SuppressWarnings("unused")
+    @MemberAccess(owner = "java/lang/Enum", name = "valueOf", opcode = Opcodes.INVOKESTATIC)
+    private static <T extends Enum<T>> T valueOfInternal(Class<T> enumType, String name, TagFrame frame) {
+        // Placeholder
+        return Enum.valueOf(enumType, name);
     }
 }

@@ -6,65 +6,68 @@ import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 public final class BooleanMasks {
     @Mask(owner = "java/lang/Boolean", name = "valueOf", isStatic = true)
     public static Boolean valueOf(boolean value, TagFrame frame) {
-        Tag valueTag = frame.dequeue();
-        frame.setReturnTag(valueTag);
+        Tag valueTag = frame.get(0);
+        Boolean result;
         if (Tag.isEmpty(valueTag)) {
-            return BoxTypeAccessor.valueOf(value, TagFrame.create(frame));
+            result = BoxTypeAccessor.valueOf(value, frame.create(Tag.emptyTag()));
+        } else {
+            result = BoxTypeAccessor.newBoolean(value, frame.create(Tag.emptyTag(), valueTag));
         }
-        TagFrame calleeFrame = frame.create(null, valueTag);
-        ;
-        return BoxTypeAccessor.newBoolean(value, calleeFrame);
+        frame.setReturnTag(valueTag);
+        return result;
     }
 
     @Mask(owner = "java/lang/Boolean", name = "parseBoolean", isStatic = true)
     public static boolean parseBoolean(String value, TagFrame frame) {
-        Tag valueTag = frame.dequeue();
-        boolean parsed = BoxTypeAccessor.parseBoolean(value, TagFrame.create(frame));
-        Tag parsedTag = Tag.union(Tag.union(StringAccessor.getCharTags(value)), valueTag);
+        Tag valueTag = frame.get(0);
+        boolean parsed = BoxTypeAccessor.parseBoolean(value, frame.create(Tag.emptyTag()));
+        Tag parsedTag = StringAccessor.getMergedTag(value, valueTag);
         frame.setReturnTag(parsedTag);
         return parsed;
     }
 
     @Mask(owner = "java/lang/Boolean", name = "valueOf", isStatic = true)
     public static Boolean valueOfBoolean(String value, TagFrame frame) {
-        Tag valueTag = frame.dequeue();
-        boolean parsed = BoxTypeAccessor.parseBoolean(value, TagFrame.create(frame));
-        Tag parsedTag = Tag.union(Tag.union(StringAccessor.getCharTags(value)), valueTag);
-        frame.setReturnTag(parsedTag);
-        if (Tag.isEmpty(parsedTag)) {
-            return BoxTypeAccessor.valueOf(parsed, TagFrame.create(frame));
-        }
-        TagFrame calleeFrame = frame.create(null, parsedTag);
-        return BoxTypeAccessor.newBoolean(parsed, calleeFrame);
+        Tag valueTag = frame.get(0);
+        boolean parsed = BoxTypeAccessor.parseBoolean(value, frame.create(Tag.emptyTag()));
+        Tag parsedTag = StringAccessor.getMergedTag(value, valueTag);
+        return valueOf(parsed, frame.create(parsedTag));
     }
 
     @Mask(owner = "java/lang/Boolean", name = "toString", isStatic = true, type = MaskType.POST_PROCESS)
     public static String toString(String returnValue, boolean value, TagFrame frame) {
-        Tag valueTag = frame.dequeue();
+        Tag valueTag = frame.get(0);
         Tag tag = Tag.union(frame.getReturnTag(), valueTag);
+        String result = StringAccessor.setCharTags(returnValue, tag);
         frame.setReturnTag(tag);
-        return StringAccessor.setCharTags(returnValue, tag);
+        return result;
     }
 
     @Mask(owner = "java/lang/Boolean", name = "toString", type = MaskType.POST_PROCESS)
     public static String toString(String returnValue, Boolean receiver, TagFrame frame) {
-        BoxTypeAccessor.booleanValue(receiver, frame);
-        return StringAccessor.setCharTags(returnValue, frame.getReturnTag());
-    }
-
-    @Mask(owner = "java/lang/String", name = "valueOf", isStatic = true, type = MaskType.POST_PROCESS)
-    public static String stringValueOf(String returnValue, boolean value, TagFrame frame) {
-        Tag valueTag = frame.dequeue();
-        Tag tag = Tag.union(frame.getReturnTag(), valueTag);
+        Tag returnTag = frame.getReturnTag();
+        boolean value = BoxTypeAccessor.booleanValue(receiver, frame);
+        Tag valueTag = frame.getReturnTag();
+        Tag tag = Tag.union(returnTag, valueTag);
+        String result = StringAccessor.setCharTags(returnValue, tag);
         frame.setReturnTag(tag);
-        return StringAccessor.setCharTags(returnValue, tag);
+        return result;
     }
 
     @Mask(owner = "java/lang/Boolean", name = "hashCode", isStatic = true, type = MaskType.POST_PROCESS)
     public static int hashCode(int returnValue, boolean value, TagFrame frame) {
-        Tag valueTag = frame.dequeue();
+        Tag valueTag = frame.get(0);
         Tag tag = Tag.union(frame.getReturnTag(), valueTag);
         frame.setReturnTag(tag);
         return returnValue;
+    }
+
+    @Mask(owner = "java/lang/String", name = "valueOf", isStatic = true, type = MaskType.POST_PROCESS)
+    public static String stringValueOf(String returnValue, boolean value, TagFrame frame) {
+        Tag valueTag = frame.get(0);
+        Tag tag = Tag.union(frame.getReturnTag(), valueTag);
+        String result = StringAccessor.setCharTags(returnValue, tag);
+        frame.setReturnTag(tag);
+        return result;
     }
 }

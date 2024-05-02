@@ -7,77 +7,115 @@ import org.objectweb.asm.Opcodes;
 public final class JdkFloatingDecimalMasks {
     @SuppressWarnings("unused")
     @MemberAccess(owner = "jdk/internal/math/FloatingDecimal", name = "appendTo", opcode = Opcodes.INVOKESTATIC)
-    public static void appendToInternal(double d, Appendable buf, TagFrame frame) {
-        throw new AssertionError("Placeholder method was called");
+    private static void appendToInternal(double d, Appendable buf, TagFrame frame) {
+        // Placeholder
     }
 
     @SuppressWarnings("unused")
     @MemberAccess(owner = "jdk/internal/math/FloatingDecimal", name = "appendTo", opcode = Opcodes.INVOKESTATIC)
-    public static void appendToInternal(float f, Appendable buf, TagFrame frame) {
-        throw new AssertionError("Placeholder method was called");
+    private static void appendToInternal(float f, Appendable buf, TagFrame frame) {
+        // Placeholder
+    }
+
+    @SuppressWarnings("unused")
+    @MemberAccess(owner = "jdk/internal/math/FloatingDecimal", name = "parseDouble", opcode = Opcodes.INVOKESTATIC)
+    private static double parseDoubleInternal(String value, TagFrame frame) {
+        // Placeholder
+        return -1;
+    }
+
+    @SuppressWarnings("unused")
+    @MemberAccess(owner = "jdk/internal/math/FloatingDecimal", name = "parseFloat", opcode = Opcodes.INVOKESTATIC)
+    private static float parseFloatInternal(String value, TagFrame frame) {
+        // Placeholder
+        return -1;
+    }
+
+    @SuppressWarnings("unused")
+    @MemberAccess(
+            owner = "jdk/internal/math/FloatingDecimal",
+            name = "toJavaFormatString",
+            opcode = Opcodes.INVOKESTATIC)
+    private static String toJavaFormatStringInternal(double d, TagFrame frame) {
+        // Placeholder
+        return "-1";
+    }
+
+    @SuppressWarnings("unused")
+    @MemberAccess(
+            owner = "jdk/internal/math/FloatingDecimal",
+            name = "toJavaFormatString",
+            opcode = Opcodes.INVOKESTATIC)
+    private static String toJavaFormatStringInternal(float f, TagFrame frame) {
+        // Placeholder
+        return "-1";
     }
 
     @Mask(
             owner = "jdk/internal/math/FloatingDecimal",
             name = "toJavaFormatString",
-            type = MaskType.POST_PROCESS,
+            type = MaskType.REPLACE,
             isStatic = true)
-    public static String toJavaFormatString(String returnValue, double d, TagFrame frame) {
-        return StringAccessor.setCharTags(returnValue, frame.dequeue());
+    public static String toJavaFormatString(double value, TagFrame frame) {
+        Tag valueTag = frame.get(0);
+        String result = toJavaFormatStringInternal(value, frame.create(Tag.emptyTag()));
+        result = StringAccessor.setCharTags(result, valueTag);
+        frame.setReturnTag(valueTag);
+        return result;
     }
 
     @Mask(
             owner = "jdk/internal/math/FloatingDecimal",
             name = "toJavaFormatString",
-            type = MaskType.POST_PROCESS,
+            type = MaskType.REPLACE,
             isStatic = true)
-    public static String toJavaFormatString(String returnValue, float f, TagFrame frame) {
-        return StringAccessor.setCharTags(returnValue, frame.dequeue());
+    public static String toJavaFormatString(float value, TagFrame frame) {
+        Tag valueTag = frame.get(0);
+        String result = toJavaFormatStringInternal(value, frame.create(Tag.emptyTag()));
+        result = StringAccessor.setCharTags(result, valueTag);
+        frame.setReturnTag(valueTag);
+        return result;
     }
 
     @Mask(owner = "jdk/internal/math/FloatingDecimal", name = "appendTo", type = MaskType.REPLACE, isStatic = true)
     public static void appendTo(double d, Appendable buf, TagFrame frame) {
-        StringBuffer buffer = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
-        appendToInternal(d, buffer, TagFrame.emptyFrame());
-        appendToPost(buf, frame, buffer);
+        Tag valueTag = frame.get(0);
+        Tag bufTag = frame.get(1);
+        StringBuilder builder = StringAccessor.newStringBuilder(frame.create(Tag.emptyTag()));
+        appendToInternal(d, builder, frame.create(Tag.emptyTag(), Tag.emptyTag()));
+        append(buf, builder, frame, valueTag, bufTag);
     }
 
     @Mask(owner = "jdk/internal/math/FloatingDecimal", name = "appendTo", type = MaskType.REPLACE, isStatic = true)
     public static void appendTo(float f, Appendable buf, TagFrame frame) {
-        StringBuffer buffer = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
-        appendToInternal(f, buffer, TagFrame.emptyFrame());
-        appendToPost(buf, frame, buffer);
+        Tag valueTag = frame.get(0);
+        Tag bufTag = frame.get(1);
+        StringBuilder builder = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
+        appendToInternal(f, builder, frame.create(Tag.emptyTag(), Tag.emptyTag()));
+        append(buf, builder, frame, valueTag, bufTag);
     }
 
-    @Mask(
-            owner = "jdk/internal/math/FloatingDecimal",
-            name = "parseDouble",
-            type = MaskType.POST_PROCESS,
-            isStatic = true)
-    public static double parseDouble(double returnValue, String s, TagFrame frame) {
-        Tag sTag = frame.dequeue();
-        Tag returnTag = frame.getReturnTag();
-        frame.setReturnTag(Tag.union(Tag.union(Tag.union(StringAccessor.getCharTags(s)), sTag), returnTag));
-        return returnValue;
+    @Mask(owner = "jdk/internal/math/FloatingDecimal", name = "parseDouble", type = MaskType.REPLACE, isStatic = true)
+    public static double parseDouble(String value, TagFrame frame) {
+        Tag valueTag = frame.get(0);
+        double parsed = parseDoubleInternal(value, frame.create(Tag.emptyTag()));
+        Tag parsedTag = StringAccessor.getMergedTag(value, valueTag);
+        frame.setReturnTag(parsedTag);
+        return parsed;
     }
 
-    @Mask(
-            owner = "jdk/internal/math/FloatingDecimal",
-            name = "parseFloat",
-            type = MaskType.POST_PROCESS,
-            isStatic = true)
-    public static float parseFloat(float returnValue, String s, TagFrame frame) {
-        Tag sTag = frame.dequeue();
-        Tag returnTag = frame.getReturnTag();
-        frame.setReturnTag(Tag.union(Tag.union(Tag.union(StringAccessor.getCharTags(s)), sTag), returnTag));
-        return returnValue;
+    @Mask(owner = "jdk/internal/math/FloatingDecimal", name = "parseFloat", type = MaskType.REPLACE, isStatic = true)
+    public static float parseFloat(String value, TagFrame frame) {
+        Tag valueTag = frame.get(0);
+        float parsed = parseFloatInternal(value, frame.create(Tag.emptyTag()));
+        Tag parsedTag = StringAccessor.getMergedTag(value, valueTag);
+        frame.setReturnTag(parsedTag);
+        return parsed;
     }
 
-    static void appendToPost(Appendable buf, TagFrame frame, StringBuffer buffer) {
-        Tag valueTag = frame.dequeue();
-        Tag bufTag = frame.dequeue();
-        String s = StringAccessor.toString(buffer, TagFrame.emptyFrame());
-        s = StringAccessor.setCharTags(s, valueTag);
-        StringAccessor.append(buf, s, frame.create(bufTag));
+    static void append(Appendable buf, StringBuilder builder, TagFrame frame, Tag valueTag, Tag bufTag) {
+        String toAppend = StringAccessor.toString(builder, frame.create(Tag.emptyTag()));
+        toAppend = StringAccessor.setCharTags(toAppend, valueTag);
+        StringAccessor.append(buf, toAppend, frame.create(bufTag, Tag.emptyTag()));
     }
 }

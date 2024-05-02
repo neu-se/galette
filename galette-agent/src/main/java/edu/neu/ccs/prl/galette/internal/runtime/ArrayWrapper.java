@@ -5,7 +5,7 @@ import java.lang.reflect.Array;
 
 public final class ArrayWrapper implements Serializable, TaggedObject {
     private static final long serialVersionUID = -5853646824573914847L;
-    private Tag length = Tag.getEmptyTag();
+    private Tag length = Tag.emptyTag();
     private final Tag[] elements;
 
     public ArrayWrapper(Object array) {

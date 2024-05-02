@@ -100,7 +100,7 @@ public final class Tag implements Serializable, TaggedObject {
     }
 
     @InvokedViaHandle(handle = Handle.TAG_GET_EMPTY)
-    public static Tag getEmptyTag() {
+    public static Tag emptyTag() {
         return null;
     }
 
@@ -129,7 +129,7 @@ public final class Tag implements Serializable, TaggedObject {
     }
 
     public static Tag union(Tag[] tags) {
-        Tag result = Tag.getEmptyTag();
+        Tag result = Tag.emptyTag();
         if (tags != null) {
             for (Tag t : tags) {
                 result = union(result, t);
@@ -145,7 +145,7 @@ public final class Tag implements Serializable, TaggedObject {
 
     public static Tag of(Object... labels) {
         if (labels.length == 0) {
-            return Tag.getEmptyTag();
+            return Tag.emptyTag();
         } else {
             startTracking();
             ObjectIntMap<Object> distinct = new ObjectIntMap<>();
