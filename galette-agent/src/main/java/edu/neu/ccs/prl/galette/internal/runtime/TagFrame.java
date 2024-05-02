@@ -1,37 +1,30 @@
 package edu.neu.ccs.prl.galette.internal.runtime;
 
-import edu.neu.ccs.prl.galette.internal.runtime.collection.Queue;
+import edu.neu.ccs.prl.galette.internal.runtime.collection.Arrays;
 
 public class TagFrame {
     private Class<?> caller;
     private Tag returnTag = Tag.emptyTag();
-    private final Queue<Tag> tags;
-    private int i = 0;
+    private Tag[] tags = new Tag[256];
+    private int size;
 
-    public TagFrame(Queue<Tag> tags) {
-        this.tags = new Queue<>(tags);
+    protected TagFrame(TagFrame other) {
+        this.tags = other.tags.clone();
+        this.size = other.size;
     }
 
-    public TagFrame() {
-        this.tags = new Queue<>();
+    TagFrame(int size) {
+        this.size = size;
     }
 
+    @InvokedViaHandle(handle = Handle.FRAME_GET_TAG)
     public Tag get(int index) {
-        while (index > i) {
-            dequeue();
-        }
-        return dequeue();
+        return index >= size ? Tag.emptyTag() : tags[index];
     }
 
-    @InvokedViaHandle(handle = Handle.FRAME_DEQUEUE)
-    public Tag dequeue() {
-        i++;
-        return tags.isEmpty() ? Tag.emptyTag() : tags.dequeue();
-    }
-
-    @InvokedViaHandle(handle = Handle.FRAME_ENQUEUE)
-    public TagFrame enqueue(Tag tag) {
-        tags.enqueue(tag);
+    @InvokedViaHandle(handle = Handle.FRAME_SET_TAG)
+    public TagFrame set(int index, Tag tag) {
+        tags[index] = tag;
         return this;
     }
 
@@ -56,43 +49,32 @@ public class TagFrame {
         return this;
     }
 
-    public Queue<Tag> copyTags() {
-        return new Queue<>(tags);
+    @InvokedViaHandle(handle = Handle.FRAME_ACQUIRE)
+    public TagFrame acquire(int size) {
+        // TODO resize
+        return new TagFrame(size);
     }
 
     @Override
     public String toString() {
-        return tags.toString();
-    }
-
-    @InvokedViaHandle(handle = Handle.FRAME_CREATE)
-    public static TagFrame create(TagFrame parent) {
-        return new TagFrame();
-    }
-
-    public TagFrame create(Tag... tags) {
-        return new TagFrame().enqueue(tags);
-    }
-
-    TagFrame enqueue(Tag... tags) {
-        for (Tag tag : tags) {
-            enqueue(tag);
-        }
-        return this;
+        return Arrays.toString(tags, size);
     }
 
     public static TagFrame newReflectiveFrame(TagFrame invokerFrame, Tag... tags) {
-        return new ReflectionTagFrame(invokerFrame).enqueue(tags);
+        TagFrame frame = new ReflectionTagFrame(invokerFrame, tags.length);
+        System.arraycopy(tags, 0, frame.tags, 0, tags.length);
+        return frame;
     }
 
     public static TagFrame emptyFrame() {
-        return new TagFrame();
+        return new TagFrame(0);
     }
 
     private static final class ReflectionTagFrame extends TagFrame {
         private final TagFrame invokerFrame;
 
-        ReflectionTagFrame(TagFrame invokerFrame) {
+        ReflectionTagFrame(TagFrame invokerFrame, int size) {
+            super(size);
             this.invokerFrame = invokerFrame;
         }
 

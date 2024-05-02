@@ -1,4 +1,4 @@
-package edu.neu.ccs.prl.galette.internal.runtime;
+package edu.neu.ccs.prl.galette.internal.runtime.collection;
 
 public final class Arrays {
     private Arrays() {
@@ -15,5 +15,13 @@ public final class Arrays {
             }
         }
         return true;
+    }
+
+    public static String toString(Object[] array, int size) {
+        String[] elements = new String[size];
+        for (int i = 0; i < size; i++) {
+            elements[i] = array[i] == null ? "null" : array[i].toString();
+        }
+        return "[" + String.join(", ", elements) + "]";
     }
 }

@@ -8,7 +8,7 @@ import java.lang.ref.SoftReference;
 import org.objectweb.asm.Opcodes;
 
 /**
- * Note: does not handle accesses through subtypes
+ * Note: Does not handle accesses through subtypes.
  */
 public final class SerializationMasks {
     @Mask(owner = "java/io/ObjectOutputStream", name = "writeObject0", type = MaskType.POST_PROCESS)

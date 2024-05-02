@@ -1,7 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.runtime.frame;
 
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
-import edu.neu.ccs.prl.galette.internal.runtime.collection.Queue;
 
 class MismatchedFrameAdjuster extends EmptyFrameAdjuster {
     private final TagFrame original;
@@ -14,6 +13,6 @@ class MismatchedFrameAdjuster extends EmptyFrameAdjuster {
 
     @Override
     public TagFrame createFrame() {
-        return new AdjustedTagFrame(original, arguments, new Queue<>());
+        return new AdjustedTagFrame(original, arguments);
     }
 }

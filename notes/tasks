@@ -9,9 +9,7 @@ Implementation
 * [COULD] Configuration
 * [SHOULD] Reuse TagFrames
     - Store caller at start of method for later use
-    - Change from Queue<Tag> into Tag[]
-        + Maximum number of parameters is 255 per JVMS
-        + Should this be a resizeable array?
+    - Make TagFrame#tags a resizable array
 
 Functional experiments
 * [COULD] Create a detailed listing describing the functional benchmark groups

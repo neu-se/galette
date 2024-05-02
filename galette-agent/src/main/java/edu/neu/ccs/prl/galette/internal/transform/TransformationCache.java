@@ -1,6 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.transform;
 
-import edu.neu.ccs.prl.galette.internal.runtime.Arrays;
+import edu.neu.ccs.prl.galette.internal.runtime.collection.Arrays;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

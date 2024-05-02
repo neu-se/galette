@@ -2,14 +2,13 @@ package edu.neu.ccs.prl.galette.internal.runtime.frame;
 
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
-import edu.neu.ccs.prl.galette.internal.runtime.collection.Queue;
 
 class AdjustedTagFrame extends TagFrame {
     private final TagFrame original;
     private final Object[] arguments;
 
-    public AdjustedTagFrame(TagFrame original, Object[] arguments, Queue<Tag> tags) {
-        super(tags);
+    public AdjustedTagFrame(TagFrame original, Object[] arguments) {
+        super(original);
         this.original = original;
         this.arguments = arguments;
     }

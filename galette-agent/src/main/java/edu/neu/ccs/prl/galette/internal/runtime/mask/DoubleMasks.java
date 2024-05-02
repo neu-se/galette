@@ -2,6 +2,7 @@ package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.runtime.TagFrameFactory;
 
 public final class DoubleMasks {
     @Mask(owner = "java/lang/Double", name = "valueOf", isStatic = true)
@@ -9,9 +10,9 @@ public final class DoubleMasks {
         Tag valueTag = frame.get(0);
         Double result;
         if (Tag.isEmpty(valueTag)) {
-            result = BoxTypeAccessor.valueOf(value, frame.create(Tag.emptyTag()));
+            result = BoxTypeAccessor.valueOf(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
         } else {
-            result = BoxTypeAccessor.newDouble(value, frame.create(Tag.emptyTag(), valueTag));
+            result = BoxTypeAccessor.newDouble(value, TagFrameFactory.acquire(frame, Tag.emptyTag(), valueTag));
         }
         frame.setReturnTag(valueTag);
         return result;

@@ -9,7 +9,7 @@ public class ProcessedTagFrame extends TagFrame {
     private final TagFrame original;
 
     private ProcessedTagFrame(TagFrame original) {
-        super(original.copyTags());
+        super(original);
         this.original = original;
     }
 

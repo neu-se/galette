@@ -267,19 +267,25 @@ class ShadowLocals extends MethodVisitor {
         loadTagFrame();
         // frame
         boolean isStatic = AsmUtil.isSet(original.access, Opcodes.ACC_STATIC);
+        int index = 0;
         if (!isStatic) {
+            // frame
             // Initialize local variable for receiver
             mv.visitInsn(Opcodes.DUP);
-            // frame, frame
-            Handle.FRAME_DEQUEUE.accept(mv);
-            // frame, frame, tag
+            AsmUtil.pushInt(mv, index++);
+            // frame, frame, index
+            Handle.FRAME_GET_TAG.accept(mv);
+            // frame, tag
             super.visitVarInsn(Opcodes.ASTORE, varIndex++);
+            // frame
         }
         for (Type argument : Type.getArgumentTypes(original.desc)) {
+            // frame
             mv.visitInsn(Opcodes.DUP);
-            // frame, frame
-            Handle.FRAME_DEQUEUE.accept(mv);
-            // frame, frame, tag
+            AsmUtil.pushInt(mv, index++);
+            // frame, frame, index
+            Handle.FRAME_GET_TAG.accept(mv);
+            // frame, tag
             super.visitVarInsn(Opcodes.ASTORE, varIndex++);
             // frame
             // Add extra slot used for wide types (double/long)
@@ -296,29 +302,40 @@ class ShadowLocals extends MethodVisitor {
     public void prepareForCall(boolean isStatic, String descriptor, boolean createFrame) {
         int slots = AsmUtil.countLocalVariables(isStatic, descriptor);
         if (createFrame) {
-            loadTagFrame();
-            // frame
-            Handle.FRAME_CREATE.accept(mv);
-            // child-frame
-            int current = slots - 1;
+            int count = Type.getArgumentCount(descriptor);
             if (!isStatic) {
+                count++;
+            }
+            loadTagFrame();
+            AsmUtil.pushInt(mv, count);
+            // ..., frame, count
+            Handle.FRAME_ACQUIRE.accept(mv);
+            // ..., child-frame
+            int current = slots - 1;
+            int index = 0;
+            if (!isStatic) {
+                // ..., child-frame
+                AsmUtil.pushInt(mv, index++);
                 peek(current--);
-                // frame, tag
-                Handle.FRAME_ENQUEUE.accept(mv);
-                // frame
+                // ..., child-frame, index, tag
+                Handle.FRAME_SET_TAG.accept(mv);
+                // ..., child-frame
             }
             for (Type argument : Type.getArgumentTypes(descriptor)) {
+                // ..., child-frame
+                AsmUtil.pushInt(mv, index++);
                 peek(current);
-                // frame, tag
-                Handle.FRAME_ENQUEUE.accept(mv);
-                // frame
+                // ..., child-frame, index, tag
+                Handle.FRAME_SET_TAG.accept(mv);
+                // ..., child-frame
                 // Skip over the extra slot used for wide types (double/long)
                 current -= argument.getSize();
             }
+            // ..., child-frame
             super.visitInsn(Opcodes.DUP);
-            // frame, frame
+            // child-frame, child-frame
             super.visitVarInsn(Opcodes.ASTORE, childFrameIndex);
-            // frame
+            // child-frame
         }
         pop(slots);
     }

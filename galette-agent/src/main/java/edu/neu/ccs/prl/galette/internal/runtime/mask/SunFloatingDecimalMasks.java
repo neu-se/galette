@@ -4,6 +4,7 @@ import static edu.neu.ccs.prl.galette.internal.runtime.mask.JdkFloatingDecimalMa
 
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.runtime.TagFrameFactory;
 import org.objectweb.asm.Opcodes;
 
 public final class SunFloatingDecimalMasks {
@@ -50,7 +51,7 @@ public final class SunFloatingDecimalMasks {
     @Mask(owner = "sun/misc/FloatingDecimal", name = "toJavaFormatString", type = MaskType.REPLACE, isStatic = true)
     public static String toJavaFormatString(double value, TagFrame frame) {
         Tag valueTag = frame.get(0);
-        String result = toJavaFormatStringInternal(value, frame.create(Tag.emptyTag()));
+        String result = toJavaFormatStringInternal(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
         result = StringAccessor.setCharTags(result, valueTag);
         frame.setReturnTag(valueTag);
         return result;
@@ -59,7 +60,7 @@ public final class SunFloatingDecimalMasks {
     @Mask(owner = "sun/misc/FloatingDecimal", name = "toJavaFormatString", type = MaskType.REPLACE, isStatic = true)
     public static String toJavaFormatString(float value, TagFrame frame) {
         Tag valueTag = frame.get(0);
-        String result = toJavaFormatStringInternal(value, frame.create(Tag.emptyTag()));
+        String result = toJavaFormatStringInternal(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
         result = StringAccessor.setCharTags(result, valueTag);
         frame.setReturnTag(valueTag);
         return result;
@@ -69,8 +70,8 @@ public final class SunFloatingDecimalMasks {
     public static void appendTo(double d, Appendable buf, TagFrame frame) {
         Tag valueTag = frame.get(0);
         Tag bufTag = frame.get(1);
-        StringBuilder builder = StringAccessor.newStringBuilder(frame.create(Tag.emptyTag()));
-        appendToInternal(d, builder, frame.create(Tag.emptyTag(), Tag.emptyTag()));
+        StringBuilder builder = StringAccessor.newStringBuilder(TagFrameFactory.acquire(frame, Tag.emptyTag()));
+        appendToInternal(d, builder, TagFrameFactory.acquire(frame, Tag.emptyTag(), Tag.emptyTag()));
         append(buf, builder, frame, valueTag, bufTag);
     }
 
@@ -79,14 +80,14 @@ public final class SunFloatingDecimalMasks {
         Tag valueTag = frame.get(0);
         Tag bufTag = frame.get(1);
         StringBuilder builder = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
-        appendToInternal(f, builder, frame.create(Tag.emptyTag(), Tag.emptyTag()));
+        appendToInternal(f, builder, TagFrameFactory.acquire(frame, Tag.emptyTag(), Tag.emptyTag()));
         append(buf, builder, frame, valueTag, bufTag);
     }
 
     @Mask(owner = "sun/misc/FloatingDecimal", name = "parseDouble", type = MaskType.REPLACE, isStatic = true)
     public static double parseDouble(String value, TagFrame frame) {
         Tag valueTag = frame.get(0);
-        double parsed = parseDoubleInternal(value, frame.create(Tag.emptyTag()));
+        double parsed = parseDoubleInternal(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
         Tag parsedTag = StringAccessor.getMergedTag(value, valueTag);
         frame.setReturnTag(parsedTag);
         return parsed;
@@ -95,7 +96,7 @@ public final class SunFloatingDecimalMasks {
     @Mask(owner = "sun/misc/FloatingDecimal", name = "parseFloat", type = MaskType.REPLACE, isStatic = true)
     public static float parseFloat(String value, TagFrame frame) {
         Tag valueTag = frame.get(0);
-        float parsed = parseFloatInternal(value, frame.create(Tag.emptyTag()));
+        float parsed = parseFloatInternal(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
         Tag parsedTag = StringAccessor.getMergedTag(value, valueTag);
         frame.setReturnTag(parsedTag);
         return parsed;

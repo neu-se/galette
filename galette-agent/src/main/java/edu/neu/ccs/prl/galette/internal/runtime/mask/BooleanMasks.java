@@ -2,6 +2,7 @@ package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.runtime.TagFrameFactory;
 
 public final class BooleanMasks {
     @Mask(owner = "java/lang/Boolean", name = "valueOf", isStatic = true)
@@ -9,9 +10,9 @@ public final class BooleanMasks {
         Tag valueTag = frame.get(0);
         Boolean result;
         if (Tag.isEmpty(valueTag)) {
-            result = BoxTypeAccessor.valueOf(value, frame.create(Tag.emptyTag()));
+            result = BoxTypeAccessor.valueOf(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
         } else {
-            result = BoxTypeAccessor.newBoolean(value, frame.create(Tag.emptyTag(), valueTag));
+            result = BoxTypeAccessor.newBoolean(value, TagFrameFactory.acquire(frame, Tag.emptyTag(), valueTag));
         }
         frame.setReturnTag(valueTag);
         return result;
@@ -20,7 +21,7 @@ public final class BooleanMasks {
     @Mask(owner = "java/lang/Boolean", name = "parseBoolean", isStatic = true)
     public static boolean parseBoolean(String value, TagFrame frame) {
         Tag valueTag = frame.get(0);
-        boolean parsed = BoxTypeAccessor.parseBoolean(value, frame.create(Tag.emptyTag()));
+        boolean parsed = BoxTypeAccessor.parseBoolean(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
         Tag parsedTag = StringAccessor.getMergedTag(value, valueTag);
         frame.setReturnTag(parsedTag);
         return parsed;
@@ -29,9 +30,9 @@ public final class BooleanMasks {
     @Mask(owner = "java/lang/Boolean", name = "valueOf", isStatic = true)
     public static Boolean valueOfBoolean(String value, TagFrame frame) {
         Tag valueTag = frame.get(0);
-        boolean parsed = BoxTypeAccessor.parseBoolean(value, frame.create(Tag.emptyTag()));
+        boolean parsed = BoxTypeAccessor.parseBoolean(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
         Tag parsedTag = StringAccessor.getMergedTag(value, valueTag);
-        return valueOf(parsed, frame.create(parsedTag));
+        return valueOf(parsed, TagFrameFactory.acquire(frame, parsedTag));
     }
 
     @Mask(owner = "java/lang/Boolean", name = "toString", isStatic = true, type = MaskType.POST_PROCESS)

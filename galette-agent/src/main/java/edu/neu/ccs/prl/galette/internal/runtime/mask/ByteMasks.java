@@ -2,6 +2,7 @@ package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.runtime.TagFrameFactory;
 
 public final class ByteMasks {
     @Mask(owner = "java/lang/Byte", name = "valueOf", isStatic = true)
@@ -9,9 +10,9 @@ public final class ByteMasks {
         Tag valueTag = frame.get(0);
         Byte result;
         if (Tag.isEmpty(valueTag)) {
-            result = BoxTypeAccessor.valueOf(value, frame.create(Tag.emptyTag()));
+            result = BoxTypeAccessor.valueOf(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
         } else {
-            result = BoxTypeAccessor.newByte(value, frame.create(Tag.emptyTag(), valueTag));
+            result = BoxTypeAccessor.newByte(value, TagFrameFactory.acquire(frame, Tag.emptyTag(), valueTag));
         }
         frame.setReturnTag(valueTag);
         return result;

@@ -2,6 +2,7 @@ package edu.neu.ccs.prl.galette.internal.runtime.mask;
 
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.runtime.TagFrameFactory;
 import org.objectweb.asm.Opcodes;
 
 public class EnumMasks {
@@ -9,7 +10,7 @@ public class EnumMasks {
     public static <T extends Enum<T>> T valueOf(Class<T> enumType, String name, TagFrame frame) {
         Tag enumTypeTag = frame.get(0);
         Tag nameTag = frame.get(1);
-        TagFrame calleeFrame = frame.create(enumTypeTag, nameTag);
+        TagFrame calleeFrame = TagFrameFactory.acquire(frame, enumTypeTag, nameTag);
         T result = valueOfInternal(enumType, name, calleeFrame);
         Tag merged = Tag.union(calleeFrame.getReturnTag(), StringAccessor.getMergedTag(name, nameTag));
         frame.setReturnTag(merged);

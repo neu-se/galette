@@ -126,6 +126,6 @@ class MatchingFrameAdjuster implements FrameAdjuster {
 
     @Override
     public TagFrame createFrame() {
-        return new AdjustedTagFrame(original, arguments, original.copyTags());
+        return new AdjustedTagFrame(original, arguments);
     }
 }
