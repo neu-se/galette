@@ -37,15 +37,15 @@ public final class JdkFloatingDecimalMasks {
 
     @Mask(owner = "jdk/internal/math/FloatingDecimal", name = "appendTo", type = MaskType.REPLACE, isStatic = true)
     public static void appendTo(double d, Appendable buf, TagFrame frame) {
-        StringBuffer buffer = StringAccessor.newStringBuilder(new TagFrame(null));
-        appendToInternal(d, buffer, new TagFrame(null));
+        StringBuffer buffer = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
+        appendToInternal(d, buffer, TagFrame.emptyFrame());
         appendToPost(buf, frame, buffer);
     }
 
     @Mask(owner = "jdk/internal/math/FloatingDecimal", name = "appendTo", type = MaskType.REPLACE, isStatic = true)
     public static void appendTo(float f, Appendable buf, TagFrame frame) {
-        StringBuffer buffer = StringAccessor.newStringBuilder(new TagFrame(null));
-        appendToInternal(f, buffer, new TagFrame(null));
+        StringBuffer buffer = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
+        appendToInternal(f, buffer, TagFrame.emptyFrame());
         appendToPost(buf, frame, buffer);
     }
 
@@ -76,8 +76,8 @@ public final class JdkFloatingDecimalMasks {
     static void appendToPost(Appendable buf, TagFrame frame, StringBuffer buffer) {
         Tag valueTag = frame.dequeue();
         Tag bufTag = frame.dequeue();
-        String s = StringAccessor.toString(buffer, new TagFrame(null));
+        String s = StringAccessor.toString(buffer, TagFrame.emptyFrame());
         s = StringAccessor.setCharTags(s, valueTag);
-        StringAccessor.append(buf, s, new TagFrame(null).enqueue(bufTag));
+        StringAccessor.append(buf, s, frame.create(bufTag));
     }
 }

@@ -11,7 +11,7 @@ public final class FloatMasks {
         if (Tag.isEmpty(valueTag)) {
             return BoxTypeAccessor.valueOf(value, TagFrame.create(frame));
         }
-        TagFrame calleeFrame = TagFrame.create(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
+        TagFrame calleeFrame = frame.create(null, valueTag);
         return BoxTypeAccessor.newFloat(value, calleeFrame);
     }
 

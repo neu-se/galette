@@ -24,7 +24,7 @@ public final class BenchmarkDriver {
         List<TestIdentifier> testIdentifiers = TestCollector.collectTests();
         testIdentifiers.sort(Comparator.comparing(TestIdentifier::getUniqueId));
         if (!checkFork(testForkLauncher)) {
-            // If we cannot we launch the fork, mark all tests as failing due to the virtual machine crashing
+            // If we cannot launch the fork, mark all tests as failing due to the virtual machine crashing
             for (TestIdentifier testIdentifier : testIdentifiers) {
                 FlowReportEntry entry = new FlowReportEntry(testIdentifier.getUniqueId(), 0, 0, 0, "vm-crash");
                 report.record(entry);

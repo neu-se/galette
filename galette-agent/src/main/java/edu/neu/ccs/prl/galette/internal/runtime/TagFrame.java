@@ -3,18 +3,15 @@ package edu.neu.ccs.prl.galette.internal.runtime;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.Queue;
 
 public class TagFrame {
-    private final TagFrame parent;
     private Class<?> caller;
     private Tag returnTag = Tag.getEmptyTag();
     private final Queue<Tag> tags;
 
-    public TagFrame(Queue<Tag> tags, TagFrame parent) {
-        this.parent = parent;
+    public TagFrame(Queue<Tag> tags) {
         this.tags = new Queue<>(tags);
     }
 
-    public TagFrame(TagFrame parent) {
-        this.parent = parent;
+    public TagFrame() {
         this.tags = new Queue<>();
     }
 
@@ -62,10 +59,6 @@ public class TagFrame {
         tags.clear();
     }
 
-    public TagFrame getParent() {
-        return parent;
-    }
-
     @Override
     public String toString() {
         return tags.toString();
@@ -73,6 +66,65 @@ public class TagFrame {
 
     @InvokedViaHandle(handle = Handle.FRAME_CREATE)
     public static TagFrame create(TagFrame parent) {
-        return new TagFrame(parent);
+        return new TagFrame();
     }
+
+    public TagFrame create(Tag... tags) {
+        TagFrame frame = new TagFrame();
+        for (Tag tag : tags) {
+            frame.enqueue(tag);
+        }
+        return frame;
+    }
+
+    public static TagFrame emptyFrame() {
+        return new TagFrame();
+    }
+
+    private static final TagFrame EMPTY = new TagFrame() {
+        @Override
+        public Tag dequeue() {
+            return null;
+        }
+
+        @Override
+        public TagFrame enqueue(Tag tag) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return true;
+        }
+
+        @Override
+        public Tag getReturnTag() {
+            return super.getReturnTag();
+        }
+
+        @Override
+        public void setReturnTag(Tag returnTag) {
+            super.setReturnTag(returnTag);
+        }
+
+        @Override
+        public Class<?> getCaller(Class<?> ret) {
+            return null;
+        }
+
+        @Override
+        public TagFrame setCaller(Class<?> caller) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Queue<Tag> copyTags() {
+            return new Queue<>();
+        }
+
+        @Override
+        public void clearTags() {
+            throw new UnsupportedOperationException();
+        }
+    };
 }

@@ -13,7 +13,7 @@ public final class LongMasks {
         if (Tag.isEmpty(valueTag)) {
             return BoxTypeAccessor.valueOf(value, TagFrame.create(frame));
         }
-        TagFrame calleeFrame = TagFrame.create(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
+        TagFrame calleeFrame = frame.create(null, valueTag);
         return BoxTypeAccessor.newLong(value, calleeFrame);
     }
 

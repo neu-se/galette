@@ -76,13 +76,14 @@ public final class ReflectionMasks {
     }
 
     private static void fixFrame(Executable e, Object[] args, TagFrame frame, Tag receiverTag) {
-        frame.clearTags();
-        if (!Modifier.isStatic(e.getModifiers())) {
-            frame.enqueue(receiverTag);
-        }
         if (args == null) {
-            // Empty arguments
+            fixFrame(e, frame, receiverTag);
             return;
+        }
+        frame.clearTags();
+        boolean isStatic = Modifier.isStatic(e.getModifiers());
+        if (!isStatic) {
+            frame.enqueue(receiverTag);
         }
         Class<?>[] parameters = e.getParameterTypes();
         if (parameters.length != args.length) {
@@ -96,6 +97,15 @@ public final class ReflectionMasks {
                 tag = Tag.union(tag, getValueTag(args[i]));
             }
             frame.enqueue(tag);
+        }
+    }
+
+    private static void fixFrame(Executable e, TagFrame frame, Tag receiverTag) {
+        // Empty arguments
+        frame.clearTags();
+        boolean isStatic = Modifier.isStatic(e.getModifiers());
+        if (!isStatic) {
+            frame.enqueue(receiverTag);
         }
     }
 

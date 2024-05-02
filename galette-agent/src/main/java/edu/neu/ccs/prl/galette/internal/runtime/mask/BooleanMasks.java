@@ -11,7 +11,8 @@ public final class BooleanMasks {
         if (Tag.isEmpty(valueTag)) {
             return BoxTypeAccessor.valueOf(value, TagFrame.create(frame));
         }
-        TagFrame calleeFrame = TagFrame.create(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
+        TagFrame calleeFrame = frame.create(null, valueTag);
+        ;
         return BoxTypeAccessor.newBoolean(value, calleeFrame);
     }
 
@@ -33,7 +34,7 @@ public final class BooleanMasks {
         if (Tag.isEmpty(parsedTag)) {
             return BoxTypeAccessor.valueOf(parsed, TagFrame.create(frame));
         }
-        TagFrame calleeFrame = TagFrame.create(frame).enqueue(Tag.getEmptyTag()).enqueue(parsedTag);
+        TagFrame calleeFrame = frame.create(null, parsedTag);
         return BoxTypeAccessor.newBoolean(parsed, calleeFrame);
     }
 

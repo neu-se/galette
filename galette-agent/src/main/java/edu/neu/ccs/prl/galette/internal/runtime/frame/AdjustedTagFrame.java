@@ -9,7 +9,7 @@ class AdjustedTagFrame extends TagFrame {
     private final Object[] arguments;
 
     public AdjustedTagFrame(TagFrame original, Object[] arguments, Queue<Tag> tags) {
-        super(tags, original.getParent());
+        super(tags);
         this.original = original;
         this.arguments = arguments;
     }

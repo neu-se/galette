@@ -38,7 +38,7 @@ public final class StringAccessor {
 
     public static Tag[] getCharTags(String s) {
         if (s != null) {
-            char[] values = toCharArray(s, new TagFrame(null));
+            char[] values = toCharArray(s, TagFrame.emptyFrame());
             ArrayWrapper wrapper = ArrayTagStore.getWrapper(values);
             if (wrapper != null) {
                 return wrapper.getElements();
@@ -55,12 +55,12 @@ public final class StringAccessor {
             }
             ArrayTagStore.updateWrapper(values, wrapper);
         }
-        return newString(values, new TagFrame(null));
+        return newString(values, TagFrame.emptyFrame());
     }
 
     public static String setCharTags(String s, Tag tag) {
         if (s != null && !Tag.isEmpty(tag)) {
-            return setCharTags(toCharArray(s, new TagFrame(null)), tag);
+            return setCharTags(toCharArray(s, TagFrame.emptyFrame()), tag);
         }
         return s;
     }

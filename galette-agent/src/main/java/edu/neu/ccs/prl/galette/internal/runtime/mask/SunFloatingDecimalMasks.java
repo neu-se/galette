@@ -39,15 +39,15 @@ public final class SunFloatingDecimalMasks {
 
     @Mask(owner = "sun/misc/FloatingDecimal", name = "appendTo", type = MaskType.REPLACE, isStatic = true)
     public static void appendTo(double d, Appendable buf, TagFrame frame) {
-        StringBuffer buffer = StringAccessor.newStringBuilder(new TagFrame(null));
-        appendToInternal(d, buffer, new TagFrame(null));
+        StringBuffer buffer = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
+        appendToInternal(d, buffer, TagFrame.emptyFrame());
         appendToPost(buf, frame, buffer);
     }
 
     @Mask(owner = "sun/misc/FloatingDecimal", name = "appendTo", type = MaskType.REPLACE, isStatic = true)
     public static void appendTo(float f, Appendable buf, TagFrame frame) {
-        StringBuffer buffer = StringAccessor.newStringBuilder(new TagFrame(null));
-        appendToInternal(f, buffer, new TagFrame(null));
+        StringBuffer buffer = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
+        appendToInternal(f, buffer, TagFrame.emptyFrame());
         appendToPost(buf, frame, buffer);
     }
 

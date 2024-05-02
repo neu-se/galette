@@ -27,8 +27,8 @@ public final class ToDecimalMasks {
     @Mask(owner = "jdk/internal/math/DoubleToDecimal", name = "appendDecimalTo", type = MaskType.REPLACE)
     public static Appendable appendDecimalTo(Object receiver, double v, Appendable app, TagFrame frame) {
         frame.dequeue();
-        StringBuffer buffer = StringAccessor.newStringBuilder(new TagFrame(null));
-        appendDecimalToInternal(receiver, v, buffer, new TagFrame(null));
+        StringBuffer buffer = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
+        appendDecimalToInternal(receiver, v, buffer, TagFrame.emptyFrame());
         appendToPost(app, frame, buffer);
         return app;
     }
@@ -42,8 +42,8 @@ public final class ToDecimalMasks {
     @Mask(owner = "jdk/internal/math/FloatToDecimal", name = "appendDecimalTo", type = MaskType.REPLACE)
     public static Appendable appendDecimalTo(Object receiver, float v, Appendable app, TagFrame frame) {
         frame.dequeue();
-        StringBuffer buffer = StringAccessor.newStringBuilder(new TagFrame(null));
-        appendDecimalToInternal(receiver, v, buffer, new TagFrame(null));
+        StringBuffer buffer = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
+        appendDecimalToInternal(receiver, v, buffer, TagFrame.emptyFrame());
         appendToPost(app, frame, buffer);
         return app;
     }

@@ -24,7 +24,7 @@ public final class IntegerMasks {
         if (Tag.isEmpty(valueTag)) {
             return BoxTypeAccessor.valueOf(value, TagFrame.create(frame));
         }
-        TagFrame calleeFrame = TagFrame.create(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
+        TagFrame calleeFrame = frame.create(null, valueTag);
         return BoxTypeAccessor.newInteger(value, calleeFrame);
     }
 

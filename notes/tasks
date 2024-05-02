@@ -9,6 +9,12 @@ Implementation
 * [SHOULD] Re-examine all masks and consider the implications of subclassing (e.g., what if this method were called
     with a sub or super class reference)
 * [COULD] Configuration
+* [SHOULD] Reuse TagFrames
+    - Store caller at start of method for later use
+    - Remove parent field from TagFrame
+    - Change from Queue<Tag> into Tag[]
+        + Maximum number of parameters is 255 per JVMS
+        + Should this be a resizeable array?
 
 Functional experiments
 * [COULD] Create a detailed listing describing the functional benchmark groups

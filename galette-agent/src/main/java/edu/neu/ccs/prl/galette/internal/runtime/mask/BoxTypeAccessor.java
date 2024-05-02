@@ -87,12 +87,14 @@ public final class BoxTypeAccessor {
 
     @MemberAccess(owner = "java/lang/Boolean", name = "parseBoolean", opcode = Opcodes.INVOKESTATIC)
     public static boolean parseBoolean(String value, TagFrame frame) {
-        throw new AssertionError("Placeholder method was called");
+        // Placeholder
+        return false;
     }
 
     @MemberAccess(owner = "java/lang/Boolean", name = "booleanValue", opcode = Opcodes.INVOKEVIRTUAL)
     static boolean booleanValue(Boolean receiver, TagFrame frame) {
-        throw new AssertionError("Placeholder method was called");
+        // Placeholder
+        return false;
     }
 
     @MemberAccess(owner = "java/lang/Integer", name = "toString", opcode = Opcodes.INVOKESTATIC)

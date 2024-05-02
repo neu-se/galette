@@ -8,7 +8,7 @@ public final class AbstractStringBuilderMasks {
     public static StringBuilder append(StringBuilder builder, boolean b, TagFrame frame) {
         Tag receiverTag = frame.dequeue();
         String s = StringAccessor.setCharTags(b ? "true" : "false", frame.dequeue());
-        StringAccessor.append(builder, s, new TagFrame(null));
+        StringAccessor.append(builder, s, TagFrame.emptyFrame());
         frame.setReturnTag(receiverTag);
         return builder;
     }
@@ -17,7 +17,7 @@ public final class AbstractStringBuilderMasks {
     public static StringBuffer append(StringBuffer buffer, boolean b, TagFrame frame) {
         Tag receiverTag = frame.dequeue();
         String s = StringAccessor.setCharTags(b ? "true" : "false", frame.dequeue());
-        StringAccessor.append(buffer, s, new TagFrame(null));
+        StringAccessor.append(buffer, s, TagFrame.emptyFrame());
         frame.setReturnTag(receiverTag);
         return buffer;
     }
@@ -25,9 +25,9 @@ public final class AbstractStringBuilderMasks {
     @Mask(owner = "java/lang/StringBuilder", name = "append", type = MaskType.REPLACE)
     public static StringBuilder append(StringBuilder builder, int value, TagFrame frame) {
         Tag receiverTag = frame.dequeue();
-        String s = BoxTypeAccessor.toString(value, TagFrame.create(null));
+        String s = BoxTypeAccessor.toString(value, TagFrame.emptyFrame());
         s = StringAccessor.setCharTags(s, frame.dequeue());
-        StringAccessor.append(builder, s, new TagFrame(null));
+        StringAccessor.append(builder, s, TagFrame.emptyFrame());
         frame.setReturnTag(receiverTag);
         return builder;
     }
@@ -35,9 +35,9 @@ public final class AbstractStringBuilderMasks {
     @Mask(owner = "java/lang/StringBuffer", name = "append", type = MaskType.REPLACE)
     public static StringBuffer append(StringBuffer builder, int value, TagFrame frame) {
         Tag receiverTag = frame.dequeue();
-        String s = BoxTypeAccessor.toString(value, TagFrame.create(null));
+        String s = BoxTypeAccessor.toString(value, TagFrame.emptyFrame());
         s = StringAccessor.setCharTags(s, frame.dequeue());
-        StringAccessor.append(builder, s, new TagFrame(null));
+        StringAccessor.append(builder, s, TagFrame.emptyFrame());
         frame.setReturnTag(receiverTag);
         return builder;
     }
@@ -45,9 +45,9 @@ public final class AbstractStringBuilderMasks {
     @Mask(owner = "java/lang/StringBuilder", name = "append", type = MaskType.REPLACE)
     public static StringBuilder append(StringBuilder builder, long value, TagFrame frame) {
         Tag receiverTag = frame.dequeue();
-        String s = BoxTypeAccessor.toString(value, TagFrame.create(null));
+        String s = BoxTypeAccessor.toString(value, TagFrame.emptyFrame());
         s = StringAccessor.setCharTags(s, frame.dequeue());
-        StringAccessor.append(builder, s, new TagFrame(null));
+        StringAccessor.append(builder, s, TagFrame.emptyFrame());
         frame.setReturnTag(receiverTag);
         return builder;
     }
@@ -55,9 +55,9 @@ public final class AbstractStringBuilderMasks {
     @Mask(owner = "java/lang/StringBuffer", name = "append", type = MaskType.REPLACE)
     public static StringBuffer append(StringBuffer builder, long value, TagFrame frame) {
         Tag receiverTag = frame.dequeue();
-        String s = BoxTypeAccessor.toString(value, TagFrame.create(null));
+        String s = BoxTypeAccessor.toString(value, TagFrame.emptyFrame());
         s = StringAccessor.setCharTags(s, frame.dequeue());
-        StringAccessor.append(builder, s, new TagFrame(null));
+        StringAccessor.append(builder, s, TagFrame.emptyFrame());
         frame.setReturnTag(receiverTag);
         return builder;
     }

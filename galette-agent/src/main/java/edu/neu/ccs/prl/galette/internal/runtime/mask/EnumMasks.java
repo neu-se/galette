@@ -9,7 +9,7 @@ public class EnumMasks {
         Tag enumTypeTag = frame.dequeue();
         Tag nameTag = frame.dequeue();
         // TODO propagate from tainted characters in name to instance
-        TagFrame calleeFrame = TagFrame.create(frame).enqueue(enumTypeTag).enqueue(nameTag);
+        TagFrame calleeFrame = frame.create(enumTypeTag, nameTag);
         T result = EnumAccessor.valueOf(enumType, name, calleeFrame);
         frame.setReturnTag(Tag.union(nameTag, calleeFrame.getReturnTag()));
         return result;

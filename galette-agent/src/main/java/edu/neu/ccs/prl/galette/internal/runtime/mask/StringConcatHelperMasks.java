@@ -8,12 +8,15 @@ public final class StringConcatHelperMasks {
     @SuppressWarnings("unused")
     @MemberAccess(owner = "java/lang/StringConcatHelper", name = "prepend", opcode = Opcodes.INVOKESTATIC)
     private static int prepend(int index, byte[] buf, byte coder, String value, TagFrame frame) {
-        throw new AssertionError("Placeholder method was called");
+        // Placeholder
+        return -1;
     }
 
+    @SuppressWarnings("unused")
     @MemberAccess(owner = "java/lang/StringConcatHelper", name = "prepend", opcode = Opcodes.INVOKESTATIC)
     public static long prepend(long indexCoder, byte[] buf, String value, TagFrame frame) {
-        throw new AssertionError("Placeholder method was called");
+        // Placeholder
+        return -1L;
     }
 
     @Mask(owner = "java/lang/StringConcatHelper", name = "prepend", type = MaskType.REPLACE, isStatic = true)
@@ -23,12 +26,7 @@ public final class StringConcatHelperMasks {
         Tag coderTag = frame.dequeue();
         Tag valueTag = frame.dequeue();
         String s = StringAccessor.setCharTags(value ? "true" : "false", valueTag);
-        Tag sTag = Tag.getEmptyTag();
-        TagFrame childFrame = new TagFrame(frame)
-                .enqueue(indexTag)
-                .enqueue(bufTag)
-                .enqueue(coderTag)
-                .enqueue(sTag);
+        TagFrame childFrame = frame.create(indexTag, bufTag, coderTag, valueTag);
         int result = prepend(index, buf, coder, s, childFrame);
         frame.setReturnTag(childFrame.getReturnTag());
         return result;
@@ -40,9 +38,7 @@ public final class StringConcatHelperMasks {
         Tag bufTag = frame.dequeue();
         Tag valueTag = frame.dequeue();
         String s = StringAccessor.setCharTags(value ? "true" : "false", valueTag);
-        Tag sTag = Tag.getEmptyTag();
-        TagFrame childFrame =
-                new TagFrame(frame).enqueue(indexCoderTag).enqueue(bufTag).enqueue(sTag);
+        TagFrame childFrame = frame.create(indexCoderTag, bufTag, valueTag);
         long result = prepend(indexCoder, buf, s, childFrame);
         frame.setReturnTag(childFrame.getReturnTag());
         return result;

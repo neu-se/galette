@@ -10,8 +10,9 @@ public final class ShortMasks {
         frame.setReturnTag(valueTag);
         if (Tag.isEmpty(valueTag)) {
             return BoxTypeAccessor.valueOf(value, TagFrame.create(frame));
+        } else {
+            TagFrame calleeFrame = frame.create(null, valueTag);
+            return BoxTypeAccessor.newShort(value, calleeFrame);
         }
-        TagFrame calleeFrame = TagFrame.create(frame).enqueue(Tag.getEmptyTag()).enqueue(valueTag);
-        return BoxTypeAccessor.newShort(value, calleeFrame);
     }
 }
