@@ -21,7 +21,7 @@ public final class ToDecimalMasks {
 
     @Mask(owner = "jdk/internal/math/DoubleToDecimal", name = "toDecimalString", type = MaskType.POST_PROCESS)
     public static String toDecimalString(String returnValue, Object receiver, double v, TagFrame frame) {
-        Tag tag = Tag.union(frame.getReturnTag(), frame.get(0));
+        Tag tag = Tag.union(frame.getReturnTag(), frame.get(1));
         returnValue = StringAccessor.setCharTags(returnValue, tag);
         frame.setReturnTag(tag);
         return returnValue;
@@ -41,7 +41,7 @@ public final class ToDecimalMasks {
 
     @Mask(owner = "jdk/internal/math/FloatToDecimal", name = "toDecimalString", type = MaskType.POST_PROCESS)
     public static String toDecimalString(String returnValue, Object receiver, float v, TagFrame frame) {
-        Tag tag = Tag.union(frame.getReturnTag(), frame.get(0));
+        Tag tag = Tag.union(frame.getReturnTag(), frame.get(1));
         returnValue = StringAccessor.setCharTags(returnValue, tag);
         frame.setReturnTag(tag);
         return returnValue;
