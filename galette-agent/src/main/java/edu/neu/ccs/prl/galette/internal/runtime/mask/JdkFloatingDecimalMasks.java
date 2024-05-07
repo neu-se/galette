@@ -60,7 +60,7 @@ public final class JdkFloatingDecimalMasks {
     public static String toJavaFormatString(double value, TagFrame frame) {
         Tag valueTag = frame.get(0);
         String result = toJavaFormatStringInternal(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
-        result = StringAccessor.setCharTags(result, valueTag);
+        result = StringAccessor.setCharTags(result, valueTag, frame);
         frame.setReturnTag(valueTag);
         return result;
     }
@@ -73,7 +73,7 @@ public final class JdkFloatingDecimalMasks {
     public static String toJavaFormatString(float value, TagFrame frame) {
         Tag valueTag = frame.get(0);
         String result = toJavaFormatStringInternal(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
-        result = StringAccessor.setCharTags(result, valueTag);
+        result = StringAccessor.setCharTags(result, valueTag, frame);
         frame.setReturnTag(valueTag);
         return result;
     }
@@ -100,7 +100,7 @@ public final class JdkFloatingDecimalMasks {
     public static double parseDouble(String value, TagFrame frame) {
         Tag valueTag = frame.get(0);
         double parsed = parseDoubleInternal(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
-        Tag parsedTag = StringAccessor.getMergedTag(value, valueTag);
+        Tag parsedTag = StringAccessor.getMergedTag(value, valueTag, frame);
         frame.setReturnTag(parsedTag);
         return parsed;
     }
@@ -109,14 +109,14 @@ public final class JdkFloatingDecimalMasks {
     public static float parseFloat(String value, TagFrame frame) {
         Tag valueTag = frame.get(0);
         float parsed = parseFloatInternal(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
-        Tag parsedTag = StringAccessor.getMergedTag(value, valueTag);
+        Tag parsedTag = StringAccessor.getMergedTag(value, valueTag, frame);
         frame.setReturnTag(parsedTag);
         return parsed;
     }
 
     static void append(Appendable buf, StringBuilder builder, TagFrame frame, Tag valueTag, Tag bufTag) {
         String toAppend = StringAccessor.toString(builder, TagFrameFactory.acquire(frame, Tag.emptyTag()));
-        toAppend = StringAccessor.setCharTags(toAppend, valueTag);
+        toAppend = StringAccessor.setCharTags(toAppend, valueTag, frame);
         StringAccessor.append(buf, toAppend, TagFrameFactory.acquire(frame, bufTag, Tag.emptyTag()));
     }
 }

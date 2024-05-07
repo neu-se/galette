@@ -42,7 +42,7 @@ public final class AbstractStringBuilderMasks {
 
     private static Appendable append(
             Appendable receiver, String toAppend, TagFrame frame, Tag receiverTag, Tag valueTag) {
-        toAppend = StringAccessor.setCharTags(toAppend, valueTag);
+        toAppend = StringAccessor.setCharTags(toAppend, valueTag, frame);
         StringAccessor.append(receiver, toAppend, TagFrameFactory.acquire(frame, receiverTag, Tag.emptyTag()));
         frame.setReturnTag(receiverTag);
         return receiver;

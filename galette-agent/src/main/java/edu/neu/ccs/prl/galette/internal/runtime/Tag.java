@@ -4,6 +4,7 @@ import edu.neu.ccs.prl.galette.internal.runtime.collection.Iterator;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.ObjectIntMap;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.SimpleList;
 import edu.neu.ccs.prl.galette.internal.runtime.frame.IndirectTagFrameStore;
+import edu.neu.ccs.prl.galette.internal.runtime.frame.SpareFrameStore;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.ReflectionMasks;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.UnsafeFlagAccessor;
 import java.io.*;
@@ -197,6 +198,7 @@ public final class Tag implements Serializable, TaggedObject {
             UnsafeFlagAccessor.initialize();
             // Enable indirect frame passing
             IndirectTagFrameStore.initialize();
+            SpareFrameStore.initialize();
             // Enable propagation through reflective method and constructor calls
             ReflectionMasks.initialize();
             // Enable propagation through exceptions

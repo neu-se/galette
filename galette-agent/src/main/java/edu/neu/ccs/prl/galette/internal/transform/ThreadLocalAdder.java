@@ -1,6 +1,5 @@
 package edu.neu.ccs.prl.galette.internal.transform;
 
-import edu.neu.ccs.prl.galette.internal.runtime.collection.Pair;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -8,8 +7,9 @@ import org.objectweb.asm.Type;
 class ThreadLocalAdder extends ClassVisitor {
     private static final int LOCAL_FIELD_ACCESS =
             Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC | Opcodes.ACC_VOLATILE | Opcodes.ACC_TRANSIENT;
+    private static final String LOCAL_SPARE_FRAME_FIELD_NAME =
+            GaletteTransformer.ADDED_MEMBER_PREFIX + "$$LOCAL_spare_frame";
     private static final String LOCAL_FRAME_FIELD_NAME = GaletteTransformer.ADDED_MEMBER_PREFIX + "$$LOCAL_frame";
-    private static final String LOCAL_FRAME_FIELD_DESCRIPTOR = Type.getDescriptor(Pair.class);
     private static final String LOCAL_EXCEPTION_INFO_FIELD_NAME =
             GaletteTransformer.ADDED_MEMBER_PREFIX + "$$LOCAL_exceptionInfo";
     private static final String LOCAL_EXCEPTION_INFO_DESCRIPTOR = Type.getDescriptor(Object.class);
@@ -23,7 +23,8 @@ class ThreadLocalAdder extends ClassVisitor {
 
     @Override
     public void visitEnd() {
-        super.visitField(LOCAL_FIELD_ACCESS, LOCAL_FRAME_FIELD_NAME, LOCAL_FRAME_FIELD_DESCRIPTOR, null, null);
+        super.visitField(LOCAL_FIELD_ACCESS, LOCAL_SPARE_FRAME_FIELD_NAME, GaletteNames.FRAME_DESCRIPTOR, null, null);
+        super.visitField(LOCAL_FIELD_ACCESS, LOCAL_FRAME_FIELD_NAME, GaletteNames.PAIR_DESCRIPTOR, null, null);
         super.visitField(
                 LOCAL_FIELD_ACCESS, LOCAL_EXCEPTION_INFO_FIELD_NAME, LOCAL_EXCEPTION_INFO_DESCRIPTOR, null, null);
         super.visitField(LOCAL_FIELD_ACCESS, LOCAL_UNSAFE_FLAG_FIELD_NAME, LOCAL_FLAG_DESCRIPTOR, null, false);

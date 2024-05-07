@@ -131,7 +131,7 @@ class MaskApplier extends MethodVisitor {
             if (GaletteNames.FRAME_DESCRIPTOR.equals(last.getDescriptor())) {
                 // stack: ..., receiver?, arg_0, arg_1, ..., frame
                 super.visitInsn(DUP);
-                Handle.FRAME_GET_TAGS.accept(mv);
+                Handle.FRAME_COPY_TAGS.accept(mv);
                 int index = varIndex + AsmUtil.countArgumentSlots(isStatic, descriptor);
                 super.visitVarInsn(ASTORE, index);
                 return index;

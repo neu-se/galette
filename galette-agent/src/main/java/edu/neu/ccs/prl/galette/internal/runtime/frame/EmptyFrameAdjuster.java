@@ -1,5 +1,6 @@
 package edu.neu.ccs.prl.galette.internal.runtime.frame;
 
+import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 
 class EmptyFrameAdjuster implements FrameAdjuster {
@@ -50,7 +51,11 @@ class EmptyFrameAdjuster implements FrameAdjuster {
 
     @Override
     public TagFrame createFrame() {
-        // TODO attempt to use a "spare" frame
-        return TagFrame.emptyFrame();
+        return SpareFrameStore.getAndClear();
+    }
+
+    @Override
+    public Tag[] copyTags() {
+        return null;
     }
 }

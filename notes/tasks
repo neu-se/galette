@@ -7,9 +7,6 @@ Implementation
 * [SHOULD] Remove extra entries in stack traces produces from Thread#dumpThread and StackTraceElement#initStackTraceElements
     (remove the shadow wrapper for native methods)
 * [COULD] Configuration
-* [SHOULD] Reuse TagFrames
-    - Make TagFrame#tags a resizable array
-    - Store a "spare" frame for original methods on the Thread
 Functional experiments
 * [COULD] Create a detailed listing describing the functional benchmark groups
 * [COULD] Add additional tests for MethodHandles

@@ -12,7 +12,7 @@ public class EnumMasks {
         Tag nameTag = frame.get(1);
         TagFrame calleeFrame = TagFrameFactory.acquire(frame, enumTypeTag, nameTag);
         T result = valueOfInternal(enumType, name, calleeFrame);
-        Tag merged = Tag.union(calleeFrame.getReturnTag(), StringAccessor.getMergedTag(name, nameTag));
+        Tag merged = Tag.union(calleeFrame.getReturnTag(), StringAccessor.getMergedTag(name, nameTag, frame));
         frame.setReturnTag(merged);
         return result;
     }

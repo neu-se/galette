@@ -53,6 +53,7 @@ public class TagFrame {
         }
         this.returnTag = Tag.emptyTag();
         this.size = size;
+        this.caller = null;
         return this;
     }
 
@@ -63,12 +64,14 @@ public class TagFrame {
 
     @InvokedViaHandle(handle = Handle.FRAME_SET_TAGS)
     public void setTags(Tag[] tags) {
-        this.tags = tags;
-        this.size = tags.length;
+        if (tags != null) {
+            this.tags = tags;
+            this.size = tags.length;
+        }
     }
 
-    @InvokedViaHandle(handle = Handle.FRAME_GET_TAGS)
-    public Tag[] getTags() {
+    @InvokedViaHandle(handle = Handle.FRAME_COPY_TAGS)
+    public Tag[] copyTags() {
         if (size == 0) {
             return new Tag[0];
         }
@@ -100,7 +103,8 @@ public class TagFrame {
         }
 
         @Override
-        public void setReturnTag(Tag returnTag) {}
+        public void setReturnTag(Tag returnTag) {
+        }
 
         @Override
         public TagFrame acquire(int size) {

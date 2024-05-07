@@ -22,7 +22,7 @@ public final class BooleanMasks {
     public static boolean parseBoolean(String value, TagFrame frame) {
         Tag valueTag = frame.get(0);
         boolean parsed = BoxTypeAccessor.parseBoolean(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
-        Tag parsedTag = StringAccessor.getMergedTag(value, valueTag);
+        Tag parsedTag = StringAccessor.getMergedTag(value, valueTag, frame);
         frame.setReturnTag(parsedTag);
         return parsed;
     }
@@ -31,7 +31,7 @@ public final class BooleanMasks {
     public static Boolean valueOfBoolean(String value, TagFrame frame) {
         Tag valueTag = frame.get(0);
         boolean parsed = BoxTypeAccessor.parseBoolean(value, TagFrameFactory.acquire(frame, Tag.emptyTag()));
-        Tag parsedTag = StringAccessor.getMergedTag(value, valueTag);
+        Tag parsedTag = StringAccessor.getMergedTag(value, valueTag, frame);
         return valueOf(parsed, TagFrameFactory.acquire(frame, parsedTag));
     }
 
@@ -39,7 +39,7 @@ public final class BooleanMasks {
     public static String toString(String returnValue, boolean value, TagFrame frame) {
         Tag valueTag = frame.get(0);
         Tag tag = Tag.union(frame.getReturnTag(), valueTag);
-        String result = StringAccessor.setCharTags(returnValue, tag);
+        String result = StringAccessor.setCharTags(returnValue, tag, frame);
         frame.setReturnTag(tag);
         return result;
     }
@@ -50,7 +50,7 @@ public final class BooleanMasks {
         boolean value = BoxTypeAccessor.booleanValue(receiver, frame);
         Tag valueTag = frame.getReturnTag();
         Tag tag = Tag.union(returnTag, valueTag);
-        String result = StringAccessor.setCharTags(returnValue, tag);
+        String result = StringAccessor.setCharTags(returnValue, tag, frame);
         frame.setReturnTag(tag);
         return result;
     }
@@ -67,7 +67,7 @@ public final class BooleanMasks {
     public static String stringValueOf(String returnValue, boolean value, TagFrame frame) {
         Tag valueTag = frame.get(0);
         Tag tag = Tag.union(frame.getReturnTag(), valueTag);
-        String result = StringAccessor.setCharTags(returnValue, tag);
+        String result = StringAccessor.setCharTags(returnValue, tag, frame);
         frame.setReturnTag(tag);
         return result;
     }

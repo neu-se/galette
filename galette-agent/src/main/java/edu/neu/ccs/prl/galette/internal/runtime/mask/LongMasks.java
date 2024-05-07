@@ -21,7 +21,7 @@ public final class LongMasks {
         Tag sTag = frame.get(0);
         Tag radixTag = frame.get(1);
         Tag returnTag = frame.getReturnTag();
-        Tag charTags = StringAccessor.getMergedTag(s, sTag);
+        Tag charTags = StringAccessor.getMergedTag(s, sTag, frame);
         Tag tag = Tag.union(radixTag, charTags, returnTag);
         frame.setReturnTag(tag);
         return returnValue;
@@ -44,7 +44,7 @@ public final class LongMasks {
     public static String toString(String returnValue, long i, TagFrame frame) {
         Tag valueTag = frame.get(0);
         Tag tag = Tag.union(frame.getReturnTag(), valueTag);
-        String result = StringAccessor.setCharTags(returnValue, tag);
+        String result = StringAccessor.setCharTags(returnValue, tag, frame);
         frame.setReturnTag(tag);
         return result;
     }
@@ -54,7 +54,7 @@ public final class LongMasks {
         Tag valueTag = frame.get(0);
         Tag radixTag = frame.get(1);
         Tag tag = Tag.union(frame.getReturnTag(), valueTag, radixTag);
-        String result = StringAccessor.setCharTags(returnValue, tag);
+        String result = StringAccessor.setCharTags(returnValue, tag, frame);
         frame.setReturnTag(tag);
         return result;
     }

@@ -26,7 +26,7 @@ public final class StringConcatHelperMasks {
         Tag bufTag = frame.get(1);
         Tag coderTag = frame.get(2);
         Tag valueTag = frame.get(3);
-        String s = StringAccessor.setCharTags(value ? "true" : "false", valueTag);
+        String s = StringAccessor.setCharTags(value ? "true" : "false", valueTag, frame);
         TagFrame childFrame = TagFrameFactory.acquire(frame, indexTag, bufTag, coderTag, valueTag);
         int result = prepend(index, buf, coder, s, childFrame);
         frame.setReturnTag(childFrame.getReturnTag());
@@ -38,7 +38,7 @@ public final class StringConcatHelperMasks {
         Tag indexCoderTag = frame.get(0);
         Tag bufTag = frame.get(1);
         Tag valueTag = frame.get(2);
-        String s = StringAccessor.setCharTags(value ? "true" : "false", valueTag);
+        String s = StringAccessor.setCharTags(value ? "true" : "false", valueTag, frame);
         TagFrame childFrame = TagFrameFactory.acquire(frame, indexCoderTag, bufTag, valueTag);
         long result = prepend(indexCoder, buf, s, childFrame);
         frame.setReturnTag(childFrame.getReturnTag());

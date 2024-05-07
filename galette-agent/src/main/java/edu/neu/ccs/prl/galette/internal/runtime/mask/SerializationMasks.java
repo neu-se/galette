@@ -29,15 +29,14 @@ public final class SerializationMasks {
             Object retValue, ObjectInputStream in, Class<?> type, boolean unshared, TagFrame frame) {
         if (Configuration.isPropagateThroughSerialization()) {
             if (retValue != null && retValue.getClass().isArray()) {
-                ArrayWrapper wrapper =
-                        (ArrayWrapper) readObject0(in, ArrayWrapper.class, unshared, TagFrame.disabled());
+                ArrayWrapper wrapper = (ArrayWrapper) readObject0(in, ArrayWrapper.class, unshared, frame.acquire(0));
                 if (wrapper != null) {
                     ArrayTagStore.updateWrapper(retValue, wrapper);
                 }
             } else if (isMirroredType(retValue)) {
                 @SuppressWarnings("unchecked")
                 HashMap<String, Tag> tags =
-                        (HashMap<String, Tag>) readObject0(in, HashMap.class, unshared, TagFrame.disabled());
+                        (HashMap<String, Tag>) readObject0(in, HashMap.class, unshared, frame.acquire(0));
                 if (tags != null) {
                     FieldTagStore.setInstanceTags(retValue, tags);
                 }

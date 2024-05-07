@@ -2,6 +2,7 @@ package edu.neu.ccs.prl.galette.internal.runtime;
 
 import edu.neu.ccs.prl.galette.internal.runtime.frame.FrameAdjuster;
 import edu.neu.ccs.prl.galette.internal.runtime.frame.IndirectTagFrameStore;
+import edu.neu.ccs.prl.galette.internal.runtime.frame.SpareFrameStore;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.GetCallerHelper;
 import edu.neu.ccs.prl.galette.internal.transform.HandleRegistry;
 import edu.neu.ccs.prl.galette.internal.transform.MaskRegistry;
@@ -21,7 +22,7 @@ public enum Handle {
     FRAME_GET_RETURN_TAG(TagFrame.class),
     FRAME_SET_RETURN_TAG(TagFrame.class),
     FRAME_SET_TAGS(TagFrame.class),
-    FRAME_GET_TAGS(TagFrame.class),
+    FRAME_COPY_TAGS(TagFrame.class),
     INDIRECT_FRAME_GET_AND_CLEAR(IndirectTagFrameStore.class),
     INDIRECT_FRAME_GET_ADJUSTER(IndirectTagFrameStore.class),
     INDIRECT_FRAME_CLEAR(IndirectTagFrameStore.class),
@@ -47,6 +48,7 @@ public enum Handle {
     FRAME_ADJUSTER_PROCESS_FLOAT(FrameAdjuster.class),
     FRAME_ADJUSTER_PROCESS_DOUBLE(FrameAdjuster.class),
     FRAME_ADJUSTER_PROCESS_OBJECT(FrameAdjuster.class),
+    FRAME_ADJUSTER_COPY_TAGS(FrameAdjuster.class),
     EXCEPTION_STORE_SET(ExceptionStore.class),
     EXCEPTION_STORE_GET(ExceptionStore.class),
     UNBOX_BOOLEAN(PrimitiveBoxer.class),
@@ -65,7 +67,8 @@ public enum Handle {
     BOX_LONG(PrimitiveBoxer.class),
     BOX_DOUBLE(PrimitiveBoxer.class),
     BOX_FLOAT(PrimitiveBoxer.class),
-    GET_CALLER_HELPER(GetCallerHelper.class);
+    GET_CALLER_HELPER(GetCallerHelper.class),
+    SPARE_FRAME_SET(SpareFrameStore.class);
 
     private final Class<?> owner;
 

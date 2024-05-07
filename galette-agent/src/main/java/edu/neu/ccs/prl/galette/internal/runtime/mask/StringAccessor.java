@@ -40,9 +40,9 @@ public final class StringAccessor {
         }
     }
 
-    public static Tag[] getCharTags(String s) {
+    public static Tag[] getCharTags(String s, TagFrame frame) {
         if (s != null) {
-            char[] values = toCharArray(s, TagFrame.disabled());
+            char[] values = toCharArray(s, frame.acquire(0));
             ArrayWrapper wrapper = ArrayTagStore.getWrapper(values);
             if (wrapper != null) {
                 return wrapper.getElements();
@@ -51,11 +51,11 @@ public final class StringAccessor {
         return null;
     }
 
-    public static Tag getMergedTag(String value, Tag valueTag) {
-        return Tag.union(Tag.union(StringAccessor.getCharTags(value)), valueTag);
+    public static Tag getMergedTag(String value, Tag valueTag, TagFrame frame) {
+        return Tag.union(Tag.union(StringAccessor.getCharTags(value, frame)), valueTag);
     }
 
-    public static String setCharTags(char[] values, Tag tag) {
+    public static String setCharTags(char[] values, Tag tag, TagFrame frame) {
         if (values != null && !Tag.isEmpty(tag)) {
             ArrayWrapper wrapper = new ArrayWrapper(values);
             for (int i = 0; i < values.length; i++) {
@@ -63,12 +63,12 @@ public final class StringAccessor {
             }
             ArrayTagStore.updateWrapper(values, wrapper);
         }
-        return newString(values, TagFrame.disabled());
+        return newString(values, frame.acquire(0));
     }
 
-    public static String setCharTags(String s, Tag tag) {
+    public static String setCharTags(String s, Tag tag, TagFrame frame) {
         if (s != null && !Tag.isEmpty(tag)) {
-            return setCharTags(toCharArray(s, TagFrame.disabled()), tag);
+            return setCharTags(toCharArray(s, frame.acquire(0)), tag, frame);
         }
         return s;
     }

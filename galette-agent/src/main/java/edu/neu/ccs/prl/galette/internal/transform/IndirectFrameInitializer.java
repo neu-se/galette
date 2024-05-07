@@ -49,7 +49,7 @@ class IndirectFrameInitializer extends FrameInitializer {
      */
     private final int pairIndex;
     /**
-     * Local variable index used to store the {@link Tag} array of an indirectly passing frame.
+     * Local variable index used to store the {@link Tag} array of an indirectly passed frame.
      */
     private final int tagsIndex;
 
@@ -117,6 +117,9 @@ class IndirectFrameInitializer extends FrameInitializer {
         super.visitVarInsn(Opcodes.ALOAD, getFrameIndex());
         super.visitVarInsn(Opcodes.ALOAD, tagsIndex);
         Handle.FRAME_SET_TAGS.accept(mv);
+        super.visitVarInsn(Opcodes.ALOAD, getFrameIndex());
+        super.visitVarInsn(Opcodes.ALOAD, tagsIndex);
+        Handle.SPARE_FRAME_SET.accept(mv);
     }
 
     @Override
@@ -179,11 +182,11 @@ class IndirectFrameInitializer extends FrameInitializer {
             getProcessorHandle(argument).accept(mv);
         }
         // FrameAdjuster
-        Handle.FRAME_ADJUSTER_CREATE_FRAME.accept(mv);
-        // Defensively copy the frame's tags to guard against a false match
         super.visitInsn(Opcodes.DUP);
-        Handle.FRAME_GET_TAGS.accept(mv);
+        // Defensively copy the frame's tags to guard against a false match
+        Handle.FRAME_ADJUSTER_COPY_TAGS.accept(mv);
         super.visitVarInsn(Opcodes.ASTORE, tagsIndex);
+        Handle.FRAME_ADJUSTER_CREATE_FRAME.accept(mv);
     }
 
     private static Handle getProcessorHandle(Type type) {

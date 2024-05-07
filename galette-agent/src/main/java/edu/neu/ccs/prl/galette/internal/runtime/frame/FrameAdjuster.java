@@ -2,6 +2,7 @@ package edu.neu.ccs.prl.galette.internal.runtime.frame;
 
 import edu.neu.ccs.prl.galette.internal.runtime.Handle;
 import edu.neu.ccs.prl.galette.internal.runtime.InvokedViaHandle;
+import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 
 public interface FrameAdjuster {
@@ -34,4 +35,7 @@ public interface FrameAdjuster {
 
     @InvokedViaHandle(handle = Handle.FRAME_ADJUSTER_CREATE_FRAME)
     TagFrame createFrame();
+
+    @InvokedViaHandle(handle = Handle.FRAME_ADJUSTER_COPY_TAGS)
+    Tag[] copyTags();
 }

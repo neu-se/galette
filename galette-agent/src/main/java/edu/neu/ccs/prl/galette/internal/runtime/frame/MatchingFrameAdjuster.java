@@ -1,6 +1,7 @@
 package edu.neu.ccs.prl.galette.internal.runtime.frame;
 
 import edu.neu.ccs.prl.galette.internal.runtime.PrimitiveBoxer.*;
+import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 
 class MatchingFrameAdjuster implements FrameAdjuster {
@@ -127,5 +128,10 @@ class MatchingFrameAdjuster implements FrameAdjuster {
     @Override
     public TagFrame createFrame() {
         return original;
+    }
+
+    @Override
+    public Tag[] copyTags() {
+        return original.copyTags();
     }
 }

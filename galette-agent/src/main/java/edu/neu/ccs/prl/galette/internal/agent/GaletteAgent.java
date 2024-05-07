@@ -1,6 +1,7 @@
 package edu.neu.ccs.prl.galette.internal.agent;
 
 import edu.neu.ccs.prl.galette.internal.runtime.*;
+import edu.neu.ccs.prl.galette.internal.runtime.frame.SpareFrameStore;
 import edu.neu.ccs.prl.galette.internal.transform.GaletteLog;
 import edu.neu.ccs.prl.galette.internal.transform.GaletteTransformer;
 import edu.neu.ccs.prl.galette.internal.transform.TransformationCache;
@@ -11,6 +12,11 @@ import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 
 public final class GaletteAgent {
+    static {
+        // Thread should be safe to initialize at this point; initialize the spare frame store
+        SpareFrameStore.initialize();
+    }
+
     private GaletteAgent() {
         throw new AssertionError();
     }
