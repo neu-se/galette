@@ -43,7 +43,7 @@ public class TagFrame {
 
     @InvokedViaHandle(handle = Handle.FRAME_ACQUIRE)
     public TagFrame acquire(int size) {
-        if (size <= tags.length) {
+        if (size < tags.length) {
             // Clear the remainder of the tag array
             for (int i = size; i < this.size; i++) {
                 tags[i] = Tag.emptyTag();
