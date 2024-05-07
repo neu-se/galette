@@ -49,8 +49,7 @@ public class TagFrame {
                 tags[i] = Tag.emptyTag();
             }
         } else {
-
-            tags = new Tag[size];
+            tags = new Tag[size + 8];
         }
         this.returnTag = Tag.emptyTag();
         this.size = size;
