@@ -32,8 +32,8 @@ public final class ToDecimalMasks {
         Tag receiverTag = frame.get(0);
         Tag valueTag = frame.get(1);
         Tag bufTag = frame.get(2);
-        StringBuilder builder = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
-        appendDecimalToInternal(receiver, v, builder, TagFrame.emptyFrame());
+        StringBuilder builder = StringAccessor.newStringBuilder(TagFrame.disabled());
+        appendDecimalToInternal(receiver, v, builder, TagFrame.disabled());
         JdkFloatingDecimalMasks.append(app, builder, frame, valueTag, bufTag);
         frame.setReturnTag(receiverTag);
         return app;
@@ -52,8 +52,8 @@ public final class ToDecimalMasks {
         Tag receiverTag = frame.get(0);
         Tag valueTag = frame.get(1);
         Tag bufTag = frame.get(2);
-        StringBuilder builder = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
-        appendDecimalToInternal(receiver, v, builder, TagFrame.emptyFrame());
+        StringBuilder builder = StringAccessor.newStringBuilder(TagFrame.disabled());
+        appendDecimalToInternal(receiver, v, builder, TagFrame.disabled());
         JdkFloatingDecimalMasks.append(app, builder, frame, valueTag, bufTag);
         frame.setReturnTag(receiverTag);
         return app;

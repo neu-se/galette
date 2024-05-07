@@ -16,36 +16,11 @@ import org.objectweb.asm.tree.MethodNode;
 
 class ShadowLocals extends MethodVisitor {
     /**
-     * {@code true} if the method being visited was passed a
-     * {@link TagFrame} as an argument.
-     */
-    private final boolean isShadow;
-    /**
      * The uninstrumented version of the method being visited.
      * <p>
      * Non-null.
      */
     private final MethodNode original;
-    /**
-     * Local variable index used to store the {@link TagFrame}
-     * for this method.
-     */
-    private final int frameIndex;
-    /**
-     * Local variable index used to store the {@link TagFrame}
-     * for methods called by this method.
-     */
-    private final int childFrameIndex;
-    /**
-     * Local variable index used to store the caller class for this method.
-     */
-    private final int callerIndex;
-    /**
-     * Label marking the end of the frame local variable's scope.
-     * <p>
-     * Non-null.
-     */
-    private final Label frameEnd = new Label();
     /**
      * Index of the first local variable used to store the {@link Tag} for a local variable.
      */
@@ -69,18 +44,21 @@ class ShadowLocals extends MethodVisitor {
      * {@code true} if the next frame visited is the frame at the start of an exception handler
      */
     private boolean startingHandler = false;
+    /**
+     * {@link MethodVisitor} that managers the {@link TagFrame} for the method being visited.
+     * <p>
+     * Non-null.
+     */
+    private final FrameManager frameManager;
 
-    ShadowLocals(MethodVisitor mv, MethodNode original, boolean isShadow) {
-        super(GaletteTransformer.ASM_VERSION, mv);
-        if (original == null) {
+    ShadowLocals(FrameManager frameManager, MethodNode original) {
+        super(GaletteTransformer.ASM_VERSION, frameManager);
+        if (original == null || frameManager == null) {
             throw new NullPointerException();
         }
         this.original = original;
-        this.isShadow = isShadow;
-        this.frameIndex = original.maxLocals;
-        this.childFrameIndex = frameIndex + 1;
-        this.callerIndex = childFrameIndex + 1;
-        this.shadowVariablesStart = callerIndex + 1;
+        this.frameManager = frameManager;
+        this.shadowVariablesStart = frameManager.lastAddedLocalIndex() + 1;
         this.shadowStackStart = shadowVariablesStart + original.maxLocals;
         this.shadowStackSize = 0;
     }
@@ -88,33 +66,14 @@ class ShadowLocals extends MethodVisitor {
     @Override
     public void visitCode() {
         super.visitCode();
-        initializeChildFrameSlot();
-        int varIndex = isShadow ? initializeArgumentTags() : shadowVariablesStart;
+        boolean isStatic = AsmUtil.isSet(original.access, Opcodes.ACC_STATIC);
+        // Initialize shadow variables for arguments
+        int varIndex = frameManager.initializeShadowArguments(isStatic, original.desc, shadowVariablesStart);
         // Initialize remaining shadow variables
         for (; varIndex < shadowStackStart; varIndex++) {
             super.visitInsn(Opcodes.ACONST_NULL);
             super.visitVarInsn(Opcodes.ASTORE, varIndex);
         }
-        // Initialize the caller class
-        loadTagFrame();
-        // ..., frame
-        Handle.FRAME_GET_CALLER.accept(mv);
-        // ..., stored-caller
-        super.visitVarInsn(Opcodes.ASTORE, callerIndex);
-    }
-
-    private void initializeChildFrameSlot() {
-        Label frameStart = new Label();
-        super.visitLabel(frameStart);
-        super.visitLocalVariable(
-                GaletteNames.getShadowVariableName("childFrame"),
-                GaletteNames.FRAME_DESCRIPTOR,
-                null,
-                frameStart,
-                frameEnd,
-                childFrameIndex);
-        super.visitInsn(Opcodes.ACONST_NULL);
-        super.visitVarInsn(Opcodes.ASTORE, childFrameIndex);
     }
 
     @Override
@@ -139,20 +98,16 @@ class ShadowLocals extends MethodVisitor {
             newLocal.add(local[i]);
         }
         int varIndex = computeNumberOfSlots(numLocal, local);
-        // Fill in TOP until we get to the frame index
-        for (; varIndex < frameIndex; varIndex++) {
+        // Fill in TOP until we get to the added local variables
+        for (; varIndex < frameManager.firstAddedLocalIndex(); varIndex++) {
             newLocal.add(Opcodes.TOP);
         }
-        // Add the frame and child frame slots
-        newLocal.add(GaletteNames.FRAME_INTERNAL_NAME);
-        newLocal.add(GaletteNames.FRAME_INTERNAL_NAME);
-        // Add the slot for the caller class
-        newLocal.add(GaletteNames.CLASS_INTERNAL_NAME);
-        varIndex += 3;
+        // Add the locals from the frame manager
+        frameManager.appendAddedLocals(newLocal);
         // Recompute the shadow stack size
         shadowStackSize = startingHandler ? 0 : computeNumberOfSlots(numStack, stack);
         // Add tags for the shadow local variables and shadow runtime stack
-        for (; varIndex < shadowStackStart + shadowStackSize; varIndex++) {
+        for (varIndex = shadowVariablesStart; varIndex < shadowStackStart + shadowStackSize; varIndex++) {
             newLocal.add(GaletteNames.TAG_INTERNAL_NAME);
         }
         super.visitFrame(type, newLocal.size(), newLocal.toArray(new Object[newLocal.size()]), numStack, stack);
@@ -194,12 +149,6 @@ class ShadowLocals extends MethodVisitor {
                 start,
                 end,
                 getShadowVariableIndex(index));
-    }
-
-    @Override
-    public void visitMaxs(int maxStack, int maxLocals) {
-        super.visitLabel(frameEnd);
-        super.visitMaxs(maxStack, maxLocals);
     }
 
     public void storeShadowVar(int index) {
@@ -254,18 +203,10 @@ class ShadowLocals extends MethodVisitor {
      * Returns the index of the local variable used to hold the tag for the local variable at the specified index.
      */
     private int getShadowVariableIndex(int index) {
-        if (index >= frameIndex) {
+        if (index >= frameManager.firstAddedLocalIndex()) {
             throw new IllegalArgumentException();
         }
         return index + shadowVariablesStart;
-    }
-
-    public void loadStoredCallerClass() {
-        super.visitVarInsn(Opcodes.ALOAD, callerIndex);
-    }
-
-    public void loadTagFrame() {
-        super.visitVarInsn(Opcodes.ALOAD, frameIndex);
     }
 
     /**
@@ -279,91 +220,22 @@ class ShadowLocals extends MethodVisitor {
         super.visitVarInsn(Opcodes.ALOAD, getShadowStackIndex(n));
     }
 
-    private int initializeArgumentTags() {
-        int varIndex = shadowVariablesStart;
-        loadTagFrame();
-        // frame
-        boolean isStatic = AsmUtil.isSet(original.access, Opcodes.ACC_STATIC);
-        int index = 0;
-        if (!isStatic) {
-            // frame
-            // Initialize local variable for receiver
-            mv.visitInsn(Opcodes.DUP);
-            AsmUtil.pushInt(mv, index++);
-            // frame, frame, index
-            Handle.FRAME_GET_TAG.accept(mv);
-            // frame, tag
-            super.visitVarInsn(Opcodes.ASTORE, varIndex++);
-            // frame
-        }
-        for (Type argument : Type.getArgumentTypes(original.desc)) {
-            // frame
-            mv.visitInsn(Opcodes.DUP);
-            AsmUtil.pushInt(mv, index++);
-            // frame, frame, index
-            Handle.FRAME_GET_TAG.accept(mv);
-            // frame, tag
-            super.visitVarInsn(Opcodes.ASTORE, varIndex++);
-            // frame
-            // Add extra slot used for wide types (double/long)
-            if (argument.getSize() == 2) {
-                super.visitInsn(Opcodes.ACONST_NULL);
-                super.visitVarInsn(Opcodes.ASTORE, varIndex++);
-            }
-        }
-        // frame
-        mv.visitInsn(Opcodes.POP);
-        return varIndex;
+    FrameManager getFrameManager() {
+        return frameManager;
     }
 
     public void prepareForCall(boolean isStatic, String descriptor, boolean createFrame) {
-        int slots = AsmUtil.countLocalVariables(isStatic, descriptor);
         if (createFrame) {
-            int count = Type.getArgumentCount(descriptor);
-            if (!isStatic) {
-                count++;
-            }
-            loadTagFrame();
-            AsmUtil.pushInt(mv, count);
-            // ..., frame, count
-            Handle.FRAME_ACQUIRE.accept(mv);
-            // ..., child-frame
-            int current = slots - 1;
-            int index = 0;
-            if (!isStatic) {
-                // ..., child-frame
-                AsmUtil.pushInt(mv, index++);
-                peek(current--);
-                // ..., child-frame, index, tag
-                Handle.FRAME_SET_TAG.accept(mv);
-                // ..., child-frame
-            }
-            for (Type argument : Type.getArgumentTypes(descriptor)) {
-                // ..., child-frame
-                AsmUtil.pushInt(mv, index++);
-                peek(current);
-                // ..., child-frame, index, tag
-                Handle.FRAME_SET_TAG.accept(mv);
-                // ..., child-frame
-                // Skip over the extra slot used for wide types (double/long)
-                current -= argument.getSize();
-            }
-            // ..., child-frame
-            super.visitInsn(Opcodes.DUP);
-            // child-frame, child-frame
-            super.visitVarInsn(Opcodes.ASTORE, childFrameIndex);
-            // child-frame
+            frameManager.prepareForCall(this, isStatic, descriptor);
         }
-        pop(slots);
+        pop(AsmUtil.countArgumentSlots(isStatic, descriptor));
     }
 
     public void restoreFromCall(String descriptor, boolean hasFrame) {
         Type returnType = Type.getReturnType(descriptor);
         if (returnType.getSort() != Type.VOID) {
             if (hasFrame) {
-                // Get the frame from the shadow stack
-                super.visitVarInsn(Opcodes.ALOAD, childFrameIndex);
-                Handle.FRAME_GET_RETURN_TAG.accept(mv);
+                frameManager.getReturnTag();
             } else {
                 super.visitInsn(Opcodes.ACONST_NULL);
             }
@@ -396,13 +268,14 @@ class ShadowLocals extends MethodVisitor {
 
     static ShadowLocals newInstance(MethodVisitor mv, MethodNode original, boolean isShadow) {
         int frameIndex = original.maxLocals;
+        FrameInitializer initializer;
         if (!isShadow) {
             int handlers = original.tryCatchBlocks == null ? 0 : original.tryCatchBlocks.size();
-            mv = new IndirectFrameInitializer(
+            initializer = new IndirectFrameInitializer(
                     mv, original.name.equals("<init>"), frameIndex, handlers, original.desc, original.access);
         } else {
-            mv = new DirectFrameInitializer(mv, frameIndex, original.access, original.desc);
+            initializer = new DirectFrameInitializer(mv, frameIndex, original.access, original.desc);
         }
-        return new ShadowLocals(mv, original, isShadow);
+        return new ShadowLocals(new FrameManager(initializer), original);
     }
 }

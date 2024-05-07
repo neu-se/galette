@@ -55,18 +55,26 @@ public final class AsmUtil {
     /**
      * Returns the number of local variables used for a method's receiver (if non-static) and arguments.
      */
-    public static int countLocalVariables(int access, String descriptor) {
-        return countLocalVariables(isSet(access, Opcodes.ACC_STATIC), descriptor);
+    public static int countArgumentSlots(int access, String descriptor) {
+        return countArgumentSlots(isSet(access, Opcodes.ACC_STATIC), descriptor);
     }
 
     /**
      * Returns the number of local variables used for a method's receiver (if non-static) and arguments.
      */
-    public static int countLocalVariables(boolean isStatic, String descriptor) {
+    public static int countArgumentSlots(boolean isStatic, String descriptor) {
         int count = 0;
         for (Type argument : Type.getArgumentTypes(descriptor)) {
             count += argument.getSize();
         }
+        return isStatic ? count : count + 1;
+    }
+
+    /**
+     * Returns the number arguments passed to a method including the method's receiver (if non-static).
+     */
+    public static int countArguments(boolean isStatic, String descriptor) {
+        int count = Type.getArgumentCount(descriptor);
         return isStatic ? count : count + 1;
     }
 
@@ -89,7 +97,7 @@ public final class AsmUtil {
             return;
         }
         // stack: ..., receiver?, arg_0, arg_1, ..., arg_{n-1}
-        int index = varIndex + countLocalVariables(isStatic, descriptor);
+        int index = varIndex + countArgumentSlots(isStatic, descriptor);
         Type[] arguments = Type.getArgumentTypes(descriptor);
         // Last argument is on the top of the stack; visit types in reverse order
         for (int i = arguments.length - 1; i >= 0; i--) {

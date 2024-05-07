@@ -110,27 +110,34 @@ class MaskApplier extends MethodVisitor {
         // stack: ...
         AsmUtil.loadReceiverAndArguments(mv, isStatic, descriptor, varIndex);
         // stack: ..., receiver?, arg_0, arg_1, ..., arg_{n-1}
-        copyTagFrame(varIndex, descriptor, isStatic);
+        int tagsIndex = copyTags(varIndex, descriptor, isStatic);
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface);
         // ..., ret
         AsmUtil.loadReceiverAndArguments(mv, isStatic, descriptor, varIndex);
+        if (tagsIndex != -1) {
+            // stack: ..., receiver?, arg_0, arg_1, ..., frame
+            super.visitInsn(DUP);
+            super.visitVarInsn(ALOAD, tagsIndex);
+            Handle.FRAME_SET_TAGS.accept(mv);
+        }
         mask.getRecord().accept(getDelegate());
     }
 
-    private void copyTagFrame(int varIndex, String descriptor, boolean isStatic) {
-        // Store a copy of the original tag frame to ensure that the arguments' tags can be accessed by the
-        // mask
+    private int copyTags(int varIndex, String descriptor, boolean isStatic) {
+        // Store a copy of the original tag frame's tags
         Type[] arguments = Type.getArgumentTypes(descriptor);
         if (arguments.length > 0) {
             Type last = arguments[arguments.length - 1];
             if (GaletteNames.FRAME_DESCRIPTOR.equals(last.getDescriptor())) {
                 // stack: ..., receiver?, arg_0, arg_1, ..., frame
                 super.visitInsn(DUP);
-                Handle.PROCESSED_FRAME_CREATE.accept(mv);
-                int index = varIndex + AsmUtil.countLocalVariables(isStatic, descriptor) - 1;
+                Handle.FRAME_GET_TAGS.accept(mv);
+                int index = varIndex + AsmUtil.countArgumentSlots(isStatic, descriptor);
                 super.visitVarInsn(ASTORE, index);
+                return index;
             }
         }
+        return -1;
     }
 
     private boolean allowMask(MaskInfo mask) {

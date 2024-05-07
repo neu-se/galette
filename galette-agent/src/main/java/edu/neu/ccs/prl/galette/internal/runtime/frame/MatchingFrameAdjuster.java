@@ -23,7 +23,7 @@ class MatchingFrameAdjuster implements FrameAdjuster {
                 return this;
             }
         }
-        return new MismatchedFrameAdjuster(original, arguments);
+        return new EmptyFrameAdjuster();
     }
 
     @Override
@@ -36,7 +36,7 @@ class MatchingFrameAdjuster implements FrameAdjuster {
                 return this;
             }
         }
-        return new MismatchedFrameAdjuster(original, arguments);
+        return new EmptyFrameAdjuster();
     }
 
     @Override
@@ -49,7 +49,7 @@ class MatchingFrameAdjuster implements FrameAdjuster {
                 return this;
             }
         }
-        return new MismatchedFrameAdjuster(original, arguments);
+        return new EmptyFrameAdjuster();
     }
 
     @Override
@@ -62,7 +62,7 @@ class MatchingFrameAdjuster implements FrameAdjuster {
                 return this;
             }
         }
-        return new MismatchedFrameAdjuster(original, arguments);
+        return new EmptyFrameAdjuster();
     }
 
     @Override
@@ -73,7 +73,7 @@ class MatchingFrameAdjuster implements FrameAdjuster {
                 return this;
             }
         }
-        return new MismatchedFrameAdjuster(original, arguments);
+        return new EmptyFrameAdjuster();
     }
 
     @Override
@@ -84,7 +84,7 @@ class MatchingFrameAdjuster implements FrameAdjuster {
                 return this;
             }
         }
-        return new MismatchedFrameAdjuster(original, arguments);
+        return new EmptyFrameAdjuster();
     }
 
     @Override
@@ -95,7 +95,7 @@ class MatchingFrameAdjuster implements FrameAdjuster {
                 return this;
             }
         }
-        return new MismatchedFrameAdjuster(original, arguments);
+        return new EmptyFrameAdjuster();
     }
 
     @Override
@@ -106,7 +106,7 @@ class MatchingFrameAdjuster implements FrameAdjuster {
                 return this;
             }
         }
-        return new MismatchedFrameAdjuster(original, arguments);
+        return new EmptyFrameAdjuster();
     }
 
     @Override
@@ -120,12 +120,12 @@ class MatchingFrameAdjuster implements FrameAdjuster {
                 // Since an uninitialized value cannot be passed as an argument, a placeholder is used instead
                 return this;
             }
-            return new MismatchedFrameAdjuster(original, arguments);
+            return new EmptyFrameAdjuster();
         }
     }
 
     @Override
     public TagFrame createFrame() {
-        return new AdjustedTagFrame(original, arguments);
+        return original;
     }
 }

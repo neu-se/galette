@@ -9,9 +9,7 @@ Implementation
 * [COULD] Configuration
 * [SHOULD] Reuse TagFrames
     - Make TagFrame#tags a resizable array
-    - Reuse the passed frame for shadow methods
     - Store a "spare" frame for original methods on the Thread
-    - Remove unnecessary used of TagFrame#emptyFrame
 Functional experiments
 * [COULD] Create a detailed listing describing the functional benchmark groups
 * [COULD] Add additional tests for MethodHandles

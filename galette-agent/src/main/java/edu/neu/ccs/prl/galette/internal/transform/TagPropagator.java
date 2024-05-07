@@ -256,18 +256,16 @@ class TagPropagator extends MethodVisitor {
             case Opcodes.IRETURN:
             case Opcodes.FRETURN:
             case Opcodes.ARETURN:
-                // ..., value -> []
-                shadowLocals.loadTagFrame();
+                // ..., value -> ...
                 shadowLocals.peek(0);
-                Handle.FRAME_SET_RETURN_TAG.accept(mv);
+                shadowLocals.getFrameManager().setReturnTag();
                 shadowLocals.pop(1);
                 break;
             case Opcodes.DRETURN:
             case Opcodes.LRETURN:
-                // ..., value, top -> []
-                shadowLocals.loadTagFrame();
+                // ..., value, top -> ...
                 shadowLocals.peek(1);
-                Handle.FRAME_SET_RETURN_TAG.accept(mv);
+                shadowLocals.getFrameManager().setReturnTag();
                 shadowLocals.pop(2);
                 break;
             case Opcodes.RETURN:
@@ -681,7 +679,7 @@ class TagPropagator extends MethodVisitor {
             if (isGetCallerClass(owner, name, descriptor)) {
                 // Check for a stored caller class
                 // [returned-caller]
-                shadowLocals.loadStoredCallerClass();
+                shadowLocals.getFrameManager().loadCaller();
                 // [return-caller, stored-caller]
                 Handle.GET_CALLER_HELPER.accept(mv);
                 // [resolved-caller]

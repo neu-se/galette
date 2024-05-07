@@ -62,7 +62,7 @@ public final class JdkUnsafeWrapper implements UnsafeWrapper {
 
     @Override
     public byte compareAndExchangeByte(Object o, long offset, byte expected, byte x) {
-        return compareAndExchangeByte(UNSAFE, o, offset, expected, x, TagFrame.emptyFrame());
+        return compareAndExchangeByte(UNSAFE, o, offset, expected, x, TagFrame.disabled());
     }
 
     @SuppressWarnings({"unused", "SameParameterValue"})
@@ -74,6 +74,6 @@ public final class JdkUnsafeWrapper implements UnsafeWrapper {
 
     @Override
     public short compareAndExchangeShort(Object o, long offset, short expected, short x) {
-        return compareAndExchangeShort(UNSAFE, o, offset, expected, x, TagFrame.emptyFrame());
+        return compareAndExchangeShort(UNSAFE, o, offset, expected, x, TagFrame.disabled());
     }
 }

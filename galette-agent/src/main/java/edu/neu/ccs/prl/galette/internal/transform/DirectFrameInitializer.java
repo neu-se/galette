@@ -25,8 +25,8 @@ class DirectFrameInitializer extends FrameInitializer {
     }
 
     @Override
-    protected void loadFrame() {
-        int varIndex = AsmUtil.countLocalVariables(access, descriptor);
+    protected void initializeFrame() {
+        int varIndex = AsmUtil.countArgumentSlots(access, descriptor);
         super.visitVarInsn(Opcodes.ALOAD, varIndex);
     }
 }

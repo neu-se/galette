@@ -79,7 +79,7 @@ public final class SunFloatingDecimalMasks {
     public static void appendTo(float f, Appendable buf, TagFrame frame) {
         Tag valueTag = frame.get(0);
         Tag bufTag = frame.get(1);
-        StringBuilder builder = StringAccessor.newStringBuilder(TagFrame.emptyFrame());
+        StringBuilder builder = StringAccessor.newStringBuilder(TagFrame.disabled());
         appendToInternal(f, builder, TagFrameFactory.acquire(frame, Tag.emptyTag(), Tag.emptyTag()));
         append(buf, builder, frame, valueTag, bufTag);
     }

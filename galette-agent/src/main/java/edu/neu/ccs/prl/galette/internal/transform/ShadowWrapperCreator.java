@@ -42,7 +42,7 @@ class ShadowWrapperCreator extends MethodVisitor {
         AsmUtil.loadReceiverAndArguments(mv, callee.getOpcode() == Opcodes.INVOKESTATIC, callee.getDescriptor(), 0);
         // If the original method called getCallerClass, compute the caller class now and push to the frame
         fixer.fix(mv);
-        // Call to the wrapped method
+        // Make a call to the wrapped method
         callee.accept(mv);
         super.visitInsn(Type.getReturnType(callee.getDescriptor()).getOpcode(Opcodes.IRETURN));
         super.visitMaxs(-1, -1);
@@ -59,7 +59,7 @@ class ShadowWrapperCreator extends MethodVisitor {
         int opcode = computeWrappedCallOpcode(mn.access, mn.name, isHostedAnonymous);
         String calleeDesc = ShadowMethodCreator.getShadowMethodDescriptor(mn.desc);
         // Store the frame after the arguments
-        int frameIndex = AsmUtil.countLocalVariables(mn.access, mn.desc);
+        int frameIndex = AsmUtil.countArgumentSlots(mn.access, mn.desc);
         MethodRecord callee = new MethodRecord(opcode, owner, mn.name, calleeDesc, isInterface);
         FrameInitializer initializer =
                 new IndirectFrameInitializer(mv, mn.name.equals("<init>"), frameIndex, 0, mn.desc, mn.access);
@@ -67,7 +67,7 @@ class ShadowWrapperCreator extends MethodVisitor {
     }
 
     /**
-     * Fixed issues caused by wrapping a shadow for an original method that calls
+     * Fixes issues caused by wrapping a shadow for an original method that calls
      * {@code Reflection.getCallerClass()}.
      */
     private static final class CallerSensitiveFixer {

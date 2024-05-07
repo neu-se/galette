@@ -3,6 +3,7 @@ package edu.neu.ccs.prl.galette.internal.transform;
 import static org.objectweb.asm.Opcodes.ASTORE;
 
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
+import edu.neu.ccs.prl.galette.internal.runtime.collection.SimpleList;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
@@ -15,11 +16,17 @@ abstract class FrameInitializer extends MethodVisitor {
      */
     private final int frameIndex;
     /**
-     * Label marking the end of the frame local variable's scope.
+     * Label marking the start of local variables added by this visitor.
      * <p>
      * Non-null.
      */
-    private final Label frameEnd = new Label();
+    protected final Label localsStart = new Label();
+    /**
+     * Label marking the end of local variables added by this visitor.
+     * <p>
+     * Non-null.
+     */
+    protected final Label localsEnd = new Label();
 
     FrameInitializer(MethodVisitor mv, int frameIndex) {
         super(GaletteTransformer.ASM_VERSION, mv);
@@ -29,28 +36,35 @@ abstract class FrameInitializer extends MethodVisitor {
     @Override
     public void visitCode() {
         super.visitCode();
-        Label frameStart = new Label();
-        super.visitLabel(frameStart);
+        super.visitLabel(localsStart);
         super.visitLocalVariable(
                 GaletteNames.getShadowVariableName("frame"),
                 GaletteNames.FRAME_DESCRIPTOR,
                 null,
-                frameStart,
-                frameEnd,
+                localsStart,
+                localsEnd,
                 frameIndex);
-        loadFrame();
+        initializeFrame();
         super.visitVarInsn(ASTORE, frameIndex);
     }
 
     @Override
     public void visitMaxs(int maxStack, int maxLocals) {
-        super.visitLabel(frameEnd);
+        super.visitLabel(localsEnd);
         super.visitMaxs(maxStack, maxLocals);
     }
 
-    protected abstract void loadFrame();
+    protected abstract void initializeFrame();
 
     public int getFrameIndex() {
         return frameIndex;
+    }
+
+    public int lastAddedLocalIndex() {
+        return frameIndex;
+    }
+
+    public void appendAddedLocals(SimpleList<Object> locals) {
+        locals.add(GaletteNames.FRAME_INTERNAL_NAME);
     }
 }

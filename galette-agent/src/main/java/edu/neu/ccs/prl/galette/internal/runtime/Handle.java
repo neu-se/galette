@@ -3,7 +3,6 @@ package edu.neu.ccs.prl.galette.internal.runtime;
 import edu.neu.ccs.prl.galette.internal.runtime.frame.FrameAdjuster;
 import edu.neu.ccs.prl.galette.internal.runtime.frame.IndirectTagFrameStore;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.GetCallerHelper;
-import edu.neu.ccs.prl.galette.internal.runtime.mask.ProcessedTagFrame;
 import edu.neu.ccs.prl.galette.internal.transform.HandleRegistry;
 import edu.neu.ccs.prl.galette.internal.transform.MaskRegistry;
 import edu.neu.ccs.prl.galette.internal.transform.MethodRecord;
@@ -21,12 +20,14 @@ public enum Handle {
     FRAME_SET_TAG(TagFrame.class),
     FRAME_GET_RETURN_TAG(TagFrame.class),
     FRAME_SET_RETURN_TAG(TagFrame.class),
-    INDIRECT_FRAME_RESTORE(IndirectTagFrameStore.class),
+    FRAME_SET_TAGS(TagFrame.class),
+    FRAME_GET_TAGS(TagFrame.class),
+    INDIRECT_FRAME_GET_AND_CLEAR(IndirectTagFrameStore.class),
     INDIRECT_FRAME_GET_ADJUSTER(IndirectTagFrameStore.class),
     INDIRECT_FRAME_CLEAR(IndirectTagFrameStore.class),
     INDIRECT_FRAME_SET(IndirectTagFrameStore.class),
+    INDIRECT_FRAME_SET_PAIR(IndirectTagFrameStore.class),
     INDIRECT_FRAME_GET_UNINITIALIZED_THIS(IndirectTagFrameStore.class),
-    PROCESSED_FRAME_CREATE(ProcessedTagFrame.class),
     ARRAY_TAG_STORE_GET_LENGTH_TAG(ArrayTagStore.class),
     ARRAY_TAG_STORE_SET_LENGTH_TAG(ArrayTagStore.class),
     ARRAY_TAG_STORE_GET_TAG(ArrayTagStore.class),

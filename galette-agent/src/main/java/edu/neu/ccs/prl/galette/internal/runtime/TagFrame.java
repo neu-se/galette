@@ -3,17 +3,13 @@ package edu.neu.ccs.prl.galette.internal.runtime;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.Arrays;
 
 public class TagFrame {
+    private static final TagFrame DISABLED = new DisabledTagFrame();
     private Class<?> caller;
     private Tag returnTag = Tag.emptyTag();
     private Tag[] tags = new Tag[256];
     private int size;
 
-    protected TagFrame(TagFrame other) {
-        this.tags = other.tags.clone();
-        this.size = other.size;
-    }
-
-    TagFrame(int size) {
+    private TagFrame(int size) {
         this.size = size;
     }
 
@@ -51,8 +47,14 @@ public class TagFrame {
 
     @InvokedViaHandle(handle = Handle.FRAME_ACQUIRE)
     public TagFrame acquire(int size) {
-        // TODO resize
-        return new TagFrame(size);
+        // TODO resize/ensure size
+        // Clear the remainder of the tag array
+        for (int i = size; i < this.size; i++) {
+            tags[i] = Tag.emptyTag();
+        }
+        this.returnTag = Tag.emptyTag();
+        this.size = size;
+        return this;
     }
 
     @Override
@@ -60,30 +62,51 @@ public class TagFrame {
         return Arrays.toString(tags, size);
     }
 
-    public static TagFrame newReflectiveFrame(TagFrame invokerFrame, Tag... tags) {
-        TagFrame frame = new ReflectionTagFrame(invokerFrame, tags.length);
-        System.arraycopy(tags, 0, frame.tags, 0, tags.length);
-        return frame;
+    @InvokedViaHandle(handle = Handle.FRAME_SET_TAGS)
+    public void setTags(Tag[] tags) {
+        this.tags = tags;
+        this.size = tags.length;
+    }
+
+    @InvokedViaHandle(handle = Handle.FRAME_GET_TAGS)
+    public Tag[] getTags() {
+        return tags.clone();
     }
 
     public static TagFrame emptyFrame() {
         return new TagFrame(0);
     }
 
-    private static final class ReflectionTagFrame extends TagFrame {
-        private final TagFrame invokerFrame;
+    public static TagFrame disabled() {
+        return DISABLED;
+    }
 
-        ReflectionTagFrame(TagFrame invokerFrame, int size) {
-            super(size);
-            this.invokerFrame = invokerFrame;
+    private static final class DisabledTagFrame extends TagFrame {
+        DisabledTagFrame() {
+            super(0);
         }
 
+        @Override
+        public Tag get(int index) {
+            return Tag.emptyTag();
+        }
+
+        @Override
+        public TagFrame set(int index, Tag tag) {
+            return this;
+        }
+
+        @Override
         public Tag getReturnTag() {
-            return invokerFrame.getReturnTag();
+            return Tag.emptyTag();
         }
 
-        public void setReturnTag(Tag returnTag) {
-            invokerFrame.setReturnTag(returnTag);
+        @Override
+        public void setReturnTag(Tag returnTag) {}
+
+        @Override
+        public TagFrame acquire(int size) {
+            return this;
         }
     }
 }
