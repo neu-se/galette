@@ -26,6 +26,12 @@ public final class GaletteNames {
      */
     public static final String TAG_INTERNAL_NAME = Type.getInternalName(Tag.class);
     /**
+     * Internal name for {@link Class}.
+     * <p>
+     * Non-null.
+     */
+    public static final String CLASS_INTERNAL_NAME = Type.getInternalName(Class.class);
+    /**
      * Descriptor for {@link Tag}.
      * <p>
      * Non-null.

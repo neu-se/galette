@@ -16,3 +16,8 @@ VarHandleITCase#compareAndExchangeBoolean
 with location
 ONE_DIMENSIONAL_ARRAY.getBoolean
 However, it no longer appears to be crashing
+
+
+
+https://www.usenix.org/legacy/publications/library/proceedings/usenix03/tech/full_papers/prasad/prasad_html/node22.html
+https://dc.etsu.edu/etsu-works/9416/

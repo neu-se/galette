@@ -8,9 +8,8 @@ Implementation
     (remove the shadow wrapper for native methods)
 * [COULD] Configuration
 * [SHOULD] Reuse TagFrames
-    - Store caller at start of method for later use
     - Make TagFrame#tags a resizable array
-    - Reuse the passed from for shadow methods
+    - Reuse the passed frame for shadow methods
     - Store a "spare" frame for original methods on the Thread
     - Remove unnecessary used of TagFrame#emptyFrame
 Functional experiments

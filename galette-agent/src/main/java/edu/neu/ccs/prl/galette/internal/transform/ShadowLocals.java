@@ -37,6 +37,10 @@ class ShadowLocals extends MethodVisitor {
      */
     private final int childFrameIndex;
     /**
+     * Local variable index used to store the caller class for this method.
+     */
+    private final int callerIndex;
+    /**
      * Label marking the end of the frame local variable's scope.
      * <p>
      * Non-null.
@@ -75,7 +79,8 @@ class ShadowLocals extends MethodVisitor {
         this.isShadow = isShadow;
         this.frameIndex = original.maxLocals;
         this.childFrameIndex = frameIndex + 1;
-        this.shadowVariablesStart = childFrameIndex + 1;
+        this.callerIndex = childFrameIndex + 1;
+        this.shadowVariablesStart = callerIndex + 1;
         this.shadowStackStart = shadowVariablesStart + original.maxLocals;
         this.shadowStackSize = 0;
     }
@@ -90,6 +95,12 @@ class ShadowLocals extends MethodVisitor {
             super.visitInsn(Opcodes.ACONST_NULL);
             super.visitVarInsn(Opcodes.ASTORE, varIndex);
         }
+        // Initialize the caller class
+        loadTagFrame();
+        // ..., frame
+        Handle.FRAME_GET_CALLER.accept(mv);
+        // ..., stored-caller
+        super.visitVarInsn(Opcodes.ASTORE, callerIndex);
     }
 
     private void initializeChildFrameSlot() {
@@ -135,7 +146,9 @@ class ShadowLocals extends MethodVisitor {
         // Add the frame and child frame slots
         newLocal.add(GaletteNames.FRAME_INTERNAL_NAME);
         newLocal.add(GaletteNames.FRAME_INTERNAL_NAME);
-        varIndex += 2;
+        // Add the slot for the caller class
+        newLocal.add(GaletteNames.CLASS_INTERNAL_NAME);
+        varIndex += 3;
         // Recompute the shadow stack size
         shadowStackSize = startingHandler ? 0 : computeNumberOfSlots(numStack, stack);
         // Add tags for the shadow local variables and shadow runtime stack
@@ -248,11 +261,7 @@ class ShadowLocals extends MethodVisitor {
     }
 
     public void loadStoredCallerClass() {
-        // TODO
-        loadTagFrame();
-        // ..., frame
-        Handle.FRAME_GET_CALLER.accept(mv);
-        // ..., stored-caller
+        super.visitVarInsn(Opcodes.ALOAD, callerIndex);
     }
 
     public void loadTagFrame() {
