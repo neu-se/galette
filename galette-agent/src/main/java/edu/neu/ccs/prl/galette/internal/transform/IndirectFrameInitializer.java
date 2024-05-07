@@ -180,7 +180,6 @@ class IndirectFrameInitializer extends FrameInitializer {
         }
         // FrameAdjuster
         Handle.FRAME_ADJUSTER_CREATE_FRAME.accept(mv);
-        // TODO only do if match occurred
         // Defensively copy the frame's tags to guard against a false match
         super.visitInsn(Opcodes.DUP);
         Handle.FRAME_GET_TAGS.accept(mv);

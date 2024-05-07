@@ -6,12 +6,8 @@ public class TagFrame {
     private static final TagFrame DISABLED = new DisabledTagFrame();
     private Class<?> caller;
     private Tag returnTag = Tag.emptyTag();
-    private Tag[] tags = new Tag[256];
-    private int size;
-
-    private TagFrame(int size) {
-        this.size = size;
-    }
+    private Tag[] tags = new Tag[0];
+    private int size = 0;
 
     @InvokedViaHandle(handle = Handle.FRAME_GET_TAG)
     public Tag get(int index) {
@@ -47,10 +43,15 @@ public class TagFrame {
 
     @InvokedViaHandle(handle = Handle.FRAME_ACQUIRE)
     public TagFrame acquire(int size) {
-        // TODO resize/ensure size
-        // Clear the remainder of the tag array
-        for (int i = size; i < this.size; i++) {
-            tags[i] = Tag.emptyTag();
+        if (size <= tags.length) {
+            // Clear the remainder of the tag array
+            for (int i = size; i < this.size; i++) {
+                tags[i] = Tag.emptyTag();
+            }
+        } else {
+            int oldCapacity = tags.length;
+            int newCapacity = oldCapacity == 0 ? 16 : oldCapacity * 2;
+            tags = new Tag[newCapacity];
         }
         this.returnTag = Tag.emptyTag();
         this.size = size;
@@ -70,11 +71,14 @@ public class TagFrame {
 
     @InvokedViaHandle(handle = Handle.FRAME_GET_TAGS)
     public Tag[] getTags() {
+        if (size == 0) {
+            return new Tag[0];
+        }
         return tags.clone();
     }
 
     public static TagFrame emptyFrame() {
-        return new TagFrame(0);
+        return new TagFrame();
     }
 
     public static TagFrame disabled() {
@@ -82,10 +86,6 @@ public class TagFrame {
     }
 
     private static final class DisabledTagFrame extends TagFrame {
-        DisabledTagFrame() {
-            super(0);
-        }
-
         @Override
         public Tag get(int index) {
             return Tag.emptyTag();
