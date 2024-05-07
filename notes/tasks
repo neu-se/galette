@@ -1,12 +1,13 @@
 Implementation
 * [MUST] General performance tuning
 * [MUST] Any TODOs in codebase
-* [SHOULD] Improve the performance of Unsafe accesses (switch to HashMap)
-* [SHOULD] Switch the tag representation from a HashMap to Phosphor's PowerSetTree
 * [SHOULD] Create README based on Phosphor's
-* [SHOULD] Remove extra entries in stack traces produces from Thread#dumpThread and StackTraceElement#initStackTraceElements
+* [COULD] Improve the performance of Unsafe accesses (switch to HashMap)
+* [COULD] Switch the tag representation from a HashMap to Phosphor's PowerSetTree
+* [COULD] Remove extra entries in stack traces produces from Thread#dumpThread and StackTraceElement#initStackTraceElements
     (remove the shadow wrapper for native methods)
 * [COULD] Configuration
+
 Functional experiments
 * [COULD] Create a detailed listing describing the functional benchmark groups
 * [COULD] Add additional tests for MethodHandles

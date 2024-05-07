@@ -6,7 +6,7 @@ Last Functional Run:
 /ci-logs/public/katie/galette/results/slurm-1193160/
 
 Last Performance Run:
-/ci-logs/public/katie/galette/results/slurm-1193223/
+/ci-logs/public/katie/galette/results/slurm-1194149/
 trials = 20, timeout=1440 minutes
 
 /experiment/katie/galette/dacapo-23.11-chopin-small.tar (1.6 GB)
