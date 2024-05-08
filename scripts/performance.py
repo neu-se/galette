@@ -4,7 +4,7 @@ from functools import partial
 from evaluation_util import *
 
 BENCHMARKS = ['avrora', 'batik', 'biojava', 'eclipse', 'fop', 'graphchi', 'h2', 'h2o', 'jme',
-              'jython', 'kafka', 'luindex', 'lusearch', 'pmd', 'spring', 'sunflow', 'tomcat', 'tradebeans',
+              'jython', 'luindex', 'lusearch', 'pmd', 'spring', 'sunflow', 'tomcat', 'tradebeans',
               'tradesoap', 'xalan', 'zxing']
 MEASUREMENT_ITERATIONS = 5
 WARMUP_ITERATIONS = 5

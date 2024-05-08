@@ -1,5 +1,4 @@
 Implementation
-* [MUST] General performance tuning
 * [MUST] Any TODOs in codebase
 * [SHOULD] Create README based on Phosphor's
 * [COULD] Improve the performance of Unsafe accesses (switch to HashMap)
@@ -18,7 +17,6 @@ Functional experiments
 
 Performance experiments
 * [MUST] Write up description of results
-* [COULD] Identify locations to use as taint sources manually for each DaCapo subject and apply labels
 
 General experiments
 * [MUST] Check whether MirrorTaint is automatically applying labels somewhere
