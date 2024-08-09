@@ -17,6 +17,10 @@ public final class Arrays {
         return true;
     }
 
+    public static String toString(Object[] array) {
+        return toString(array, array.length);
+    }
+
     public static String toString(Object[] array, int size) {
         String[] elements = new String[size];
         for (int i = 0; i < size; i++) {

@@ -4,8 +4,8 @@ import static org.objectweb.asm.Type.*;
 
 import edu.neu.ccs.prl.galette.internal.runtime.Handle;
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
-import edu.neu.ccs.prl.galette.internal.runtime.collection.Pair;
 import edu.neu.ccs.prl.galette.internal.runtime.collection.SimpleList;
+import edu.neu.ccs.prl.galette.internal.runtime.frame.AugmentedFrame;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -45,9 +45,10 @@ class IndirectFrameInitializer extends FrameInitializer {
      */
     private final int access;
     /**
-     * Local variable index used to store a {@link Pair} containing information about an indirectly passed frame.
+     * Local variable index used to store an {@link AugmentedFrame} containing information about an
+     * indirectly passed frame.
      */
-    private final int pairIndex;
+    private final int aFrameIndex;
     /**
      * Local variable index used to store the {@link Tag} array of an indirectly passed frame.
      */
@@ -65,7 +66,7 @@ class IndirectFrameInitializer extends FrameInitializer {
         this.totalBlocks = totalBlocks;
         this.descriptor = descriptor;
         this.access = access;
-        this.pairIndex = super.lastAddedLocalIndex() + 1;
+        this.aFrameIndex = super.lastAddedLocalIndex() + 1;
         this.tagsIndex = super.lastAddedLocalIndex() + 2;
     }
 
@@ -73,12 +74,12 @@ class IndirectFrameInitializer extends FrameInitializer {
     public void visitCode() {
         super.visitCode();
         super.visitLocalVariable(
-                GaletteNames.getShadowVariableName("indirectFramePair"),
-                GaletteNames.PAIR_DESCRIPTOR,
+                GaletteNames.getShadowVariableName("indirectFrame"),
+                GaletteNames.A_FRAME_DESCRIPTOR,
                 null,
                 localsStart,
                 localsEnd,
-                pairIndex);
+                aFrameIndex);
         super.visitLocalVariable(
                 GaletteNames.getShadowVariableName("indirectTags"),
                 Type.getDescriptor(Tag[].class),
@@ -97,7 +98,7 @@ class IndirectFrameInitializer extends FrameInitializer {
     @Override
     public void appendAddedLocals(SimpleList<Object> locals) {
         super.appendAddedLocals(locals);
-        locals.add(GaletteNames.PAIR_INTERNAL_NAME);
+        locals.add(GaletteNames.A_FRAME_INTERNAL_NAME);
         locals.add(Type.getInternalName(Tag[].class));
     }
 
@@ -112,8 +113,8 @@ class IndirectFrameInitializer extends FrameInitializer {
     }
 
     private void restore() {
-        super.visitVarInsn(Opcodes.ALOAD, pairIndex);
-        Handle.INDIRECT_FRAME_SET_PAIR.accept(mv);
+        super.visitVarInsn(Opcodes.ALOAD, aFrameIndex);
+        Handle.INDIRECT_FRAME_SET_FRAME.accept(mv);
         super.visitVarInsn(Opcodes.ALOAD, getFrameIndex());
         super.visitVarInsn(Opcodes.ALOAD, tagsIndex);
         Handle.FRAME_SET_TAGS.accept(mv);
@@ -144,7 +145,7 @@ class IndirectFrameInitializer extends FrameInitializer {
             super.visitLabel(scopeEnd);
             Object[] locals = AsmUtil.createTopArray(lastAddedLocalIndex() + 1);
             locals[frameIndex] = GaletteNames.FRAME_INTERNAL_NAME;
-            locals[frameIndex + 1] = GaletteNames.PAIR_INTERNAL_NAME;
+            locals[frameIndex + 1] = GaletteNames.A_FRAME_INTERNAL_NAME;
             locals[frameIndex + 2] = Type.getInternalName(Tag[].class);
             super.visitFrame(Opcodes.F_NEW, locals.length, locals, 1, new Object[] {"java/lang/Throwable"});
             restore();
@@ -156,11 +157,11 @@ class IndirectFrameInitializer extends FrameInitializer {
 
     @Override
     protected void initializeFrame() {
-        // Get the pair
+        // Get the augmented frame
         Handle.INDIRECT_FRAME_GET_AND_CLEAR.accept(mv);
         super.visitInsn(Opcodes.DUP);
-        // Store the pair
-        super.visitVarInsn(Opcodes.ASTORE, pairIndex);
+        // Store the augmented frame
+        super.visitVarInsn(Opcodes.ASTORE, aFrameIndex);
         // FrameAdjuster
         Handle.INDIRECT_FRAME_GET_ADJUSTER.accept(mv);
         int varIndex = 0;

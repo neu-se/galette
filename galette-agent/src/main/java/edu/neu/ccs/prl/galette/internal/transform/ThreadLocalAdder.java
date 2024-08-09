@@ -24,7 +24,7 @@ class ThreadLocalAdder extends ClassVisitor {
     @Override
     public void visitEnd() {
         super.visitField(LOCAL_FIELD_ACCESS, LOCAL_SPARE_FRAME_FIELD_NAME, GaletteNames.FRAME_DESCRIPTOR, null, null);
-        super.visitField(LOCAL_FIELD_ACCESS, LOCAL_FRAME_FIELD_NAME, GaletteNames.PAIR_DESCRIPTOR, null, null);
+        super.visitField(LOCAL_FIELD_ACCESS, LOCAL_FRAME_FIELD_NAME, GaletteNames.A_FRAME_DESCRIPTOR, null, null);
         super.visitField(
                 LOCAL_FIELD_ACCESS, LOCAL_EXCEPTION_INFO_FIELD_NAME, LOCAL_EXCEPTION_INFO_DESCRIPTOR, null, null);
         super.visitField(LOCAL_FIELD_ACCESS, LOCAL_UNSAFE_FLAG_FIELD_NAME, LOCAL_FLAG_DESCRIPTOR, null, false);

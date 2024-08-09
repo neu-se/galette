@@ -2,11 +2,6 @@ create table for functional benchmark suite (for supplemental materials)?
 group | number of tests | description
 ArrayReflectionITCase | X |Uses java.lang.reflect.Array to create arrays, set array elements, and get array elements
 
-for signature polymorphism, show example of instrumentation applied at wrappers
-and at signature polymorphic call sites
-walk through example
-
-Add list of work using dynamic taint tracking in JVM from thesis proposal slides
 
 MirrorTaint only supports java 16 or lower (b/c of ASM version)
 

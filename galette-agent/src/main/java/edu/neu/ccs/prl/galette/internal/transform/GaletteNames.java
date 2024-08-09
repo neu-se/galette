@@ -4,7 +4,7 @@ import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 import edu.neu.ccs.prl.galette.internal.runtime.TaggedObject;
 import edu.neu.ccs.prl.galette.internal.runtime.Tainter;
-import edu.neu.ccs.prl.galette.internal.runtime.collection.Pair;
+import edu.neu.ccs.prl.galette.internal.runtime.frame.AugmentedFrame;
 import org.objectweb.asm.Type;
 
 public final class GaletteNames {
@@ -27,11 +27,11 @@ public final class GaletteNames {
      */
     public static final String CLASS_INTERNAL_NAME = Type.getInternalName(Class.class);
     /**
-     * Internal name for {@link Pair}.
+     * Internal name for {@link AugmentedFrame}.
      * <p>
      * Non-null.
      */
-    public static final String PAIR_INTERNAL_NAME = Type.getInternalName(Pair.class);
+    public static final String A_FRAME_INTERNAL_NAME = Type.getInternalName(AugmentedFrame.class);
     /**
      * Descriptor for {@link TagFrame}.
      * <p>
@@ -51,11 +51,11 @@ public final class GaletteNames {
      */
     public static final String CLASS_DESCRIPTOR = Type.getDescriptor(Class.class);
     /**
-     * Descriptor for {@link Pair}.
+     * Descriptor for {@link AugmentedFrame}.
      * <p>
      * Non-null.
      */
-    public static final String PAIR_DESCRIPTOR = Type.getDescriptor(Pair.class);
+    public static final String A_FRAME_DESCRIPTOR = Type.getDescriptor(AugmentedFrame.class);
     /**
      * Internal name for {@link TaggedObject}.
      * <p>

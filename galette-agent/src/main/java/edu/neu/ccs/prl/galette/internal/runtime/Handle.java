@@ -27,7 +27,7 @@ public enum Handle {
     INDIRECT_FRAME_GET_ADJUSTER(IndirectTagFrameStore.class),
     INDIRECT_FRAME_CLEAR(IndirectTagFrameStore.class),
     INDIRECT_FRAME_SET(IndirectTagFrameStore.class),
-    INDIRECT_FRAME_SET_PAIR(IndirectTagFrameStore.class),
+    INDIRECT_FRAME_SET_FRAME(IndirectTagFrameStore.class),
     INDIRECT_FRAME_GET_UNINITIALIZED_THIS(IndirectTagFrameStore.class),
     ARRAY_TAG_STORE_GET_LENGTH_TAG(ArrayTagStore.class),
     ARRAY_TAG_STORE_SET_LENGTH_TAG(ArrayTagStore.class),

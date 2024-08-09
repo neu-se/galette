@@ -3,7 +3,6 @@ package edu.neu.ccs.prl.galette.internal.runtime.frame;
 import edu.neu.ccs.prl.galette.internal.runtime.Handle;
 import edu.neu.ccs.prl.galette.internal.runtime.InvokedViaHandle;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
-import edu.neu.ccs.prl.galette.internal.runtime.collection.Pair;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.MemberAccess;
 import org.objectweb.asm.Opcodes;
 
@@ -17,31 +16,31 @@ public final class IndirectTagFrameStore {
 
     @SuppressWarnings("unused")
     @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_$$LOCAL_frame", opcode = Opcodes.GETFIELD)
-    private static Pair<TagFrame, Object[]> getFrameInfo(Thread thread) {
+    private static AugmentedFrame getFrameInfo(Thread thread) {
         // Placeholder
         return null;
     }
 
     @SuppressWarnings("unused")
     @MemberAccess(owner = "java/lang/Thread", name = "$$GALETTE_$$LOCAL_frame", opcode = Opcodes.PUTFIELD)
-    private static void setFrameInfo(Thread thread, Pair<TagFrame, Object[]> value) {
+    private static void setFrameInfo(Thread thread, AugmentedFrame value) {
         // Placeholder
     }
 
     @InvokedViaHandle(handle = Handle.INDIRECT_FRAME_GET_AND_CLEAR)
-    public static Pair<TagFrame, Object[]> getAndClear() {
+    public static AugmentedFrame getAndClear() {
         if (INITIALIZED) {
-            Pair<TagFrame, Object[]> pair = getFrameInfo(Thread.currentThread());
+            AugmentedFrame aFrame = getFrameInfo(Thread.currentThread());
             setFrameInfo(Thread.currentThread(), null);
-            return pair;
+            return aFrame;
         }
         return null;
     }
 
     @InvokedViaHandle(handle = Handle.INDIRECT_FRAME_GET_ADJUSTER)
-    public static FrameAdjuster getAdjuster(Pair<TagFrame, Object[]> pair) {
-        if (pair != null) {
-            return new MatchingFrameAdjuster(pair.getFirst(), pair.getSecond());
+    public static FrameAdjuster getAdjuster(AugmentedFrame frame) {
+        if (frame != null) {
+            return new MatchingFrameAdjuster(frame.getFrame(), frame.getArguments());
         }
         return new EmptyFrameAdjuster();
     }
@@ -53,17 +52,17 @@ public final class IndirectTagFrameStore {
         }
     }
 
-    @InvokedViaHandle(handle = Handle.INDIRECT_FRAME_SET_PAIR)
-    public static void set(Pair<TagFrame, Object[]> pair) {
+    @InvokedViaHandle(handle = Handle.INDIRECT_FRAME_SET_FRAME)
+    public static void set(AugmentedFrame frame) {
         if (INITIALIZED) {
-            setFrameInfo(Thread.currentThread(), pair);
+            setFrameInfo(Thread.currentThread(), frame);
         }
     }
 
     @InvokedViaHandle(handle = Handle.INDIRECT_FRAME_SET)
     public static void set(TagFrame frame, Object[] arguments) {
         if (INITIALIZED) {
-            setFrameInfo(Thread.currentThread(), new Pair<>(frame, arguments));
+            setFrameInfo(Thread.currentThread(), new AugmentedFrame(frame, arguments));
         }
     }
 
@@ -73,9 +72,9 @@ public final class IndirectTagFrameStore {
     }
 
     public static synchronized void initialize() {
-        // Ensure that needed classes are initialized to prevent circular class initialization
+        // Ensure that the necessary classes are initialized to prevent circular class initialization
         // noinspection unused
-        Object[] dependencies = new Object[] {Pair.class, Thread.currentThread()};
+        Object[] dependencies = new Object[] {AugmentedFrame.class, Thread.currentThread()};
         INITIALIZED = true;
     }
 }

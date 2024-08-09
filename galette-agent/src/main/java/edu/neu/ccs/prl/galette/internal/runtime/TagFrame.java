@@ -103,8 +103,7 @@ public class TagFrame {
         }
 
         @Override
-        public void setReturnTag(Tag returnTag) {
-        }
+        public void setReturnTag(Tag returnTag) {}
 
         @Override
         public TagFrame acquire(int size) {

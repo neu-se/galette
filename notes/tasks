@@ -22,5 +22,5 @@ General experiments
 * [MUST] Check whether MirrorTaint is automatically applying labels somewhere
 
 Other
-* [SHOULD] Create a full release of Phosphor
+* [SHOULD] Create a full release of Phosphor for use in the evaluation
 * [SHOULD] Contact the MirrorTaint authors about releasing an updated, obfuscated JAR for MirrorTaint containing the fixes I made and a license.
