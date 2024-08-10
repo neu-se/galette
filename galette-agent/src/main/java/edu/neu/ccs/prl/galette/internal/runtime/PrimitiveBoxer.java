@@ -81,6 +81,13 @@ public final class PrimitiveBoxer {
         return value.getValue();
     }
 
+    public static boolean isBoxed(Object o) {
+        return o instanceof BoxedStackInt
+                || o instanceof BoxedLong
+                || o instanceof BoxedFloat
+                || o instanceof BoxedDouble;
+    }
+
     public interface BoxedStackInt {
         int getIntValue();
     }

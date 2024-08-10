@@ -1,12 +1,19 @@
 package edu.neu.ccs.prl.galette.internal.runtime.frame;
 
+import edu.neu.ccs.prl.galette.internal.runtime.PrimitiveBoxer;
 import edu.neu.ccs.prl.galette.internal.runtime.PrimitiveBoxer.*;
 import edu.neu.ccs.prl.galette.internal.runtime.Tag;
 import edu.neu.ccs.prl.galette.internal.runtime.TagFrame;
 
 class MatchingFrameAdjuster implements FrameAdjuster {
     private final TagFrame original;
+    /**
+     * Arguments passed by the caller.
+     */
     private final Object[] arguments;
+    /**
+     * The number of arguments received by the callee that have been checked.
+     */
     private int index = 0;
 
     MatchingFrameAdjuster(TagFrame original, Object[] arguments) {
@@ -127,11 +134,21 @@ class MatchingFrameAdjuster implements FrameAdjuster {
 
     @Override
     public TagFrame createFrame() {
-        return original;
+        return checkRemaining() ? original : SpareFrameStore.getAndClear();
     }
 
     @Override
     public Tag[] copyTags() {
-        return original.copyTags();
+        return checkRemaining() ? original.copyTags() : null;
+    }
+
+    private boolean checkRemaining() {
+        for (int i = index; i < arguments.length; i++) {
+            if (PrimitiveBoxer.isBoxed(arguments[i])) {
+                // Unexpected trailing primitive value in caller arguments
+                return false;
+            }
+        }
+        return true;
     }
 }
