@@ -20,7 +20,7 @@ MIRROR_TAINT_AGENT_JAR = os.path.join(GALETTE_ROOT, 'galette-evaluation', 'lib',
 GALETTE_AGENT_JAR = os.path.join(GALETTE_ROOT, 'galette-agent', 'target', f'galette-agent-{GALETTE_VERSION}.jar')
 GALETTE_INSTRUMENT_JAR = os.path.join(GALETTE_ROOT, 'galette-instrument', 'target',
                                       f'galette-instrument-{GALETTE_VERSION}.jar')
-PHOSPHOR_VERSION = '0.1.0-SNAPSHOT'
+PHOSPHOR_VERSION = '0.1.0'
 PHOSPHOR_AGENT_COORDINATE = f'edu.gmu.swe.phosphor:Phosphor:{PHOSPHOR_VERSION}:jar'
 PHOSPHOR_DRIVER_COORDINATE = f'edu.gmu.swe.phosphor:phosphor-driver:{PHOSPHOR_VERSION}:jar'
 MAX_HEAP = '-Xmx6g'

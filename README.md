@@ -4,7 +4,7 @@ Galette is a system for performing dynamic taint tracking in the Java Virtual Ma
 Galette uses Java bytecode instrumentation to associate labels, also called "taint tags",
 with program data and to propagate these labels along information "flows" at runtime.
 
-Galette requires Java 17 to build, but it can also be used on Java 8.
+Galette requires Java 17 to build, but it can also be used on Java 8 through 21.
 
 ## Building Galette
 
