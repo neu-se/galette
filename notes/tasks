@@ -5,21 +5,15 @@ Implementation
 * [COULD] Switch the tag representation from a HashMap to Phosphor's PowerSetTree
 * [COULD] Remove extra entries in stack traces produces from Thread#dumpThread and StackTraceElement#initStackTraceElements
     (remove the shadow wrapper for native methods)
-* [COULD] Configuration
 
 Functional experiments
 * [COULD] Create a detailed listing describing the functional benchmark groups
-* [COULD] Add additional tests for MethodHandles
-* [COULD] Add tests for pattern matching, ternary operators, and String templates
 * [SHOULD] Consider moving benchmark tests for serialization into integration tests for Galette
 * [SHOULD] Determine root cause of failures for Phosphor and MirrorTaint
 * [MUST] Write up description of results
 
 Performance experiments
 * [MUST] Write up description of results
-
-General experiments
-* [MUST] Check whether MirrorTaint is automatically applying labels somewhere
 
 Other
 * [SHOULD] Contact the MirrorTaint authors about releasing an updated, obfuscated JAR for MirrorTaint containing the fixes I made and a license.
