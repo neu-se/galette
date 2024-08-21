@@ -21,22 +21,6 @@
                 <version>3.1.1</version>
                 <executions>
                     <execution>
-                        <id>install-mirror-taint</id>
-                        <inherited>false</inherited>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <configuration>
-                            <packaging>jar</packaging>
-                            <file>${project.basedir}/lib/taint-agent-core-1.0.0.jar</file>
-                            <groupId>com.shadow.taint</groupId>
-                            <artifactId>taint-agent-core</artifactId>
-                            <version>1.0.0</version>
-                            <generatePom>true</generatePom>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>install-dacapo</id>
                         <inherited>false</inherited>
                         <phase>initialize</phase>

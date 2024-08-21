@@ -17,12 +17,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.shadow.taint</groupId>
-            <artifactId>taint-agent-core</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>edu.gmu.swe.phosphor</groupId>
             <artifactId>Phosphor</artifactId>
             <version>0.1.0</version>
@@ -34,4 +28,17 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>com/**/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

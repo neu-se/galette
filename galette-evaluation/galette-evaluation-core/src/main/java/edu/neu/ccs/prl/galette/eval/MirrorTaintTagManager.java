@@ -31,7 +31,6 @@ public class MirrorTaintTagManager implements TagManager {
             if (!(label instanceof String)) {
                 throw new IllegalArgumentException("Only string labels are supported");
             }
-            //noinspection DataFlowIssue
             value = TaintTagger.tagManually(value, (String) label);
         }
         return value;

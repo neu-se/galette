@@ -25,11 +25,13 @@ RUN for version in 8 11 17 21; \
     do python3 ./scripts/download_jdk.py \
     --vendor temurin \
     --version "$version" \
-    --output-dir "/home/resources/java/$version"; \
+    --output-dir "/home/resources/jdk/temurin/$version"; \
     done
 # Export JAVA_HOME
 RUN export JAVA_HOME=/home/resources/java/17/
 # Build the project
 RUN mvn -DskipTests install
+# Build the evaluation classes
+RUN mvn -DskipTests install -f galette-evaluation
 # Expose port 80
 EXPOSE 80/tcp

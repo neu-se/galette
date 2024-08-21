@@ -163,7 +163,7 @@ Where:
 * \<OUTPUT_DIRECTORY\> is the absolute path of the directory to which output files should be written.
 * \<BENCHMARK\> is the DaCapo benchmark that should be used: avrora, batik, biojava, eclipse, fop, graphchi, h2, h2o,
   jme, jython, luindex, lusearch, pmd, spring, sunflow, tomcat, tradebeans, tradesoap, xalan, or zxing.
-* \<TOOL\> is the taint tracking system to be used: galette or phosphor.
+* \<TOOL\> is the taint tracking system to be used: galette, phosphor, or none.
 * \<TIMEOUT\> is the maximum amount of time to run the DaCapo process for in minutes
 
 This command will run the specified DaCapo benchmark with the specified taint tracking system until
@@ -278,7 +278,7 @@ On our machine, this command typically terminated after TODO hours.
 This command uses a reduced the timeout for performance trials from 24 hours as was used in the paper to TODO.
 This may affect results.
 
-This will produce a report file "full-report.html"
+This command will produce a report file "full-report.html"
 The easiest way to view the created report from within the container is to run:
 
 ```shell

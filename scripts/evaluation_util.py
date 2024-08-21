@@ -16,7 +16,7 @@ GALETTE_ROOT = pathlib.Path(__file__).parent.parent
 GALETTE_EVALUATION_ROOT = os.path.join(pathlib.Path(__file__).parent.parent, 'galette-evaluation')
 GALETTE_EVALUATION_CORE_ROOT = os.path.join(GALETTE_EVALUATION_ROOT, 'galette-evaluation-core')
 GALETTE_EVALUATION_CLASSES = os.path.join(GALETTE_EVALUATION_CORE_ROOT, 'target', 'classes')
-MIRROR_TAINT_AGENT_JAR = os.path.join(GALETTE_ROOT, 'galette-evaluation', 'lib', 'taint-agent-core-1.0.0.jar')
+MIRROR_TAINT_AGENT_JAR = os.path.join(GALETTE_ROOT, 'lib', 'taint-agent-core-1.0.0.jar')
 GALETTE_AGENT_JAR = os.path.join(GALETTE_ROOT, 'galette-agent', 'target', f'galette-agent-{GALETTE_VERSION}.jar')
 GALETTE_INSTRUMENT_JAR = os.path.join(GALETTE_ROOT, 'galette-instrument', 'target',
                                       f'galette-instrument-{GALETTE_VERSION}.jar')
