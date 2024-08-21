@@ -42,11 +42,8 @@ cp "$EXPERIMENT_DIRECTORY/settings.xml" "$SETTINGS_FILE"
 python3 -m venv venv
 . venv/bin/activate
 
-# Upgrade pip
-python3 -m pip install --upgrade --force-reinstall pip
-
 # Install required Python libraries
-python3 -m pip install -r "$PROJECT_ROOT/scripts/requirements.txt"
+python3 -m pip install -r "$PROJECT_ROOT/scripts/simple_requirements.txt"
 
 # Run the script
 python3 "$PROJECT_ROOT/scripts/functional.py" \
