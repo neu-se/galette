@@ -3,11 +3,12 @@
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/performance.sh 20 performance_tasks.csv <TIMEOUT>
 
 Last Functional Run:
-/ci-logs/public/katie/galette/results/slurm-1193160/
+/ci-logs/public/katie/galette/results/slurm-1273647/
 
 Last Performance Run:
 /ci-logs/public/katie/galette/results/slurm-1194149/
 trials = 20, timeout=1440 minutes
+
 
 /experiment/katie/galette/dacapo-23.11-chopin-small.tar (1.6 GB)
 
@@ -26,3 +27,6 @@ and
 1191447_1257 phosphor,tradesoap failed due to disk usage
 Disk usage is due to large log (scratch/log/server.log) recording errors:
 "2024-04-25 00:00:00,024 ERROR [stderr] (main) Got 404"
+
+
+Running performance experiment: /ci-logs/public/katie/galette/results/slurm-1273660/

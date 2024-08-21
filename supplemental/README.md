@@ -186,6 +186,11 @@ The file "data.csv" contains the results of the trial.
 The format of this file is similar to that of the data file "performance.csv" as described above without the
 "trial_id" column.
 
+We advise against running the "tradebeans" or "tradesoap" benchmarks with Phosphor with a large timeout.
+Deviations for the normal program behavior introduced by Phosphor cause these benchmarks to loop
+infinitely producing errors which are recorded to a log file.
+The size of this log file grows to be rather large for larger timeouts.
+
 #### Example
 
 To test this command, run a trial for Galette on the spring benchmark:

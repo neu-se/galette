@@ -1,5 +1,6 @@
-import sys
 import os
+import pathlib
+import sys
 
 import numpy as np
 from arch.bootstrap import IndependentSamplesBootstrap
@@ -7,6 +8,51 @@ from arch.bootstrap import IndependentSamplesBootstrap
 import performance
 from report_util import *
 from trial_data import extract
+
+TEMPLATE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * {
+            font-family: Open Sans, sans-serif;
+            color: black;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 550;
+            display: block;
+        }
+        
+        h3 {
+            font-size: 12px;
+            display: block;
+        }
+
+        table * {
+            font-size: 10px;
+            font-weight: normal;
+            text-align: right;
+            padding: 5px;
+        }
+
+        table {
+            border-bottom: black 1px solid;
+            border-top: black 1px solid;
+            border-collapse: collapse;
+        }
+    </style>
+    <title>Report</title>
+</head>
+<body>
+<div>
+    $content
+</div>
+</body>
+</html>
+"""
 
 
 def overhead(baseline, treatment):
@@ -81,7 +127,7 @@ def create_sig_table(table):
     return sig
 
 
-def style_table(table, title):
+def style_performance_table(table, title):
     values = pivot_performance_table(table)
     sigs = pivot_performance_table(create_sig_table(table))
     formats = {c: "{:,.0f}" for c in values.columns if 'Base' in c}
@@ -91,20 +137,109 @@ def style_table(table, title):
         .set_caption(title)
 
 
-def process_performance_data(data):
-    memory = create_performance_table(data, 'rss')
-    s_memory = style_table(memory, 'Peak Memory Usage.')
-    time = create_performance_table(data, 'elapsed_time')
-    s_time = style_table(time, 'Execution Time')
-    # TODO
+def compute_executions_counts(data):
+    by = ['group', 'tool', 'version']
+    executed = data.groupby(by)['status'] \
+        .size() \
+        .rename('executed') \
+        .reset_index() \
+        .drop_duplicates() \
+        .reset_index(drop=True)
+    return complete_cartesian_index(executed, by)
+
+
+def create_count_table(data):
+    executed = compute_executions_counts(data)
+    by = ['group', 'tool', 'version']
+    # Count the number of entries in each result for each group for each tool on each JDK
+    counts = data.groupby(by)['result'] \
+        .value_counts() \
+        .reset_index()
+    # Fill in zeros for missing combinations
+    # Pivot along the results to put the results in columns
+    categories = [data[c].unique() for c in by] + [['tag', 'semantic', 'success']]
+    counts = complete_cartesian_index(counts, by + ['result'], categories=categories) \
+        .pivot(columns='result', index=by, values='count') \
+        .fillna(0) \
+        .astype('int64') \
+        .reset_index()
+    # Compute the total number of tests per group
+    totals = executed.groupby(['group'])['executed'] \
+        .max() \
+        .rename('total') \
+        .reset_index() \
+        .drop_duplicates()
+    # Add totals to the table
+    counts = counts.merge(totals, on=['group'], how='left')
+    executed = executed[['group', 'version', 'executed']].drop_duplicates()
+    # Added executed and totals to table
+    counts = counts.merge(executed, on=['group', 'version'], how='left')
+    # Drop rows for groups where nothing was executed (because the minimum version was not satisfied)
+    counts = pd.DataFrame(counts[counts['executed'] != 0])
+    # Rename the semantic column
+    counts['sem'] = counts['semantic']
+    return counts
+
+
+def style_counts(counts):
+    failures = counts.melt(id_vars=['group', 'tool', 'version', 'total'], value_vars=['sem', 'tag'])
+    failures = format_tool_names(failures)
+    failures['variable'] = failures['variable'].apply(str.title)
+    table = failures.pivot(index=['group', 'total', 'version'], values=['value'], columns=['tool', 'variable']) \
+        .reorder_levels(axis=1, order=['tool', 'variable', None]) \
+        .sort_index(axis=1) \
+        .sort_index(axis=0) \
+        .droplevel(2, axis=1)
+    table.index.names = [x.title() for x in table.index.names]
+    table.columns.names = [None for _ in table.columns.names]
+    return table.style.format(precision=0, na_rep='---') \
+        .set_caption('Semantics Preservation and Propagation Accuracy.')
+
+
+def create_time_content(data):
+    table = create_performance_table(data, 'elapsed_time')
+    return style_performance_table(table, 'Execution Time').to_html()
+
+
+def create_memory_content(data):
+    table = create_performance_table(data, 'rss')
+    return style_performance_table(table, 'Peak Memory Usage.').to_html()
+
+
+def create_functional_content(data):
+    return style_counts(create_count_table(data)).to_html()
+
+
+def create_section(name, content_f, **kwargs):
+    print(f'Creating "{name}" section.')
+    content = content_f(**kwargs)
+    print(f'\tCreated "{name}" section.')
+    return f'<div><h2>{name}</h2>{content}</div>'
+
+
+def write_report(report_file, content):
+    print(f'Writing report to {report_file}.')
+    os.makedirs(pathlib.Path(report_file).parent, exist_ok=True)
+    report = TEMPLATE.replace('$content', content)
+    with open(report_file, 'w') as f:
+        f.write(report)
+    print(f'\tSuccessfully wrote report.')
+
+
+def create_report(input_dir, report_file):
+    functional_data, performance_data = extract(input_dir, input_dir)
+    content = ""
+    if functional_data is not None and not functional_data.empty:
+        content += create_section('Semantics Preservation and Propagation Accuracy',
+                                  create_functional_content, data=functional_data)
+    if performance_data is not None and not performance_data.empty:
+        content += create_section('Execution Time', create_time_content, data=performance_data)
+        content += create_section('Peak Memory Usage', create_memory_content, data=performance_data)
+    write_report(report_file, content)
 
 
 def main():
-    input_dir = sys.argv[1]
-    output_file = sys.argv[2]
-    functional_data, performance_data = extract(input_dir, input_dir)
-    if performance_data is not None:
-        process_performance_data(performance_data)
+    create_report(sys.argv[1], sys.argv[2])
 
 
 if __name__ == '__main__':

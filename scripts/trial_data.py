@@ -1,5 +1,6 @@
 import json
 import os
+import pathlib
 from enum import auto
 
 from strenum import StrEnum
@@ -66,17 +67,19 @@ def partition(elements, predicate):
     return [t, f]
 
 
-def aggregate(trials):
+def aggregate(frames):
     print('Creating aggregated dataset.')
-    data = pd.concat([t.get_data_frame() for t in trials]) \
+    data = pd.concat(frames) \
         .reset_index(drop=True)
     return data
 
 
-def aggregate_and_write(trials, output_file):
-    if len(trials) == 0:
+def aggregate_and_write(frames, output_file):
+    if len(frames) == 0:
         return None
-    data = aggregate(trials)
+    data = aggregate(frames)
+    os.makedirs(pathlib.Path(output_file).parent, exist_ok=True)
+    os.remove(output_file) if os.path.exists(output_file) else None
     data.to_csv(output_file, index=False)
     print(f'Wrote aggregated dataset CSV to {output_file}.')
     return data
@@ -90,6 +93,7 @@ def extract(input_dir, output_dir):
         return pd.read_csv(functional_file), pd.read_csv(performance_file)
     else:
         trials = check(find(input_dir))
-        performance_trials, functional_trials = partition(trials, lambda t: 'elapsed_time' in t.columns)
+        frames = [t.get_data_frame() for t in trials]
+        performance_trials, functional_trials = partition(frames, lambda t: 'elapsed_time' in t.columns)
         return aggregate_and_write(functional_trials, functional_file), \
             aggregate_and_write(performance_trials, performance_file)

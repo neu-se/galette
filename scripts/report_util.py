@@ -45,6 +45,17 @@ def compute_cartesian_index(data, columns):
     return pd.MultiIndex.from_product(categories, names=columns)
 
 
+def complete_cartesian_index(data, columns, fill_value=0, categories=None):
+    if categories is None:
+        index = compute_cartesian_index(data, columns)
+    else:
+        index = pd.MultiIndex.from_product(categories, names=columns)
+    # Set the index of the data to be the selected columns and align with the new index
+    return data.set_index(columns) \
+        .reindex(index, fill_value=fill_value) \
+        .reset_index()
+
+
 def format_tool_names(data):
     result = pd.DataFrame(data)
     result['tool'] = result['tool'] \
