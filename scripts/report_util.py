@@ -41,7 +41,7 @@ def compute_bucket(value, bounds):
 
 def compute_cartesian_index(data, columns):
     categories = [data[c].unique() for c in columns]
-    # Create an index that it the cartesian product of all unique values in the specified columns
+    # Create an index that is the cartesian product of all unique values in the specified columns
     return pd.MultiIndex.from_product(categories, names=columns)
 
 

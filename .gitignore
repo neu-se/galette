@@ -50,3 +50,4 @@ lastClass.txt
 
 # Python virtual environment
 /venv/*
+/supplemental/*.tar

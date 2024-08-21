@@ -7,7 +7,7 @@ from collections import defaultdict
 import pandas as pd
 
 import download_jdk
-import run_data
+import trial_data
 from report_util import set_columns
 
 TOOLS = ['none', 'galette', 'mirror-taint', 'phosphor']
@@ -168,10 +168,10 @@ def run_task(task_name, command, timeout):
     print('\t' + ' '.join(command))
     try:
         process = subprocess.run(command, shell=False, timeout=timeout)
-        status = run_data.Status.SUCCESS if process.returncode == 0 else run_data.Status.RUN_FAILURE
+        status = trial_data.Status.SUCCESS if process.returncode == 0 else trial_data.Status.RUN_FAILURE
         print(f'Finished running {task_name}.')
     except subprocess.TimeoutExpired:
-        status = run_data.Status.TIMEOUT
+        status = trial_data.Status.TIMEOUT
         print(f'Timeout expired for {task_name}.')
     return status
 
@@ -179,8 +179,8 @@ def run_task(task_name, command, timeout):
 def run(output_dir, resources_dir, settings_file, skip_build, task_name, timeout, report_f, command_f, **kwargs):
     # Ensure the output directory exists
     os.makedirs(output_dir, exist_ok=True)
-    report_file = os.path.join(output_dir, run_data.DATA_FILE_NAME)
-    status_file = os.path.join(output_dir, run_data.STATUS_FILE_NAME)
+    report_file = os.path.join(output_dir, trial_data.DATA_FILE_NAME)
+    status_file = os.path.join(output_dir, trial_data.STATUS_FILE_NAME)
     try:
         # Build Galette
         build_maven_project(resources_dir, GALETTE_ROOT, settings_file, skip_build, '17')
@@ -191,9 +191,9 @@ def run(output_dir, resources_dir, settings_file, skip_build, task_name, timeout
         # Run the command
         status = run_task(task_name, command, timeout)
         # Fix the report
-        if status == run_data.Status.SUCCESS:
+        if status == trial_data.Status.SUCCESS:
             update_report(report_file, report_f, **kwargs)
     except Exception as e:
-        run_data.write_status(status_file, run_data.Status.BUILD_FAILURE, **kwargs)
+        trial_data.write_status(status_file, trial_data.Status.BUILD_FAILURE, **kwargs)
         raise e
-    run_data.write_status(status_file, status, **kwargs)
+    trial_data.write_status(status_file, status, **kwargs)

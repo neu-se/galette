@@ -1,4 +1,5 @@
 import argparse
+import re
 
 from evaluation_util import *
 
@@ -8,6 +9,38 @@ TAG_MANAGERS = {
     'mirror-taint': 'edu.neu.ccs.prl.galette.eval.MirrorTaintTagManager',
     'phosphor': 'edu.neu.ccs.prl.galette.eval.PhosphorTagManager'
 }
+
+COLUMNS = ["tool", "version", "test", "group", "tp", "fp", "fn", "status", "result"]
+
+
+def get_benchmark_group(test_identifier):
+    m = re.search(r'\.([^.]*?)ITCase', test_identifier)
+    return m.group(1)
+
+
+def compute_result(fp, fn, status):
+    if status != 'success':
+        return 'semantic'
+    else:
+        return 'success' if (fp + fn == 0) else "tag"
+
+
+def process_output(output_dir):
+    report_file = os.path.join(output_dir, trial_data.DATA_FILE_NAME)
+    data = pd.read_csv(report_file) \
+        .rename(columns=lambda x: x.strip())
+    # Remove disabled tests
+    data = data[data['status'] != 'disabled']
+    # Convert test class names into benchmark groups
+    data['group'] = data['test'].apply(get_benchmark_group)
+    # Convert versions to ints
+    data['version'] = pd.to_numeric(data['version'])
+    # Compute test results
+    data['result'] = data[['fp', 'fn', 'status']] \
+        .apply(lambda x: compute_result(*x), axis=1)
+    # Reorder the columns
+    data = data[COLUMNS]
+    data.to_csv(report_file, index=False)
 
 
 def create_driver_command(resources_dir, settings_file, report_file, tool, version):
@@ -44,6 +77,7 @@ def create_driver_command(resources_dir, settings_file, report_file, tool, versi
 def run_functional(output_dir, resources_dir, settings_file, skip_build, version, tool):
     run(output_dir, resources_dir, settings_file, skip_build, 'functional experiment driver', None, lambda x: x,
         create_driver_command, version=version, tool=tool)
+    process_output(output_dir)
 
 
 def main():

@@ -1,14 +1,12 @@
 package edu.neu.ccs.prl.galette.bench.extension;
 
 import java.io.IOException;
-import java.io.Serial;
 import java.io.Serializable;
 
 public interface FlowReport {
     void record(FlowReportEntry entry) throws IOException;
 
     final class FlowReportEntry implements Serializable {
-        @Serial
         private static final long serialVersionUID = 1484508293276140432L;
 
         private final String testIdentifier;

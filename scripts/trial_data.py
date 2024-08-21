@@ -18,7 +18,7 @@ class Status(StrEnum):
     MISSING = auto()
 
 
-class RunData:
+class TrialData:
     """Represents the results of a taint tracking tool on a benchmark or benchmark suite."""
 
     def __init__(self, input_dir):
@@ -36,40 +36,41 @@ class RunData:
     def get_data_frame(self):
         data = pd.read_csv(self.data_file) \
             .rename(columns=lambda x: x.strip())
-        return set_columns(data, run_id=self.id)
+        return set_columns(data, trial_id=self.id)
 
 
 def find(input_dir):
-    print(f'Searching for runs in {input_dir}.')
+    print(f'Searching for trials in {input_dir}.')
     files = [os.path.join(input_dir, f) for f in os.listdir(input_dir)]
-    runs = list(map(RunData, filter(os.path.isdir, files)))
-    print(f"Found {len(runs)} runs.")
-    return runs
+    trials = list(map(TrialData, filter(os.path.isdir, files)))
+    print(f"Found {len(trials)} trials.")
+    return trials
 
 
-def check(runs):
-    print(f'Checking runs.')
+def check(trials):
+    print(f'Checking trials.')
     result = []
-    for c in runs:
+    for c in trials:
         if c.status != Status.SUCCESS:
-            print(f'\tFailed run {c.id} --- {c.info}')
+            print(f'\tUnsuccessful trial {c.id} --- {c.info}')
         else:
             result.append(c)
-    print(f'{len(result)} runs were successful.')
+    print(f'{len(result)} trials were successful.')
     return result
 
 
-def combine(runs, file):
-    print('Creating combined run dataset CSV.')
-    data = pd.concat([t.get_data_frame() for t in runs]) \
+def aggregate(trials):
+    print('Creating aggregated trial dataset.')
+    data = pd.concat([t.get_data_frame() for t in trials]) \
         .reset_index(drop=True)
-    data.to_csv(file, index=False)
-    print(f'Wrote combined run dataset CSV to {file}.')
     return data
 
 
 def extract(input_dir, output_file):
-    return combine(check(find(input_dir)), output_file)
+    data = aggregate(check(find(input_dir)))
+    data.to_csv(output_file, index=False)
+    print(f'Wrote aggregated dataset CSV to {output_file}.')
+    return data
 
 
 def write_status(status_file, status, **kwargs):

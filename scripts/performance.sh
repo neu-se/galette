@@ -25,7 +25,7 @@ mkdir -p "$RESULTS_DIRECTORY"
 # Create the output directory
 mkdir -p "$OUTPUT_DIRECTORY"
 
-# Create the resource directory
+# Create the resources directory
 mkdir -p "$RESOURCES_DIRECTORY"
 
 # Record configuration information
