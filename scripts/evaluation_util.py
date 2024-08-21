@@ -1,3 +1,4 @@
+import json
 import os
 import pathlib
 import subprocess
@@ -176,6 +177,15 @@ def run_task(task_name, command, timeout):
     return status
 
 
+def write_status(status_file, status, **kwargs):
+    print(f'Writing status to {status_file}.')
+    with open(status_file, 'w') as f:
+        data = kwargs.copy()
+        data['status'] = status
+        json.dump(data, f)
+    print(f'Wrote status.')
+
+
 def run(output_dir, resources_dir, settings_file, skip_build, task_name, timeout, report_f, command_f, **kwargs):
     # Ensure the output directory exists
     os.makedirs(output_dir, exist_ok=True)
@@ -194,6 +204,6 @@ def run(output_dir, resources_dir, settings_file, skip_build, task_name, timeout
         if status == trial_data.Status.SUCCESS:
             update_report(report_file, report_f, **kwargs)
     except Exception as e:
-        trial_data.write_status(status_file, trial_data.Status.BUILD_FAILURE, **kwargs)
+        write_status(status_file, trial_data.Status.BUILD_FAILURE, **kwargs)
         raise e
-    trial_data.write_status(status_file, status, **kwargs)
+    write_status(status_file, status, **kwargs)

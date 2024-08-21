@@ -94,7 +94,7 @@ All commands are run from the "home" directory of that docker container.
 To collect results for the functional evaluation (RQ1 and R2 in the manuscript), for a particular taint tracking system
 on a particular JDK run:
 
-```
+```shell
 python3 scripts/functional.py \
   --output-dir OUTPUT_DIRECTORY \
   --version VERSION \
@@ -135,7 +135,7 @@ To test this command, run a trial for Galette on JDK 8:
 
 ```shell
 python3 scripts/functional.py \
-  --output-dir /home/results/functional/galette/8 \
+  --output-dir /home/results/functional-galette-8 \
   --version 8 \
   --tool galette \
   --resources-dir /home/resources/ \
@@ -147,13 +147,13 @@ python3 scripts/functional.py \
 To run a trial for the performance evaluation (RQ3 and R4 in the manuscript), for a particular taint tracking system
 on a particular benchmark:
 
-```
+```shell
 python3 scripts/performance.py \
   --output-dir OUTPUT_DIRECTORY \
-  --benchmark BENCHMARK
+  --benchmark BENCHMARK \
   --tool TOOL \
-  --timeout TIMEOUT
-  --dacapo-archive /home/resources/dacapo-23.11-chopin-small.tar
+  --timeout TIMEOUT \
+  --dacapo-archive /home/resources/dacapo-23.11-chopin-small.tar \
   --resources-dir /home/resources/ \
   --skip-build
 ```
@@ -190,12 +190,12 @@ The format of this file is similar to that of the data file "performance.csv" as
 
 To test this command, run a trial for Galette on the spring benchmark:
 
-```
+```shell
 python3 scripts/performance.py \
-  --output-dir /home/results/performance/galette/spring/0 \
-  --benchmark spring
+  --output-dir /home/results/performance-galette-spring-0 \
+  --benchmark spring \
   --tool galette \
-  --dacapo-archive /home/resources/dacapo-23.11-chopin-small.tar
+  --dacapo-archive /home/resources/dacapo-23.11-chopin-small.tar \
   --resources-dir /home/resources/ \
   --skip-build
 ```
@@ -222,8 +222,8 @@ For example, the following is a valid structure for the input directory:
 
 To create the report run:
 
-```
-python3 scripts/report.py <INPUT_DIRECTORY> <OUTPUT_FILE>
+```shell
+python3 scripts/report.py INPUT_DIRECTORY OUTPUT_FILE
 ```
 
 Where:
