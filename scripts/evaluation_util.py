@@ -43,7 +43,7 @@ def ensure_java_home(output_dir, jdk_version):
 
 def build_maven_project(output_dir, project_root, settings_file, skip_build, jdk_version='17'):
     if skip_build:
-        print(f'Skipping build of project {project_root}.')
+        print(f'Skipping build of project: {project_root}.')
     else:
         ensure_java_home(output_dir, jdk_version)
         print(f'Building project {project_root}.')
