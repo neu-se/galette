@@ -2,8 +2,6 @@ phosphor,tradesoap
 	not finished
 phosphor,tradebeans
 	not finished
-phosphor,kafka
-	java.lang.VerifyError: class scala.math.ScalaNumber overrides final method java.lang.Object.wait()V
 phosphor,pmd
 	Caused by: java.lang.ClassFormatError: Duplicate method name "hashCode" with signature "()I" in class file org/apache/commons/lang3/mutable/MutableInt
 phosphor,tomcat
@@ -23,8 +21,6 @@ phosphor,jython
 
 mirror-taint,sunflow
 	not finished
-mirror-taint, kafka
-	not finished
 mirror-taint,tradebeans
 	Exception initializing server: java.lang.NoClassDefFoundError: com/shadow/taint/agent/model/StackFrame
 mirror-taint,graphchi
@@ -38,11 +34,25 @@ mirror-taint,spring
 	Caused by: java.lang.VerifyError: Bad access to protected data in invokevirtual
 mirror-taint,jython
 	Caused by: java.lang.VerifyError: Bad access to protected data in invokevirtual
-mirror-taint,h2o	java.lang.VerifyError setting feature http://xml.org/sax/features/external-general-entities to false on DocumentBuilderFactory org.python.apache.xerces.jaxp.DocumentBuilderFactoryImpl@129204bf: java.lang.VerifyError: (class: org/python/apache/xerces/impl/XMLEntityManager, method: getRecognizedProperties signature: ()[Ljava/lang/String;) Bad access to protected data
-mirror-taint,pmd	Caused by: java.lang.VerifyError: (class: org/apache/xerces/impl/XMLEntityManager, method: getRecognizedProperties signature: ()[Ljava/lang/String;) Bad access to protected data
+mirror-taint,h2o
+    java.lang.VerifyError setting feature http://xml.org/sax/features/external-general-entities to false on DocumentBuilderFactory org.python.apache.xerces.jaxp.DocumentBuilderFactoryImpl@129204bf: java.lang.VerifyError: (class: org/python/apache/xerces/impl/XMLEntityManager, method: getRecognizedProperties signature: ()[Ljava/lang/String;) Bad access to protected data
+mirror-taint,pmd
+    Caused by: java.lang.VerifyError: (class: org/apache/xerces/impl/XMLEntityManager, method: getRecognizedProperties signature: ()[Ljava/lang/String;) Bad access to protected data
 mirror-taint,fop
 	Caused by: java.lang.VerifyError: (class: org/apache/xerces/impl/XMLEntityManager, method: getRecognizedProperties signature: ()[Ljava/lang/String;) Bad access to protected data
 mirror-taint,tradesoap
 	Exception initializing server: java.lang.NoClassDefFoundError: com/shadow/taint/agent/model/StackFrame
 mirror-taint,luindex
 	Caused by: java.lang.IllegalAccessError: failed to access class org.apache.lucene.util.compress.LZ4$HashTable from class org.apache.lucene.codecs.lucene90.LZ4WithPresetDictCompressionMode$LZ4WithPresetDictCompressor (org.apache.lucene.util.compress.LZ4$HashTable and org.apache.lucene.codecs.lucene90.LZ4WithPresetDictCompressionMode$LZ4WithPresetDictCompressor are in unnamed module of loader org.dacapo.harness.DacapoClassLoader @4d7aaca2)
+
+
+MirrorTaint
+No results (11): eclipse,fop,graphchi,h2o,jython,luindex,pmd,spring,tradebeans,tradesoap,xalan
+Exception (10):  eclipse,fop,h2o,jython,luindex,pmd,spring,tradebeans,tradesoap,xalan
+OOM (1): graphchi
+
+Phosphor
+No results (9): batik,eclipse,h2o,jython,pmd,tomcat,tradebeans,tradesoap,zxing
+Exception (7): batik,eclipse,h2o,jython,pmd,tomcat,zxing
+Timeout due to infinite loop (2): tradebeans,tradesoap
+

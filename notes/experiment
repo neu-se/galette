@@ -3,30 +3,10 @@
 ./slurm_wrapper.sh neu-se/phosphor2 main galette scripts/performance.sh 20 performance_tasks.csv <TIMEOUT>
 
 Last Functional Run:
-/ci-logs/public/katie/galette/results/slurm-1273647/
+/ci-logs/public/katie/galette/results/slurm-1275380/
 
 Last Performance Run:
  /ci-logs/public/katie/galette/results/slurm-1273660/
 trials = 20, timeout=1440 minutes
 
-
-/experiment/katie/galette/dacapo-23.11-chopin-small.tar (1.6 GB)
-
-Why are the results for cassandra missing?
-Defect in DaCapo: https://github.com/dacapobench/dacapobench/issues/211
-
-Which tasks have not finished?
-* Phosphor loops infinitely on tradesoap and tradebeans due to removal of DaCapo imposed timeout
-
-Is MirrorTaint applying tags automatically?
-As far as I can tell the sources that MirrorTaint uses are application specific and, therefore, unlikely to apply to the
-DaCapo subjects.
-
-1191447_1424 phosphor,tradebeans
-and
-1191447_1257 phosphor,tradesoap failed due to disk usage
-Disk usage is due to large log (scratch/log/server.log) recording errors:
-"2024-04-25 00:00:00,024 ERROR [stderr] (main) Got 404"
-
-
-Running performance experiment: /ci-logs/public/katie/galette/results/slurm-1273660/
+Running performance experiment: /ci-logs/public/katie/galette/results/slurm-1275380/
