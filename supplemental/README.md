@@ -317,6 +317,8 @@ python3 scripts/replicate.py \
 ```
 
 On our machine, this command typically terminated after TODO hours on our machines.
+Note that this command skips running the "tradebeans" or "tradesoap" benchmarks with Phosphor because of the issues
+discussed above.
 This command will produce a report file "/home/replicate/report.html"
 The easiest way to view the created report from within the container is to run:
 
