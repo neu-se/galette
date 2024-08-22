@@ -94,8 +94,9 @@ def create_performance_row(data, y, tool, benchmark, sig_level):
 
 
 def create_performance_table(data, y):
-    rows = [create_performance_row(data, y, t, b, sig_level=0.05 / 3) for b in performance.BENCHMARKS for t in
-            performance.TOOLS]
+    benchmarks = sorted(list(data['benchmark'].unique()))
+    tools = performance.TOOLS
+    rows = [create_performance_row(data, y, t, b, sig_level=0.05 / 3) for b in benchmarks for t in tools]
     return pd.DataFrame(rows)
 
 

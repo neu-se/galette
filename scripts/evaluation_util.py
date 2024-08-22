@@ -124,7 +124,7 @@ def instrument_jdk_phosphor(java_home, target_dir, version, output_dir, settings
 
 def create_tool_jdk(output_dir, tool, version, settings_file):
     # Get the original JDK
-    jdk = os.path.join(output_dir, 'jdk', version)
+    jdk = os.path.join(output_dir, 'jdk', 'temurin', version)
     download_jdk.download(jdk, False, version)
     instrumented_jdk = os.path.join(output_dir, tool, 'jdk', version)
     # Instrument if necessary

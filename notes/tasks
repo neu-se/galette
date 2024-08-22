@@ -4,10 +4,11 @@ Implementation
 * [WONT] Remove extra entries in stack traces produces from Thread#dumpThread and StackTraceElement#initStackTraceElements
     (remove the shadow wrapper for native methods)
 
-Functional experiments
+
 * Create a listing describing the functional benchmark groups
 * Determine root cause of failures for Phosphor and MirrorTaint
 * Write up description of experiment results
+
 * Finish main README for Galette based on Phosphor's
 * Supplemental files
     - dacapo-23.11-chopin-small.tar
@@ -16,3 +17,6 @@ Functional experiments
     - performance.csv
     - Dockerfile
     - README.md
+    - galette-artifact-image.tgz
+* Rerun functional and performance experiments
+* Check directions for supplemental materials

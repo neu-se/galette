@@ -23,7 +23,8 @@ The included data files are described below.
 
 The file "functional.csv" contains the results of each taint tracking system on the functional benchmark suite
 using each JDK.
-Each row reports the taint tracking system used (tool), the JDK version used (version),
+Each row reports the results of a tainting system on a single benchmark test on a specific JDK.
+Each row contains the taint tracking system used (tool), the JDK version used (version),
 the identifier of a benchmark test (test), the group of that test (group),
 the number of true positives reported by the specified tool for the specified test on the specified JDK (tp),
 the number of false positives reported (fp), the number of false negatives reported (fn),
@@ -67,8 +68,27 @@ It also indicates the test ran without error producing in an overall result of "
 
 ### performance.csv
 
-The file "performance.csv" contains the results of each taint tracking system on the performance benchmark suite.
+Each row in the file "performance.csv" reports the values recorded for a measurement iteration
+for a tainting system on a single benchmark.
+Each row contains the iteration number for the measurement (iteration),
+the maximum RSS sampled during the iteration in kilobytes (rss),
+the elapsed real time taken to complete the iteration in milliseconds (elapsed_time),
+the name of the benchmark that was run (benchmark),
+the taint tracking system used (tool),
+and the identifier of the trial dataset in which this result was reported (trial_id).
+
+Measurement iterations are between five and nine, inclusive.
+As discussed in the paper, iterations zero through four are warm-up iterations;
+results for these iterations are discarded.
+
+Consider the following row:
+
+```
+iteration,rss,elapsed_time,benchmark,tool,trial_id
 TODO
+```
+
+This row indicates that TODO
 
 ## Setup
 
@@ -80,7 +100,7 @@ TODO
    On Linux, this image can be created using the "Dockerfile", "galette-main.zip",
    and "dacapo-23.11-chopin-small.tar" files included in the repository.
    In a directory containing these files, run the command:
-   `docker build -t galette-artifact && docker save galette-artifact | gzip > galette-artifact-image.tgz`.
+   `docker build -t galette-artifact . && docker save galette-artifact | gzip > galette-artifact-image.tgz`.
 3. Load the Docker image by running: `docker load -i galette-artifact-image.tgz`.
 4. Start an interactive Docker container: `docker run -it -p 8080:80 galette-artifact bash`
 
@@ -91,7 +111,7 @@ All commands are run from the "home" directory of that docker container.
 
 ### Running a Functional Trial
 
-To collect results for the functional evaluation (RQ1 and R2 in the manuscript), for a particular taint tracking system
+To collect results for the functional evaluation (RQ1 and R2 in the paper), for a particular taint tracking system
 on a particular JDK run:
 
 ```shell
@@ -109,7 +129,7 @@ Where:
 * \<VERSION\> is the JDK version that should be used: 8, 11, 17, or 21.
 * \<TOOL\> is the taint tracking system to be used: galette or phosphor.
 
-This command will run each of the tests in the function benchmark suite with the specified taint tracking system
+This command will run each of the tests in the functional benchmark suite with the specified taint tracking system
 on the specified JDK.
 The results of each test will be printed to the console.
 Once this command has completed, the output directory will contain the following files:
@@ -119,11 +139,11 @@ Once this command has completed, the output directory will contain the following
 └── data.csv
 ```
 
-The file "status.json" contains information about the tool and version that were used for this experiment.
-This file also contains a status of the experiment.
-If the experiment process terminated successfully, this status will be "SUCCESS".
+The file "status.json" contains information about the tool and version that were used for this trial.
+This file also contains the status of the trial.
+If the trial process terminated successfully, this status will be "SUCCESS".
 If an error occurred building a project, the status "BUILD_FAILURE" will be reported.
-If an error occurred running the experiment process, "RUN_FAILURE" will be reported.
+If an error occurred running the trial process, "RUN_FAILURE" will be reported.
 
 The file "data.csv" contains the results of the trial.
 The format of this file is similar to that of the data file "functional.csv" as described above without the
@@ -131,12 +151,12 @@ The format of this file is similar to that of the data file "functional.csv" as 
 
 #### Example
 
-To test this command, run a trial for Galette on JDK 8:
+To test this command, run a trial for Galette on JDK 11:
 
 ```shell
 python3 scripts/functional.py \
   --output-dir /home/results/functional-galette-8 \
-  --version 8 \
+  --version 11 \
   --tool galette \
   --resources-dir /home/resources/ \
   --skip-build
@@ -166,8 +186,8 @@ Where:
 * \<TOOL\> is the taint tracking system to be used: galette, phosphor, or none.
 * \<TIMEOUT\> is the maximum amount of time to run the DaCapo process for in minutes
 
-This command will run the specified DaCapo benchmark with the specified taint tracking system until
-the specified timeout has elapsed or the benchmark terminates.
+This command will run the specified DaCapo benchmark for ten iterations with the specified taint tracking system until
+the specified timeout has elapsed or the tenth iteration completes.
 Once this command has completed, the output directory will contain the following files:
 
 ```
@@ -175,31 +195,43 @@ Once this command has completed, the output directory will contain the following
 └── data.csv
 ```
 
-The file "status.json" contains information about the tool and version that were used for this experiment.
-This file also contains a status of the experiment.
-If the experiment process terminated successfully, this status will be "SUCCESS".
+The file "status.json" contains information about the tool and benchmark that were used for this trial.
+This file also contains the status of the trial.
+If the trial process terminated successfully, this status will be "SUCCESS".
 If an error occurred building a project, the status "BUILD_FAILURE" will be reported.
-If an error occurred running the experiment process, "RUN_FAILURE" will be reported.
-If a timeout occurred, "TIMEOUT" will be reported.
+If an error occurred running the trial process, "RUN_FAILURE" will be reported.
+If the trial process was timed out before the benchmark completed, "TIMEOUT" will be reported.
 
 The file "data.csv" contains the results of the trial.
 The format of this file is similar to that of the data file "performance.csv" as described above without the
 "trial_id" column.
 
 We advise against running the "tradebeans" or "tradesoap" benchmarks with Phosphor with a large timeout.
-Deviations for the normal program behavior introduced by Phosphor cause these benchmarks to loop
+Deviations from the benchmarks' normal behavior introduced by Phosphor cause these benchmarks to loop
 infinitely producing errors which are recorded to a log file.
 The size of this log file grows to be rather large for larger timeouts.
 
 #### Example
 
-To test this command, run a trial for Galette on the spring benchmark:
+To test this command, run a trial for Galette on the "sunflow" benchmark:
 
 ```shell
 python3 scripts/performance.py \
-  --output-dir /home/results/performance-galette-spring-0 \
-  --benchmark spring \
+  --output-dir /home/results/performance-galette-sunflow \
+  --benchmark sunflow \
   --tool galette \
+  --dacapo-archive /home/resources/dacapo-23.11-chopin-small.tar \
+  --resources-dir /home/resources/ \
+  --skip-build
+```
+
+Now run a trial without a taint tracking system on the "sunflow" benchmark:
+
+```shell
+python3 scripts/performance.py \
+  --output-dir /home/results/performance-none-sunflow \
+  --benchmark sunflow \
+  --tool none \
   --dacapo-archive /home/resources/dacapo-23.11-chopin-small.tar \
   --resources-dir /home/resources/ \
   --skip-build
@@ -267,23 +299,25 @@ Next, run `python3 -m http.server 80` and open the page "http://localhost:8080/r
 
 To replicate the results reported in the paper, you would need to run one functional trial for each tool on each JDK
 version.
+These trials can be run using the directions given in ["Running a Functional Trial"](#Running-a-Functional-Trial).
 You also need to run twenty performance trials for each tool on each DaCapo benchmark.
-These trials can be run using the directions given in ["Running a Functional Trial"](#Running-a-Functional-Trial) and
-["Running a Performance Trial"](#Running-a-Performance-Trial).
+These trials can be run using the directions given in ["Running a Performance Trial"](#Running-a-Performance-Trial).
 The output from these trials should be collected into a single directory.
 Finally, a report can be created using the directions given in ["Creating a Report"](#creating-a-report).
 
 To run all the required trials and produce the final report using a single command, run:
 
 ```shell
-TODO
+python3 scripts/replicate.py \
+  --output-dir /home/replicate \
+  --timeout 1440
+  --dacapo-archive /home/resources/dacapo-23.11-chopin-small.tar \
+  --resources-dir /home/resources/ \
+  --skip-build
 ```
 
-On our machine, this command typically terminated after TODO hours.
-This command uses a reduced the timeout for performance trials from 24 hours as was used in the paper to TODO.
-This may affect results.
-
-This command will produce a report file "full-report.html"
+On our machine, this command typically terminated after TODO hours on our machines.
+This command will produce a report file "/home/replicate/report.html"
 The easiest way to view the created report from within the container is to run:
 
 ```shell
@@ -291,5 +325,5 @@ python3 -m http.server 80
 
 ```
 
-Then, open the page "http://localhost:8080/full-report.html" in a browser.
+Then, open the page "http://localhost:8080/replicate/report.html" in a browser.
 As noted above, this report will not contain results for MirrorTaint due to license issues.
