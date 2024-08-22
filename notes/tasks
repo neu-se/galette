@@ -1,16 +1,18 @@
 Implementation
-* [MUST] Any TODOs in codebase
-* [SHOULD] Create README based on Phosphor's
-* [COULD] Improve the performance of Unsafe accesses (switch to HashMap)
-* [COULD] Switch the tag representation from a HashMap to Phosphor's PowerSetTree
-* [COULD] Remove extra entries in stack traces produces from Thread#dumpThread and StackTraceElement#initStackTraceElements
+* [WONT] Improve the performance of Unsafe accesses (switch to HashMap)
+* [WONT] Switch the tag representation from a HashMap to Phosphor's PowerSetTree
+* [WONT] Remove extra entries in stack traces produces from Thread#dumpThread and StackTraceElement#initStackTraceElements
     (remove the shadow wrapper for native methods)
 
 Functional experiments
-* [COULD] Create a detailed listing describing the functional benchmark groups
-* [SHOULD] Consider moving benchmark tests for serialization into integration tests for Galette
-* [SHOULD] Determine root cause of failures for Phosphor and MirrorTaint
-* [MUST] Write up description of results
-
-Performance experiments
-* [MUST] Write up description of results
+* Create a listing describing the functional benchmark groups
+* Determine root cause of failures for Phosphor and MirrorTaint
+* Write up description of experiment results
+* Finish main README for Galette based on Phosphor's
+* Supplemental files
+    - dacapo-23.11-chopin-small.tar
+    - galette-main.zip
+    - functional.csv
+    - performance.csv
+    - Dockerfile
+    - README.md

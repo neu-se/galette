@@ -7,7 +7,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-enum HolderValueCategory {
+public enum HolderValueCategory {
     BASIC_STATIC {
         @Override
         Class<?> getFieldType(Class<?> baseType) {
@@ -65,7 +65,7 @@ enum HolderValueCategory {
         }
 
         @Override
-        Object getValue(Class<?> baseType, Holder holder) {
+        public Object getValue(Class<?> baseType, Holder holder) {
             if (baseType == Integer.TYPE) {
                 return Holder.is;
             } else if (baseType == Boolean.TYPE) {
@@ -146,7 +146,7 @@ enum HolderValueCategory {
         }
 
         @Override
-        Object getValue(Class<?> baseType, Holder holder) {
+        public Object getValue(Class<?> baseType, Holder holder) {
             if (baseType == Integer.TYPE) {
                 return holder.i;
             } else if (baseType == Boolean.TYPE) {
@@ -227,7 +227,7 @@ enum HolderValueCategory {
         }
 
         @Override
-        Object getValue(Class<?> baseType, Holder holder) {
+        public Object getValue(Class<?> baseType, Holder holder) {
             if (baseType == Integer.TYPE) {
                 return holder.iw;
             } else if (baseType == Boolean.TYPE) {
@@ -308,7 +308,7 @@ enum HolderValueCategory {
         }
 
         @Override
-        Object getValue(Class<?> baseType, Holder holder) {
+        public Object getValue(Class<?> baseType, Holder holder) {
             if (baseType == Integer.TYPE) {
                 return holder.ia;
             } else if (baseType == Boolean.TYPE) {
@@ -390,7 +390,7 @@ enum HolderValueCategory {
         }
 
         @Override
-        Object getValue(Class<?> baseType, Holder holder) {
+        public Object getValue(Class<?> baseType, Holder holder) {
             if (baseType == Integer.TYPE) {
                 return holder.iaa;
             } else if (baseType == Boolean.TYPE) {
@@ -471,7 +471,7 @@ enum HolderValueCategory {
         }
 
         @Override
-        Object getValue(Class<?> baseType, Holder holder) {
+        public Object getValue(Class<?> baseType, Holder holder) {
             if (baseType == Integer.TYPE) {
                 return holder.iao;
             } else if (baseType == Boolean.TYPE) {
@@ -533,7 +533,7 @@ enum HolderValueCategory {
 
     abstract Object getObject(Holder holder);
 
-    abstract Object getValue(Class<?> baseType, Holder holder);
+    public abstract Object getValue(Class<?> baseType, Holder holder);
 
     public Constructor<Holder> getConstructor(Class<?> baseType) throws NoSuchMethodException {
         Class<?> fieldType = getFieldType(baseType);

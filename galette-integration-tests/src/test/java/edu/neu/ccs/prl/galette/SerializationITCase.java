@@ -1,9 +1,13 @@
-package edu.neu.ccs.prl.galette.bench;
+package edu.neu.ccs.prl.galette;
 
 import static edu.neu.ccs.prl.galette.bench.HolderValueCategory.*;
 
-import edu.neu.ccs.prl.galette.bench.extension.FlowBench;
+import edu.neu.ccs.prl.galette.bench.BenchUtil;
+import edu.neu.ccs.prl.galette.bench.Holder;
+import edu.neu.ccs.prl.galette.bench.HolderValueCategory;
+import edu.neu.ccs.prl.galette.bench.MethodReflectionITCase;
 import edu.neu.ccs.prl.galette.bench.extension.FlowChecker;
+import edu.neu.ccs.prl.galette.bench.extension.GaletteTagManager;
 import edu.neu.ccs.prl.galette.bench.extension.TagManager;
 import java.io.*;
 import java.util.stream.Stream;
@@ -12,10 +16,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-@FlowBench
 public class SerializationITCase {
     @SuppressWarnings("unused")
-    TagManager manager;
+    TagManager manager = new GaletteTagManager();
 
     @SuppressWarnings("unused")
     FlowChecker checker;
@@ -30,11 +33,8 @@ public class SerializationITCase {
         Object actual = category.getValue(baseType, result);
         checkCopyEquality(expected, actual);
         Object[] labels = category.getElementLabels(baseType, result, manager);
-        if (taintValue) {
-            checker.check(category.getLabels(baseType), labels);
-        } else {
-            checker.checkEmpty(labels);
-        }
+        Object[] expectedLabels = taintValue ? category.getLabels(baseType) : new Object[0];
+        Assertions.assertArrayEquals(expectedLabels, labels);
     }
 
     @SuppressWarnings("unchecked")

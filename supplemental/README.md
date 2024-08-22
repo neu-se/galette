@@ -79,7 +79,7 @@ TODO
    TODO.
    On Linux, this image can be created using the "Dockerfile", "galette-main.zip",
    and "dacapo-23.11-chopin-small.tar" files included in the repository.
-   In a directory containing these files run the command:
+   In a directory containing these files, run the command:
    `docker build -t galette-artifact && docker save galette-artifact | gzip > galette-artifact-image.tgz`.
 3. Load the Docker image by running: `docker load -i galette-artifact-image.tgz`.
 4. Start an interactive Docker container: `docker run -it -p 8080:80 galette-artifact bash`

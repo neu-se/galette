@@ -68,7 +68,7 @@ public class MethodReflectionITCase {
         }
     }
 
-    static boolean isValid(Arguments arguments) {
+    public static boolean isValid(Arguments arguments) {
         Object[] values = arguments.get();
         return !(values[0] == Object.class && values[2] == HolderValueCategory.BOXED);
     }
