@@ -1,18 +1,13 @@
 * Determine root cause of failures for Phosphor and MirrorTaint on functional tests
 * Write up description of experiment results
 * Finish main README for Galette based on Phosphor's
-* Create a listing describing the functional benchmark groups (see below)
 * Check directions for supplemental materials
 * Supplemental files
     - dacapo-23.11-chopin-small.tar - DONE
-    - galette-main.zip
+    - supplemental.pdf - DONE
     - functional.csv - DONE
     - performance.csv - DONE
     - Dockerfile - DONE
+    - galette-main.zip
     - README.md
     - galette-artifact-image.tgz
-    - supplemental.pdf (p-value table + benchmark listing)
-
-
-group | number of tests | description
-ArrayReflectionITCase | X |Uses java.lang.reflect.Array to create arrays, set array elements, and get array elements
