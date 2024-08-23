@@ -8,5 +8,3 @@ Last Functional Run:
 Last Performance Run:
  /ci-logs/public/katie/galette/results/slurm-1273660/
 trials = 20, timeout=1440 minutes
-
-Running performance experiment: /ci-logs/public/katie/galette/results/slurm-1275380/

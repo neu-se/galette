@@ -197,14 +197,50 @@ def style_counts(counts):
         .set_caption('Semantics Preservation and Propagation Accuracy.')
 
 
+def pivot_performance_p_table(table):
+    table = table[table['tool'].isin(['phosphor', 'mirror-taint'])]
+    values = ['p', 'a12']
+    table = format_tool_names(table) \
+        .pivot(index=['benchmark'], values=values, columns=['tool']) \
+        .reorder_levels(axis=1, order=['tool', None]) \
+        .sort_index(axis=1) \
+        .sort_index(axis=0) \
+        .reindex(['MirrorTaint', 'Phosphor'], axis=1, level=0) \
+        .reindex(values, axis=1, level=1)
+    table.index.names = [None for _ in table.index.names]
+    table.columns.names = [None for _ in table.columns.names]
+    return table
+
+
+def create_sig_p_table(table):
+    sig = pd.DataFrame(table)
+    sig['p'] = sig['sig']
+    sig['a12'] = sig['sig']
+    return sig
+
+
+def style_performance_p_table(table, title):
+    values = pivot_performance_p_table(table)
+    sigs = pivot_performance_p_table(create_sig_p_table(table))
+    formats = {c: "{:.3E}" for c in values.columns if 'p' in c}
+    formats.update({c: "{:,.3f}" for c in values.columns if 'p' not in c})
+    return values.style.format(formats, na_rep='---') \
+        .apply(lambda _: sigs, axis=None) \
+        .set_caption(title)
+
+
 def create_time_content(data):
     table = create_performance_table(data, 'elapsed_time')
-    return style_performance_table(table, 'Execution Time').to_html()
+    return style_performance_table(table, 'Execution Time.').to_html() \
+        + '<br><br>' \
+        + style_performance_p_table(table, 'Execution Time P-Values.').to_html()
 
 
 def create_memory_content(data):
     table = create_performance_table(data, 'rss')
-    return style_performance_table(table, 'Peak Memory Usage.').to_html()
+    return style_performance_table(table, 'Peak Memory Usage.').to_html() \
+        + '<br><br>' \
+        + style_performance_p_table(table, 'Peak Memory Usage P-Values.').to_html()
 
 
 def create_functional_content(data):

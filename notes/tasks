@@ -1,27 +1,17 @@
 * Determine root cause of failures for Phosphor and MirrorTaint on functional tests
 * Write up description of experiment results
 * Finish main README for Galette based on Phosphor's
-* Create p-value and effect size tables for performance experiments (see caption below)
 * Create a listing describing the functional benchmark groups (see below)
-* Rerun functional experiment and create functional.csv
 * Check directions for supplemental materials
 * Supplemental files
-    - dacapo-23.11-chopin-small.tar
+    - dacapo-23.11-chopin-small.tar - DONE
     - galette-main.zip
-    - functional.csv
-    - performance.csv
-    - Dockerfile
+    - functional.csv - DONE
+    - performance.csv - DONE
+    - Dockerfile - DONE
     - README.md
     - galette-artifact-image.tgz
     - supplemental.pdf (p-value table + benchmark listing)
-
-
-Benchmark MirrorTaint Phosphor
-	    p A_12      p A_12
-
-For each benchmark, we report the two-tailed, asymptotic \textit{p}-value (\textit{p}) and Vargha-Delaney $\hat{A}_{12}$ statistic ($\hat{A}_{12}$) for Mann-Whitney U tests comparing the execution time of \galette against \mirrortaint and \phosphor.
-Values that are statistically significantly (\(\mathit{p} < 0.0167\)) greater than or less than \galette's are colored green and red, respectively.
-
 
 
 group | number of tests | description
