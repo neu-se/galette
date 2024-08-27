@@ -1,5 +1,4 @@
 * Finish main README for Galette based on Phosphor's
-* Check directions for supplemental materials
 * Supplemental files
     - dacapo-23.11-chopin-small.tar - DONE
     - supplemental.pdf - DONE
@@ -7,5 +6,5 @@
     - performance.csv - DONE
     - Dockerfile - DONE
     - galette-main.zip
-    - README.md
+    - README.md - Finish TODOs and check directions
     - galette-artifact-image.tgz
