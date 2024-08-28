@@ -241,7 +241,8 @@ def create_styled_performance_tables(data):
                                  'Execution Time and Peak Memory Usage.',
                                  compute_performance_formats)
     selected = table[table['tool'].isin(['phosphor', 'mirror-taint'])]
-    t2 = style_performance_table(selected, ['p', 'a12'], 'Execution Time and Peak Memory Usage P-Values.',
+    t2 = style_performance_table(selected, ['p', 'a12'],
+                                 'Execution Time and Peak Memory Usage Statistical Tests.',
                                  compute_p_table_formats)
     return t1, t2
 
