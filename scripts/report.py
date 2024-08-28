@@ -1,5 +1,6 @@
 import os
 import pathlib
+import re
 import sys
 
 import numpy as np
@@ -58,15 +59,23 @@ TABLE_NAMES = {
     'none': 'Baseline',
     'elapsed_time': 'Execution Time',
     'rss': 'Peak Memory Usage',
-    'mirror-taint': 'MirrorTaint'
+    'mirror-taint': 'MirrorTaint',
+    'MethodHandleJava9': 'Method Handle 9+'
 }
+
+
+def format_table_name(name):
+    if name in TABLE_NAMES:
+        return TABLE_NAMES[name]
+    name = ' '.join(re.sub(r"([A-Z])", r" \1", name).split())
+    return name.title()
 
 
 def format_table_names(table, *columns):
     result = pd.DataFrame(table)
     for column in columns:
         result[column] = result[column] \
-            .apply(lambda n: TABLE_NAMES[n] if n in TABLE_NAMES else n.title())
+            .apply(format_table_name)
     return result
 
 
@@ -215,24 +224,22 @@ def create_count_table(data):
     counts = counts.merge(executed, on=['group', 'version'], how='left')
     # Drop rows for groups where nothing was executed (because the minimum version was not satisfied)
     counts = pd.DataFrame(counts[counts['executed'] != 0])
-    # Rename the semantic column
-    counts['sem'] = counts['semantic']
     return counts
 
 
 def style_counts(counts):
-    failures = counts.melt(id_vars=['group', 'tool', 'version', 'total'], value_vars=['sem', 'tag'])
-    failures = format_table_names(failures)
-    failures['variable'] = failures['variable'].apply(str.title)
-    table = failures.pivot(index=['group', 'total', 'version'], values=['value'], columns=['tool', 'variable']) \
-        .reorder_levels(axis=1, order=['tool', 'variable', None]) \
-        .sort_index(axis=1) \
+    failures = counts.melt(id_vars=['group', 'tool', 'version', 'total'], value_vars=['semantic', 'tag'])
+    failures = format_table_names(failures, 'tool', 'group', 'variable')
+    table = failures.pivot(index=['group', 'total'], values=['value'], columns=['tool', 'variable', 'version']) \
+        .reorder_levels(axis=1, order=['tool', 'variable', 'version', None]) \
         .sort_index(axis=0) \
-        .droplevel(2, axis=1)
+        .sort_index(axis=1) \
+        .droplevel(3, axis=1)
     table.index.names = [x.title() for x in table.index.names]
     table.columns.names = [None for _ in table.columns.names]
-    return table.style.format(precision=0, na_rep='---') \
-        .set_caption('Semantics Preservation and Propagation Accuracy.')
+    return table.style.format("{:,.0f}", na_rep='---') \
+        .set_caption('Semantics Preservation and Propagation Accuracy.') \
+        .highlight_between(left=1, right=100_000, props='color:red;')
 
 
 def create_styled_performance_tables(data):
