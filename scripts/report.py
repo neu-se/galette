@@ -54,11 +54,33 @@ TEMPLATE = """
 </html>
 """
 
+TABLE_NAMES = {
+    'none': 'Baseline',
+    'elapsed_time': 'Execution Time',
+    'rss': 'Peak Memory Usage',
+    'mirror-taint': 'MirrorTaint'
+}
+
+
+def format_table_names(table, *columns):
+    result = pd.DataFrame(table)
+    for column in columns:
+        result[column] = result[column] \
+            .apply(lambda n: TABLE_NAMES[n] if n in TABLE_NAMES else n.title())
+    return result
+
+
+def fix_column_names(names):
+    if 'value' in names:
+        names = list(names)
+        names[names.index('value')] = 'MED' if 'Baseline' in names else 'OV'
+    return names
+
 
 def overhead(baseline, treatment):
     med_b = np.median(baseline)
     med_t = np.median(treatment)
-    return 100.0 * ((med_t - med_b) / med_b)
+    return (med_t - med_b) / med_b
 
 
 def bootstrap_ci(data, statistic):
@@ -69,72 +91,88 @@ def bootstrap_ci(data, statistic):
 
 
 def create_performance_row(data, y, tool, benchmark, sig_level):
-    baseline = select(data, benchmark=benchmark, tool='none')[y]
-    if tool == 'none':
-        # Baseline (no tool used)
-        value = np.median(baseline)
-        lower, upper = bootstrap_ci((baseline,), np.median)
-        return dict(benchmark=benchmark, tool=tool, value=value, LCL=lower, UCL=upper, p=np.nan, a12=np.nan, sig='')
+    result = dict(benchmark=benchmark, tool=tool, sig='', metric=y)
+    for x in ['value', 'LCL', 'UCL', 'p', 'a12']:
+        result[x] = np.nan
     treatment = select(data, benchmark=benchmark, tool=tool)[y]
+    baseline = select(data, benchmark=benchmark, tool='none')[y]
+    alternative = select(data, benchmark=benchmark, tool='galette')[y]
     if len(treatment) == 0:
         # No samples available for tool on benchmark
-        return dict(benchmark=benchmark, tool=tool, value=np.nan, LCL=np.nan, UCL=np.nan, p=np.nan, a12=np.nan, sig='')
-    value = overhead(baseline, treatment)
-    lower, upper = bootstrap_ci((baseline, treatment), overhead)
-    if tool == 'galette':
-        # The alternate tool
-        return dict(benchmark=benchmark, tool=tool, value=value, LCL=lower, UCL=upper, p=np.nan, a12=np.nan, sig='')
-    alternative = select(data, benchmark=benchmark, tool='galette')[y]
-    p = mann_whitney(treatment, alternative)
-    effect_size = a12(treatment, alternative)
-    sig = ''
-    if p < sig_level:
-        sig = 'color: red;' if value < overhead(baseline, alternative) else 'color: green;'
-    return dict(benchmark=benchmark, tool=tool, value=value, LCL=lower, UCL=upper, p=p, a12=effect_size, sig=sig)
+        return result
+    elif tool == 'none':
+        # Baseline (no tool used)
+        value = np.median(treatment)
+        lower, upper = bootstrap_ci((treatment,), np.median)
+    else:
+        value = overhead(baseline, treatment)
+        lower, upper = bootstrap_ci((baseline, treatment), overhead)
+    result.update(dict(value=value, LCL=lower, UCL=upper))
+    if tool not in ['galette', 'none']:
+        result['p'] = p = mann_whitney(treatment, alternative)
+        result['a12'] = a12(treatment, alternative)
+        if p < sig_level:
+            result['sig'] = 'color: red;' if value < overhead(baseline, alternative) else 'color: green;'
+    return result
 
 
-def create_performance_table(data, y):
+def create_performance_table(data):
+    # Convert kilobytes to megabytes
+    data['rss'] = data['rss'] / 1000.0
     benchmarks = sorted(list(data['benchmark'].unique()))
     tools = performance.TOOLS
-    rows = [create_performance_row(data, y, t, b, sig_level=0.05 / 3) for b in benchmarks for t in tools]
+    sig_level = 0.05 / 3
+    rows = [create_performance_row(data, 'elapsed_time', t, b, sig_level) for b in benchmarks for t in tools] \
+           + [create_performance_row(data, 'rss', t, b, sig_level) for b in benchmarks for t in tools]
     return pd.DataFrame(rows)
 
 
-def pivot_performance_table(table):
-    table = format_tool_names(table) \
-        .pivot(index=['benchmark'], values=['value', 'LCL', 'UCL'], columns=['tool']) \
-        .reorder_levels(axis=1, order=['tool', None]) \
-        .sort_index(axis=1) \
-        .sort_index(axis=0) \
-        .reindex(['Base', 'Galette', 'MirrorTaint', 'Phosphor'], axis=1, level=0) \
-        .reindex(['value', 'LCL', 'UCL'], axis=1, level=1)
+def create_significance_mask(table, columns):
+    result = pd.DataFrame(table)
+    for column in columns:
+        result[column] = result['sig']
+    return result
+
+
+def remove_multi_index_names(table):
     table.index.names = [None for _ in table.index.names]
     table.columns.names = [None for _ in table.columns.names]
-    table.columns = pd.MultiIndex.from_tuples([(tool, fix_column_name(tool, x)) for tool, x in table.columns])
+
+
+def compute_performance_formats(columns):
+    return {c: "{:,.0f}" if 'Baseline' in c and 'Execution Time' in c else "{:,.2f}" for c in columns}
+
+
+def compute_p_table_formats(columns):
+    return {c: ("{:.3E}" if 'p' in c else "{:,.3f}") for c in columns}
+
+
+def pivot_performance_table(table, values):
+    table = format_table_names(table, 'tool', 'metric') \
+        .pivot(index=['benchmark'], values=values, columns=['tool', 'metric']) \
+        .reorder_levels(axis=1, order=['metric', 'tool', None]) \
+        .sort_index(axis=1) \
+        .sort_index(axis=0) \
+        .reindex(['Execution Time', 'Peak Memory Usage'], axis=1, level=0) \
+        .reindex(['Baseline', 'Galette', 'MirrorTaint', 'Phosphor'], axis=1, level=1) \
+        .reindex(values, axis=1, level=2)
+    # Drop confidence limits for the baseline
+    table.drop(inplace=True, columns=[c for c in table.columns if 'Baseline' in c and not 'value' in c])
+    # Fix the placeholder 'value' column label
+    table.columns = pd.MultiIndex.from_tuples([fix_column_names(c) for c in table.columns])
+    # Remove multi-index names
+    remove_multi_index_names(table)
     return table
 
 
-def fix_column_name(tool, x):
-    if x == 'value':
-        return 'MED' if tool == 'Base' else 'OV%'
-    return x
-
-
-def create_sig_table(table):
-    sig = pd.DataFrame(table)
-    sig['value'] = sig['sig']
-    sig['LCL'] = sig['sig']
-    sig['UCL'] = sig['sig']
-    return sig
-
-
-def style_performance_table(table, title):
-    values = pivot_performance_table(table)
-    sigs = pivot_performance_table(create_sig_table(table))
-    formats = {c: "{:,.0f}" for c in values.columns if 'Base' in c}
-    formats.update({c: "{:,.2f}" for c in values.columns if 'Base' not in c})
-    return values.style.format(formats, na_rep='---') \
-        .apply(lambda _: sigs, axis=None) \
+def style_performance_table(table, values, title, format_f):
+    # Create a mask table of formatting for statistically significant entries
+    mask = create_significance_mask(table, values)
+    # Pivot the table
+    table = pivot_performance_table(table, values)
+    # Apply formatting
+    return table.style.format(format_f(table.columns), na_rep='---') \
+        .apply(lambda _: pivot_performance_table(mask, values), axis=None) \
         .set_caption(title)
 
 
@@ -184,7 +222,7 @@ def create_count_table(data):
 
 def style_counts(counts):
     failures = counts.melt(id_vars=['group', 'tool', 'version', 'total'], value_vars=['sem', 'tag'])
-    failures = format_tool_names(failures)
+    failures = format_table_names(failures)
     failures['variable'] = failures['variable'].apply(str.title)
     table = failures.pivot(index=['group', 'total', 'version'], values=['value'], columns=['tool', 'variable']) \
         .reorder_levels(axis=1, order=['tool', 'variable', None]) \
@@ -197,50 +235,20 @@ def style_counts(counts):
         .set_caption('Semantics Preservation and Propagation Accuracy.')
 
 
-def pivot_performance_p_table(table):
-    table = table[table['tool'].isin(['phosphor', 'mirror-taint'])]
-    values = ['p', 'a12']
-    table = format_tool_names(table) \
-        .pivot(index=['benchmark'], values=values, columns=['tool']) \
-        .reorder_levels(axis=1, order=['tool', None]) \
-        .sort_index(axis=1) \
-        .sort_index(axis=0) \
-        .reindex(['MirrorTaint', 'Phosphor'], axis=1, level=0) \
-        .reindex(values, axis=1, level=1)
-    table.index.names = [None for _ in table.index.names]
-    table.columns.names = [None for _ in table.columns.names]
-    return table
+def create_styled_performance_tables(data):
+    table = create_performance_table(data)
+    t1 = style_performance_table(table, ['value', 'LCL', 'UCL'],
+                                 'Execution Time and Peak Memory Usage.',
+                                 compute_performance_formats)
+    selected = table[table['tool'].isin(['phosphor', 'mirror-taint'])]
+    t2 = style_performance_table(selected, ['p', 'a12'], 'Execution Time and Peak Memory Usage P-Values.',
+                                 compute_p_table_formats)
+    return t1, t2
 
 
-def create_sig_p_table(table):
-    sig = pd.DataFrame(table)
-    sig['p'] = sig['sig']
-    sig['a12'] = sig['sig']
-    return sig
-
-
-def style_performance_p_table(table, title):
-    values = pivot_performance_p_table(table)
-    sigs = pivot_performance_p_table(create_sig_p_table(table))
-    formats = {c: "{:.3E}" for c in values.columns if 'p' in c}
-    formats.update({c: "{:,.3f}" for c in values.columns if 'p' not in c})
-    return values.style.format(formats, na_rep='---') \
-        .apply(lambda _: sigs, axis=None) \
-        .set_caption(title)
-
-
-def create_time_content(data):
-    table = create_performance_table(data, 'elapsed_time')
-    return style_performance_table(table, 'Execution Time.').to_html() \
-        + '<br><br>' \
-        + style_performance_p_table(table, 'Execution Time P-Values.').to_html()
-
-
-def create_memory_content(data):
-    table = create_performance_table(data, 'rss')
-    return style_performance_table(table, 'Peak Memory Usage.').to_html() \
-        + '<br><br>' \
-        + style_performance_p_table(table, 'Peak Memory Usage P-Values.').to_html()
+def create_performance_content(data):
+    t1, t2 = create_styled_performance_tables(data)
+    return f'{t1.to_html()}<br><br>{t2.to_html()}'
 
 
 def create_functional_content(data):
@@ -270,8 +278,8 @@ def create_report(input_dir, report_file):
         content += create_section('Semantics Preservation and Propagation Accuracy',
                                   create_functional_content, data=functional_data)
     if performance_data is not None and not performance_data.empty:
-        content += create_section('Execution Time', create_time_content, data=performance_data)
-        content += create_section('Peak Memory Usage', create_memory_content, data=performance_data)
+        content += create_section('Execution Time and Peak Memory Usage', create_performance_content,
+                                  data=performance_data)
     write_report(report_file, content)
 
 

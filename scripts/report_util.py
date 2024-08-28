@@ -54,12 +54,3 @@ def complete_cartesian_index(data, columns, fill_value=0, categories=None):
     return data.set_index(columns) \
         .reindex(index, fill_value=fill_value) \
         .reset_index()
-
-
-def format_tool_names(data):
-    result = pd.DataFrame(data)
-    result['tool'] = result['tool'] \
-        .apply(lambda x: x.replace('none', 'base')) \
-        .apply(str.title) \
-        .apply(lambda x: x.replace('-', ''))
-    return result
