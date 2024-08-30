@@ -2,11 +2,11 @@
 
 ## Purpose
 
-This repository contains the supplemental materials for the paper
-"Dynamic Taint Tracking for Modern Java Virtual Machines".
+This repository contains the supplemental materials for the paper "Dynamic Taint Tracking for Modern Java Virtual
+Machines".
 These materials contain the scripts needed to replicate the evaluation described in the paper,
-the source code for the Galette dynamic taint tracking system,
-and the raw experiment data analyzed in the paper.
+the source code for the Galette dynamic taint tracking system, the raw experiment data analyzed in the paper,
+and the full results of the statistical tests discussed in the paper.
 Due to the licensing for MirrorTaint, we were not able to include the materials necessary to
 reproduce the results collected for MirrorTaint.
 The purpose of these materials is to facilitate future research into program analysis in the Java Virtual Machine
