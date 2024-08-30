@@ -28,7 +28,7 @@ RUN for version in 8 11 17 21; \
     --output-dir "/home/resources/jdk/temurin/$version"; \
     done
 # Export JAVA_HOME
-RUN export JAVA_HOME=/home/resources/java/17/
+RUN export JAVA_HOME=/home/resources/jdk/temurin/17/
 # Build the project
 RUN mvn -DskipTests install
 # Build the evaluation classes
