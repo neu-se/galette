@@ -63,13 +63,13 @@ galette,8,"[engine:junit-jupiter]/[class:edu.neu.ccs.prl.galette.bench.ArrayAcce
 
 This row indicates that for the test
 "[engine:junit-jupiter]/[class:edu.neu.ccs.prl.galette.bench.ArrayAccessITCase]/[test-template:getSetElement(java.lang.Class, boolean, boolean, boolean)]/[test-template-invocation:#2]"
-"galette" reported three true positives, zero false positives, and zero false negatives on JDK version "8".
+the tool "galette" reported three true positives, zero false positives, and zero false negatives on JDK version "8".
 It also indicates the test ran without error producing in an overall result of "success".
 
 ### performance.csv
 
 Each row in the file "performance.csv" reports the values recorded for a measurement iteration
-for a tainting system on a single benchmark.
+for a tainting system on a single performance benchmark.
 Each row contains the iteration number for the measurement (iteration),
 the maximum RSS sampled during the iteration in kilobytes (rss),
 the elapsed real time taken to complete the iteration in milliseconds (elapsed_time),
@@ -85,10 +85,11 @@ Consider the following row:
 
 ```
 iteration,rss,elapsed_time,benchmark,tool,trial_id
-TODO
+7,728072,5057,jme,galette,533
 ```
 
-This row indicates that TODO
+This row indicates that the tool "galette" has an execution time of "5057" milliseconds and a maximum RSS of "728072"
+kilobytes on iteration "7" of trial "533" on the benchmark "jme".
 
 ## Setup
 
@@ -96,7 +97,7 @@ This row indicates that TODO
    Directions for installing Docker Engine are available on
    the [Docker website](https://docs.docker.com/engine/install/).
 2. Download the archived Docker image "galette-artifact-image.tgz" from the repository:
-   TODO.
+   https://figshare.com/s/b73c3c08400e2fda8977.
    On Linux, this image can be created using the "Dockerfile", "galette-main.zip",
    and "dacapo-23.11-chopin-small.tar" files included in the repository.
    In a directory containing these files, run the command:
@@ -164,7 +165,7 @@ python3 scripts/functional.py \
 
 ### Running a Performance Trial
 
-To run a trial for the performance evaluation (RQ3 and R4 in the manuscript), for a particular taint tracking system
+To run a trial for the performance evaluation (RQ3 and R4 in the paper), for a particular taint tracking system
 on a particular benchmark:
 
 ```shell
@@ -207,7 +208,7 @@ The format of this file is similar to that of the data file "performance.csv" as
 "trial_id" column.
 
 We advise against running the "tradebeans" or "tradesoap" benchmarks with Phosphor with a large timeout.
-Deviations from the benchmarks' normal behavior introduced by Phosphor cause these benchmarks to loop
+Deviations from these benchmarks' normal behavior introduced by Phosphor cause the benchmarks to loop
 infinitely producing errors which are recorded to a log file.
 The size of this log file grows to be rather large for larger timeouts.
 
@@ -241,6 +242,8 @@ python3 scripts/performance.py \
 
 After one or more trials have been completed, you can create a report
 summarizing the results of those trials.
+Note that you must have results for the baseline ("none") and Galette for any performance trials for this to work
+properly.
 First, create an input directory containing the results of the trials to be included in the report.
 This input directory should contain one subdirectory for each trial to be included in the report.
 Each of these subdirectories should contain the "data.csv" and "status.json" output files for a
