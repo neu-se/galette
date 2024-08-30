@@ -44,7 +44,7 @@ def process_output(output_dir):
 
 
 def create_driver_command(resources_dir, settings_file, report_file, tool, version):
-    jdk = os.path.join(resources_dir, 'jdk', version)
+    jdk = os.path.join(resources_dir, 'jdk', 'temurin', version)
     download_jdk.download(jdk, False, version)
     # Get a JDK for the driver process
     tool_jdk = create_tool_jdk(resources_dir, tool, version, settings_file)
