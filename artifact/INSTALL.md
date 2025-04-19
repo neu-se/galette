@@ -5,7 +5,7 @@ To set up this artifact, perform the following steps:
    Directions for installing Docker Engine are available on
    the [Docker website](https://docs.docker.com/engine/install/).
 2. Download the archived Docker image "galette-artifact-image.tgz" from the repository:
-   https://doi.org/10.6084/m9.figshare.26880619.v1.
+   https://doi.org/10.6084/m9.figshare.26880619.v2.
    On Linux, this image can be created using the "Dockerfile", "galette-main.zip",
    and "dacapo-23.11-chopin-small.tar" files included in the repository.
    In a directory containing these files, run the command:

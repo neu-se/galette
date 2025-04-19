@@ -1,9 +1,7 @@
 # Artifact for "Dynamic Taint Tracking for Modern Java Virtual Machines"
 
-## Purpose
-
-This repository contains the artifact for the paper "Dynamic Taint Tracking for Modern Java Virtual
-Machines".
+The artifact for the paper "Dynamic Taint Tracking for Modern Java Virtual
+Machines" is available at https://doi.org/10.6084/m9.figshare.26880619.v2.
 This artifact includes the scripts needed to replicate the evaluation described in the paper,
 the source code for the Galette dynamic taint tracking system, and the raw experiment data analyzed in the paper.
 Due to the licensing for MirrorTaint, we were not able to include the materials necessary to
@@ -12,9 +10,17 @@ The purpose of these materials is to facilitate future research into program ana
 and to allow researchers to independently obtain the empirical results reported in the paper
 "Dynamic Taint Tracking for Modern Java Virtual Machines".
 
+## Source code
+
+The artifact includes an archive "galette-main.zip" which contains the source code, build files, documentation,
+tests, scripts for the Galette dynamic taint tracking system.
+These files have been added to a docker image which will be used to create the docker container used to run
+the commands described in this file.
+Creation of this container is described in the included file "INSTALL.md".
+
 ## Data
 
-This repository includes the raw experiment data for the results presented in
+The artifact includes the raw experiment data for the results presented in
 "Dynamic Taint Tracking for Modern Java Virtual Machines"
 The included data files are described below.
 
@@ -92,21 +98,12 @@ kilobytes on iteration "7" of trial "533" on the benchmark "jme".
 
 ## Setup
 
-1. Install Docker Engine version 23.0.0+.
-   Directions for installing Docker Engine are available on
-   the [Docker website](https://docs.docker.com/engine/install/).
-2. Download the archived Docker image "galette-artifact-image.tgz" from the repository:
-   https://doi.org/10.6084/m9.figshare.26880619.v1.
-   On Linux, this image can be created using the "Dockerfile", "galette-main.zip",
-   and "dacapo-23.11-chopin-small.tar" files included in the repository.
-   In a directory containing these files, run the command:
-   `docker build -t galette-artifact . && docker save galette-artifact | gzip > galette-artifact-image.tgz`.
-3. Load the Docker image by running: `docker load -i galette-artifact-image.tgz`.
-4. Start an interactive Docker container: `docker run -it -p 8080:80 galette-artifact bash`
+The included file "INSTALL.md" describes how to set up the artifact.
 
 ## Usage
 
-The following directions assume that you have started a docker container according to the directions provided above.
+The following directions assume that you have started a docker container according to the directions provided in "
+INSTALL.md".
 All commands are run from the "home" directory of that docker container.
 
 ### Running a Functional Trial
