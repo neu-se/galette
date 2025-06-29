@@ -147,7 +147,7 @@ If you built Galette according to instructions in this manual, this will be
 
 
 ## Interacting with Galette
-The [edu.neu.ccs.prl.galette.internal.runtime.Tainter](galette-agent/src/main/java/edu/neu/ccs/prl/galette/internal/runtime/Tainter.java)
+The [`edu.neu.ccs.prl.galette.internal.runtime.Tainter`](galette-agent/src/main/java/edu/neu/ccs/prl/galette/internal/runtime/Tainter.java)
 class provides methods that can be used to associate taint tags with values and to access the taint tag associated with a value.
 
 To associate a taint tag with a value, start by creating an instance of 
