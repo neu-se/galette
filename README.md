@@ -101,7 +101,6 @@ Where:
 
 ## Running Your Application with Galette
 Once you have created an instrumented Java installation, you can use Galette to track information flows in any Java application.
-
 All Java applications are run by invoking the `java` executable.
 This invocation comes in two forms.
 
