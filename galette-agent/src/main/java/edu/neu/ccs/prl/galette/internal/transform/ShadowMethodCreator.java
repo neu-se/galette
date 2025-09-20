@@ -60,7 +60,10 @@ public final class ShadowMethodCreator {
     }
 
     private MethodNode createShadow(MethodNode mn) {
-        int shadowAccess = (mn.access & ~Opcodes.ACC_NATIVE) | Opcodes.ACC_SYNTHETIC;
+        // Start with the original method's access flags
+        // then, clear the ACC_NATIVE and ACC_VARARGS flags
+        // and set ACC_SYNTHETIC flag
+        int shadowAccess = (mn.access & ~Opcodes.ACC_NATIVE & ~Opcodes.ACC_VARARGS) | Opcodes.ACC_SYNTHETIC;
         MethodNode shadow = new MethodNode(
                 GaletteTransformer.ASM_VERSION,
                 shadowAccess,
