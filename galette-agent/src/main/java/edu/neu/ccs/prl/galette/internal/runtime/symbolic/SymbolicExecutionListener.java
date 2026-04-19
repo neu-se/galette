@@ -247,4 +247,107 @@ public interface SymbolicExecutionListener {
     default Tag onArrayStore(int opcode, Object array, int index, Tag arrayTag, Tag indexTag, Tag valueTag) {
         return valueTag;
     }
+
+    // ---------- String methods ----------
+    //
+    // Fires from masks on java.lang.String methods. Each callback receives
+    // the concrete result, the operands, their tags, and optionally the
+    // per-character tags of the receiver/argument (via {@code receiverCharTags}
+    // / {@code argCharTags}). The returned tag becomes the tag attached to
+    // the method's return value. Per-char tags are null when the receiver
+    // has no per-char symbolic content (i.e., fully concrete String).
+
+    /**
+     * Invoked for {@code boolean String.equals(Object)}.
+     */
+    default Tag onStringEquals(
+            boolean concreteResult,
+            String receiver,
+            Object other,
+            Tag receiverTag,
+            Tag otherTag,
+            Tag[] receiverCharTags,
+            Tag[] otherCharTags) {
+        return Tag.union(receiverTag, otherTag);
+    }
+
+    /**
+     * Invoked for {@code boolean String.startsWith(String)} /
+     * {@code boolean String.startsWith(String, int)}.
+     * {@code offset} is 0 for the no-offset overload.
+     */
+    default Tag onStringStartsWith(
+            boolean concreteResult,
+            String receiver,
+            String prefix,
+            int offset,
+            Tag receiverTag,
+            Tag prefixTag,
+            Tag offsetTag,
+            Tag[] receiverCharTags,
+            Tag[] prefixCharTags) {
+        return Tag.union(Tag.union(receiverTag, prefixTag), offsetTag);
+    }
+
+    /**
+     * Invoked for {@code boolean String.endsWith(String)}.
+     */
+    default Tag onStringEndsWith(
+            boolean concreteResult,
+            String receiver,
+            String suffix,
+            Tag receiverTag,
+            Tag suffixTag,
+            Tag[] receiverCharTags,
+            Tag[] suffixCharTags) {
+        return Tag.union(receiverTag, suffixTag);
+    }
+
+    /**
+     * Invoked for {@code boolean String.contains(CharSequence)}.
+     */
+    default Tag onStringContains(
+            boolean concreteResult,
+            String receiver,
+            CharSequence seq,
+            Tag receiverTag,
+            Tag seqTag,
+            Tag[] receiverCharTags) {
+        return Tag.union(receiverTag, seqTag);
+    }
+
+    /**
+     * Invoked for {@code int String.indexOf(String)}.
+     */
+    default Tag onStringIndexOf(
+            int concreteResult,
+            String receiver,
+            String needle,
+            Tag receiverTag,
+            Tag needleTag,
+            Tag[] receiverCharTags,
+            Tag[] needleCharTags) {
+        return Tag.union(receiverTag, needleTag);
+    }
+
+    /**
+     * Invoked for {@code int String.length()}.
+     */
+    default Tag onStringLength(int concreteResult, String receiver, Tag receiverTag, Tag[] receiverCharTags) {
+        return receiverTag;
+    }
+
+    /**
+     * Invoked for {@code char String.charAt(int)}. Returns the tag to
+     * attach to the returned char. Default: if per-char tags exist and
+     * the index is concrete, returns the specific char's tag; otherwise
+     * unions the receiver + index tags.
+     */
+    default Tag onStringCharAt(
+            char concreteResult, String receiver, int index, Tag receiverTag, Tag indexTag, Tag[] receiverCharTags) {
+        if (receiverCharTags != null && Tag.isEmpty(indexTag) && index >= 0 && index < receiverCharTags.length) {
+            return receiverCharTags[index];
+        }
+        return Tag.union(receiverTag, indexTag);
+    }
 }

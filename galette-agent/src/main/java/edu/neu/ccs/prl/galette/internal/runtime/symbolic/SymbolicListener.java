@@ -345,4 +345,166 @@ public final class SymbolicListener {
         }
         return valueTag;
     }
+
+    // ---------- String ops ----------
+    //
+    // Called from @Mask methods in StringSymbolicMasks. Not via @InvokedViaHandle —
+    // masks resolve us by reflective MethodRecord lookup during patching.
+
+    public static Tag onStringEquals(
+            boolean concreteResult,
+            String receiver,
+            Object other,
+            Tag receiverTag,
+            Tag otherTag,
+            Tag[] receiverCharTags,
+            Tag[] otherCharTags) {
+        SymbolicExecutionListener l = listener;
+        boolean anySymbolic = !Tag.isEmpty(receiverTag)
+                || !Tag.isEmpty(otherTag)
+                || hasAnyTag(receiverCharTags)
+                || hasAnyTag(otherCharTags);
+        if (l != null && anySymbolic) {
+            try {
+                return l.onStringEquals(
+                        concreteResult, receiver, other, receiverTag, otherTag, receiverCharTags, otherCharTags);
+            } catch (Throwable ignored) {
+            }
+        }
+        return Tag.union(receiverTag, otherTag);
+    }
+
+    public static Tag onStringStartsWith(
+            boolean concreteResult,
+            String receiver,
+            String prefix,
+            int offset,
+            Tag receiverTag,
+            Tag prefixTag,
+            Tag offsetTag,
+            Tag[] receiverCharTags,
+            Tag[] prefixCharTags) {
+        SymbolicExecutionListener l = listener;
+        boolean anySymbolic = !Tag.isEmpty(receiverTag)
+                || !Tag.isEmpty(prefixTag)
+                || !Tag.isEmpty(offsetTag)
+                || hasAnyTag(receiverCharTags)
+                || hasAnyTag(prefixCharTags);
+        if (l != null && anySymbolic) {
+            try {
+                return l.onStringStartsWith(
+                        concreteResult,
+                        receiver,
+                        prefix,
+                        offset,
+                        receiverTag,
+                        prefixTag,
+                        offsetTag,
+                        receiverCharTags,
+                        prefixCharTags);
+            } catch (Throwable ignored) {
+            }
+        }
+        return Tag.union(Tag.union(receiverTag, prefixTag), offsetTag);
+    }
+
+    public static Tag onStringEndsWith(
+            boolean concreteResult,
+            String receiver,
+            String suffix,
+            Tag receiverTag,
+            Tag suffixTag,
+            Tag[] receiverCharTags,
+            Tag[] suffixCharTags) {
+        SymbolicExecutionListener l = listener;
+        boolean anySymbolic = !Tag.isEmpty(receiverTag)
+                || !Tag.isEmpty(suffixTag)
+                || hasAnyTag(receiverCharTags)
+                || hasAnyTag(suffixCharTags);
+        if (l != null && anySymbolic) {
+            try {
+                return l.onStringEndsWith(
+                        concreteResult, receiver, suffix, receiverTag, suffixTag, receiverCharTags, suffixCharTags);
+            } catch (Throwable ignored) {
+            }
+        }
+        return Tag.union(receiverTag, suffixTag);
+    }
+
+    public static Tag onStringContains(
+            boolean concreteResult,
+            String receiver,
+            CharSequence seq,
+            Tag receiverTag,
+            Tag seqTag,
+            Tag[] receiverCharTags) {
+        SymbolicExecutionListener l = listener;
+        boolean anySymbolic = !Tag.isEmpty(receiverTag) || !Tag.isEmpty(seqTag) || hasAnyTag(receiverCharTags);
+        if (l != null && anySymbolic) {
+            try {
+                return l.onStringContains(concreteResult, receiver, seq, receiverTag, seqTag, receiverCharTags);
+            } catch (Throwable ignored) {
+            }
+        }
+        return Tag.union(receiverTag, seqTag);
+    }
+
+    public static Tag onStringIndexOf(
+            int concreteResult,
+            String receiver,
+            String needle,
+            Tag receiverTag,
+            Tag needleTag,
+            Tag[] receiverCharTags,
+            Tag[] needleCharTags) {
+        SymbolicExecutionListener l = listener;
+        boolean anySymbolic = !Tag.isEmpty(receiverTag)
+                || !Tag.isEmpty(needleTag)
+                || hasAnyTag(receiverCharTags)
+                || hasAnyTag(needleCharTags);
+        if (l != null && anySymbolic) {
+            try {
+                return l.onStringIndexOf(
+                        concreteResult, receiver, needle, receiverTag, needleTag, receiverCharTags, needleCharTags);
+            } catch (Throwable ignored) {
+            }
+        }
+        return Tag.union(receiverTag, needleTag);
+    }
+
+    public static Tag onStringLength(int concreteResult, String receiver, Tag receiverTag, Tag[] receiverCharTags) {
+        SymbolicExecutionListener l = listener;
+        boolean anySymbolic = !Tag.isEmpty(receiverTag) || hasAnyTag(receiverCharTags);
+        if (l != null && anySymbolic) {
+            try {
+                return l.onStringLength(concreteResult, receiver, receiverTag, receiverCharTags);
+            } catch (Throwable ignored) {
+            }
+        }
+        return receiverTag;
+    }
+
+    public static Tag onStringCharAt(
+            char concreteResult, String receiver, int index, Tag receiverTag, Tag indexTag, Tag[] receiverCharTags) {
+        SymbolicExecutionListener l = listener;
+        boolean anySymbolic = !Tag.isEmpty(receiverTag) || !Tag.isEmpty(indexTag) || hasAnyTag(receiverCharTags);
+        if (l != null && anySymbolic) {
+            try {
+                return l.onStringCharAt(concreteResult, receiver, index, receiverTag, indexTag, receiverCharTags);
+            } catch (Throwable ignored) {
+            }
+        }
+        if (receiverCharTags != null && Tag.isEmpty(indexTag) && index >= 0 && index < receiverCharTags.length) {
+            return receiverCharTags[index];
+        }
+        return Tag.union(receiverTag, indexTag);
+    }
+
+    private static boolean hasAnyTag(Tag[] tags) {
+        if (tags == null) return false;
+        for (Tag t : tags) {
+            if (!Tag.isEmpty(t)) return true;
+        }
+        return false;
+    }
 }
