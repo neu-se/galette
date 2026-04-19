@@ -650,11 +650,15 @@ class TagPropagator extends MethodVisitor {
 
     @Override
     public void visitIincInsn(int varIndex, int increment) {
-        // No data-flow propagation needed; emit symbolic hook.
+        // Emit the symbolic-listener hook. The listener returns the Tag
+        // that should replace the local's shadow tag after the increment;
+        // the default impl returns the input tag unchanged.
         super.visitLdcInsn(varIndex);
         super.visitLdcInsn(increment);
         shadowLocals.loadShadowVar(varIndex);
         Handle.SYMBOLIC_ON_IINC.accept(mv);
+        // stack: [newTag]
+        shadowLocals.storeShadowVar(varIndex);
         super.visitIincInsn(varIndex, increment);
     }
 

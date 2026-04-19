@@ -75,9 +75,13 @@ public interface SymbolicExecutionListener {
 
     /**
      * Invoked at {@code IINC}. {@code tag} is the tag of the local variable
-     * <em>before</em> the increment.
+     * <em>before</em> the increment; the returned {@link Tag} replaces it.
+     * Default implementation returns the input tag unchanged, so concrete
+     * increments do not clear the symbolic label.
      */
-    default void onIinc(int varIndex, int increment, Tag tag) {}
+    default Tag onIinc(int varIndex, int increment, Tag tag) {
+        return tag;
+    }
 
     // ---------- Arithmetic (result tags) ----------
 

@@ -102,14 +102,15 @@ public final class SymbolicListener {
     // ---------- Iinc ----------
 
     @InvokedViaHandle(handle = Handle.SYMBOLIC_ON_IINC)
-    public static void onIinc(int varIndex, int increment, Tag tag) {
+    public static Tag onIinc(int varIndex, int increment, Tag tag) {
         SymbolicExecutionListener l = listener;
         if (l != null && !Tag.isEmpty(tag)) {
             try {
-                l.onIinc(varIndex, increment, tag);
+                return l.onIinc(varIndex, increment, tag);
             } catch (Throwable ignored) {
             }
         }
+        return tag;
     }
 
     // ---------- Arithmetic ----------

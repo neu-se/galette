@@ -377,6 +377,23 @@ public class SymbolicListenerITCase {
         Assertions.assertEquals(0, listener.matching("iinc").size());
     }
 
+    @Test
+    void iincReturnedTagReplacesLocalsShadow() {
+        // A listener that returns a distinctive tag on IINC should cause
+        // subsequent reads of the local to observe that tag — not the
+        // pre-increment tag.
+        final Tag after = Tag.of("AFTER_IINC");
+        SymbolicListener.setListener(new SymbolicExecutionListener() {
+            @Override
+            public Tag onIinc(int varIndex, int increment, Tag tag) {
+                return after;
+            }
+        });
+        int i = Tainter.setTag(10, Tag.of("BEFORE_IINC"));
+        i += 3;
+        assertTagHasLabel(Tainter.getTag(i), "AFTER_IINC");
+    }
+
     // ---------- onIntArith ----------
 
     @Test
@@ -830,10 +847,11 @@ public class SymbolicListenerITCase {
         }
 
         @Override
-        public void onIinc(int varIndex, int increment, Tag tag) {
+        public Tag onIinc(int varIndex, int increment, Tag tag) {
             if (tagMatches(tag)) {
                 events.add(Event.iinc(varIndex, increment, tag));
             }
+            return tag;
         }
 
         @Override
