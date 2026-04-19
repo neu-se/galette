@@ -4,6 +4,7 @@ import edu.neu.ccs.prl.galette.internal.runtime.frame.FrameAdjuster;
 import edu.neu.ccs.prl.galette.internal.runtime.frame.IndirectTagFrameStore;
 import edu.neu.ccs.prl.galette.internal.runtime.frame.SpareFrameStore;
 import edu.neu.ccs.prl.galette.internal.runtime.mask.GetCallerHelper;
+import edu.neu.ccs.prl.galette.internal.runtime.symbolic.SymbolicListener;
 import edu.neu.ccs.prl.galette.internal.transform.HandleRegistry;
 import edu.neu.ccs.prl.galette.internal.transform.MaskRegistry;
 import edu.neu.ccs.prl.galette.internal.transform.MethodRecord;
@@ -68,7 +69,32 @@ public enum Handle {
     BOX_DOUBLE(PrimitiveBoxer.class),
     BOX_FLOAT(PrimitiveBoxer.class),
     GET_CALLER_HELPER(GetCallerHelper.class),
-    SPARE_FRAME_SET(SpareFrameStore.class);
+    SPARE_FRAME_SET(SpareFrameStore.class),
+    SYMBOLIC_ON_INT_BRANCH(SymbolicListener.class),
+    SYMBOLIC_ON_INT_CMP_BRANCH(SymbolicListener.class),
+    SYMBOLIC_ON_REF_BRANCH(SymbolicListener.class),
+    SYMBOLIC_ON_REF_CMP_BRANCH(SymbolicListener.class),
+    SYMBOLIC_ON_TABLE_SWITCH(SymbolicListener.class),
+    SYMBOLIC_ON_LOOKUP_SWITCH(SymbolicListener.class),
+    SYMBOLIC_ON_IINC(SymbolicListener.class),
+    SYMBOLIC_ON_INT_ARITH(SymbolicListener.class),
+    SYMBOLIC_ON_INT_UNARY(SymbolicListener.class),
+    SYMBOLIC_ON_FLOAT_ARITH(SymbolicListener.class),
+    SYMBOLIC_ON_FLOAT_UNARY(SymbolicListener.class),
+    SYMBOLIC_ON_CAT1_CONVERT(SymbolicListener.class),
+    SYMBOLIC_ON_LONG_ARITH(SymbolicListener.class),
+    SYMBOLIC_ON_LONG_SHIFT(SymbolicListener.class),
+    SYMBOLIC_ON_LONG_CMP(SymbolicListener.class),
+    SYMBOLIC_ON_LONG_UNARY(SymbolicListener.class),
+    SYMBOLIC_ON_DOUBLE_ARITH(SymbolicListener.class),
+    SYMBOLIC_ON_DOUBLE_CMP(SymbolicListener.class),
+    SYMBOLIC_ON_DOUBLE_UNARY(SymbolicListener.class),
+    SYMBOLIC_ON_INT_WIDEN(SymbolicListener.class),
+    SYMBOLIC_ON_FLOAT_WIDEN(SymbolicListener.class),
+    SYMBOLIC_ON_LONG_CONVERT(SymbolicListener.class),
+    SYMBOLIC_ON_DOUBLE_CONVERT(SymbolicListener.class),
+    SYMBOLIC_ON_ARRAY_LOAD(SymbolicListener.class),
+    SYMBOLIC_ON_ARRAY_STORE(SymbolicListener.class);
 
     private final Class<?> owner;
 

@@ -56,66 +56,44 @@ class TagPropagator extends MethodVisitor {
             case BALOAD:
             case CALOAD:
             case SALOAD:
-                // ..., arrayref, index -> ..., value
-                super.visitInsn(Opcodes.DUP2);
-                // arrayref, index, arrayref, index
-                shadowLocals.peek(1);
-                shadowLocals.peek(0);
-                // arrayref, index, arrayref, index, arrayref-tag, index-tag
-                Handle.ARRAY_TAG_STORE_GET_TAG.accept(mv);
-                // arrayref, index, value-tag
+                // ..., arrayref, index -> ..., value (cat-1 element)
+                emitArrayLoadHook(opcode);
                 shadowLocals.pop(2);
                 shadowLocals.push();
                 break;
             case LALOAD:
             case DALOAD:
-                // ..., arrayref, index -> ..., value, top
-                super.visitInsn(Opcodes.DUP2);
-                // arrayref, index, arrayref, index
-                shadowLocals.peek(1);
-                shadowLocals.peek(0);
-                // arrayref, index, arrayref, index, arrayref-tag, index-tag
-                Handle.ARRAY_TAG_STORE_GET_TAG.accept(mv);
-                // arrayref, index, value-tag
+                // ..., arrayref, index -> ..., value, top (cat-2 element)
+                emitArrayLoadHook(opcode);
                 shadowLocals.pop(2);
                 shadowLocals.pushWide();
                 break;
             case IASTORE:
-            case FASTORE:
-            case AASTORE:
             case BASTORE:
             case CASTORE:
             case SASTORE:
-                // ..., arrayref, index, value -> ...
-                super.visitInsn(Opcodes.DUP_X2);
-                // value, arrayref, index, value
-                super.visitInsn(Opcodes.POP);
-                // value, arrayref, index
-                super.visitInsn(Opcodes.DUP2_X1);
-                // arrayref, index, value, arrayref, index
-                shadowLocals.peek(2);
-                shadowLocals.peek(1);
-                shadowLocals.peek(0);
-                // arrayref, index, value, arrayref, index, arrayref-tag, index-tag, value-tag
-                Handle.ARRAY_TAG_STORE_SET_TAG.accept(mv);
-                // arrayref, index, value
+                // ..., arrayref, index, value -> ... (int-typed cat-1 element)
+                emitArrayStoreHook(opcode, Opcodes.ISTORE, Opcodes.ILOAD, false);
+                shadowLocals.pop(3);
+                break;
+            case FASTORE:
+                // ..., arrayref, index, value -> ... (float cat-1 element)
+                emitArrayStoreHook(opcode, Opcodes.FSTORE, Opcodes.FLOAD, false);
+                shadowLocals.pop(3);
+                break;
+            case AASTORE:
+                // ..., arrayref, index, value -> ... (ref cat-1 element)
+                emitArrayStoreHook(opcode, Opcodes.ASTORE, Opcodes.ALOAD, false);
                 shadowLocals.pop(3);
                 break;
             case LASTORE:
+                // ..., arrayref, index, value, top -> ... (long cat-2 element)
+                emitArrayStoreHook(opcode, Opcodes.LSTORE, Opcodes.LLOAD, true);
+                shadowLocals.pop(4);
+                break;
             case DASTORE:
-                // ..., arrayref, index, value, top -> ...
-                super.visitInsn(Opcodes.DUP2_X2);
-                // value, top, arrayref, index, value, top
-                super.visitInsn(Opcodes.POP2);
-                // value, top, arrayref, index
-                super.visitInsn(Opcodes.DUP2_X2);
-                // arrayref, index, value, top, arrayref, index
-                shadowLocals.peek(3);
-                shadowLocals.peek(2);
-                shadowLocals.peek(1);
-                // arrayref, index, value, top, arrayref, index, arrayref-tag, index-tag, value-tag
-                Handle.ARRAY_TAG_STORE_SET_TAG.accept(mv);
-                // arrayref, index, value, top
+                // ..., arrayref, index, value, top -> ... (double cat-2 element)
+                emitArrayStoreHook(opcode, Opcodes.DSTORE, Opcodes.DLOAD, true);
                 shadowLocals.pop(4);
                 break;
             case Opcodes.POP:
@@ -155,48 +133,53 @@ class TagPropagator extends MethodVisitor {
                 shadowLocals.performOperation(opcode, 2, 2);
                 break;
             case IADD:
-            case FADD:
             case ISUB:
-            case FSUB:
             case IMUL:
-            case FMUL:
             case IDIV:
-            case FDIV:
             case IREM:
-            case FREM:
             case ISHL:
             case ISHR:
             case IUSHR:
             case IAND:
             case IOR:
             case IXOR:
+                // ..., value1, value2 -> ..., result
+                emitIntArithHook(opcode);
+                shadowLocals.pop(2);
+                shadowLocals.push();
+                break;
+            case FADD:
+            case FSUB:
+            case FMUL:
+            case FDIV:
+            case FREM:
             case FCMPL:
             case FCMPG:
                 // ..., value1, value2 -> ..., result
-                shadowLocals.peek(1);
-                shadowLocals.peek(0);
-                // ..., value1, value2, tag1, tag2
-                Handle.TAG_UNION.accept(mv);
+                emitFloatArithHook(opcode);
                 shadowLocals.pop(2);
                 shadowLocals.push();
                 break;
             case LADD:
-            case DADD:
             case LSUB:
-            case DSUB:
             case LMUL:
-            case DMUL:
             case LDIV:
-            case DDIV:
             case LREM:
-            case DREM:
             case LAND:
             case LOR:
             case LXOR:
                 // ..., value1, top, value2, top -> ..., result, top
-                shadowLocals.peek(3);
-                shadowLocals.peek(1);
-                Handle.TAG_UNION.accept(mv);
+                emitLongArithHook(opcode);
+                shadowLocals.pop(4);
+                shadowLocals.pushWide();
+                break;
+            case DADD:
+            case DSUB:
+            case DMUL:
+            case DDIV:
+            case DREM:
+                // ..., value1, top, value2, top -> ..., result, top
+                emitDoubleArithHook(opcode);
                 shadowLocals.pop(4);
                 shadowLocals.pushWide();
                 break;
@@ -204,54 +187,95 @@ class TagPropagator extends MethodVisitor {
             case LUSHR:
             case LSHR:
                 // ..., value1, top, value2 -> ..., result, top
-                shadowLocals.peek(2);
-                shadowLocals.peek(0);
-                Handle.TAG_UNION.accept(mv);
+                emitLongShiftHook(opcode);
                 shadowLocals.pop(3);
                 shadowLocals.pushWide();
                 break;
             case LCMP:
+                // ..., value1, top, value2, top -> ..., result
+                emitLongCmpHook();
+                shadowLocals.pop(4);
+                shadowLocals.push();
+                break;
             case DCMPL:
             case DCMPG:
                 // ..., value1, top, value2, top -> ..., result
-                shadowLocals.peek(3);
-                shadowLocals.peek(1);
-                Handle.TAG_UNION.accept(mv);
+                emitDoubleCmpHook(opcode);
                 shadowLocals.pop(4);
                 shadowLocals.push();
                 break;
             case Opcodes.INEG:
-            case Opcodes.FNEG:
-            case Opcodes.I2F:
-            case Opcodes.F2I:
             case Opcodes.I2B:
             case Opcodes.I2C:
             case Opcodes.I2S:
                 // ..., value -> ..., result
-                // No need to do anything for data flow propagation
+                emitIntUnaryHook(opcode);
+                shadowLocals.pop(1);
+                shadowLocals.push();
+                break;
+            case Opcodes.FNEG:
+                // ..., value -> ..., result
+                emitFloatUnaryHook(opcode);
+                shadowLocals.pop(1);
+                shadowLocals.push();
+                break;
+            case Opcodes.I2F:
+            case Opcodes.F2I:
+                // ..., value -> ..., result (cat-1 -> cat-1 conversion)
+                emitCat1ConvertHook(opcode);
+                shadowLocals.pop(1);
+                shadowLocals.push();
                 break;
             case Opcodes.LNEG:
-            case Opcodes.DNEG:
-            case Opcodes.L2D:
-            case Opcodes.D2L:
                 // ..., value, top -> ..., result, top
-                // No need to do anything for data flow propagation
+                emitLongUnaryHook(opcode);
+                shadowLocals.pop(2);
+                shadowLocals.pushWide();
+                break;
+            case Opcodes.DNEG:
+                // ..., value, top -> ..., result, top
+                emitDoubleUnaryHook(opcode);
+                shadowLocals.pop(2);
+                shadowLocals.pushWide();
+                break;
+            case Opcodes.L2D:
+                // ..., value, top -> ..., result, top (cat-2 -> cat-2)
+                emitLongConvertHook(opcode);
+                shadowLocals.pop(2);
+                shadowLocals.pushWide();
+                break;
+            case Opcodes.D2L:
+                emitDoubleConvertHook(opcode);
+                shadowLocals.pop(2);
+                shadowLocals.pushWide();
                 break;
             case Opcodes.I2L:
             case Opcodes.I2D:
+                // ..., value -> ..., result, top (cat-1 -> cat-2)
+                emitIntWidenHook(opcode);
+                shadowLocals.pop(1);
+                shadowLocals.pushWide();
+                break;
             case Opcodes.F2L:
             case Opcodes.F2D:
-                // ..., value -> ..., result, top
-                shadowLocals.peek(0);
+                // ..., value -> ..., result, top (cat-1 float -> cat-2)
+                emitFloatWidenHook(opcode);
                 shadowLocals.pop(1);
                 shadowLocals.pushWide();
                 break;
             case Opcodes.L2I:
             case Opcodes.L2F:
+                // ..., value, top -> ..., result (cat-2 -> cat-1)
+                emitLongConvertHook(opcode);
+                shadowLocals.pop(2);
+                shadowLocals.push();
+                break;
             case Opcodes.D2I:
             case Opcodes.D2F:
-                // ..., value, top -> ..., result
-                shadowLocals.pop(1);
+                // ..., value, top -> ..., result (cat-2 -> cat-1)
+                emitDoubleConvertHook(opcode);
+                shadowLocals.pop(2);
+                shadowLocals.push();
                 break;
             case Opcodes.IRETURN:
             case Opcodes.FRETURN:
@@ -571,9 +595,14 @@ class TagPropagator extends MethodVisitor {
             case IFGE:
             case IFGT:
             case IFLE:
+                // ..., value -> ...
+                emitIntBranchHook(opcode);
+                shadowLocals.pop(1);
+                break;
             case IFNULL:
             case IFNONNULL:
                 // ..., value -> ...
+                emitRefBranchHook(opcode);
                 shadowLocals.pop(1);
                 break;
             case IF_ICMPEQ:
@@ -582,9 +611,14 @@ class TagPropagator extends MethodVisitor {
             case IF_ICMPGE:
             case IF_ICMPGT:
             case IF_ICMPLE:
+                // ..., value1, value2 -> ...
+                emitIntCmpBranchHook(opcode, false);
+                shadowLocals.pop(2);
+                break;
             case IF_ACMPEQ:
             case IF_ACMPNE:
                 // ..., value1, value2 -> ...
+                emitIntCmpBranchHook(opcode, true);
                 shadowLocals.pop(2);
                 break;
             case GOTO:
@@ -616,13 +650,18 @@ class TagPropagator extends MethodVisitor {
 
     @Override
     public void visitIincInsn(int varIndex, int increment) {
-        // No need to do anything for data flow propagation
+        // No data-flow propagation needed; emit symbolic hook.
+        super.visitLdcInsn(varIndex);
+        super.visitLdcInsn(increment);
+        shadowLocals.loadShadowVar(varIndex);
+        Handle.SYMBOLIC_ON_IINC.accept(mv);
         super.visitIincInsn(varIndex, increment);
     }
 
     @Override
     public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
         // ..., index -> ...
+        emitTableSwitchHook(min, max);
         shadowLocals.pop(1);
         super.visitTableSwitchInsn(min, max, dflt, labels);
     }
@@ -630,6 +669,7 @@ class TagPropagator extends MethodVisitor {
     @Override
     public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
         // ..., key -> ...
+        emitLookupSwitchHook(keys);
         shadowLocals.pop(1);
         super.visitLookupSwitchInsn(dflt, keys, labels);
     }
@@ -728,6 +768,460 @@ class TagPropagator extends MethodVisitor {
     private static boolean isMirroredField(String owner, String name, boolean isStatic) {
         // Cannot mirror tags for Reference
         return !ShadowFieldAdder.hasShadowFields(owner) && !owner.equals("java/lang/ref/Reference");
+    }
+
+    /**
+     * Emits a call to {@code SymbolicListener.onIntBranch(opcode, value, tag)}
+     * immediately before a single-operand integer conditional jump. Does not
+     * alter the runtime stack: the original {@code value} is left on top for
+     * the subsequent {@code IFxx} instruction to consume.
+     */
+    private void emitIntBranchHook(int opcode) {
+        // Start: [..., value]
+        super.visitInsn(Opcodes.DUP);
+        // [..., value, value]
+        super.visitLdcInsn(opcode);
+        // [..., value, value, opcode]
+        super.visitInsn(Opcodes.SWAP);
+        // [..., value, opcode, value]
+        shadowLocals.peek(0);
+        // [..., value, opcode, value, tag]
+        Handle.SYMBOLIC_ON_INT_BRANCH.accept(mv);
+        // [..., value]
+    }
+
+    /**
+     * Emits a call to {@code SymbolicListener.onRefBranch(opcode, value, tag)}
+     * immediately before {@code IFNULL} / {@code IFNONNULL}. Leaves the
+     * original reference on the stack for the subsequent jump.
+     */
+    private void emitRefBranchHook(int opcode) {
+        // Start: [..., ref]
+        super.visitInsn(Opcodes.DUP);
+        super.visitLdcInsn(opcode);
+        super.visitInsn(Opcodes.SWAP);
+        shadowLocals.peek(0);
+        Handle.SYMBOLIC_ON_REF_BRANCH.accept(mv);
+        // [..., ref]
+    }
+
+    /**
+     * Emits a call to {@code SymbolicListener.onIntCmpBranch} or
+     * {@code onRefCmpBranch}, depending on {@code refs}, before a two-operand
+     * conditional jump ({@code IF_ICMPxx} / {@code IF_ACMPxx}). Leaves both
+     * operands on the stack.
+     */
+    private void emitIntCmpBranchHook(int opcode, boolean refs) {
+        // Start: [..., value1, value2]
+        super.visitInsn(Opcodes.DUP2);
+        // [..., value1, value2, value1, value2]
+        super.visitLdcInsn(opcode);
+        // [..., value1, value2, value1, value2, opcode]
+        super.visitInsn(Opcodes.DUP_X2);
+        // [..., value1, value2, opcode, value1, value2, opcode]
+        super.visitInsn(Opcodes.POP);
+        // [..., value1, value2, opcode, value1, value2]
+        shadowLocals.peek(1);
+        shadowLocals.peek(0);
+        // [..., value1, value2, opcode, value1, value2, tag1, tag2]
+        if (refs) {
+            Handle.SYMBOLIC_ON_REF_CMP_BRANCH.accept(mv);
+        } else {
+            Handle.SYMBOLIC_ON_INT_CMP_BRANCH.accept(mv);
+        }
+        // [..., value1, value2]
+    }
+
+    /**
+     * Emits a call to {@code SymbolicListener.onTableSwitch(opcode, value, tag, min, max)}
+     * immediately before a {@code TABLESWITCH}. Leaves the original key on
+     * the stack.
+     */
+    private void emitTableSwitchHook(int min, int max) {
+        // Start: [..., value]
+        super.visitInsn(Opcodes.DUP);
+        // [..., value, value]
+        super.visitLdcInsn(Opcodes.TABLESWITCH);
+        super.visitInsn(Opcodes.SWAP);
+        // [..., value, opcode, value]
+        shadowLocals.peek(0);
+        // [..., value, opcode, value, tag]
+        super.visitLdcInsn(min);
+        super.visitLdcInsn(max);
+        // [..., value, opcode, value, tag, min, max]
+        Handle.SYMBOLIC_ON_TABLE_SWITCH.accept(mv);
+        // [..., value]
+    }
+
+    /**
+     * Emits a call to {@code SymbolicListener.onLookupSwitch(opcode, value, tag, keys)}
+     * immediately before a {@code LOOKUPSWITCH}. Builds the keys array at
+     * runtime and leaves the original key on the stack.
+     */
+    private void emitLookupSwitchHook(int[] keys) {
+        // Start: [..., value]
+        super.visitInsn(Opcodes.DUP);
+        // [..., value, value]
+        super.visitLdcInsn(Opcodes.LOOKUPSWITCH);
+        super.visitInsn(Opcodes.SWAP);
+        // [..., value, opcode, value]
+        shadowLocals.peek(0);
+        // [..., value, opcode, value, tag]
+        super.visitLdcInsn(keys.length);
+        super.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_INT);
+        // [..., value, opcode, value, tag, int[]]
+        for (int i = 0; i < keys.length; i++) {
+            super.visitInsn(Opcodes.DUP);
+            super.visitLdcInsn(i);
+            super.visitLdcInsn(keys[i]);
+            super.visitInsn(Opcodes.IASTORE);
+        }
+        Handle.SYMBOLIC_ON_LOOKUP_SWITCH.accept(mv);
+        // [..., value]
+    }
+
+    /**
+     * Emits a call to {@code SymbolicListener.onIntArith} in place of the
+     * default {@link Handle#TAG_UNION}. Leaves both operand values on the
+     * runtime stack (for the subsequent arithmetic opcode to consume) and
+     * leaves the listener-returned tag on top for {@code shadowLocals.push()}.
+     */
+    private void emitIntArithHook(int opcode) {
+        // Start: [..., value1, value2]
+        super.visitInsn(Opcodes.DUP2);
+        super.visitLdcInsn(opcode);
+        super.visitInsn(Opcodes.DUP_X2);
+        super.visitInsn(Opcodes.POP);
+        // [..., value1, value2, opcode, value1, value2]
+        shadowLocals.peek(1);
+        shadowLocals.peek(0);
+        // [..., value1, value2, opcode, value1, value2, tag1, tag2]
+        Handle.SYMBOLIC_ON_INT_ARITH.accept(mv);
+        // [..., value1, value2, result-tag]
+    }
+
+    /**
+     * Emits a call to {@code SymbolicListener.onIntUnary} replacing the
+     * default pass-through tag propagation. Leaves the value on the stack
+     * for the subsequent unary opcode to consume and the result tag on top.
+     */
+    private void emitIntUnaryHook(int opcode) {
+        // Start: [..., value]
+        super.visitInsn(Opcodes.DUP);
+        super.visitLdcInsn(opcode);
+        super.visitInsn(Opcodes.SWAP);
+        shadowLocals.peek(0);
+        // [..., value, opcode, value, tag]
+        Handle.SYMBOLIC_ON_INT_UNARY.accept(mv);
+        // [..., value, result-tag]
+    }
+
+    /**
+     * Emits a call to {@code SymbolicListener.onFloatArith}. Operands are
+     * two floats (cat-1 each). See {@link #emitIntArithHook} for the stack
+     * gymnastics rationale.
+     */
+    private void emitFloatArithHook(int opcode) {
+        // Start: [..., value1, value2]
+        super.visitInsn(Opcodes.DUP2);
+        super.visitLdcInsn(opcode);
+        super.visitInsn(Opcodes.DUP_X2);
+        super.visitInsn(Opcodes.POP);
+        // [..., value1, value2, opcode, value1, value2]
+        shadowLocals.peek(1);
+        shadowLocals.peek(0);
+        // [..., value1, value2, opcode, value1, value2, tag1, tag2]
+        Handle.SYMBOLIC_ON_FLOAT_ARITH.accept(mv);
+        // [..., value1, value2, result-tag]
+    }
+
+    /**
+     * Emits a call to {@code SymbolicListener.onFloatUnary} for {@code FNEG}.
+     */
+    private void emitFloatUnaryHook(int opcode) {
+        // Start: [..., value]
+        super.visitInsn(Opcodes.DUP);
+        super.visitLdcInsn(opcode);
+        super.visitInsn(Opcodes.SWAP);
+        shadowLocals.peek(0);
+        // [..., value, opcode, value, tag]
+        Handle.SYMBOLIC_ON_FLOAT_UNARY.accept(mv);
+        // [..., value, result-tag]
+    }
+
+    /**
+     * Emits a call to {@code SymbolicListener.onCat1Convert} for {@code I2F}
+     * / {@code F2I}. The value is not passed (conversion semantics are fully
+     * determined by the opcode). Leaves value + tag on the stack.
+     */
+    private void emitCat1ConvertHook(int opcode) {
+        // Start: [..., value]
+        super.visitLdcInsn(opcode);
+        // [..., value, opcode]
+        shadowLocals.peek(0);
+        // [..., value, opcode, tag]
+        Handle.SYMBOLIC_ON_CAT1_CONVERT.accept(mv);
+        // [..., value, result-tag]
+    }
+
+    // ---------- cat-2 arithmetic emits ----------
+
+    /**
+     * Emits a call to {@code SymbolicListener.onLongArith} for long binary ops.
+     * Values (cat-2) are shuffled through temp local slots so the listener
+     * receives both operand values and tags. Leaves the two longs on the
+     * stack for the subsequent arithmetic opcode to consume.
+     */
+    private void emitLongArithHook(int opcode) {
+        int v2slot = shadowLocals.tempSlot(0);
+        int v1slot = shadowLocals.tempSlot(2);
+        super.visitVarInsn(Opcodes.LSTORE, v2slot);
+        super.visitVarInsn(Opcodes.LSTORE, v1slot);
+        super.visitVarInsn(Opcodes.LLOAD, v1slot);
+        super.visitVarInsn(Opcodes.LLOAD, v2slot);
+        super.visitLdcInsn(opcode);
+        super.visitVarInsn(Opcodes.LLOAD, v1slot);
+        super.visitVarInsn(Opcodes.LLOAD, v2slot);
+        shadowLocals.peek(3);
+        shadowLocals.peek(1);
+        Handle.SYMBOLIC_ON_LONG_ARITH.accept(mv);
+        // [v1, v2, resultTag]
+    }
+
+    /** Emit for LSHL/LSHR/LUSHR: (long, int) -> long. */
+    private void emitLongShiftHook(int opcode) {
+        int v2slot = shadowLocals.tempSlot(0); // 1 slot for int shift amount
+        int v1slot = shadowLocals.tempSlot(1); // 2 slots for long value
+        super.visitVarInsn(Opcodes.ISTORE, v2slot);
+        super.visitVarInsn(Opcodes.LSTORE, v1slot);
+        super.visitVarInsn(Opcodes.LLOAD, v1slot);
+        super.visitVarInsn(Opcodes.ILOAD, v2slot);
+        super.visitLdcInsn(opcode);
+        super.visitVarInsn(Opcodes.LLOAD, v1slot);
+        super.visitVarInsn(Opcodes.ILOAD, v2slot);
+        shadowLocals.peek(2);
+        shadowLocals.peek(0);
+        Handle.SYMBOLIC_ON_LONG_SHIFT.accept(mv);
+        // [v1, v2, resultTag]
+    }
+
+    /** Emit for LCMP: (long, long) -> int. */
+    private void emitLongCmpHook() {
+        int v2slot = shadowLocals.tempSlot(0);
+        int v1slot = shadowLocals.tempSlot(2);
+        super.visitVarInsn(Opcodes.LSTORE, v2slot);
+        super.visitVarInsn(Opcodes.LSTORE, v1slot);
+        super.visitVarInsn(Opcodes.LLOAD, v1slot);
+        super.visitVarInsn(Opcodes.LLOAD, v2slot);
+        super.visitVarInsn(Opcodes.LLOAD, v1slot);
+        super.visitVarInsn(Opcodes.LLOAD, v2slot);
+        shadowLocals.peek(3);
+        shadowLocals.peek(1);
+        Handle.SYMBOLIC_ON_LONG_CMP.accept(mv);
+        // [v1, v2, resultTag]
+    }
+
+    /** Emit for LNEG: long -> long. */
+    private void emitLongUnaryHook(int opcode) {
+        int vslot = shadowLocals.tempSlot(0);
+        super.visitVarInsn(Opcodes.LSTORE, vslot);
+        super.visitVarInsn(Opcodes.LLOAD, vslot);
+        super.visitLdcInsn(opcode);
+        super.visitVarInsn(Opcodes.LLOAD, vslot);
+        shadowLocals.peek(1);
+        Handle.SYMBOLIC_ON_LONG_UNARY.accept(mv);
+        // [v, resultTag]
+    }
+
+    /** Emit for DADD/DSUB/DMUL/DDIV/DREM: (double, double) -> double. */
+    private void emitDoubleArithHook(int opcode) {
+        int v2slot = shadowLocals.tempSlot(0);
+        int v1slot = shadowLocals.tempSlot(2);
+        super.visitVarInsn(Opcodes.DSTORE, v2slot);
+        super.visitVarInsn(Opcodes.DSTORE, v1slot);
+        super.visitVarInsn(Opcodes.DLOAD, v1slot);
+        super.visitVarInsn(Opcodes.DLOAD, v2slot);
+        super.visitLdcInsn(opcode);
+        super.visitVarInsn(Opcodes.DLOAD, v1slot);
+        super.visitVarInsn(Opcodes.DLOAD, v2slot);
+        shadowLocals.peek(3);
+        shadowLocals.peek(1);
+        Handle.SYMBOLIC_ON_DOUBLE_ARITH.accept(mv);
+        // [v1, v2, resultTag]
+    }
+
+    /** Emit for DCMPL/DCMPG: (double, double) -> int. */
+    private void emitDoubleCmpHook(int opcode) {
+        int v2slot = shadowLocals.tempSlot(0);
+        int v1slot = shadowLocals.tempSlot(2);
+        super.visitVarInsn(Opcodes.DSTORE, v2slot);
+        super.visitVarInsn(Opcodes.DSTORE, v1slot);
+        super.visitVarInsn(Opcodes.DLOAD, v1slot);
+        super.visitVarInsn(Opcodes.DLOAD, v2slot);
+        super.visitLdcInsn(opcode);
+        super.visitVarInsn(Opcodes.DLOAD, v1slot);
+        super.visitVarInsn(Opcodes.DLOAD, v2slot);
+        shadowLocals.peek(3);
+        shadowLocals.peek(1);
+        Handle.SYMBOLIC_ON_DOUBLE_CMP.accept(mv);
+        // [v1, v2, resultTag]
+    }
+
+    /** Emit for DNEG. */
+    private void emitDoubleUnaryHook(int opcode) {
+        int vslot = shadowLocals.tempSlot(0);
+        super.visitVarInsn(Opcodes.DSTORE, vslot);
+        super.visitVarInsn(Opcodes.DLOAD, vslot);
+        super.visitLdcInsn(opcode);
+        super.visitVarInsn(Opcodes.DLOAD, vslot);
+        shadowLocals.peek(1);
+        Handle.SYMBOLIC_ON_DOUBLE_UNARY.accept(mv);
+        // [v, resultTag]
+    }
+
+    // ---------- size-changing conversions ----------
+
+    /** Emit for I2L / I2D: int -> cat-2. */
+    private void emitIntWidenHook(int opcode) {
+        // Start: [v_int]
+        super.visitInsn(Opcodes.DUP);
+        super.visitLdcInsn(opcode);
+        super.visitInsn(Opcodes.SWAP);
+        shadowLocals.peek(0);
+        Handle.SYMBOLIC_ON_INT_WIDEN.accept(mv);
+        // [v, resultTag]
+    }
+
+    /** Emit for F2L / F2D: float -> cat-2. */
+    private void emitFloatWidenHook(int opcode) {
+        super.visitInsn(Opcodes.DUP);
+        super.visitLdcInsn(opcode);
+        super.visitInsn(Opcodes.SWAP);
+        shadowLocals.peek(0);
+        Handle.SYMBOLIC_ON_FLOAT_WIDEN.accept(mv);
+        // [v, resultTag]
+    }
+
+    /** Emit for L2I / L2F / L2D. */
+    private void emitLongConvertHook(int opcode) {
+        int vslot = shadowLocals.tempSlot(0);
+        super.visitVarInsn(Opcodes.LSTORE, vslot);
+        super.visitVarInsn(Opcodes.LLOAD, vslot);
+        super.visitLdcInsn(opcode);
+        super.visitVarInsn(Opcodes.LLOAD, vslot);
+        shadowLocals.peek(1);
+        Handle.SYMBOLIC_ON_LONG_CONVERT.accept(mv);
+        // [v, resultTag]
+    }
+
+    /** Emit for D2I / D2F / D2L. */
+    private void emitDoubleConvertHook(int opcode) {
+        int vslot = shadowLocals.tempSlot(0);
+        super.visitVarInsn(Opcodes.DSTORE, vslot);
+        super.visitVarInsn(Opcodes.DLOAD, vslot);
+        super.visitLdcInsn(opcode);
+        super.visitVarInsn(Opcodes.DLOAD, vslot);
+        shadowLocals.peek(1);
+        Handle.SYMBOLIC_ON_DOUBLE_CONVERT.accept(mv);
+        // [v, resultTag]
+    }
+
+    // ---------- arrays ----------
+
+    /**
+     * Emit for array loads (IALOAD/FALOAD/AALOAD/BALOAD/CALOAD/SALOAD/LALOAD/DALOAD).
+     * Computes the element tag via {@code ARRAY_TAG_STORE_GET_TAG}, then passes
+     * (opcode, array, index, arrayTag, indexTag, elemTag) to
+     * {@code SymbolicListener.onArrayLoad} and stores the result as the new
+     * value tag. Leaves [array, index, resultTag] on the stack for the outer
+     * caller's {@code pop(2); push()/pushWide()} pattern and the subsequent
+     * load opcode.
+     */
+    private void emitArrayLoadHook(int opcode) {
+        int idxSlot = shadowLocals.tempSlot(0);
+        int arrSlot = shadowLocals.tempSlot(1);
+        int tagSlot = shadowLocals.tempSlot(2);
+        // start: [array, index]; shadow [..aT iT]
+        super.visitVarInsn(Opcodes.ISTORE, idxSlot);
+        super.visitVarInsn(Opcodes.ASTORE, arrSlot);
+        // Compute elemTag via ArrayTagStore
+        super.visitVarInsn(Opcodes.ALOAD, arrSlot);
+        super.visitVarInsn(Opcodes.ILOAD, idxSlot);
+        super.visitInsn(Opcodes.DUP2);
+        shadowLocals.peek(1);
+        shadowLocals.peek(0);
+        Handle.ARRAY_TAG_STORE_GET_TAG.accept(mv);
+        // [array, index, elemTag]
+        super.visitVarInsn(Opcodes.ASTORE, tagSlot);
+        super.visitInsn(Opcodes.POP2);
+        // Call listener
+        super.visitLdcInsn(opcode);
+        super.visitVarInsn(Opcodes.ALOAD, arrSlot);
+        super.visitVarInsn(Opcodes.ILOAD, idxSlot);
+        shadowLocals.peek(1);
+        shadowLocals.peek(0);
+        super.visitVarInsn(Opcodes.ALOAD, tagSlot);
+        Handle.SYMBOLIC_ON_ARRAY_LOAD.accept(mv);
+        // [resultTag]
+        super.visitVarInsn(Opcodes.ASTORE, tagSlot);
+        super.visitVarInsn(Opcodes.ALOAD, arrSlot);
+        super.visitVarInsn(Opcodes.ILOAD, idxSlot);
+        super.visitVarInsn(Opcodes.ALOAD, tagSlot);
+        // [array, index, resultTag]
+    }
+
+    /**
+     * Emit for array stores. Calls listener, uses its returned tag as the
+     * value tag passed to {@code ARRAY_TAG_STORE_SET_TAG}, then rebuilds
+     * [array, index, value] on the stack for the subsequent store opcode.
+     *
+     * @param opcode the array-store opcode
+     * @param valStoreOpc the local-variable store opcode matching value type
+     * @param valLoadOpc the matching load opcode
+     * @param wide true if the value is a cat-2 (long/double) value
+     */
+    private void emitArrayStoreHook(int opcode, int valStoreOpc, int valLoadOpc, boolean wide) {
+        int valSlot = shadowLocals.tempSlot(0);
+        int idxSlot = shadowLocals.tempSlot(wide ? 2 : 1);
+        int arrSlot = shadowLocals.tempSlot(wide ? 3 : 2);
+        int tagSlot = shadowLocals.tempSlot(wide ? 4 : 3);
+        // start: [array, index, value(s)]; shadow [aT, iT, vT(+null)]
+        super.visitVarInsn(valStoreOpc, valSlot);
+        super.visitVarInsn(Opcodes.ISTORE, idxSlot);
+        super.visitVarInsn(Opcodes.ASTORE, arrSlot);
+        // Call listener
+        super.visitLdcInsn(opcode);
+        super.visitVarInsn(Opcodes.ALOAD, arrSlot);
+        super.visitVarInsn(Opcodes.ILOAD, idxSlot);
+        if (wide) {
+            shadowLocals.peek(3);
+            shadowLocals.peek(2);
+            shadowLocals.peek(1);
+        } else {
+            shadowLocals.peek(2);
+            shadowLocals.peek(1);
+            shadowLocals.peek(0);
+        }
+        Handle.SYMBOLIC_ON_ARRAY_STORE.accept(mv);
+        // [newValueTag]
+        super.visitVarInsn(Opcodes.ASTORE, tagSlot);
+        // Mirror into ArrayTagStore
+        super.visitVarInsn(Opcodes.ALOAD, arrSlot);
+        super.visitVarInsn(Opcodes.ILOAD, idxSlot);
+        if (wide) {
+            shadowLocals.peek(3);
+            shadowLocals.peek(2);
+        } else {
+            shadowLocals.peek(2);
+            shadowLocals.peek(1);
+        }
+        super.visitVarInsn(Opcodes.ALOAD, tagSlot);
+        Handle.ARRAY_TAG_STORE_SET_TAG.accept(mv);
+        // Rebuild stack for the subsequent store opcode
+        super.visitVarInsn(Opcodes.ALOAD, arrSlot);
+        super.visitVarInsn(Opcodes.ILOAD, idxSlot);
+        super.visitVarInsn(valLoadOpc, valSlot);
+        // [array, index, value(s)]
     }
 
     static MethodVisitor newInstance(MethodVisitor mv, MethodNode original, boolean isShadow, String owner) {

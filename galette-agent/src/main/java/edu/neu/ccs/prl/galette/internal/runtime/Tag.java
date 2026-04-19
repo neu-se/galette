@@ -30,19 +30,23 @@ public final class Tag implements Serializable, TaggedObject {
     }
 
     public int size() {
-        return backingMap.size();
+        return backingMap == null ? 0 : backingMap.size();
     }
 
     public boolean isEmpty() {
-        return backingMap.isEmpty();
+        // backingMap may be null if this instance was allocated without
+        // running a constructor (e.g. via Unsafe.allocateInstance from
+        // MethodHandle internals). Treat such ghost Tags as empty rather
+        // than NPE on downstream inspection.
+        return backingMap == null || backingMap.isEmpty();
     }
 
     public boolean contains(Object element) {
-        return backingMap.containsKey(element);
+        return backingMap != null && backingMap.containsKey(element);
     }
 
     public Object[] getLabels() {
-        return backingMap.getKeys().toArray(new Object[backingMap.size()]);
+        return backingMap == null ? new Object[0] : backingMap.getKeys().toArray(new Object[backingMap.size()]);
     }
 
     @Override

@@ -220,6 +220,18 @@ class ShadowLocals extends MethodVisitor {
         super.visitVarInsn(Opcodes.ALOAD, getShadowStackIndex(n));
     }
 
+    /**
+     * Returns the index of a JVM local-variable slot that is never used by
+     * the shadow-stack or shadow-variable machinery. Intended for transient
+     * scratch use within a single emit helper; the caller must restore
+     * (i.e., reload) the value before control flow leaves the helper.
+     * {@code offset} lets a helper allocate disjoint contiguous slots —
+     * a long/double occupies {@code offset} and {@code offset + 1}.
+     */
+    public int tempSlot(int offset) {
+        return shadowStackStart + original.maxStack + offset;
+    }
+
     FrameManager getFrameManager() {
         return frameManager;
     }
