@@ -317,7 +317,19 @@ class TagPropagator extends MethodVisitor {
             case Opcodes.MONITORENTER:
             case Opcodes.MONITOREXIT:
                 // ..., objectref -> ...
-                shadowLocals.pop(0);
+                // The monitor opcode consumes one stack slot; the shadow
+                // stack must be popped in lock-step. Previously this used
+                // pop(0), which left a stale tag on the shadow stack after
+                // every synchronized block entry/exit. In methods that had
+                // array accesses after a monitor op (e.g.,
+                // java.lang.Shutdown.runHooks), the shadow-stack offset
+                // became one slot too deep, causing tempSlot() in
+                // emitArrayLoadHook to collide with the live shadow slot
+                // and silently overwrite a Tag reference with the int
+                // index. That corrupt Tag then flowed into
+                // SymbolicListener.onArrayLoad, where Tag.isEmpty() crashed
+                // the JVM dispatching a virtual call on a garbage receiver.
+                shadowLocals.pop(1);
                 break;
             default:
                 throw new IllegalArgumentException();
