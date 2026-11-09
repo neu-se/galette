@@ -66,8 +66,8 @@ public final class SymbolicOpcodes {
     public static final int F2L = 140;
     public static final int F2D = 141;
     public static final int D2I = 142;
-    public static final int D2F = 143;
-    public static final int D2L = 144;
+    public static final int D2L = 143;
+    public static final int D2F = 144;
     public static final int I2B = 145;
     public static final int I2C = 146;
     public static final int I2S = 147;
